@@ -1,0 +1,79 @@
+add_newline = true
+
+format = """
+$battery\
+$username\
+$time\
+$hostname\
+$kubernetes\
+$directory\
+$git_branch\
+$git_commit\
+$git_state\
+$git_metrics\
+$git_status\
+$hg_branch\
+$docker_context\
+$java\
+$julia\
+$nodejs\
+$python\
+$rlang\
+$conda\
+$memory_usage\
+$cmd_duration\
+$line_break\
+$jobs\
+$status\
+$shell\
+$character
+"""
+
+# [line_break]
+# disabled = true
+
+
+[[battery.display]]
+threshold = 20
+style = "bold red"
+
+[time]
+disabled = false
+use_12hr = true
+format = '[$time]($style) '
+time_format = "%T %p IST"
+
+[hostname]
+ssh_only = false
+format =  "at [$hostname](bold green) "
+trim_at = ".companyname.com"
+disabled = false
+
+[directory]
+truncation_length = 20
+format = "in [$path]($style)[$read_only]($read_only_style) "
+
+[git_branch]
+truncation_length = 15
+
+[docker_context]
+only_with_files = true
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+format = "on [ $context](blue bold)"
+
+[python]
+symbol = " "
+# symbol = "🐍 "
+style = "bold yellow"
+pyenv_version_name = true
+format = 'via [${symbol}(${version} )(\($virtualenv\) )]($style)'
+
+[conda]
+symbol = " "
+format = "via [$symbol $environment](dimmed green) "
+
+[memory_usage]
+format = " [${ram}]($style) "
+threshold = 1
+style = "bold dimmed white"
+disabled = false
