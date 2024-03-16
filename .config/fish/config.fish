@@ -31,7 +31,7 @@ alias weather='curl wttr.in'
 alias monitor='btop --utf-force'
 alias battery='system_profiler SPPowerDataType | grep -A3 -B7 "Condition"'
 alias find='fzf -q'
-
+alias lg='lazygit'
 
 # confirm before overwriting something
 # alias cp="cp -i"
