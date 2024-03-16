@@ -1,0 +1,37 @@
+{
+    "com.github.tchar.ulauncher-albert-calculate-anything": {
+        "id": "com.github.tchar.ulauncher-albert-calculate-anything",
+        "url": "https://github.com/tchar/ulauncher-albert-calculate-anything",
+        "updated_at": "2021-11-20T23:26:42.490863",
+        "last_commit": "ee0903174c8b87cd1f7c3b6c1acef10702547507",
+        "last_commit_time": "2021-08-12T06:39:56"
+    },
+    "com.github.brpaz.ulauncher-file-search": {
+        "id": "com.github.brpaz.ulauncher-file-search",
+        "url": "https://github.com/brpaz/ulauncher-file-search",
+        "updated_at": "2021-11-21T06:15:32.616606",
+        "last_commit": "0ea61c2049b27f1ddfa81d1844876f21dd9d6e7b",
+        "last_commit_time": "2020-07-03T13:30:16"
+    },
+    "com.github.isacikgoz.ukill": {
+        "id": "com.github.isacikgoz.ukill",
+        "url": "https://github.com/isacikgoz/ukill",
+        "updated_at": "2021-11-21T06:30:57.100245",
+        "last_commit": "bc50d9f41d46b6813a5aeebddd15734dcdb9d8db",
+        "last_commit_time": "2019-05-28T18:30:00"
+    },
+    "com.github.iboyperson.ulauncher-system": {
+        "id": "com.github.iboyperson.ulauncher-system",
+        "url": "https://github.com/iboyperson/ulauncher-system",
+        "updated_at": "2021-11-21T06:31:20.070174",
+        "last_commit": "667613bf7bb6b4affa4f2121b58589477cd89829",
+        "last_commit_time": "2021-11-08T18:16:55"
+    },
+    "com.github.brpaz.ulauncher-jetbrains": {
+        "id": "com.github.brpaz.ulauncher-jetbrains",
+        "url": "https://github.com/brpaz/ulauncher-jetbrains",
+        "updated_at": "2022-12-04T02:50:46.745577",
+        "last_commit": "813b94421424b1195bd39d76677b0b5483e76b1e",
+        "last_commit_time": "2022-06-13T15:48:58"
+    }
+}
