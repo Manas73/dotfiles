@@ -1,0 +1,77 @@
+[colors]
+# bright_foreground = "0xe6efff"
+
+[colors.bright]
+black = "0x5c6370"
+blue = "0x61afef"
+cyan = "0x56b6c2"
+green = "0x98c379"
+magenta = "0xc678dd"
+red = "0xe06c75"
+white = "0xe6efff"
+yellow = "0xd19a66"
+
+[colors.cursor]
+cursor = "0xffffff"
+text = "0x000000"
+
+[colors.dim]
+black = "0x1e2127"
+blue = "0x61afef"
+cyan = "0x56b6c2"
+green = "0x98c379"
+magenta = "0xc678dd"
+red = "0xe06c75"
+white = "0x828791"
+yellow = "0xd19a66"
+
+[colors.normal]
+black = "0x1e2127"
+blue = "0x61afef"
+cyan = "0x56b6c2"
+green = "0x98c379"
+magenta = "0xc678dd"
+red = "0xe06c75"
+white = "0x828791"
+yellow = "0xd19a66"
+
+[colors.primary]
+background = "0x1e2127"
+foreground = "0xabb2bf"
+
+[cursor.style]
+blinking = "Always"
+shape = "Beam"
+
+# [cursor.vi_mode_style]
+# height = 0.1
+# shape = "Block"
+
+[env]
+TERM = "xterm-256color"
+
+[font]
+size = 10
+
+[font.normal]
+family = "Source Code Pro"
+
+
+[scrolling]
+# auto_scroll = true
+history = 2000
+
+[selection]
+save_to_clipboard = true
+
+[shell]
+program = "/usr/bin/fish"
+
+[window]
+dynamic_title = false
+opacity = 1
+title = "Alacritty"
+
+[window.dimensions]
+columns = 150
+lines = 35
