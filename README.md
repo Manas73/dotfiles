@@ -20,7 +20,7 @@ pacman -S stow
 
 ## Installation
 
-First, check out the dotfiles repo in your $HOME directory using git
+First, check out the dotfiles repo in your `$HOME` directory using git
 
 ```
 $ git clone https://github.com/Manas73/dotfiles.git
