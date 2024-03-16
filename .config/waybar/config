@@ -1,138 +1,143 @@
 {
-    "layer": "top",
-    "position": "top",
-    "mod": "dock",
-    "exclusive": true,
-    "passthrough": false,
-    "gtk-layer-shell": true,
-    "height": 50,
-    "modules-left": ["clock","custom/weather","wlr/workspaces"],
-    "modules-center": ["hyprland/window"],
-    "modules-right": ["network", "bluetooth", "temperature","custom/power_profile","battery","backlight","pulseaudio","pulseaudio#microphone","tray"],
-    "hyprland/window": {
-        "format": "{}"
-    },
+    // "layer": "top", // Waybar at top layer
+    // "position": "bottom", // Waybar position (top|bottom|left|right)
+    // "height": 30, // Waybar height (to be removed for auto height)
+    "margin": "20 20 0 20",
+    // "width": 1280, // Waybar width
+    // Choose the order of the modules
+    "modules-left": ["sway/workspaces", "sway/language", "keyboard-state", "custom/pacman", "custom/mail", "sway/mode"],
+    "modules-center": ["clock", "custom/weather"],
+    "modules-right": ["pulseaudio", "custom/mem", "backlight", "battery", "tray"],
 
-    "wlr/workspaces": {
+
+    //***************************
+    //*  Modules configuration  *
+    //***************************
+
+    "sway/workspaces": {
         "disable-scroll": true,
-        "all-outputs": true,
-        "on-click": "activate",
         "persistent_workspaces": {
             "1": [],
             "2": [],
             "3": [],
             "4": [],
-            "5": [],
-            "6": [],
-            "7": [],
-            "8": [],
-            "9": [],
-            "10": []
-        }
-    },
-    
-    "custom/power_profile":{
-        //shows the current power profile and switches to next on click
-        "exec": "asusctl profile -p | sed s:'Active profile is'::",
-        "interval": 30,
-        "format": "󰈐{}", 
-        "on-click": "asusctl profile -n; pkill -SIGRTMIN+8 waybar",
-        "signal": 8
+        },
     },
 
-   "custom/weather" : {
-        //shows the current weather and forecast
-        "tooltip" : true,
-        "format" : "{}",
-        "interval" : 30,
-        "exec" : "~/.config/waybar/scripts/waybar-wttr.py",
-        "return-type" : "json"
+    "sway/language": {
+        "format": "{} ",
+	"min-length": 5,
+	"tooltip": false
     },
 
-    "tray": {
-        "icon-size": 18,
-        "spacing": 10
+    "keyboard-state": {
+        //"numlock": true,
+        "capslock": true,
+        "format": "{name} {icon} ",
+        "format-icons": {
+            "locked": " ",
+            "unlocked": ""
+        },
+    },
+
+    "custom/pacman": {
+        "format": "{} ",
+        "interval": 3600,                     			// every hour
+        "exec": "(checkupdates;pacman -Qm | aur vercmp) | wc -l",	// # of updates
+        "exec-if": "exit 0",                  			// always run; consider advanced run conditions
+        "on-click": "foot sh -c 'yay; echo Done - Press enter to exit; read'; pkill -SIGRTMIN+8 waybar", // update system
+        "signal": 8,
+        "tooltip": false,
+    },
+
+    "custom/mail": {
+        "format": "{} ",
+        "exec": "$HOME/.config/waybar/scripts/checkgmail.py",
+        "interval": 120,
+        "on-click": "google-chrome-stable https://mail.google.com/mail/u/0/#inbox ; pkill -SIGRTMIN+9 waybar",
+        "signal": 9,
+        "tooltip": false,
+    },
+
+    "sway/mode": {
+        "format": "<span style=\"italic\">{}</span>"
     },
 
     "clock": {
-        "format": "{: %I:%M %p   %a, %b %e}",
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+        // "timezone": "America/New_York",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "format": "{:%a, %d %b, %I:%M %p}"
+    },
+
+    "custom/weather": {
+        "format": "{}",
+        "tooltip": true,
+        "interval": 1800,
+        "exec": "$HOME/.config/waybar/scripts/wttr.py",
+        "return-type": "json"
+    },
+
+    "pulseaudio": {
+        // "scroll-step": 1, // %, can be a float
+        "reverse-scrolling": 1,
+        "format": "{volume}% {icon} {format_source}",
+        "format-bluetooth": "{volume}% {icon} {format_source}",
+        "format-bluetooth-muted": " {icon} {format_source}",
+        "format-muted": "婢 {format_source}",
+        "format-source": "{volume}% ",
+        "format-source-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["奄", "奔", "墳"]
+        },
+        "on-click": "pavucontrol",
+        "min-length": 13,
+    },
+
+    "custom/mem": {
+        "format": "{} ",
+        "interval": 3,
+        "exec": "free -h | awk '/Mem:/{printf $3}'",
+        "tooltip": false,
+    },
+
+    "temperature": {
+        // "thermal-zone": 2,
+        // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+        "critical-threshold": 80,
+        // "format-critical": "{temperatureC}°C {icon}",
+        "format": "{temperatureC}°C {icon}",
+        "format-icons": ["", "", "", "", ""],
+        "tooltip": false,
     },
 
     "backlight": {
         "device": "intel_backlight",
-        "format": "{icon} {percent}%",
-        "format-icons": ["󰃞", "󰃟", "󰃠"],
-        "on-scroll-up": "brightnessctl set 1%+",
-        "on-scroll-down": "brightnessctl set 1%-",
-        "min-length": 6
+        "format": "{percent}% {icon}",
+        "format-icons": ["","","","", "", "", ""],
+        "min-length": 7,
     },
 
     "battery": {
         "states": {
-            "good": 95,
             "warning": 30,
-            "critical": 20
+            "critical": 15
         },
-        "format": "{icon} {capacity}%",
-        "format-charging": " {capacity}%",
-        "format-plugged": " {capacity}%",
+        "format": "{capacity}% {icon}",
+        "format-charging": "{capacity}% ",
+        "format-plugged": "{capacity}% ",
         "format-alt": "{time} {icon}",
-        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+        "format-icons": ["", "", "", "", "", "", "", "", "", ""],
+	"on-update": "$HOME/.config/waybar/scripts/check_battery.sh",
     },
 
-    "pulseaudio": {
-        "format": "{icon} {volume}%",
-        "tooltip": false,
-        "format-muted": " Muted",
-        "on-click": "pamixer -t",
-        "on-scroll-up": "pamixer -i 5",
-        "on-scroll-down": "pamixer -d 5",
-        "scroll-step": 5,
-        "format-icons": {
-            "headphone": "",
-            "hands-free": "",
-            "headset": "",
-            "phone": "",
-            "portable": "",
-            "car": "",
-            "default": ["", "", ""]
-        }
+    "tray": {
+        "icon-size": 16,
+        "spacing": 0
     },
-
-    "pulseaudio#microphone": {
-        "format": "{format_source}",
-        "format-source": " {volume}%",
-        "format-source-muted": " Muted",
-        "on-click": "pamixer --default-source -t",
-        "on-scroll-up": "pamixer --default-source -i 5",
-        "on-scroll-down": "pamixer --default-source -d 5",
-        "scroll-step": 5
-    },
-    
-    "temperature": {
-        "thermal-zone": 1,
-        "format": "{temperatureF}°F ",
-        "critical-threshold": 80,
-        "format-critical": "{temperatureC}°C "
-    },
-
-    "network": {
-        // "interface": "wlp2*", // (Optional) To force the use of this interface
-        "format-wifi": "  {signalStrength}%",
-        "format-ethernet": "{ipaddr}/{cidr}",
-        "tooltip-format": "{essid} - {ifname} via {gwaddr}",
-        "format-linked": "{ifname} (No IP)",
-        "format-disconnected": "Disconnected ⚠",
-        "format-alt": "{ifname}:{essid} {ipaddr}/{cidr}"
-    },
-
-    "bluetooth": {
-	    "format": " {status}",
-	    "format-disabled": "", // an empty format will hide the module
-	    "format-connected": " {num_connections}",
-	    "tooltip-format": "{device_alias}",
-	    "tooltip-format-connected": " {device_enumerate}",
-	    "tooltip-format-enumerate-connected": "{device_alias}"
-    }
 }
