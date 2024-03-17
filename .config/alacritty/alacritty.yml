@@ -8,6 +8,9 @@ font:
 window:
   title: Alacritty
   dynamic_title: false
+  padding:
+    x: 6
+    y: 6
   dimensions:
     columns: 150
     lines: 35

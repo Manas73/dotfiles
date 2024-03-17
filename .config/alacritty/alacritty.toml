@@ -69,8 +69,13 @@ program = "/usr/bin/fish"
 
 [window]
 dynamic_title = false
-opacity = 1
+blur = true
+opacity = 0.75
 title = "Alacritty"
+
+[window.padding]
+x = 10
+y = 10
 
 [window.dimensions]
 columns = 150
