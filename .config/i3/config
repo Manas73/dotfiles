@@ -1,7 +1,7 @@
 # Incliding all configs
 include ~/.config/i3/colors.conf
 include ~/.config/i3/plasma.conf
-include ~/.config/i3/monitors.conf
+include ~/.config/i3/workspaces.conf
 include ~/.config/i3/keybindings.conf
 include ~/.config/i3/autostart.conf
 
