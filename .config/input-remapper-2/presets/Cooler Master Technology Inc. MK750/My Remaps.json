@@ -29,23 +29,5 @@
         "output_symbol": "Caps_Lock",
         "name": "Alt + Caps Lock to Toggle Caps Lock",
         "mapping_type": "key_macro"
-    },
-    {
-        "input_combination": [
-            {
-                "type": 1,
-                "code": 42,
-                "origin_hash": "27c4a4e35d3f3a3315235f3706077a38"
-            },
-            {
-                "type": 1,
-                "code": 58,
-                "origin_hash": "27c4a4e35d3f3a3315235f3706077a38"
-            }
-        ],
-        "target_uinput": "keyboard",
-        "output_symbol": "Escape",
-        "name": "Shift + Caps to Esc",
-        "mapping_type": "key_macro"
     }
 ]
