@@ -25,7 +25,7 @@ alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 
-alias ls='lsd'
+alias ls='exa -l'
 alias lt='ls --tree'
 alias weather='curl wttr.in'
 alias btop='btop --utf-force'
