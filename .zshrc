@@ -21,11 +21,15 @@ alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 
-alias ls='colorls --dark --sort-dirs'
-alias lc='colorls --dark --tree'
+alias ls='exa -l'
+alias lt='ls --tree'
 alias weather='curl wttr.in'
-alias monitor='btop --utf-force'
+alias btop='btop --utf-force'
 alias battery='system_profiler SPPowerDataType | grep -A3 -B7 "Condition"'
+alias find='fzf -q'
+alias nv='nvim'
+alias lg='lazygit'
+
 
 # Startship
 eval "$(starship init zsh)"
@@ -33,36 +37,12 @@ eval "$(starship init zsh)"
 # Zoxide
 eval "$(zoxide init zsh)"
 
+# Atuin
+eval "$(atuin init zsh)"
+
 # Pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
-# Peco history selection
-peco_select_history() {
-  # Initialize peco_flags with the constant part
-  local peco_flags="--layout=bottom-up"
 
-  # Add query to peco_flags if arguments are passed
-  if [[ $# -gt 0 ]]; then
-    peco_flags+=" --query \"$*\""
-  fi
-
-  # Fetch and process shell history using 'fc -l'
-  local foo=$(history | peco $peco_flags)
-
-
-  # Extract command number from the selection
-  local selected_command_number=$(echo $foo | awk '{print $1}')
-
-  if [[ -n $selected_command_number ]]; then
-    # Retrieve the selected command and trim leading spaces
-    local selected_command=$(fc -ln $selected_command_number $selected_command_number | sed 's/^[[:space:]]*//')
-    BUFFER=$selected_command
-  fi
-
-  zle redisplay
-}
-
-zle -N peco_select_history
-bindkey '^R' peco_select_history
