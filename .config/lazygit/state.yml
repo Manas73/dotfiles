@@ -1,6 +1,7 @@
 lastupdatecheck: 0
 recentrepos:
     - /home/ms-manjaro/dotfiles
+    - /home/ms-manjaro/Repositories/github.com/TuringGpt/owl_model_evaluation
 startuppopupversion: 5
 lastversion: 0.43.1
 customcommandshistory: []
