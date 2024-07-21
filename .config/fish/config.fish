@@ -13,6 +13,9 @@ set fish_color_command brcyan
 set fish_color_error '#ff6c6b'
 set fish_color_param brcyan
 
+set ZELLIJ_AUTO_ATTACH true
+set ZELLIJ_AUTO_EXIT true
+
 if status is-interactive
     # Commands to run in interactive sessions can go here
     set -Ux PYENV_ROOT $HOME/.pyenv
