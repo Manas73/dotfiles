@@ -14,13 +14,17 @@ set fish_color_error '#ff6c6b'
 set fish_color_param brcyan
 
 set ZELLIJ_AUTO_ATTACH true
-set ZELLIJ_AUTO_EXIT false
+# set ZELLIJ_AUTO_EXIT false
 
 if status is-interactive
     # Commands to run in interactive sessions can go here
     set -Ux PYENV_ROOT $HOME/.pyenv
     set -U fish_user_paths $PYENV_ROOT/bin $fish_user_paths
-    # eval (zellij setup --generate-auto-start fish | string collect)
+    
+    if test "$TERM_PROGRAM" = "alacritty"
+        eval (zellij setup --generate-auto-start fish | string collect)
+    end
+
 end
 
 
@@ -62,6 +66,7 @@ set PATH $PYENV_ROOT/shims:$PATH
 
 # zoxide
 zoxide init fish | source
+alias cd="z"
 
 # atuin (SQL Database to search history)
 atuin init fish | source
