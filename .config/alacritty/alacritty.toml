@@ -66,6 +66,7 @@ save_to_clipboard = true
 
 [shell]
 program = "/usr/bin/fish"
+args = ["-c", "zellij_start"]
 
 [window]
 dynamic_title = false
