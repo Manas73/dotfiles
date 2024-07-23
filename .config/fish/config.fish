@@ -13,6 +13,10 @@ set fish_color_command brcyan
 set fish_color_error '#ff6c6b'
 set fish_color_param brcyan
 
+# GHQ Variables
+set GHQ_ROOT '~/Repositories'
+
+# Zellij Variables
 set ZELLIJ_AUTO_ATTACH true
 # set ZELLIJ_AUTO_EXIT false
 
