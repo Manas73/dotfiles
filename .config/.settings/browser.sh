@@ -1,1 +1,1 @@
-vivaldi --password-store=basic
+vivaldi-stable --password-store=basic

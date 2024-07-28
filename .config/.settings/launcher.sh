@@ -1,1 +1,1 @@
-~/.config/rofi/launchers/type-7/launcher.sh
+source ~/.config/rofi/launchers/type-7/launcher.sh
