@@ -1,1 +1,1 @@
-vivaldi-stable --password-store=basic
+vivaldi-stable --password-store=gnome
