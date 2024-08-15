@@ -13,6 +13,9 @@ set fish_color_command brcyan
 set fish_color_error '#ff6c6b'
 set fish_color_param brcyan
 
+# Editor
+set -gx EDITOR "nvim"
+
 # GHQ Variables
 set GHQ_ROOT '~/Repositories'
 
@@ -25,7 +28,10 @@ if status is-interactive
     set -Ux PYENV_ROOT $HOME/.pyenv
     set -U fish_user_paths $PYENV_ROOT/bin $fish_user_paths
     
-    if test "$TERM_PROGRAM" = "alacritty"
+    # Read the content of terminal.sh into a variable
+    set terminal_name (cat ~/.config/.settings/terminal.sh | string trim)
+    
+    if test "$TERM_PROGRAM" = $terminal_name
         eval (zellij setup --generate-auto-start fish | string collect)
     end
 
