@@ -1,1 +1,1 @@
-source ~/.config/rofi/powermenu/type-1/powermenu.sh
+source ~/.config/rofi/powermenu/powermenu.sh
