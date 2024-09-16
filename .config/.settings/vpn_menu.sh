@@ -7,9 +7,9 @@ vpn_list=$(nmcli -g NAME,TYPE connection show | grep -E "vpn|wireguard" | awk -F
 vpn_active=$(nmcli -t -f NAME,TYPE connection show --active | grep -E "vpn|wireguard" | awk -F: '{print $1}')
 
 if [[ -n "$vpn_active" ]]; then
-	toggle="󰒋  Disconnect VPN ($vpn_active)"
+	toggle="  Disconnect VPN ($vpn_active)"
 else
-	toggle="󰒋  No VPN Connected"
+	toggle="  No VPN Connected"
 fi
 
 # Use rofi to select a VPN or WireGuard connection
@@ -20,7 +20,7 @@ read -r chosen_id <<< "${chosen_vpn:2}"
 
 if [ "$chosen_vpn" = "" ]; then
 	exit
-elif [[ "$chosen_vpn" == "󰒋  Disconnect VPN ($vpn_active)" ]]; then
+elif [[ "$chosen_vpn" == "  Disconnect VPN ($vpn_active)" ]]; then
 	# Disconnect the current VPN or WireGuard connection
 	nmcli connection down "$vpn_active"
 	# notify-send "VPN Disconnected" "You have disconnected from \"$vpn_active\"."
