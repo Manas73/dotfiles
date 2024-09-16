@@ -39,4 +39,15 @@ sink_name=$(pactl list short sinks | awk -v idx="$chosen_id" 'NR==idx+1 {print $
 
 if [ -n "$sink_name" ]; then
     pactl set-default-sink "$sink_name"
+
+    # Move all currently playing streams to the new sink
+    pactl list short sink-inputs | while read stream; do
+        stream_id=$(echo $stream | cut -f1)
+        pactl move-sink-input "$stream_id" "$sink_name"
+    done
+
+    # Optional: notify the user that the sink was changed
+    #notify-send "Audio Output Changed" "Switched to $chosen_device"
+# else
+#     notify-send "Error" "Failed to set the audio sink."
 fi
