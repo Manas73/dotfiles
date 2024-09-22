@@ -7,9 +7,9 @@ include ~/.config/i3/autostart.conf
 
 
 # Hide window title bar
-default_border pixel 2
-default_floating_border pixel 2
-for_window [class="^.*"] border pixel 2
+default_border pixel 1
+default_floating_border pixel 1
+for_window [class="^.*"] border pixel 1
 
 # Set inner/outer gaps
 gaps inner 3
