@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Path to your colors.ini file
 colors_file="$HOME/.config/polybar/colors.ini"

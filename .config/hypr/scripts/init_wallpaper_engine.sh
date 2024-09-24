@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 wallpaper_engine=$(cat $HOME/.config/.settings/wallpaper_engine.sh)
 if [ "$wallpaper_engine" == "swww" ] ;then
