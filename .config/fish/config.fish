@@ -40,14 +40,11 @@ end
 
 # Aliases
 alias grep='grep --color=auto'
-alias egrep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
 
-alias ls='exa -l'
+alias ls='eza -l'
 alias lt='ls --tree'
 alias weather='curl wttr.in'
 alias btop='btop --utf-force'
-alias battery='system_profiler SPPowerDataType | grep -A3 -B7 "Condition"'
 alias find='fzf -q'
 alias nv='nvim'
 alias lg='lazygit'
