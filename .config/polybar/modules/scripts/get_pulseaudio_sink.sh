@@ -17,7 +17,7 @@ mute=$(pactl get-sink-mute @DEFAULT_SINK@ | grep -oP '(yes|no)')
 
 # Set icons based on the current sink
 if [[ "$sink" == "alsa_output.usb-SteelSeries_Arctis_7_-00.analog-stereo" ]]; then
-    icon=""  # headphone icon
+    icon=""  # headphone icon
 else
     icon=""
 fi
