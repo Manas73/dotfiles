@@ -1,0 +1,9 @@
+{{- if ne .chezmoi.os "darwin" }}
+dot_config/hypr
+dot_config/i3
+dot_config/input-remapper-2
+dot_config/picom
+dot_config/polybar
+dot_config/rofi
+dot_config/greenclip.toml
+{{- end }}
