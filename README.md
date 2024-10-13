@@ -1,29 +1,35 @@
-# My dotfiles
+# My Dotfiles
 
-This directory contains the dotfiles for my system
+This repository contains the dotfiles for my system, managed using [chezmoi](https://www.chezmoi.io/).
 
 ## Requirements
 
 Ensure you have the following installed on your system:
 - `git`
-- `chezmoi`
+- `age` (version `1.2.0` or newer)
+- `chezmoi` (version `2.52.2` or newer)
 
 ## Installation
 
-1. First, check out the dotfiles repo in your `$HOME` directory using git
+You have two options for installation:
+
+### Option 1: One-step process (Recommended)
+
+- Initialize and apply the dotfiles in a single command:
+    ```shell
+    chezmoi init --apply https://github.com/Manas73/dotfiles.git
+    ```
+
+### Option 2: Two-step process
+
+1. Initialize the dotfiles repository:
 
     ```shell
     chezmoi init https://github.com/Manas73/dotfiles.git
     ```
 
-2. then use apply the config
+2. Apply the configuration:
 
     ```shell
     chezmoi apply
-    ```
-<p align="center"><b>Or</b></p>
-
-1. The above commands can be combined into a single init, checkout, and apply:
-    ```shell
-    chezmoi init --apply --verbose https://github.com/Manas73/dotfiles.git
     ```
