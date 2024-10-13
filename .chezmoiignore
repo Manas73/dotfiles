@@ -7,3 +7,4 @@ dot_config/polybar
 dot_config/rofi
 dot_config/greenclip.toml
 {{- end }}
+key.txt.age
