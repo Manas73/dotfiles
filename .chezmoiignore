@@ -1,10 +1,11 @@
-{{- if ne .chezmoi.os "darwin" }}
-dot_config/hypr
-dot_config/i3
-dot_config/input-remapper-2
-dot_config/picom
-dot_config/polybar
-dot_config/rofi
-dot_config/greenclip.toml
+{{- if ne .chezmoi.os "linux" }}
+.config/hypr
+.config/i3
+.config/input-remapper-2
+.config/neofetch
+.config/picom
+.config/polybar
+.config/rofi
+.config/greenclip.toml
 {{- end }}
 key.txt.age
