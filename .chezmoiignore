@@ -9,3 +9,15 @@
 .config/greenclip.toml
 {{- end }}
 key.txt.age
+{{- if eq .chezmoi.hostname "manass-KY4RYYHFF6" }}
+.ssh/Manas73-GitHub
+.ssh/Manas73-GitHub.pub
+.ssh/Manas-GitLab
+.ssh/Manas-GitLab.pub
+.ssh/Manas-Sleepiz-GitLab
+.ssh/Manas-Sleepiz-GitLab.pub
+.ssh/id_ed25519
+.ssh/id_ed25519.pub
+.ssh/mangesh
+{{- end }}
+
