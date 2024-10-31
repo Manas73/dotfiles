@@ -8,7 +8,13 @@
 .config/rofi
 .config/greenclip.toml
 {{- end }}
+
 key.txt.age
+
+{{- if ne .chezmoi.os "darwin" }}
+.config/sketchybar
+{{- end }}
+
 {{- if eq .chezmoi.hostname "manass-KY4RYYHFF6" }}
 .ssh/Manas73-GitHub
 .ssh/Manas73-GitHub.pub
