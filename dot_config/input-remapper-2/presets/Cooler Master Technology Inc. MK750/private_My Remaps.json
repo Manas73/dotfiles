@@ -8,7 +8,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "if_tap(key(Escape), hold_keys(Super_L), 125)",
+        "output_symbol": "mod_tap(Escape, Super_L, 125)",
         "name": "Caps Lock to Super",
         "mapping_type": "key_macro"
     },
@@ -21,7 +21,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "if_tap(key(a), hold_keys(Alt_L), 200)",
+        "output_symbol": "mod_tap(a, Alt_L, 200)",
         "name": "A to Alt",
         "mapping_type": "key_macro"
     },
@@ -34,7 +34,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "if_tap(key(s), hold_keys(Shift_L), 200)",
+        "output_symbol": "mod_tap(s, Shift_L, 200)",
         "name": "S to Shift",
         "mapping_type": "key_macro"
     },
@@ -47,7 +47,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "if_tap(key(d), hold_keys(Control_L), 200)",
+        "output_symbol": "mod_tap(d, Control_L, 200)",
         "name": "D to Control",
         "mapping_type": "key_macro"
     },
@@ -60,7 +60,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "if_tap(key(j), hold_keys(Control_R), 200)",
+        "output_symbol": "mod_tap(j, Control_R, 200)",
         "name": "J to Control",
         "mapping_type": "key_macro"
     },
@@ -73,7 +73,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "if_tap(key(k), hold_keys(Shift_R), 200)",
+        "output_symbol": "mod_tap(k, Shift_R, 200)",
         "name": "K to Shift",
         "mapping_type": "key_macro"
     },
@@ -86,7 +86,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "if_tap(key(l), hold_keys(Alt_L), 200)",
+        "output_symbol": "mod_tap(l, Alt_L, 200)",
         "name": "L to Alt",
         "mapping_type": "key_macro"
     },
@@ -99,7 +99,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "if_tap(key(semicolon), hold_keys(Super_R), 200)",
+        "output_symbol": "mod_tap(semicolon, Super_R, 200)",
         "name": "Semicolon to Super",
         "mapping_type": "key_macro"
     }
