@@ -8,18 +8,18 @@
 ;; Define aliases for the home-row mods and other tap-hold keys
 (defalias
   ;; Home row mods - left hand
-  alt_a (tap-hold 200 200 a lalt)  ;; A key: tap for 'a', hold for left Alt
-  sft_s (tap-hold 200 200 s lsft)  ;; S key: tap for 's', hold for left Shift
-  ctl_d (tap-hold 200 200 d lctl)  ;; D key: tap for 'd', hold for left Control
+  alt_a (tap-hold 300 300 a lalt)  ;; A key: tap for 'a', hold for left Alt
+  sft_s (tap-hold 300 300 s lsft)  ;; S key: tap for 's', hold for left Shift
+  ctl_d (tap-hold 300 300 d lctl)  ;; D key: tap for 'd', hold for left Control
   
   ;; Home row mods - right hand
-  ctl_j (tap-hold 200 200 j rctl)  ;; J key: tap for 'j', hold for right Control
-  sft_k (tap-hold 200 200 k rsft)  ;; K key: tap for 'k', hold for right Shift
-  alt_l (tap-hold 200 200 l lalt)  ;; L key: tap for 'l', hold for left Alt
-  met_; (tap-hold 200 200 ; rmet)  ;; ; key: tap for ';', hold for right Super/Meta
+  ctl_j (tap-hold 300 300 j rctl)  ;; J key: tap for 'j', hold for right Control
+  sft_k (tap-hold 300 300 k rsft)  ;; K key: tap for 'k', hold for right Shift
+  alt_l (tap-hold 300 300 l lalt)  ;; L key: tap for 'l', hold for left Alt
+  met_; (tap-hold 300 300 ; rmet)  ;; ; key: tap for ';', hold for right Super/Meta
   
   ;; Existing mapping: Caps Lock as Esc/Super
-  esc_met (tap-hold 200 200 esc lmet)  ;; Caps: tap for Escape, hold for left Super/Meta
+  esc_met (tap-hold 300 300 esc lmet)  ;; Caps: tap for Escape, hold for left Super/Meta
 )
 
 ;; Source keys (standard QWERTY layout)
