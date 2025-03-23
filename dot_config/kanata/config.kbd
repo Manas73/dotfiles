@@ -11,15 +11,15 @@
   alt_a (tap-hold 300 300 a lalt)  ;; A key: tap for 'a', hold for left Alt
   sft_s (tap-hold 300 300 s lsft)  ;; S key: tap for 's', hold for left Shift
   ctl_d (tap-hold 300 300 d lctl)  ;; D key: tap for 'd', hold for left Control
-  
+
   ;; Home row mods - right hand
-  ctl_j (tap-hold 300 300 j rctl)  ;; J key: tap for 'j', hold for right Control
-  sft_k (tap-hold 300 300 k rsft)  ;; K key: tap for 'k', hold for right Shift
-  alt_l (tap-hold 300 300 l lalt)  ;; L key: tap for 'l', hold for left Alt
-  met_; (tap-hold 300 300 ; rmet)  ;; ; key: tap for ';', hold for right Super/Meta
-  
-  ;; Existing mapping: Caps Lock as Esc/Super
-  esc_met (tap-hold 300 300 esc lmet)  ;; Caps: tap for Escape, hold for left Super/Meta
+  ctl_h (tap-hold 300 300 h rctl)  ;; H key: tap for 'h', hold for right Control
+  sft_j (tap-hold 300 300 j rsft)  ;; J key: tap for 'j', hold for right Shift
+  alt_k (tap-hold 300 300 k lalt)  ;; K key: tap for 'k', hold for left Alt
+  met_l (tap-hold 300 300 l rmet)  ;; L key: tap for 'l', hold for right Super/Meta
+
+  ;; Improved mapping: Caps Lock as Esc/Super with explicit caps lock prevention
+  esc_met (tap-hold-press 200 200 esc lmet)  ;; Using tap-hold-press to prevent accidental triggers
 )
 
 ;; Source keys (standard QWERTY layout)
@@ -33,9 +33,9 @@
 
 ;; Main layer with home row mods
 (deflayer main
-  esc  1    2    3    4    5    6    7    8    9    0    -    =    bspc
-  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
-  @esc_met @alt_a @sft_s @ctl_d f    g    h    @ctl_j @sft_k @alt_l @met_; '    ret
-  lsft z    x    c    v    b    n    m    ,    .    /    rsft
-  lctl lmet lalt           spc            ralt rmet rctl
+  esc  1    2    3    4    5    6    7    8         9      0      -      =        bspc
+  tab  q    w    e    r    t    y    u    i         o      p      [      ]        \
+  @esc_met @alt_a @sft_s @ctl_d f    g    @ctl_h    @sft_j @alt_k @met_l ;   '    ret
+  lsft z    x    c    v    b    n    m    ,         .      /      rsft
+  lctl lmet lalt           spc            ralt      rmet   rctl
 )
