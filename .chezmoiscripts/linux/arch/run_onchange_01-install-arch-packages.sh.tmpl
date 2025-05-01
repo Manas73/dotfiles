@@ -34,20 +34,6 @@ echo "Installing Arch packages"
 {{ $multilib_packages := $base.multilib }}
 {{ $aur_packages := $base.aur }}
 
-# Conditionally add window manager specific packages
-{{ if .window_manager }}
-{{ $wm_file := printf ".chezmoidata/packages/linux/arch/%s.yaml" .window_manager }}
-{{ if stat $wm_file }}
-{{ $wm := include $wm_file | fromYaml }}
-{{ $core_packages = concat $core_packages $wm.core }}
-{{ $extra_packages = concat $extra_packages $wm.extra }}
-{{ $multilib_packages = concat $multilib_packages $wm.multilib }}
-{{ $aur_packages = concat $aur_packages $wm.aur }}
-{{ else }}
-echo "Missing window manager configuration file for {{ .window_manager }}."
-{{ end }}
-{{ end }}
-
 
 # Install packages
 sudo pacman -Syu --needed {{ range $core_packages }} {{.}}{{end}} {{ range $extra_packages }} {{.}}{{end}} {{ range $multilib_packages }} {{.}}{{end}}

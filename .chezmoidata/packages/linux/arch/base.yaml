@@ -53,4 +53,4 @@ extra:
   - yazi
   - zellij
   - zoxide
-multilib:
+multilib: []

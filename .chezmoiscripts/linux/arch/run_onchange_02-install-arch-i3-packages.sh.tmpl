@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+export PATH="$HOME/.local/bin/:$PATH"
+bindir="$HOME/.local/bin/"
+appimagedir="$HOME/AppImages/"
+
+mkdir -p "$bindir"
+mkdir -p "$appimagedir"
+
+{{ if and (eq .osid "linux-arch") (eq .window_manager "i3") }}
+
+cat << "EOF"
+
+
+  _ ____      _____           _
+ (_)___ \    |  __ \         | |
+  _  __) |   | |__) |_ _  ___| | ____ _  __ _  ___  ___
+ | ||__ <    |  ___/ _` |/ __| |/ / _` |/ _` |/ _ \/ __|
+ | |___) |   | |  | (_| | (__|   < (_| | (_| |  __/\__ \
+ |_|____/    |_|   \__,_|\___|_|\_\__,_|\__, |\___||___/
+                                         __/ |
+                                        |___/
+
+EOF
+
+## Arch
+echo "Installing Arch packages"
+
+# Load base packages
+{{ $base := include ".chezmoidata/packages/linux/arch/i3.yaml" | fromYaml }}
+
+# Add base packages
+{{ $core_packages := $base.core }}
+{{ $extra_packages := $base.extra }}
+{{ $multilib_packages := $base.multilib }}
+{{ $aur_packages := $base.aur }}
+
+
+# Install packages
+sudo pacman -Syu --needed {{ range $core_packages }} {{.}}{{end}} {{ range $extra_packages }} {{.}}{{end}} {{ range $multilib_packages }} {{.}}{{end}}
+
+if type -P yay >/dev/null 2>&1; then
+  cat << "EOF"
+
+
+  _ ____              _    _ _____      _____           _
+ (_)___ \        /\  | |  | |  __ \    |  __ \         | |
+  _  __) |      /  \ | |  | | |__) |   | |__) |_ _  ___| | ____ _  __ _  ___  ___
+ | ||__ <      / /\ \| |  | |  _  /    |  ___/ _` |/ __| |/ / _` |/ _` |/ _ \/ __|
+ | |___) |    / ____ \ |__| | | \ \    | |  | (_| | (__|   < (_| | (_| |  __/\__ \
+ |_|____/    /_/    \_\____/|_|  \_\   |_|   \__,_|\___|_|\_\__,_|\__, |\___||___/
+                                                                   __/ |
+                                                                  |___/
+
+EOF
+  yay -Syu --needed {{ range $aur_packages }} {{.}}{{ end }}
+fi
+
+{{ end }}
+
