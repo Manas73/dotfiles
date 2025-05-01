@@ -7,9 +7,6 @@ appimagedir="$HOME/AppImages/"
 mkdir -p "$bindir"
 mkdir -p "$appimagedir"
 
-{{ $arch := include ".chezmoidata/packages/linux/arch.yaml" | fromYaml }}
-# Native packages
-
 {{ if eq .osid "linux-arch" }}
 
 cat << "EOF"
@@ -28,7 +25,32 @@ EOF
 ## Arch
 echo "Installing Arch packages"
 
-sudo pacman -Syu --needed {{ range $arch.core }} {{.}}{{end}} {{ range $arch.extra }} {{.}}{{end}} {{ range $arch.multilib }} {{.}}{{end}}
+# Load base packages
+{{ $base := include ".chezmoidata/packages/linux/arch/base.yaml" | fromYaml }}
+
+# Add base packages
+{{ $core_packages := $base.core }}
+{{ $extra_packages := $base.extra }}
+{{ $multilib_packages := $base.multilib }}
+{{ $aur_packages := $base.aur }}
+
+# Conditionally add window manager specific packages
+{{ if .window_manager }}
+{{ $wm_file := printf ".chezmoidata/packages/linux/arch/%s.yaml" .window_manager }}
+{{ if stat $wm_file }}
+{{ $wm := include $wm_file | fromYaml }}
+{{ $core_packages = concat $core_packages $wm.core }}
+{{ $extra_packages = concat $extra_packages $wm.extra }}
+{{ $multilib_packages = concat $multilib_packages $wm.multilib }}
+{{ $aur_packages = concat $aur_packages $wm.aur }}
+{{ else }}
+echo "Missing window manager configuration file for {{ .window_manager }}."
+{{ end }}
+{{ end }}
+
+
+# Install packages
+sudo pacman -Syu --needed {{ range $core_packages }} {{.}}{{end}} {{ range $extra_packages }} {{.}}{{end}} {{ range $multilib_packages }} {{.}}{{end}}
 
 if type -P yay >/dev/null 2>&1; then
   cat << "EOF"
@@ -42,7 +64,7 @@ if type -P yay >/dev/null 2>&1; then
                                                        __/ |
                                                       |___/
 EOF
-  yay -Syu --needed {{ range $arch.aur }} {{.}}{{ end }}
+  yay -Syu --needed {{ range $aur_packages }} {{.}}{{ end }}
 fi
 
 {{ end }}

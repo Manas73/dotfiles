@@ -1,0 +1,19 @@
+aur:
+  - i3-pager-git
+  - picom-git
+  - pulseaudio-ctl
+core:
+extra:
+  - feh
+  - i3-wm
+  - pulseaudio
+  - pulseaudio-alsa
+  - pulseaudio-bluetooth
+  - pulseaudio-jack
+  - polybar
+  - python-i3ipc
+  - rofi
+  - rofi-calc
+  - rofi-emoji
+  - rofi-greenclip
+multilib:

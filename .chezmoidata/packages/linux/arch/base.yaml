@@ -1,6 +1,5 @@
 aur:
   - 1password
-  - 1password-cli
   - datagrip
   - datagrip-jre
   - gitkraken
@@ -9,7 +8,6 @@ aur:
   - postman-bin
   - pycharm-professional
   - rambox-pro-bin
-  - rofi-greenclip
   - slack-desktop
   - sublime-text-4
   - ttf-ms-fonts
