@@ -1,7 +1,11 @@
 # EXPORT
 set fish_greeting                                 # Supresses fish's intro message
-set TERM "xterm-256color"                         # Sets the terminal type
+set TERM "xterm-256color"
+
+# Sets the terminal type
+{{- if eq .osid "linux-manjaro" }}
 set --export PYENV_ROOT $HOME/.pyenv
+{{- end }}
 # set VIRSH_DEFAULT_CONNECT_URI "qemu:///system"
 set VIRSH_DEFAULT_CONNECT_URI qemu:///system
 export VIRSH_DEFAULT_CONNECT_URI=qemu:///system
@@ -54,22 +58,16 @@ alias lg='lazygit'
 # alias mv='mv -i'
 alias rm='rm -i'
 
-
-# RANDOM COLOR SCRIPT
-# Get this script from my GitLab: gitlab.com/dwt1/shell-color-scripts
-# Or install it from the Arch User Repository: shell-color-scripts
-# colorscript --blacklist pipes2
-# colorscript --blacklist pipes2-slim
-# colorscript random
-
 # SETTING THE STARSHIP PROMPT
 starship init fish | source
 
 
+{{- if eq .osid "linux-manjaro" }}
 # pyenv init
 status is-login; and pyenv init --path | source
 status is-interactive; and pyenv init - | source
 set PATH $PYENV_ROOT/shims:$PATH
+{{- end }}
 
 # zoxide
 zoxide init fish | source

@@ -18,6 +18,10 @@ key.txt.age
 .config/sketchybar
 {{- end }}
 
+{{- if ne .osid "linux-manjaro" }}
+.config/fish/conf.d/pyenv.fish
+{{- end }}
+
 {{- if eq .profile "work" }}
 .ssh/Manas73-GitHub
 .ssh/Manas73-GitHub.pub

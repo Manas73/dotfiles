@@ -200,39 +200,16 @@ plugins {
     }
 }
 
-//  Send a request for a simplified ui (without arrow fonts) to plugins
-//  Options:
-//    - true
-//    - false (Default)
-//
-// simplified_ui true
-
 
 // Choose the theme that is specified in the themes section.
 // Default: default
-//
 theme "onedark"
-
-// The name of the default layout to load on startup
-// Default: "default"
-//
-// default_layout "compact"
-
-// Toggle enabling the mouse mode.
-// On certain configurations, or terminals this could
-// potentially interfere with copying text.
-// Options:
-//   - true (default)
-//   - false
-//
-// mouse_mode false
 
 // Configure the scroll back buffer size
 // This is the number of lines zellij stores for each pane in the scroll back
 // buffer. Excess number of lines are discarded in a FIFO fashion.
 // Valid values: positive integers
 // Default value: 10000
-//
 // scroll_buffer_size 10000
 
 // Provide a command to execute when copying text. The text will be piped to
@@ -256,5 +233,8 @@ theme "onedark"
 
 // Enable or disable automatic copy (and clear) of selection when releasing mouse
 // Default: true
-//
-// copy_on_select false
+copy_on_select true
+
+// Show usage tips on Zellij startup.
+// Default: true
+show_startup_tips false
