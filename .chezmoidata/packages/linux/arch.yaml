@@ -1,0 +1,51 @@
+aur:
+  - 1password
+  - 1password-cli
+  - datagrip
+  - datagrip-jre
+  - gitkraken
+  - kanata-bin
+  - onlyoffice-bin
+  - postman-bin
+  - pycharm-professional
+  - rambox-pro-bin
+  - rofi-greenclip
+  - slack-desktop
+  - sublime-text-4
+  - zoom
+core:
+  - gnupg
+  - psmisc
+  - python
+extra:
+  - alacritty
+  - atuin
+  - bat
+  - btop
+  - chezmoi
+  - docker
+  - docker-buildx
+  - docker-compose
+  - eza
+  - fish
+  - firefox
+  - flameshot
+  - fzf
+  - ghq
+  - git
+  - gparted
+  - kitty
+  - lazygit
+  - libreoffice-fresh
+  - neovim
+  - python-pip
+  - python-virtualenv
+  - starship
+  - uv
+  - vivaldi
+  - vivaldi-ffmpeg-codecs
+  - vlc
+  - yazi
+  - zellij
+  - zoxide
+multilib:
