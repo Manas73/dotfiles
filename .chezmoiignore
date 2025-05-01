@@ -20,6 +20,10 @@ key.txt.age
 .config/rofi
 {{- end }}
 
+{{- if ne .window_manager "hyprland" }}
+.config/hypr
+{{- end }}
+
 {{- if ne .osid "linux-manjaro" }}
 .config/fish/conf.d/pyenv.fish
 {{- end }}
