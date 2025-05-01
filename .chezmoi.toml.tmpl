@@ -1,7 +1,50 @@
+{{- $email := promptStringOnce . "email" "Commit email address" "ask.mrdgh2821@outlook.com" -}}
+
+{{- /* Ask Profile Choices */ -}}
+{{- $profile_choices := list "personal" "work" -}}
+{{- $profile := promptChoiceOnce . "profile" "Default Profile" $$profile_choices "personal" -}}
+
+{{/* Detect OS Type */}}
+{{- $osid := .chezmoi.os -}}
+{{- if hasKey .chezmoi.osRelease "id" -}}
+{{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end -}}
+{{- if hasKey .chezmoi.osRelease "idLike" -}}
+{{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.idLike -}}
+{{- end -}}
+
+{{/* Ask GPU Type */}}
+{{- $gpu := "" -}}
+{{- if eq .chezmoi.os "linux" -}}
+{{-   $detected_gpu := output "bash" "-c" "lspci | grep -i 'vga\\|3d\\|2d'" | trim -}}
+{{-   if contains "NVIDIA" $detected_gpu -}}
+{{-     $gpu = "nvidia" -}}
+{{-   else if contains "AMD" $detected_gpu -}}
+{{-     $gpu = "amd" -}}
+{{-   else -}}
+{{-     $gpu = "none" -}}
+{{-   end -}}
+{{- else if eq .chezmoi.os "windows" -}}
+{{-   $detected_gpu := output "powershell" "-NoProfile" "-NonInteractive" "-Command" "(Get-WmiObject Win32_VideoController).Name" | trim -}}
+{{-   if contains "NVIDIA" $detected_gpu -}}
+{{-     $gpu = "nvidia" -}}
+{{-   else if contains "AMD" $detected_gpu -}}
+{{-     $gpu = "amd" -}}
+{{-   else -}}
+{{-     $gpu = "none" -}}
+{{-   end -}}
+{{- end -}}
+{{- $gpuchoices := list "nvidia" "amd" "none" -}}
+{{- $gpu := promptChoiceOnce . "gpu" "GPU Vendor" $gpuchoices $gpu -}}
+
 encryption = "age"
+
 [age]
     identity = "~/.config/chezmoi/key.txt"
     recipient = "age1egva8dwupvqgh2r3d48j2jsrjkfrgvvpjk83vttdcjftlyze5cgs7ccffj"
 
 [data]
-    email = ""
+    email = {{- $email | quote -}}
+    profile = {{- $profile | quote -}}
+    osid = {{ $osid | quote }}
+    gpu = {{ $gpu | quote }}

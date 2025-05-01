@@ -1,6 +1,7 @@
 README.md
 
 {{- if ne .chezmoi.os "linux" }}
+.config/.settings
 .config/hypr
 .config/i3
 .config/input-remapper-2
@@ -17,7 +18,7 @@ key.txt.age
 .config/sketchybar
 {{- end }}
 
-{{- if eq .chezmoi.hostname "manass-KY4RYYHFF6" }}
+{{- if eq .profile "work" }}
 .ssh/Manas73-GitHub
 .ssh/Manas73-GitHub.pub
 .ssh/Manas-GitLab
