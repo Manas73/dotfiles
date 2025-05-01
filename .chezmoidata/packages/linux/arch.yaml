@@ -12,6 +12,9 @@ aur:
   - rofi-greenclip
   - slack-desktop
   - sublime-text-4
+  - ttf-apple-emoji
+  - ttf-ms-fonts
+  - ttf-vista-fonts
   - zoom
 core:
   - gnupg
@@ -41,6 +44,11 @@ extra:
   - python-pip
   - python-virtualenv
   - starship
+  - ttf-droid
+  - ttf-jetbrains-mono-nerd
+  - ttf-nerd-fonts-symbols
+  - ttf-nerd-fonts-symbols-common
+  - ttf-noto-nerd
   - uv
   - vivaldi
   - vivaldi-ffmpeg-codecs
