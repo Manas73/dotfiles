@@ -1,15 +1,15 @@
-{{- $email := promptStringOnce . "email" "Commit email address" "ask.mrdgh2821@outlook.com" -}}
+{{- $email := promptStringOnce . "email" "Commit email address" -}}
 
 {{- /* Ask Profile Choices */ -}}
 {{- $profile_choices := list "personal" "work" -}}
-{{- $profile := promptChoiceOnce . "profile" "Default Profile" $$profile_choices "personal" -}}
+{{- $profile := promptChoiceOnce . "profile" "Default Profile" $profile_choices "personal" -}}
 
 {{/* Detect OS Type */}}
 {{- $osid := .chezmoi.os -}}
 {{- if hasKey .chezmoi.osRelease "id" -}}
 {{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
-{{- if hasKey .chezmoi.osRelease "idLike" -}}
+{{- if (and (hasKey .chezmoi.osRelease "idLike") (ne .chezmoi.osRelease.id "manjaro")) -}}
 {{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.idLike -}}
 {{- end -}}
 
@@ -24,15 +24,8 @@
 {{-   else -}}
 {{-     $gpu = "none" -}}
 {{-   end -}}
-{{- else if eq .chezmoi.os "windows" -}}
-{{-   $detected_gpu := output "powershell" "-NoProfile" "-NonInteractive" "-Command" "(Get-WmiObject Win32_VideoController).Name" | trim -}}
-{{-   if contains "NVIDIA" $detected_gpu -}}
-{{-     $gpu = "nvidia" -}}
-{{-   else if contains "AMD" $detected_gpu -}}
-{{-     $gpu = "amd" -}}
 {{-   else -}}
 {{-     $gpu = "none" -}}
-{{-   end -}}
 {{- end -}}
 {{- $gpuchoices := list "nvidia" "amd" "none" -}}
 {{- $gpu := promptChoiceOnce . "gpu" "GPU Vendor" $gpuchoices $gpu -}}
@@ -44,7 +37,7 @@ encryption = "age"
     recipient = "age1egva8dwupvqgh2r3d48j2jsrjkfrgvvpjk83vttdcjftlyze5cgs7ccffj"
 
 [data]
-    email = {{- $email | quote -}}
-    profile = {{- $profile | quote -}}
+    email = {{ $email | quote }}
+    profile = {{ $profile | quote }}
     osid = {{ $osid | quote }}
     gpu = {{ $gpu | quote }}
