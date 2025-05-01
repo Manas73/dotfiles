@@ -1,13 +1,20 @@
 aur:
   - 1password
   - 1password-cli
+  - bibata-cursor-theme-bin
+  - checkupdates-with-aur
   - datagrip
   - datagrip-jre
   - gitkraken
+  - grimblast-git
+  - hyprshade
   - kanata-bin
+  - matugen-bin
   - onlyoffice-bin
+  - pacseek
   - postman-bin
   - pycharm-professional
+  - python-screeninfo
   - rambox-pro-bin
   - rofi-greenclip
   - slack-desktop
@@ -15,6 +22,8 @@ aur:
   - ttf-apple-emoji
   - ttf-ms-fonts
   - ttf-vista-fonts
+  - waypaper
+  - wlogout
   - zoom
 core:
   - gnupg
@@ -24,35 +33,87 @@ extra:
   - alacritty
   - atuin
   - bat
+  - blueman
+  - brightnessctl
   - btop
   - chezmoi
+  - cliphist
   - docker
   - docker-buildx
   - docker-compose
   - eza
+  - fastfetch
+  - ffmpegthumbnailer
   - fish
   - firefox
   - flameshot
+  - fuse2
   - fzf
   - ghq
   - git
+  - grim
   - gparted
+  - gtk4
+  - htop
+  - hypridle
+  - hyprland
+  - hyprlock
+  - hyprpaper
+  - hyprpicker
+  - jq
   - kitty
   - lazygit
+  - libadwaita
+  - libnotify
   - libreoffice-fresh
   - neovim
+  - networkmanager
+  - network-manager-applet
+  - nm-connection-editor
+  - noto-fonts
+  - noto-fonts-cjk
+  - noto-fonts-emoji
+  - noto-fonts-extra
+  - nwg-look
+  - otf-font-awesome
+  - papirus-icon-theme
+  - pavucontrol
+  - polkit-gnome
+  - power-profiles-daemon
+  - python-gobject
   - python-pip
   - python-virtualenv
+  - qt5-graphicaleffects
+  - qt5-quickcontrols2
+  - qt5-svg
+  - qt5-wayland
+  - qt6-wayland
+  - qt6ct
+  - rofi-wayland
+  - rust
+  - sddm
+  - slurp
   - starship
+  - swaync
+  - ttf-dejavu
   - ttf-droid
+  - ttf-fira-code
+  - ttf-fira-sans
+  - ttf-firacode-nerd
   - ttf-jetbrains-mono-nerd
   - ttf-nerd-fonts-symbols
   - ttf-nerd-fonts-symbols-common
   - ttf-noto-nerd
+  - tumbler
   - uv
+  - uwsm
   - vivaldi
   - vivaldi-ffmpeg-codecs
   - vlc
+  - waybar
+  - xclip
+  - xdg-desktop-portal-gtk
+  - xdg-desktop-portal-hyprland
   - yazi
   - zellij
   - zoxide
