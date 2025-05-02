@@ -57,11 +57,11 @@ else
 fi
 
 # 5. Create systemd user service for kanata
-SYSTEMD_USER_DIR="/lib/systemd/system"
+SYSTEMD_USER_DIR="${HOME}/.config/systemd/user"
 KANATA_SERVICE_FILE="${SYSTEMD_USER_DIR}/kanata.service"
 
 # Create systemd user directory if it doesn't exist
-sudo mkdir -p "$SYSTEMD_USER_DIR"
+mkdir -p "$SYSTEMD_USER_DIR"
 
 # Create kanata service file
 if [ ! -f "$KANATA_SERVICE_FILE" ]; then
@@ -85,18 +85,18 @@ fi
 
 # Reload systemd, enable and start kanata service
 echo "Configuring kanata service..."
-sudo systemctl daemon-reload
+systemctl --user daemon-reload
 
-if ! sudo systemctl is-enabled kanata.service > /dev/null 2>&1; then
+if ! systemctl --user is-enabled kanata.service > /dev/null 2>&1; then
   echo "Enabling kanata service..."
-  sudo systemctl enable kanata.service
+  systemctl --user enable kanata.service
 else
   echo "kanata service is already enabled."
 fi
 
-if ! sudo systemctl is-active kanata.service > /dev/null 2>&1; then
+if ! systemctl --user is-active kanata.service > /dev/null 2>&1; then
   echo "Starting kanata service..."
-  sudo systemctl start kanata.service
+  systemctl --user start kanata.service
   echo "Kanata setup complete"
   echo "Note: You may need to log out and back in for group changes to take effect."
 else
