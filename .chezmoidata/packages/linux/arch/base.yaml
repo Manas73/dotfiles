@@ -43,6 +43,7 @@ extra:
   - lazygit
   - libreoffice-fresh
   - neovim
+  - playerctl
   - python-pip
   - python-virtualenv
   - starship
