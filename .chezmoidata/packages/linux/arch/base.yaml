@@ -38,6 +38,7 @@ extra:
   - ghq
   - git
   - gparted
+  - gwenview
   - kitty
   - lazygit
   - libreoffice-fresh
