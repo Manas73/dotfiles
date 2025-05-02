@@ -1,8 +1,10 @@
 aur:
-  - picom-git
+  - ttf-material-design-icons-git
+  - ttf-material-icons-git
 extra:
   - feh
   - i3-wm
+  - picom
   - polybar
   - python-i3ipc
   - rofi
