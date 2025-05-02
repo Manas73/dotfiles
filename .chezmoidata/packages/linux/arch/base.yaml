@@ -55,6 +55,7 @@ extra:
   - vivaldi
   - vivaldi-ffmpeg-codecs
   - vlc
+  - xorg-xev
   - yazi
   - zellij
   - zoxide
