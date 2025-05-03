@@ -16,11 +16,13 @@ key.txt.age
 .config/i3
 .config/picom
 .config/polybar
-.config/rofi
 {{- end }}
 
 {{- if not (has "hyprland" .window_manager) }}
+.config/dunst
 .config/hypr
+.config/swaync
+.config/waybar
 {{- end }}
 
 {{- if ne .osid "linux-manjaro" }}

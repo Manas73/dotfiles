@@ -1,6 +1,3 @@
-aur:
-  - ttf-material-design-icons-git
-  - ttf-material-icons-git
 extra:
   - feh
   - i3-wm
@@ -11,5 +8,6 @@ extra:
   - rofi-calc
   - rofi-emoji
   - rofi-greenclip
+aur: []
 core: []
 multilib: []

@@ -5,12 +5,17 @@ aur:
   - dropbox
   - gitkraken
   - kanata-bin
+  - matugen-bin
   - onlyoffice-bin
+  - pacseek
   - postman-bin
   - pycharm-professional
+  - python-screeninfo
   - rambox-pro-bin
   - slack-desktop
   - sublime-text-4
+  - ttf-material-design-icons-git
+  - ttf-material-icons-git
   - ttf-ms-fonts
   - ttf-vista-fonts
   - zoom
@@ -31,23 +36,34 @@ extra:
   - dolphin
   - dolphin-plugins
   - eza
-  - fish
+  - fastfetch
   - firefox
+  - fish
   - flameshot
   - fzf
   - ghq
   - git
   - gparted
   - gwenview
+  - jq
   - kitty
   - lazygit
+  - libadwaita
   - libreoffice-fresh
+  - libnotify
+  - networkmanager
+  - network-manager-applet
+  - nm-connection-editor
   - neovim
   - playerctl
   - python-pip
   - python-virtualenv
   - starship
+  - ttf-dejavu
   - ttf-droid
+  - ttf-fira-code
+  - ttf-fira-sans
+  - ttf-firacode-nerd
   - ttf-jetbrains-mono-nerd
   - ttf-nerd-fonts-symbols
   - ttf-nerd-fonts-symbols-common
@@ -56,6 +72,8 @@ extra:
   - vivaldi
   - vivaldi-ffmpeg-codecs
   - vlc
+  - xclip
+  - xdg-desktop-portal-gtk
   - xorg-xev
   - yazi
   - zellij

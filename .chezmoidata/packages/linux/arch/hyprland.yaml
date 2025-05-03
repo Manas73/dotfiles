@@ -1,0 +1,28 @@
+aur:
+  - bibata-cursor-theme-bin
+  - grimblast-git
+  - hyprshade
+  - waypaper
+  - wlogout
+extra:
+  - blueman
+  - brightnessctl
+  - cliphist
+  - dunst
+  - grim
+  - hypridle
+  - hyprland
+  - hyprlock
+  - hyprpaper
+  - hyprpicker
+  - rofi-wayland
+  - slurp
+  - swaybg
+  - swaync
+  - tumbler
+  - uwsm
+  - waybar
+  - wl-clipboard
+  - xdg-desktop-portal-hyprland
+core: []
+multilib: []
