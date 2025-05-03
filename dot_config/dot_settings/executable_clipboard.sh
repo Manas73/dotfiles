@@ -1,1 +1,1 @@
-rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
+qdbus org.kde.klipper /klipper org.kde.klipper.klipper.showKlipperPopupMenu
