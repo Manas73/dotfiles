@@ -19,3 +19,9 @@ output_path = '~/.config/swaync/colors.css'
 input_path = '~/.config/matugen/templates/rofi-colors.rasi'
 output_path = '~/.config/rofi/colors.rasi'
 {{- end }}
+
+{{ if has "i3" .window_manager }}
+[templates.i3]
+input_path = '~/.config/matugen/templates/i3-colors.conf'
+output_path = '~/.config/i3/colors.conf'
+{{- end }}

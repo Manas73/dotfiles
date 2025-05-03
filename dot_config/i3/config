@@ -1,3 +1,8 @@
+# Setting Wallpaper
+set $wallpaper "$HOME/.config/.settings/desktop_wallpaper_2.jpg"
+exec_always feh --bg-fill $wallpaper
+exec --no-startup-id matugen image $wallpaper -m "dark"
+
 # Incliding all configs
 include ~/.config/i3/colors.conf
 include ~/.config/i3/plasma.conf
