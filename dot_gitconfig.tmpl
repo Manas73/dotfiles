@@ -3,14 +3,14 @@
 	email = {{ .email | quote }}
 	signingKey = 
 [gpg]
-	format = openpgp
+	format =
 	program = gpg
 [commit]
 	gpgSign = false
 [tag]
 	forceSignAnnotated = false
 [gpg "ssh"]
-	program = ssh-keygen
+	program =
 	allowedSignersFile = 
 [credential]
 	helper = store
