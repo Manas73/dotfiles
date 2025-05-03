@@ -6,17 +6,18 @@
 )
 
 ;; Define aliases for the home-row mods and other tap-hold keys
+(defvirtualkeys relf24 (release-key f24))
 (defalias
   ;; Home row mods - left hand
-  alt_a (tap-hold 300 300 a lalt)  ;; A key: tap for 'a', hold for left Alt
-  sft_s (tap-hold 300 300 s lsft)  ;; S key: tap for 's', hold for left Shift
-  ctl_d (tap-hold 300 300 d lctl)  ;; D key: tap for 'd', hold for left Control
+  alt_a (multi f24 (tap-hold 300 300 a lalt)  (macro 5 (on-press tap-vkey relf24))) ;; A key: tap for 'a', hold for left Alt
+  sft_s (multi f24 (tap-hold 300 300 s lsft)  (macro 5 (on-press tap-vkey relf24))) ;; S key: tap for 's', hold for left Shift
+  ctl_d (multi f24 (tap-hold 300 300 d lctl)  (macro 5 (on-press tap-vkey relf24))) ;; D key: tap for 'd', hold for left Control
 
   ;; Home row mods - right hand
-  ctl_h (tap-hold 300 300 h rctl)  ;; H key: tap for 'h', hold for right Control
-  sft_j (tap-hold 300 300 j rsft)  ;; J key: tap for 'j', hold for right Shift
-  alt_k (tap-hold 300 300 k lalt)  ;; K key: tap for 'k', hold for left Alt
-  met_l (tap-hold 300 300 l rmet)  ;; L key: tap for 'l', hold for right Super/Meta
+  ctl_h (multi f24 (tap-hold 300 300 h rctl)  (macro 5 (on-press tap-vkey relf24))) ;; H key: tap for 'h', hold for right Control
+  sft_j (multi f24 (tap-hold 300 300 j rsft)  (macro 5 (on-press tap-vkey relf24))) ;; J key: tap for 'j', hold for right Shift
+  alt_k (multi f24 (tap-hold 300 300 k lalt)  (macro 5 (on-press tap-vkey relf24))) ;; K key: tap for 'k', hold for left Alt
+  met_l (multi f24 (tap-hold 300 300 l rmet)  (macro 5 (on-press tap-vkey relf24))) ;; L key: tap for 'l', hold for right Super/Meta
 
   ;; Improved mapping: Caps Lock as Esc/Super with explicit caps lock prevention
   esc_met (tap-hold-press 200 200 esc lmet)  ;; Using tap-hold-press to prevent accidental triggers
