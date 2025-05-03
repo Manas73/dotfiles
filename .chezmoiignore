@@ -12,14 +12,14 @@ key.txt.age
 .config/greenclip.toml
 {{- end }}
 
-{{- if ne .window_manager "i3" }}
+{{- if not (has "i3" .window_manager) }}
 .config/i3
 .config/picom
 .config/polybar
 .config/rofi
 {{- end }}
 
-{{- if ne .window_manager "hyprland" }}
+{{- if not (has "hyprland" .window_manager) }}
 .config/hypr
 {{- end }}
 

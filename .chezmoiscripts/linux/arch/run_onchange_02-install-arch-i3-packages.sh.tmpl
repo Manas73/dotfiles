@@ -7,7 +7,7 @@ appimagedir="$HOME/AppImages/"
 mkdir -p "$bindir"
 mkdir -p "$appimagedir"
 
-{{ if and (eq .osid "linux-arch") (eq .window_manager "i3") }}
+{{ if and (eq .osid "linux-arch") (has "i3" .window_manager) }}
 
 cat << "EOF"
 

@@ -17,7 +17,7 @@
 {{- $window_manager := "" -}}
 {{- if eq .chezmoi.os "linux" -}}
 {{- $window_manager_choices := list "i3" "hyprland" -}}
-{{- $window_manager = promptChoiceOnce . "window_manager" "Default i3" $window_manager_choices "i3" -}}
+{{- $window_manager = promptMultichoice "Default i3" $window_manager_choices (list "i3") -}}
 {{- end -}}
 
 {{/* Ask GPU Type */}}
@@ -48,4 +48,4 @@ encryption = "age"
     profile = {{ $profile | quote }}
     osid = {{ $osid | quote }}
     gpu = {{ $gpu | quote }}
-    window_manager = {{ $window_manager | quote }}
+    window_manager = {{- $window_manager | toToml -}}
