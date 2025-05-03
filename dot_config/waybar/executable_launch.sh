@@ -25,9 +25,4 @@ echo ":: Theme: ${arrThemes[0]}"
 config_file="config"
 style_file="style.css"
 
-# Check if waybar-disabled file exists
-if [ ! -f $HOME/.config/ml4w/settings/waybar-disabled ]; then
-    waybar -c ~/.config/waybar/themes${arrThemes[0]}/$config_file -s ~/.config/waybar/themes${arrThemes[1]}/$style_file &
-else
-    echo ":: Waybar disabled"
-fi
+waybar -c ~/.config/waybar/themes${arrThemes[0]}/$config_file -s ~/.config/waybar/themes${arrThemes[1]}/$style_file &
