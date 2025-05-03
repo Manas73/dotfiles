@@ -2,6 +2,8 @@
 
 export PATH="${HOME}/.local/bin:${HOME}/bin:${PATH}"
 
+{{ if and (eq .osid "linux-arch") (has "i3" .window_manager) }}
+
 cat << "EOF"
   _ ____            _____  _
  (_)___ \     _    |  __ \| |
@@ -57,3 +59,5 @@ if ! systemctl --user is-enabled plasma-i3.service > /dev/null 2>&1; then
 else
   echo "plasma-i3 service is already enabled."
 fi
+
+{{ end }}
