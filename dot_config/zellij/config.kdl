@@ -203,7 +203,8 @@ plugins {
 
 // Choose the theme that is specified in the themes section.
 // Default: default
-theme "onedark"
+theme_dir "/home/ms-garuda/.config/zellij/themes"
+theme "matugen"
 
 // Configure the scroll back buffer size
 // This is the number of lines zellij stores for each pane in the scroll back
