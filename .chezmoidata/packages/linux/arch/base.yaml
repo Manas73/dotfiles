@@ -18,6 +18,8 @@ aur:
   - ttf-material-icons-git
   - ttf-ms-fonts
   - ttf-vista-fonts
+  - webstorm
+  - webstorm-jre
   - zoom
 core:
   - gnupg
