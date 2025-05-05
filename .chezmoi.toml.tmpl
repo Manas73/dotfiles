@@ -2,7 +2,7 @@
 
 {{- /* Ask Profile Choices */ -}}
 {{- $profile_choices := list "personal" "work" -}}
-{{- $profile := promptChoiceOnce . "profile" "Default Profile" $profile_choices "personal" -}}
+{{- $profile := promptChoiceOnce . "profile" "Select the Profile: " $profile_choices "personal" -}}
 
 {{/* Detect OS Type */}}
 {{- $osid := .chezmoi.os -}}
@@ -15,9 +15,16 @@
 
 {{- /* Ask Window Manager Choices */ -}}
 {{- $window_manager := "" -}}
+{{- $window_manager_choices := list "i3" "qtile" "hyprland" -}}
 {{- if eq .chezmoi.os "linux" -}}
-{{- $window_manager_choices := list "i3" "hyprland" -}}
-{{- $window_manager = promptMultichoice "Default i3" $window_manager_choices (list "i3") -}}
+{{- $window_manager = promptMultichoice "Select Window Managers to Install: " $window_manager_choices (list "i3") -}}
+{{- end -}}
+
+{{- /* Ask Window Manager Plasma Binding Choices */ -}}
+{{- $plasma_window_manager := "" -}}
+{{- $plasma_window_manager_choices := concat (without $window_manager_choices "hyprland") (list "kwin") -}}
+{{- if eq .chezmoi.os "linux" -}}
+{{- $plasma_window_manager = promptChoice "Select Window Manager for Plasma: " $plasma_window_manager_choices "kwin" -}}
 {{- end -}}
 
 {{/* Ask GPU Type */}}
@@ -48,4 +55,5 @@ encryption = "age"
     profile = {{ $profile | quote }}
     osid = {{ $osid | quote }}
     gpu = {{ $gpu | quote }}
-    window_manager = {{- $window_manager | toToml -}}
+    window_manager = {{ $window_manager | toToml }}
+    plasma_window_manager = {{ $plasma_window_manager | quote }}

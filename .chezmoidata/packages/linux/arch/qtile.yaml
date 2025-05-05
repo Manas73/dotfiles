@@ -1,0 +1,12 @@
+extra:
+  - feh
+  - picom
+  - qtile
+  - rofi-wayland
+  - rofi-calc
+  - rofi-emoji
+  - rofi-greenclip
+aur:
+  - qtile-extras
+core: []
+multilib: []

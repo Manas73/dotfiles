@@ -7,17 +7,16 @@ appimagedir="$HOME/AppImages/"
 mkdir -p "$bindir"
 mkdir -p "$appimagedir"
 
-{{ if eq .osid "linux-arch" }}
+{{ if and (eq .osid "linux-arch") (has "qtile" .window_manager) }}
 
 cat << "EOF"
 
-  ____                    _____           _        _ _       _   _
- |  _ \                  |_   _|         | |      | | |     | | (_)
- | |_) | __ _ ___  ___     | |  _ __  ___| |_ __ _| | | __ _| |_ _  ___  _ __
- |  _ < / _` / __|/ _ \    | | | '_ \/ __| __/ _` | | |/ _` | __| |/ _ \| '_ \
- | |_) | (_| \__ \  __/   _| |_| | | \__ \ || (_| | | | (_| | |_| | (_) | | | |
- |____/ \__,_|___/\___|  |_____|_| |_|___/\__\__,_|_|_|\__,_|\__|_|\___/|_| |_|
-
+   ____  _   _ _         _____           _        _ _       _   _
+  / __ \| | (_) |       |_   _|         | |      | | |     | | (_)
+ | |  | | |_ _| | ___     | |  _ __  ___| |_ __ _| | | __ _| |_ _  ___  _ __
+ | |  | | __| | |/ _ \    | | | '_ \/ __| __/ _` | | |/ _` | __| |/ _ \| '_ \
+ | |__| | |_| | |  __/   _| |_| | | \__ \ || (_| | | | (_| | |_| | (_) | | | |
+  \___\_\\__|_|_|\___|  |_____|_| |_|___/\__\__,_|_|_|\__,_|\__|_|\___/|_| |_|
 
 
 EOF
@@ -39,7 +38,7 @@ EOF
 echo "Installing Arch packages"
 
 # Load base packages
-{{ $base := include ".chezmoidata/packages/linux/arch/base.yaml" | fromYaml }}
+{{ $base := include ".chezmoidata/packages/linux/arch/qtile.yaml" | fromYaml }}
 
 # Add base packages
 {{ $core_packages := $base.core }}
@@ -62,8 +61,10 @@ if type -P yay >/dev/null 2>&1; then
  /_/    \_\____/|_|  \_\   |_|   \__,_|\___|_|\_\__,_|\__, |\___||___/
                                                        __/ |
                                                       |___/
+
 EOF
   yay -Syu --needed {{ range $aur_packages }} {{.}}{{ end }}
 fi
 
 {{ end }}
+

@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+export PATH="${HOME}/.local/bin:${HOME}/bin:${PATH}"
+
+{{ if and (eq .osid "linux-arch") (ne .plasma_window_manager "") (ne .plasma_window_manager "kwin") }}
+
+cat << "EOF"
+
+ __          ____  __           _____  _
+ \ \        / /  \/  |    _    |  __ \| |
+  \ \  /\  / /| \  / |  _| |_  | |__) | | __ _ ___ _ __ ___   __ _
+   \ \/  \/ / | |\/| | |_   _| |  ___/| |/ _` / __| '_ ` _ \ / _` |
+    \  /\  /  | |  | |   |_|   | |    | | (_| \__ \ | | | | | (_| |
+     \/  \/   |_|  |_|         |_|    |_|\__,_|___/_| |_| |_|\__,_|
+
+EOF
+
+echo "Setting up {{ .plasma_window_manager }} with KDE Plasma integration..."
+
+# Create systemd user directory if it doesn't exist
+SYSTEMD_USER_DIR="${HOME}/.config/systemd/user"
+mkdir -p "$SYSTEMD_USER_DIR"
+
+# Create plasma-wm service file
+PLASMA_WM_SERVICE_FILE="${SYSTEMD_USER_DIR}/plasma-wm.service"
+
+echo "Creating plasma-plasma-wm systemd service..."
+cat > "$PLASMA_WM_SERVICE_FILE" << EOF
+[Unit]
+Description=Launch Plasma with {{ .plasma_window_manager }}
+Before=plasma-workspace.target
+
+[Service]
+ExecStart=/usr/bin/{{ .plasma_window_manager }}
+Restart=on-failure
+
+[Install]
+WantedBy=plasma-workspace.target
+EOF
+
+echo "plasma-wm service file created."
+
+# Mask the KWin service
+if ! systemctl --user is-masked plasma-kwin_x11.service > /dev/null 2>&1; then
+  echo "Masking plasma-kwin_x11 service..."
+  systemctl mask plasma-kwin_x11.service --user
+else
+  echo "plasma-kwin_x11 service is already masked."
+fi
+
+# Enable the plasma-wm service
+if ! systemctl --user is-enabled plasma-wm.service > /dev/null 2>&1; then
+  echo "Enabling plasma-wm service..."
+  systemctl enable plasma-wm.service --user
+  echo "{{ .plasma_window_manager }} + Plasma setup complete!"
+  echo "Please log out and log back in for changes to take effect."
+else
+  echo "plasma-wm service is already enabled."
+fi
+
+{{ end }}
+
+{{ if and (eq .osid "linux-arch") (eq .plasma_window_manager "kwin") }}
+
+if systemctl --user is-enabled plasma-wm.service > /dev/null 2>&1; then
+  echo "Disabling plasma-wm service..."
+  systemctl disable plasma-wim.service --user
+  echo "KWin + Plasma setup complete!"
+  echo "Please log out and log back in for changes to take effect."
+fi
+
+{{ end }}
