@@ -109,12 +109,9 @@ textbox {
 }
 
 scrollbar {
-    width:           6px;
-    border-radius:   4px;
-    background-color: transparent;
-}
-
-scrollbar-handle {
-    background-color: @outline-variant;
-    border-radius:    4px;
+    background-color: transparent;                  // No track visible
+    handle-width: 6px;                              // Thin scrollbar handle
+    handle-color: rgba(255, 255, 255, 0.12);         // Soft translucent gray
+    border-color: transparent;                      // No border
+    handle-rounded-corners: true;                   // Full pill-style roundness
 }
