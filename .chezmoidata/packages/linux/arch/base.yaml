@@ -59,6 +59,8 @@ extra:
   - nm-connection-editor
   - neovim
   - playerctl
+  - pre-commit
+  - python-black
   - python-pip
   - python-virtualenv
   - starship
