@@ -3,7 +3,7 @@
 @import "colors.rasi"
 
 * {
-    font: "JetBrainsMono Nerd Font 12";
+    font: "JetBrainsMono Nerd Font 10";
 
     bg0:    @surface-container;
     bg1:    @surface;
