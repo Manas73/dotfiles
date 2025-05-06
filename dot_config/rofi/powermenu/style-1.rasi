@@ -1,152 +1,112 @@
 /*****----- Configuration -----*****/
 configuration {
-    show-icons:                 false;
+    show-icons: false;
 }
 
 /*****----- Global Properties -----*****/
-@import                          "colors.rasi"
-@import                          "fonts.rasi"
+@import "colors.rasi"
+@import "fonts.rasi"
 
-/*****----- Main Window -----*****/
+/*****----- Window (Frosted Glass Effect) -----*****/
 window {
-    /* properties for window widget */
-    transparency:                "real";
-    location:                    center;
-    anchor:                      center;
-    fullscreen:                  false;
-    width:                       400px;
-    x-offset:                    0px;
-    y-offset:                    0px;
+    transparency: "real";
+    location: center;
+    anchor: center;
+    fullscreen: false;
+    width: 420px;
 
-    /* properties for all widgets */
-    enabled:                     true;
-    margin:                      0px;
-    padding:                     0px;
-    border:                      0px solid;
-    border-radius:               12px;
-    border-color:                @selected;
-    cursor:                      "default";
-    background-color:            @background;
+    border: 1px;
+    border-radius: 14px;
+    border-color: @outline-variant;
+    padding: 6px;
+
+    background-color: rgba(25, 25, 30, 0.6);  // translucent light tint
+    cursor: default;
 }
 
 /*****----- Main Box -----*****/
 mainbox {
-    enabled:                     true;
-    spacing:                     10px;
-    margin:                      0px;
-    padding:                     20px;
-    border:                      0px solid;
-    border-radius:               0px;
-    border-color:                @selected;
-    background-color:            transparent;
-    children:                    [ "inputbar", "message", "listview" ];
+    spacing: 12px;
+    padding: 24px;
+    background-color: transparent;
+    children: [ "inputbar", "message", "listview" ];
 }
 
 /*****----- Inputbar -----*****/
 inputbar {
-    enabled:                     true;
-    spacing:                     10px;
-    margin:                      0px;
-    padding:                     0px;
-    border:                      0px;
-    border-radius:               0px;
-    border-color:                @selected;
-    background-color:            transparent;
-    text-color:                  @foreground;
-    children:                    [ "textbox-prompt-colon", "prompt"];
+    spacing: 12px;
+    background-color: transparent;
+    text-color: @on-surface;
+    children: [ "textbox-prompt-colon", "prompt" ];
 }
 
 textbox-prompt-colon {
-    enabled:                     true;
-    expand:                      false;
-    str:                         "";
-    padding:                     10px 14px;
-    border-radius:               10px;
-    background-color:            @urgent;
-    text-color:                  @background;
-}
-prompt {
-    enabled:                     true;
-    padding:                     10px;
-    border-radius:               10px;
-    background-color:            @active;
-    text-color:                  @background;
+    expand: false;
+    str: "";  // Power icon
+    padding: 10px 14px;
+    border-radius: 10px;
+    background-color: @error;
+    text-color: @background;
 }
 
-/*****----- Message -----*****/
+prompt {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: @primary;
+    text-color: @on-primary;
+}
+
+/*****----- Messages -----*****/
 message {
-    enabled:                     true;
-    margin:                      0px;
-    padding:                     10px;
-    border:                      0px solid;
-    border-radius:               10px;
-    border-color:                @selected;
-    background-color:            @background-alt;
-    text-color:                  @foreground;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: inherit;
+    text-color: @on-surface-variant;
 }
+
 textbox {
-    background-color:            inherit;
-    text-color:                  inherit;
-    vertical-align:              0.5;
-    horizontal-align:            0.0;
-    placeholder-color:           @foreground;
-    blink:                       true;
-    markup:                      true;
+    background-color: inherit;
+    text-color: inherit;
+    placeholder-color: @on-surface-variant;
+    blink: true;
+    markup: true;
 }
+
+/*****----- Error Message -----*****/
 error-message {
-    padding:                     10px;
-    border:                      0px solid;
-    border-radius:               0px;
-    border-color:                @selected;
-    background-color:            @background;
-    text-color:                  @foreground;
+    padding: 10px;
+    background-color: rgba(255, 0, 0, 0.08);
+    text-color: @error;
 }
 
 /*****----- Listview -----*****/
 listview {
-    enabled:                     true;
-    columns:                     1;
-    lines:                       5;
-    cycle:                       true;
-    dynamic:                     true;
-    scrollbar:                   false;
-    layout:                      vertical;
-    reverse:                     false;
-    fixed-height:                true;
-    fixed-columns:               true;
-
-    spacing:                     5px;
-    margin:                      0px;
-    padding:                     0px;
-    border:                      0px solid;
-    border-radius:               0px;
-    border-color:                @selected;
-    background-color:            transparent;
-    text-color:                  @foreground;
-    cursor:                      "default";
+    columns: 1;
+    lines: 5;
+    fixed-height: true;
+    layout: vertical;
+    spacing: 6px;
+    background-color: transparent;
+    text-color: @on-surface;
 }
 
-/*****----- Elements -----*****/
+/*****----- Elements (Menu Items) -----*****/
 element {
-    enabled:                     true;
-    spacing:                     0px;
-    margin:                      0px;
-    padding:                     10px;
-    border:                      0px solid;
-    border-radius:               10px;
-    border-color:                @selected;
-    background-color:            transparent;
-    text-color:                  @foreground;
-    cursor:                      pointer;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: transparent;
+    text-color: @on-surface;
+    cursor: pointer;
 }
+
 element-text {
-    background-color:            transparent;
-    text-color:                  inherit;
-    cursor:                      inherit;
-    vertical-align:              0.5;
-    horizontal-align:            0.0;
+    background-color: transparent;
+    text-color: inherit;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
 }
+
 element selected.normal {
-    background-color:            var(selected);
-    text-color:                  var(background);
+    background-color: @primary-container;
+    text-color: @on-primary-container;
 }
