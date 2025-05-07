@@ -1,26 +1,18 @@
 aur:
   - 1password
-  - datagrip
-  - datagrip-jre
   - dropbox
-  - gitkraken
   - google-chrome
   - kanata-bin
   - matugen-bin
   - onlyoffice-bin
   - pacseek
-  - postman-bin
-  - pycharm-professional
   - python-screeninfo
   - rambox-pro-bin
   - slack-desktop
-  - sublime-text-4
   - ttf-material-design-icons-git
   - ttf-material-icons-git
   - ttf-ms-fonts
   - ttf-vista-fonts
-  - webstorm
-  - webstorm-jre
   - zoom
 core:
   - gnupg
@@ -33,9 +25,6 @@ extra:
   - bat
   - btop
   - chezmoi
-  - docker
-  - docker-buildx
-  - docker-compose
   - dolphin
   - dolphin-plugins
   - eza
@@ -50,17 +39,17 @@ extra:
   - gwenview
   - jq
   - kitty
-  - lazygit
   - libadwaita
   - libreoffice-fresh
   - libnotify
+  - neovim
   - networkmanager
   - network-manager-applet
   - nm-connection-editor
-  - neovim
+  - nodejs
+  - npm
+  - nvm
   - playerctl
-  - pre-commit
-  - python-black
   - python-pip
   - python-virtualenv
   - starship
@@ -73,7 +62,6 @@ extra:
   - ttf-nerd-fonts-symbols
   - ttf-nerd-fonts-symbols-common
   - ttf-noto-nerd
-  - uv
   - vivaldi
   - vivaldi-ffmpeg-codecs
   - vlc

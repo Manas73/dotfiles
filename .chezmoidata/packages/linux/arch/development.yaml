@@ -1,0 +1,19 @@
+aur:
+  - datagrip
+  - datagrip-jre
+  - gitkraken
+  - postman-bin
+  - pycharm-professional
+  - sublime-text-4
+  - webstorm
+  - webstorm-jre
+extra:
+  - docker
+  - docker-buildx
+  - docker-compose
+  - lazygit
+  - pre-commit
+  - python-black
+  - uv
+core: []
+multilib: []
