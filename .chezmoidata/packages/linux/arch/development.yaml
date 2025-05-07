@@ -11,6 +11,8 @@ extra:
   - docker
   - docker-buildx
   - docker-compose
+  - go
+  - hugo
   - lazygit
   - pre-commit
   - python-black
