@@ -1,0 +1,114 @@
+/* MACOS SPOTLIGHT-LIKE ROFI THEME — DARK, TRANSLUCENT, MINIMAL */
+
+@import "colors.rasi"
+
+* {
+    font: "JetBrainsMono Nerd Font 10";
+
+    bg0:    @surface-container;
+    bg1:    @surface;
+    bg2:    @primary-container;
+
+    fg0:    @on-surface;
+    fg1:    @on-primary-container;
+    fg2:    @on-surface-variant;
+
+    background-color: transparent;
+    text-color:       @fg0;
+    margin:           0;
+    padding:          0;
+    spacing:          0;
+}
+
+window {
+    background-color: rgba(25, 25, 30, 0.6); /* semi-transparent dark */
+    border:           1px;
+    border-radius:    12px;
+    border-color:     @outline-variant;
+    location:         center;
+    width:            640;
+    transparency:     "real"; /* Let compositor handle blur */
+}
+
+inputbar {
+    font:       inherit;
+    padding:    16px 20px;
+    spacing:    10px;
+    background-color: transparent;
+}
+
+icon-search {
+    expand:     false;
+    size:       26px;
+}
+
+entry {
+    font: inherit;
+    placeholder-color: @fg2;
+    text-color: @fg0;
+    background-color: transparent;
+}
+
+message {
+    border:             1px 0 0;
+    border-color:       @outline-variant;
+    background-color:   inherit;
+    text-color:         @fg2;
+}
+
+listview {
+    lines:          8;
+    columns:        1;
+    fixed-height:   false;
+    padding:        8px 0;
+    border:         1px 0 0;
+    border-color:   @outline-variant;
+    background-color: transparent;
+}
+
+element {
+    padding:            12px 20px;
+    spacing:            10px;
+    background-color:   transparent;
+}
+
+element.normal.normal,
+element.alternate.normal {
+    text-color: @fg0;
+    background-color: transparent;
+}
+
+element normal active,
+element alternate active {
+    background-color: rgba(255, 255, 255, 0.05);
+    text-color: @fg2;
+}
+
+element selected normal,
+element selected active {
+    background-color: @bg2;
+    text-color: @fg1;
+    border-radius: 6px;
+}
+
+element-icon {
+    size:       1em;
+    text-color: inherit;
+}
+
+element-text {
+    text-color: inherit;
+}
+
+textbox {
+    padding:    8px 24px;
+    text-color: @fg0;
+}
+
+scrollbar {
+    background-color: transparent;                  // No track visible
+    handle-width: 6px;                              // Thin scrollbar handle
+    handle-color: rgba(255, 255, 255, 0.12);         // Soft translucent gray
+    border-color: transparent;                      // No border
+    handle-rounded-corners: true;                   // Full pill-style roundness
+}

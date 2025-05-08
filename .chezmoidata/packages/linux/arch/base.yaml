@@ -31,13 +31,14 @@ extra:
   - fastfetch
   - firefox
   - fish
-  - flameshot
+  - flamesho
   - fzf
   - ghq
   - git
   - gparted
   - gwenview
   - jq
+  - kcharselect
   - kitty
   - libadwaita
   - libreoffice-fresh

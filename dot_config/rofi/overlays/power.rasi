@@ -1,0 +1,44 @@
+/*****----- Global Properties -----*****/
+@import "~/.config/rofi/themes/spotlight-dark.rasi"
+
+/*****----- Main Box -----*****/
+mainbox {
+    spacing: 12px;
+    padding: 24px;
+    background-color: transparent;
+    children: [ "inputbar", "message", "listview" ];
+}
+
+/*****----- Inputbar -----*****/
+inputbar {
+    spacing: 12px;
+    background-color: transparent;
+    text-color: @on-surface;
+    children: [ "textbox-prompt-colon", "prompt" ];
+}
+
+textbox-prompt-colon {
+    expand: false;
+    str: "";  // Power icon
+    padding: 10px 14px;
+    border-radius: 10px;
+    background-color: @error;
+    text-color: @background;
+}
+
+prompt {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: @primary;
+    text-color: @on-primary;
+}
+
+listview {
+    columns: 1;
+    lines: 5;
+    fixed-height: true;
+    layout: vertical;
+    spacing: 6px;
+    background-color: transparent;
+    text-color: @on-surface;
+}

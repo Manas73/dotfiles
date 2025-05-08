@@ -14,16 +14,20 @@ input_path = '~/.config/matugen/templates/colors.css'
 output_path = '~/.config/swaync/colors.css'
 {{- end }}
 
-{{ if or (has "hyprland" .window_manager) (has "i3" .window_manager) }}
 [templates.rofi]
 input_path = '~/.config/matugen/templates/rofi-colors.rasi'
-output_path = '~/.config/rofi/colors.rasi'
-{{- end }}
+output_path = '~/.config/rofi/themes/colors.rasi'
 
 {{ if has "i3" .window_manager }}
 [templates.i3]
 input_path = '~/.config/matugen/templates/i3-colors.conf'
 output_path = '~/.config/i3/colors.conf'
+{{- end }}
+
+{{ if has "qtile" .window_manager }}
+[templates.qtile]
+input_path = '~/.config/matugen/templates/qtile-colors.py'
+output_path = '~/.config/qtile/colors.py'
 {{- end }}
 
 [templates.zellij]
