@@ -83,30 +83,6 @@ elif [[ "$chosen_network" == "$rescan_entry" ]]; then
     sleep 1
     exec "$0"
 elif [[ "$chosen_network" == "$new_connection_entry" ]]; then
-
-    rofi_overlays="$HOME/.config/rofi/overlays"
-
-    # Show unknown networks in second Rofi prompt
-    chosen_network=$(echo -e "$unknown_list" | rofi -markup-rows -dmenu -i -p "New Wi-Fi Network:")
-    [[ -z "$chosen_network" ]] && exit
-
-    # Extract SSID and re-evaluate SECURITY
-    chosen_id=$(echo "$chosen_network" | sed -E 's/^.*?  (.*) \([0-9]+%\)$/\1/')
-
-	# Get exact match line (SSID match only, exact)
-	selected_line=$(nmcli -t -f SSID,SECURITY device wifi list | awk -F: -v ssid="$chosen_id" '$1 == ssid { print; exit }')
-
-	security=$(echo "$selected_line" | cut -d: -f2)
-
-    if [[ "$security" != "--" && -n "$security" ]]; then
-        wifi_password=$(rofi -dmenu -theme ~/.config/rofi/overlays/password.rasi -p "$chosen_id: ")
-
-        [[ -z "$wifi_password" ]] && exit
-
-        nmcli device wifi connect "$chosen_id" password "$wifi_password"
-
-    else
-        nmcli device wifi connect "$chosen_id"
-    fi
+    exec "~/.config/.settings/wifi_new_connection_menu.sh"
 fi
 
