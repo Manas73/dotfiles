@@ -1,0 +1,14 @@
+[Applications][rambox]
+Seen=true
+
+[Applications][slack]
+Seen=true
+
+[Applications][vivaldi-stable]
+Seen=true
+
+[DoNotDisturb]
+WhenScreensMirrored=false
+
+[Notifications]
+PopupPosition=TopRight

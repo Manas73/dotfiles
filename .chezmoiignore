@@ -3,13 +3,26 @@ key.txt.age
 
 {{- if ne .chezmoi.os "linux" }}
 .config/.settings
-.config/hypr
-.config/i3
+.config/fastfetch
 .config/Kvantum
-.config/picom
-.config/polybar
+.config/matugen
+.config/qtile
 .config/rofi
+
 .config/greenclip.toml
+.config/gtkrc
+.config/kdeglobals
+.config/kscreenlockerrc
+.config/kwinrc
+.config/dolphinrc
+.config/kglobalshortcutsrc
+.config/ksplashrc
+.config/plasma-org.kde.plasma.desktop-appletsrc
+.config/plasmanotifyrc
+.config/plasmarc
+
+.local/share/kxmlgui5/dolphin/dolphinui.rc
+.local/share/user-places.xbel.tmpl
 {{- end }}
 
 {{- if not (has "i3" .window_manager) }}

@@ -24,6 +24,7 @@ x-scheme-handler/postman=Postman.desktop;
 x-scheme-handler/tel=org.kde.kdeconnect.handler.desktop;
 x-scheme-handler/termius=termius-app.desktop;Termius.desktop;
 x-scheme-handler/figma=figma-linux.desktop
+x-scheme-handler/slack=slack.desktop;Slack.desktop;
 
 [Default Applications]
 application/json=sublime_text.desktop;
@@ -53,7 +54,7 @@ x-scheme-handler/msteams=teams.desktop
 x-scheme-handler/notion=notion-app.desktop
 x-scheme-handler/obsidian=obsidian.desktop
 x-scheme-handler/postman=Postman.desktop
-x-scheme-handler/slack=slack.desktop;Slack.desktop;
+x-scheme-handler/slack=slack.desktop
 x-scheme-handler/tel=org.kde.kdeconnect.handler.desktop;
 x-scheme-handler/termius=termius-app.desktop
 x-scheme-handler/zoommtg=Zoom.desktop

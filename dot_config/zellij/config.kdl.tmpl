@@ -203,7 +203,7 @@ plugins {
 
 // Choose the theme that is specified in the themes section.
 // Default: default
-theme_dir "/home/ms-garuda/.config/zellij/themes"
+theme_dir "{{ .chezmoi.homeDir }}/.config/zellij/themes"
 theme "matugen"
 
 // Configure the scroll back buffer size
