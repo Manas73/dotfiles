@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+{{ if eq .osid "linux-arch" }}
+
 cat << "EOF"
                     _
      /\            | |
@@ -29,3 +31,5 @@ echo "${LINE}"
 sudo pacman -S --noconfirm yay flatpak --needed
 
 echo "${LINE}"
+
+{{ end }}
