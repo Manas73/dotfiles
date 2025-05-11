@@ -7,7 +7,7 @@ exec --no-startup-id matugen image $wallpaper -m "dark"
 include ~/.config/i3/colors.conf
 include ~/.config/i3/plasma.conf
 include ~/.config/i3/workspaces.conf
-include ~/.config/i3/keybindings.conf
+# include ~/.config/i3/keybindings.conf
 include ~/.config/i3/autostart.conf
 
 

@@ -1,0 +1,8 @@
+super + space
+    rofi -show drun -show-icons
+
+super + alt + space; {a, b, v, w}
+    {~/.config/.settings/audio_menu.sh, ~/.config/.settings/bluetooth_menu.sh, ~/.config/.settings/vpn_menu.sh, ~/.config/.settings/wifi_menu.sh}
+
+super + Delete
+    ~/.config/.settings/powermenu.sh

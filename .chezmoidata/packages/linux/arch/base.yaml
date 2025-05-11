@@ -54,6 +54,7 @@ extra:
   - python-pip
   - python-virtualenv
   - starship
+  - sxhkd
   - ttf-dejavu
   - ttf-droid
   - ttf-fira-code

@@ -1,0 +1,43 @@
+# Application keybindings
+super + Return
+    ~/.config/.settings/terminal.sh
+
+super + b
+    ~/.config/.settings/browser.sh
+
+Print
+    flameshot gui
+
+super + d
+    ~/.config/.settings/file_manager.sh
+
+super + m
+    ~/.config/.settings/work_messenger.sh
+
+super + c
+    ~/.config/.settings/ide.sh
+
+super + alt + c
+    ~/.config/.settings/ide-alt.sh
+
+super + g
+    ~/.config/.settings/git_client.sh
+
+super + x
+    ~/.config/.settings/editor.sh
+
+super + n
+    ~/.config/.settings/notes.sh
+
+# Audio controls
+XF86AudioMute
+    pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+XF86AudioPlay
+    playerctl play-pause
+
+XF86AudioNext
+    pactl set-sink-volume @DEFAULT_SINK@ +2%
+
+XF86AudioPrev
+    pactl set-sink-volume @DEFAULT_SINK@ -2%
