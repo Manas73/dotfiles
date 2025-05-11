@@ -48,7 +48,7 @@ echo "Installing Arch packages"
 
 
 # Install packages
-sudo pacman -Syu --needed {{ range $core_packages }} {{.}}{{end}} {{ range $extra_packages }} {{.}}{{end}} {{ range $multilib_packages }} {{.}}{{end}}
+sudo pacman -Sy --needed {{ range $core_packages }} {{.}}{{end}} {{ range $extra_packages }} {{.}}{{end}} {{ range $multilib_packages }} {{.}}{{end}}
 
 if type -P yay >/dev/null 2>&1; then
   cat << "EOF"
@@ -63,7 +63,7 @@ if type -P yay >/dev/null 2>&1; then
                                                       |___/
 
 EOF
-  yay -Syu --needed {{ range $aur_packages }} {{.}}{{ end }}
+  yay -Sy --needed {{ range $aur_packages }} {{.}}{{ end }}
 fi
 
 {{ end }}
