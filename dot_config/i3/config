@@ -10,6 +10,17 @@ include ~/.config/i3/workspaces.conf
 # include ~/.config/i3/keybindings.conf
 include ~/.config/i3/autostart.conf
 
+## Adding lines 14-22 since we have commented out keybinding import and moved to sxhkd
+# Leader keys
+set $mod Mod4
+
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# move tiling windows via drag & drop by left-clicking into the title bar,
+# or left-clicking anywhere into the window while holding the floating modifier.
+tiling_drag modifier titlebar
+
 
 # Hide window title bar
 default_border pixel 1
