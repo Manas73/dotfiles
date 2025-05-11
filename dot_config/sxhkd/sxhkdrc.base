@@ -14,17 +14,11 @@ super + d
 super + m
     ~/.config/.settings/work_messenger.sh
 
-super + c
-    ~/.config/.settings/ide.sh
-
-super + alt + c
-    ~/.config/.settings/ide-alt.sh
+super + c; {1,2,3}
+    {~/.config/.settings/ide.sh, ~/.config/.settings/ide-alt.sh, ~/.config/.settings/editor.sh}
 
 super + g
     ~/.config/.settings/git_client.sh
-
-super + x
-    ~/.config/.settings/editor.sh
 
 super + n
     ~/.config/.settings/notes.sh
