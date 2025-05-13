@@ -98,7 +98,7 @@ ForegroundVisited=246,126,125
 
 [DirSelect Dialog]
 DirSelectDialog Size=1280,720
-# History Items[$e]=file:$HOME/Repositories/github.com/turing-genai-apps/wiki,file:$HOME/Repositories/github.com/turing-genai-apps/cerner-clone,file:$HOME/Repositories/github.com/TuringEnterprises/airflow,file:$HOME/Repositories/github.com/turing-genai-apps/cerner-demo,file:$HOME/Sambare's Dropbox/Manas Sambare/Videos,file:$HOME/Sambare's Dropbox/Manas Sambare/Pictures,file:$HOME/Sambare's Dropbox/Manas Sambare/Documents
+History Items[$e]=file:$HOME/Repositories/github.com/turing-genai-apps/athena-clone
 Splitter State=\x00\x00\x00\xff\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x86\x00\x00\x02\xa8\x00\xff\xff\xff\xff\x01\x00\x00\x00\x01\x00
 
 [General]
