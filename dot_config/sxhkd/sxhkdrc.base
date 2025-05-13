@@ -14,8 +14,8 @@ super + d
 super + m
     ~/.config/.settings/work_messenger.sh
 
-super + c; {1,2,3}
-    {~/.config/.settings/ide.sh, ~/.config/.settings/ide-alt.sh, ~/.config/.settings/editor.sh}
+super + c; {1,2,3,4}
+    {~/.config/.settings/ide.sh, ~/.config/.settings/ide-alt.sh, cursor, ~/.config/.settings/editor.sh}
 
 super + g
     ~/.config/.settings/git_client.sh
