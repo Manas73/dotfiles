@@ -60,7 +60,7 @@ formatted_connected=$(format_device_list "$connected_devices" "󰂱")
 formatted_disconnected=$(format_device_list "$disconnected_devices" "󰂲")
 
 # Combine all options
-options="$formatted_connected\n$toggle\n$formatted_disconnected"
+options="$toggle\n$formatted_connected\n$formatted_disconnected"
 
 # Use rofi to select a device with the calculated selected row
 chosen_option=$(echo -e "$options" | awk NF | rofi -dmenu -i -p "Bluetooth: ")
