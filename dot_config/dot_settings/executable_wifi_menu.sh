@@ -56,16 +56,23 @@ unknown_list=$(printf "%s\n" "${unknown_array[@]}")
 
 # Compose final list for rofi
 new_connection_entry="󰏖  New Connection"
-rescan_entry="  Rescan Wi-Fi"
+rescan_entry="  Rescan Wi-Fi"
+
+# Build menu with connected network first, then toggle, then known/unknown networks
 menu_list="$toggle"
 
-menu_list+="\n$rescan_entry"
 [[ -n "$connected_list" ]] && menu_list+="\n$connected_list"
+
+menu_list+="\n$rescan_entry"
+
 [[ -n "$known_list" ]]     && menu_list+="\n$known_list"
 [[ -n "$unknown_list" ]]   && menu_list+="\n$new_connection_entry"
 
-# Rofi menu
-chosen_network=$(echo -e "$menu_list" | rofi -dmenu -i -selected-row 2 -p "Wi-Fi SSID: ")
+# Count the number of connected devices (non-empty lines)
+connected_count=$(echo -e "$connected_list" | grep -v "^$" | wc -l)
+
+# Rofi menu - set selected row to the one after toggle (which is rescan_entry)
+chosen_network=$(echo -e "$menu_list" | rofi -dmenu -i -selected-row $((connected_count + 1)) -p "Wi-Fi SSID: ")
 
 # Extract SSID
 read -r chosen_id <<< "${chosen_network#* }"
