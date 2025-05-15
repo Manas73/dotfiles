@@ -39,7 +39,7 @@ selected_line=$(nmcli -t -f SSID,SECURITY device wifi list | awk -F: -v ssid="$c
 security=$(echo "$selected_line" | cut -d: -f2)
 
 if [[ "$security" != "--" && -n "$security" ]]; then
-    wifi_password=$(rofi -dmenu -theme ~/.config/rofi/overlays/password.rasi -p "$chosen_id: ")
+    wifi_password=$(rofi -dmenu -theme ~/.config/rofi/overlays/password.rasi -password -p "$chosen_id: ")
     [[ -z "$wifi_password" ]] && exit
     nmcli device wifi connect "$chosen_id" password "$wifi_password"
 else
