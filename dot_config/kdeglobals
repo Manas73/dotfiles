@@ -98,7 +98,7 @@ ForegroundVisited=246,126,125
 
 [DirSelect Dialog]
 DirSelectDialog Size=1280,720
-History Items[$e]=file:$HOME/Repositories/github.com/turing-genai-apps/athena-clone
+History Items[$e]=file:$HOME/Repositories/github.com/turing-genai-apps/wiki,file:$HOME/Repositories/github.com/turing-genai-apps/ultralab-wiki,file:$HOME/Repositories/github.com/turing-genai-apps/athena-clone,file:$HOME/Repositories/github.com/turing-genai-apps/athena-clone
 Splitter State=\x00\x00\x00\xff\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x86\x00\x00\x02\xa8\x00\xff\xff\xff\xff\x01\x00\x00\x00\x01\x00
 
 [General]
@@ -125,7 +125,7 @@ widgetStyle=kvantum-dark
 [KFileDialog Settings]
 Allow Expansion=false
 Automatically select filename extension=true
-Breadcrumb Navigation=false
+Breadcrumb Navigation=true
 Decoration position=2
 LocationCombo Completionmode=5
 PathCombo Completionmode=5
@@ -141,6 +141,9 @@ Sort hidden files last=false
 Sort reversed=false
 Speedbar Width=134
 View Style=Simple
+
+[KShortcutsDialog Settings]
+Dialog Size=600,480
 
 [PreviewSettings]
 EnableRemoteFolderThumbnail=false
