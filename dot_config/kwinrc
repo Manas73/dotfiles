@@ -21,7 +21,6 @@ Stiffness=10
 WobblynessLevel=1
 
 [NightColor]
-Active=true
 Mode=Times
 
 [Plugins]
