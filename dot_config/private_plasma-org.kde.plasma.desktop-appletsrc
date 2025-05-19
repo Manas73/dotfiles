@@ -115,7 +115,7 @@ immutability=1
 plugin=org.kde.plasma.clipboard
 
 [Containments][32][Applets][36][Configuration]
-PreloadWeight=90
+PreloadWeight=100
 
 [Containments][32][Applets][37]
 immutability=1
@@ -142,7 +142,7 @@ immutability=1
 plugin=org.kde.plasma.volume
 
 [Containments][32][Applets][42][Configuration]
-PreloadWeight=95
+PreloadWeight=100
 
 [Containments][32][Applets][42][Configuration][General]
 migrated=true
@@ -167,6 +167,9 @@ plugin=org.kde.plasma.networkmanagement
 
 [Containments][32][Applets][48][Configuration]
 PreloadWeight=100
+
+[Containments][32][Applets][48][Configuration][General]
+currentDetailsTab=details
 
 [Containments][32][Applets][52][Configuration]
 PreloadWeight=42
@@ -232,7 +235,7 @@ immutability=1
 plugin=org.kde.plasma.volume
 
 [Containments][9][Applets][19][Configuration]
-PreloadWeight=55
+PreloadWeight=80
 
 [Containments][9][Applets][19][Configuration][General]
 migrated=true
@@ -256,7 +259,10 @@ immutability=1
 plugin=org.kde.plasma.networkmanagement
 
 [Containments][9][Applets][25][Configuration]
-PreloadWeight=82
+PreloadWeight=100
+
+[Containments][9][Applets][25][Configuration][General]
+currentDetailsTab=details
 
 [Containments][9][Applets][51][Configuration]
 PreloadWeight=42
@@ -267,8 +273,9 @@ DialogWidth=720
 
 [Containments][9][General]
 extraItems=org.kde.kdeconnect,org.kde.kscreen,org.kde.plasma.battery,org.kde.plasma.bluetooth,org.kde.plasma.cameraindicator,org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.plasma.networkmanagement,org.kde.plasma.volume
-hiddenItems=blueman
+hiddenItems=blueman,flameshot
 knownItems=org.kde.kdeconnect,org.kde.kscreen,org.kde.plasma.battery,org.kde.plasma.bluetooth,org.kde.plasma.brightness,org.kde.plasma.cameraindicator,org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.plasma.keyboardindicator,org.kde.plasma.keyboardlayout,org.kde.plasma.manage-inputmethod,org.kde.plasma.mediacontroller,org.kde.plasma.networkmanagement,org.kde.plasma.notifications,org.kde.plasma.volume
+shownItems=org.kde.plasma.clipboard
 
 [ScreenMapping]
 itemsOnDisabledScreens=
