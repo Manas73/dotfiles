@@ -1,8 +1,10 @@
 aur:
+  - aws-cli-v2
   - cursor-bin
   - datagrip
   - datagrip-jre
   - gitkraken
+  - google-cloud-cli
   - lazydocker
   - postman-bin
   - pycharm-professional
