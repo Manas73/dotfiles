@@ -1,7 +1,7 @@
-super + alt + space
+super + space
     rofi -show drun -show-icons
 
-super + space; {a, b, c, v, w}
+super + alt + space; {a, b, c, v, w}
     {~/.config/.settings/audio_menu.sh, ~/.config/.settings/bluetooth_menu.sh, ~/.config/.settings/clipboard.sh, ~/.config/.settings/vpn_menu.sh, ~/.config/.settings/wifi_menu.sh}
 
 super + Delete
