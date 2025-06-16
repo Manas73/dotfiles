@@ -9,7 +9,7 @@ gui:
     inactiveBorderColor:
       - white
     selectedLineBgColor:
-      - black
+      - reverse
       - bold
     optionsTextColor:
       - white
