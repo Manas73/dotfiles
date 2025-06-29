@@ -52,9 +52,11 @@ extra:
   - nodejs
   - npm
   - nvm
+  - plasma-x11-session
   - playerctl
   - python-pip
   - python-virtualenv
+  - solaar
   - starship
   - sxhkd
   - ttf-dejavu
