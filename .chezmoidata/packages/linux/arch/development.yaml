@@ -18,6 +18,7 @@ extra:
   - go
   - hugo
   - lazygit
+  - moreutils
   - pre-commit
   - python-black
   - uv
