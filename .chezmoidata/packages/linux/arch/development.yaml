@@ -1,5 +1,6 @@
 aur:
   - aws-cli-v2
+  - aws-session-manager-plugin
   - cursor-bin
   - datagrip
   - datagrip-jre
