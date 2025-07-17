@@ -7,6 +7,7 @@ aur:
   - gitkraken
   - google-cloud-cli
   - lazydocker
+  - mysql
   - postman-bin
   - pycharm-professional
   - sublime-text-4
@@ -23,5 +24,6 @@ extra:
   - pre-commit
   - python-black
   - uv
-core: []
+core:
+  - gcc
 multilib: []
