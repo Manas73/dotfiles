@@ -31,7 +31,11 @@ Description=Launch Plasma with {{ .plasma_window_manager }}
 Before=plasma-workspace.target
 
 [Service]
+{{ if eq .plasma_window_manager "qtile" }}
+ExecStart=/usr/bin/qtile start
+{{ else }}
 ExecStart=/usr/bin/{{ .plasma_window_manager }}
+{{ end }}
 Restart=on-failure
 
 [Install]

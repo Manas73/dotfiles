@@ -1,0 +1,5 @@
+aur: []
+extra: []
+core: []
+multilib:
+  - steam
