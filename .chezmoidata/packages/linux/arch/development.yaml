@@ -23,6 +23,7 @@ extra:
   - moreutils
   - pre-commit
   - python-black
+  - python-poetry
   - uv
 core:
   - gcc
