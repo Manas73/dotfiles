@@ -1,0 +1,63 @@
+# Kill focused window
+super + q
+    qtile cmd-obj -o window -f kill
+
+# Change focus
+super + {j,k,l,semicolon}
+    qtile cmd-obj -o layout -f {left,down,up,right}
+
+# Alternative focus with cursor keys
+super + {Left,Down,Up,Right}
+    qtile cmd-obj -o layout -f {left,down,up,right}
+
+# Move focused window
+super + shift + {j,k,l,semicolon}
+    qtile cmd-obj -o layout -f shuffle_{left,down,up,right}
+
+# Alternative move with cursor keys
+super + shift + {Left,Down,Up,Right}
+    qtile cmd-obj -o layout -f shuffle_{left,down,up,right}
+
+# Layout management
+super + v
+    qtile cmd-obj -o layout -f toggle_split
+
+# Enter fullscreen mode for the focused container
+super + f
+    qtile cmd-obj -o window -f toggle_fullscreen
+
+# Change container layout
+super + s
+    qtile cmd-obj -o window -f toggle_floating
+
+super + Tab
+    qtile cmd-obj -o cmd -f next_layout
+
+super + w
+    qtile cmd-obj -o cmd -f to_layout_index 1
+
+super + e
+    qtile cmd-obj -o cmd -f to_layout_index 0
+
+# Toggle tiling / floating
+super + shift + space
+    qtile cmd-obj -o window -f toggle_floating
+
+# Switch to workspace
+super + {1,2,3,4,5}
+    qtile cmd-obj -o cmd -f toggle_group -a {1:General,2:IDE,3:Dev,4:Slack,5:Rambox}
+
+alt + {1,2,3,4,5}
+    qtile cmd-obj -o cmd -f toggle_group -a {6:Timepass,7:Zoom,8:Extra,9:Extra,10:Extra}
+
+# Move focused container to workspace
+super + shift + {1,2,3,4,5}
+    qtile cmd-obj -o window -f togroup -a {1:General,2:IDE,3:Dev,4:Slack,5:Rambox}
+
+alt + shift + {1,2,3,4,5}
+    qtile cmd-obj -o window -f togroup -a {6:Timepass,7:Zoom,8:Extra,9:Extra,10:Extra}
+
+# Restart QTile inplace
+super + shift + r
+    qtile cmd-obj -o cmd -f restart
+

@@ -3,7 +3,7 @@ super + q
     i3-msg kill
 
 # Change focus
-super + {h,j,k,l}
+super + {j,k,l,semicolon}
     i3-msg focus {left,down,up,right}
 
 # Alternative focus with cursor keys
@@ -11,7 +11,7 @@ super + {Left,Down,Up,Right}
     i3-msg focus {left,down,up,right}
 
 # Move focused window
-super + shift + {h,j,k,l}
+super + shift + {j,k,l,semicolon}
     i3-msg move {left,down,up,right}
 
 # Alternative move with cursor keys
@@ -59,7 +59,7 @@ super + shift + r
     i3-msg restart
 
 # Resize mode - resize till you hit Esc
-super + r: {h,j,k,l}
+super + r: {j,k,l,semicolon}
     i3-msg resize {shrink width,shrink height,grow height,grow width} 10 px or 10 ppt
 
 super + r: {Left,Down,Up,Right}
