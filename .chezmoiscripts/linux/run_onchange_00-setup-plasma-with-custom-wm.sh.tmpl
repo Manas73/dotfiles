@@ -13,6 +13,7 @@ cat << "EOF"
     \  /\  /  | |  | |   |_|   | |    | | (_| \__ \ | | | | | (_| |
      \/  \/   |_|  |_|         |_|    |_|\__,_|___/_| |_| |_|\__,_|
 
+
 EOF
 
 echo "Setting up {{ .plasma_window_manager }} with KDE Plasma integration..."
@@ -36,6 +37,7 @@ ExecStart=/usr/bin/qtile start
 {{ else }}
 ExecStart=/usr/bin/{{ .plasma_window_manager }}
 {{ end }}
+Slice=session.slice
 Restart=on-failure
 
 [Install]
@@ -68,9 +70,16 @@ fi
 
 if systemctl --user is-enabled plasma-wm.service > /dev/null 2>&1; then
   echo "Disabling plasma-wm service..."
-  systemctl disable plasma-wim.service --user
+  systemctl disable plasma-wm.service --user
   echo "KWin + Plasma setup complete!"
   echo "Please log out and log back in for changes to take effect."
+fi
+
+if systemctl --user is-masked plasma-kwin_x11.service > /dev/null 2>&1; then
+  echo "Unmasking plasma-kwin_x11 service..."
+  systemctl unmask plasma-kwin_x11.service --user
+else
+  echo "plasma-kwin_x11 service is not masked."
 fi
 
 {{ end }}
