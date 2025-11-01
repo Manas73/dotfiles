@@ -1,1 +1,1 @@
-vivaldi-stable --password-store=gnome
+vivaldi-stable --password-store=kwallet6qq
