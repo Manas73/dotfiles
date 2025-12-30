@@ -1,3 +1,6 @@
+[Applications][firedragon]
+Seen=true
+
 [Applications][rambox]
 Seen=true
 
@@ -8,6 +11,7 @@ Seen=true
 Seen=true
 
 [DoNotDisturb]
+WhenFullscreen=false
 WhenScreensMirrored=false
 
 [Notifications]

@@ -76,6 +76,7 @@ extra:
   - vlc
   - xclip
   - xdg-desktop-portal-gtk
+  - xorg-xkill
   - xorg-xev
   - yazi
   - zellij

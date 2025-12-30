@@ -1,1 +1,1 @@
-vivaldi-stable --password-store=kwallet6qq
+vivaldi-stable --password-store=kwallet6

@@ -1,5 +1,6 @@
 [Added Associations]
 application/json=sublime_text.desktop;
+application/pdf=net.code-industry.masterpdfeditor5.desktop;
 application/vnd.ms-publisher=org.kde.kate.desktop;
 application/vnd.oasis.opendocument.spreadsheet=org.onlyoffice.desktopeditors.desktop;libreoffice-calc.desktop;org.kde.ark.desktop;
 application/wps-office.xls=org.onlyoffice.desktopeditors.desktop;libreoffice-calc.desktop;org.kde.ark.desktop;
@@ -13,6 +14,7 @@ text/plain=sublime_text.desktop;visual-studio-code.desktop;
 text/x-cmake=sublime_text.desktop;
 video/mp4=vlc.desktop;
 x-scheme-handler/etcher=balena-etcher.desktop;balenaEtcher.desktop;
+x-scheme-handler/figma=figma-linux.desktop
 x-scheme-handler/geo=wheelmap-geo-handler.desktop;
 x-scheme-handler/http=vivaldi-stable.desktop;firefox.desktop;
 x-scheme-handler/https=vivaldi-stable.desktop;firefox.desktop;
@@ -21,13 +23,13 @@ x-scheme-handler/mid=userapp-Thunderbird-XSO5O1.desktop;
 x-scheme-handler/msteams=teams.desktop;
 x-scheme-handler/notion=notion-app.desktop;
 x-scheme-handler/postman=Postman.desktop;
+x-scheme-handler/slack=slack.desktop;Slack.desktop;
 x-scheme-handler/tel=org.kde.kdeconnect.handler.desktop;
 x-scheme-handler/termius=termius-app.desktop;Termius.desktop;
-x-scheme-handler/figma=figma-linux.desktop
-x-scheme-handler/slack=slack.desktop;Slack.desktop;
 
 [Default Applications]
 application/json=sublime_text.desktop;
+application/pdf=net.code-industry.masterpdfeditor5.desktop;
 application/vnd.ms-publisher=org.kde.kate.desktop;
 application/vnd.oasis.opendocument.spreadsheet=org.onlyoffice.desktopeditors.desktop;
 application/wps-office.xls=org.onlyoffice.desktopeditors.desktop;
@@ -44,6 +46,7 @@ text/x-cmake=sublime_text.desktop;
 video/mp4=vlc.desktop;
 x-scheme-handler/etcher=balena-etcher.desktop
 x-scheme-handler/ferdi=ferdi.desktop
+x-scheme-handler/figma=figma-linux.desktop
 x-scheme-handler/geo=wheelmap-geo-handler.desktop;
 x-scheme-handler/gitkraken=GitKraken.desktop
 x-scheme-handler/http=vivaldi-stable.desktop;
@@ -58,4 +61,3 @@ x-scheme-handler/slack=slack.desktop
 x-scheme-handler/tel=org.kde.kdeconnect.handler.desktop;
 x-scheme-handler/termius=termius-app.desktop
 x-scheme-handler/zoommtg=Zoom.desktop
-x-scheme-handler/figma=figma-linux.desktop
