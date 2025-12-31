@@ -1,6 +1,7 @@
 extra:
   - feh
   - i3-wm
+  - libxcb
   - picom
   - polybar
   - python-i3ipc
@@ -8,6 +9,7 @@ extra:
   - rofi-calc
   - rofi-emoji
   - rofi-greenclip
+  - xcb-util-cursor
 aur: []
 core: []
 multilib: []
