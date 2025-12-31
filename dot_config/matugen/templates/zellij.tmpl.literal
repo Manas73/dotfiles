@@ -1,0 +1,120 @@
+themes {
+    material {
+        text_unselected {
+            base {{ on_surface }}
+            background {{ surface }}
+            emphasis_0 {{ secondary }}
+            emphasis_1 {{ tertiary }}
+            emphasis_2 {{ primary }}
+            emphasis_3 {{ primary_container }}
+        }
+        text_selected {
+            base {{ on_surface }}
+            background {{ surface_container }}
+            emphasis_0 {{ secondary }}
+            emphasis_1 {{ tertiary }}
+            emphasis_2 {{ primary }}
+            emphasis_3 {{ primary_container }}
+        }
+        ribbon_selected {
+            base {{ surface }}
+            background {{ primary }}
+            emphasis_0 {{ error }}
+            emphasis_1 {{ secondary }}
+            emphasis_2 {{ tertiary }}
+            emphasis_3 {{ primary_container }}
+        }
+        ribbon_unselected {
+            base {{ surface }}
+            background {{ surface_bright }}
+            emphasis_0 {{ error }}
+            emphasis_1 {{ on_surface }}
+            emphasis_2 {{ tertiary }}
+            emphasis_3 {{ primary_container }}
+        }
+        table_title {
+            base {{ primary }}
+            background 0
+            emphasis_0 {{ secondary }}
+            emphasis_1 {{ tertiary }}
+            emphasis_2 {{ primary }}
+            emphasis_3 {{ primary_container }}
+        }
+        table_cell_selected {
+            base {{ on_surface }}
+            background {{ surface_container_high }}
+            emphasis_0 {{ secondary }}
+            emphasis_1 {{ tertiary }}
+            emphasis_2 {{ primary }}
+            emphasis_3 {{ primary_container }}
+        }
+        table_cell_unselected {
+            base {{ on_surface }}
+            background {{ surface }}
+            emphasis_0 {{ secondary }}
+            emphasis_1 {{ tertiary }}
+            emphasis_2 {{ primary }}
+            emphasis_3 {{ primary_container }}
+        }
+        list_selected {
+            base {{ on_surface }}
+            background {{ surface_container_high }}
+            emphasis_0 {{ secondary }}
+            emphasis_1 {{ tertiary }}
+            emphasis_2 {{ primary }}
+            emphasis_3 {{ primary_container }}
+        }
+        list_unselected {
+            base {{ on_surface }}
+            background {{ surface }}
+            emphasis_0 {{ secondary }}
+            emphasis_1 {{ tertiary }}
+            emphasis_2 {{ primary }}
+            emphasis_3 {{ primary_container }}
+        }
+        frame_selected {
+            base {{ primary }}
+            background 0
+            emphasis_0 {{ secondary }}
+            emphasis_1 {{ tertiary }}
+            emphasis_2 {{ primary_container }}
+            emphasis_3 0
+        }
+        frame_highlight {
+            base {{ secondary }}
+            background 0
+            emphasis_0 {{ primary_container }}
+            emphasis_1 {{ secondary }}
+            emphasis_2 {{ secondary }}
+            emphasis_3 {{ secondary }}
+        }
+        exit_code_success {
+            base {{ primary }}
+            background 0
+            emphasis_0 {{ tertiary }}
+            emphasis_1 {{ surface }}
+            emphasis_2 {{ primary_container }}
+            emphasis_3 {{ secondary }}
+        }
+        exit_code_error {
+            base {{ error }}
+            background 0
+            emphasis_0 {{ warning }}
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1 {{ primary_container }}
+            player_2 {{ tertiary }}
+            player_3 0
+            player_4 {{ warning }}
+            player_5 {{ tertiary }}
+            player_6 0
+            player_7 {{ error }}
+            player_8 0
+            player_9 0
+            player_10 0
+        }
+    }
+}
