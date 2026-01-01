@@ -1,4 +1,5 @@
 extra:
+  - copyq
   - hypridle
   - hyprland
   - hyprlock
@@ -14,6 +15,7 @@ extra:
   - uwsm
   - waybar
   - wl-clipboard
+  - wl-clip-persist
   - xdg-desktop-portal-hyprland
 aur: []
 core: []

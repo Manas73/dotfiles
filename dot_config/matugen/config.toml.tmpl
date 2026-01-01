@@ -5,6 +5,7 @@ input_path = '~/.config/matugen/templates/rofi.rasi'
 output_path = '~/.config/rofi/themes/colors.rasi'
 
 {{- if has "hyprland" .window_manager }}
+
 [config.wallpaper]
 command = "swww"
 arguments = ["img", "--transition-type", "center", "--transition-fps", "60"]
@@ -24,6 +25,10 @@ post_hook = 'pkill -SIGUSR2 waybar'
 input_path = '~/.config/matugen/templates/waybar.css'
 output_path = '~/.config/swaync/colors/matugen.css'
 post_hook = 'swaync-client -rs -R'
+
+[templates.copyq]
+input_path = '~/.config/matugen/templates/copyq.ini'
+output_path = '~/.config/copyq/themes/matugen.ini'
 
 {{- end }}
 
