@@ -42,7 +42,7 @@ tooltip label {
 margin-right: 10px;
 padding: 0 12px;
 background-color: @surface;
-color: @primary;
+color: @secondary;
 }
 
 #submap {
