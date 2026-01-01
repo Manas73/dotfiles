@@ -1,2 +1,6 @@
 
 .idea/
+
+dot_config/polybar/polybar.log
+
+dot_config/polybar/dot_git/
