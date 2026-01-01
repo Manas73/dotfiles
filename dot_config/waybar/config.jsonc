@@ -6,7 +6,7 @@
     "modules-right": ["tray", "custom/notification", "pulseaudio", "custom/vpn", "network", "memory", "cpu"],
 
     "custom/launcher": {
-        "format": "<span font='20px'>󰣇</span>",
+        "format": "<span font='18px'>󰣇</span>",
         "on-click": "rofi -show drun -show-icons"
     },
 
@@ -15,7 +15,7 @@
         "format-alt": " {:%Y-%m-%d %I:%M:%S %p}"
     },
     "hyprland/workspaces": {
-        "format": "<span font='20px'>{icon}</span>",
+        "format": "<span font='18px'>{icon}</span>",
         "on-click": "activate",
         "format-icons": {
             "1": "",

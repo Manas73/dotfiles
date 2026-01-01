@@ -66,6 +66,7 @@ font-size: 14px;
 padding: 0px 6px;
 margin: 0px 3px;
 border-radius: 5px;
+min-width: 40px;
 transition: all 0.3s ease-in-out;
 background-color: @on_secondary;
 }
