@@ -5,7 +5,7 @@ border: none;
 border-radius: 0;
 font-family: "JetBrainsMono Nerd Font Propo", Roboto, Helvetica, Arial, sans-serif;
 font-weight: 600;
-font-size: 14px;
+font-size: 15px;
 min-height: 0;
 border-radius: 50px;
 }
@@ -40,9 +40,18 @@ tooltip label {
 #memory,
 #cpu {
 margin-right: 10px;
-padding: 0 10px;
+padding: 0 12px;
 background-color: @surface;
 color: @primary;
+}
+
+#submap {
+background-color: @error;
+color: @surface;
+padding: 0 6px;
+margin: 0 3px;
+border-radius: 10px;
+font-weight: bold;
 }
 
 #workspaces {
@@ -55,7 +64,7 @@ color: @primary;
 #workspaces button {
 padding: 0px 6px;
 margin: 0px 3px;
-border-radius: 50px;
+border-radius: 5px;
 transition: all 0.3s ease-in-out;
 background-color: @on_secondary;
 }
@@ -66,7 +75,7 @@ background-color: @secondary;  /* or choose another color from your theme */
 color: @surface;
 min-width: 50px;
 transition: all 0.3s ease-in-out;
-font-size: 13px;
+font-size: 15px;
 border-radius: 5px;
 }
 
@@ -75,14 +84,14 @@ background-color: @primary;
 color: @surface;
 min-width: 50px;
 transition: all 0.3s ease-in-out;
-font-size: 13px;
+font-size: 15px;
 border-radius: 5px;
 }
 
 #workspaces button:hover {
 background-color: @secondary;
 color: @surface;
-border-radius: 16px;
+border-radius: 6px;
 min-width: 50px;
 background-size: 400% 400%;
 }
