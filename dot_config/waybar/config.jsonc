@@ -3,7 +3,7 @@
     "margin-top": 7,
     "modules-left": ["custom/launcher", "hyprland/workspaces"],
     "modules-center": ["clock"],
-    "modules-right": ["custom/pacman", "custom/notification", "pulseaudio", "network", "memory", "cpu"],
+    "modules-right": ["custom/pacman", "custom/notification", "pulseaudio", "custom/vpn", "network", "memory", "cpu"],
 
     "custom/launcher": {
         "format": "󰣇",
@@ -11,8 +11,8 @@
     },
 
     "clock": {
-        "format": "{:%I:%M %p}",
-        "format-alt": "{:%Y-%m-%d %I:%M:%S %p}"
+        "format": " {:%I:%M %p}",
+        "format-alt": " {:%Y-%m-%d %I:%M:%S %p}"
     },
     "hyprland/workspaces": {
         "format": "{name}",
@@ -61,6 +61,11 @@
         "scroll-step": 1,
         "on-click": "pavucontrol",
         "ignored-sinks": ["Easy Effects Sink"]
+    },
+    "custom/vpn": {
+        "format": " {}",
+        "exec": "~/.config/waybar/scripts/get_vpn.sh",
+        "interval": 3, // How often to run the script
     },
     "network": {
         "interface": "enp6s0",

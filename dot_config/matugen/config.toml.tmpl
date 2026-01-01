@@ -1,5 +1,9 @@
 [config]
 
+[templates.rofi]
+input_path = '~/.config/matugen/templates/rofi.rasi'
+output_path = '~/.config/rofi/themes/colors.rasi'
+
 {{- if has "hyprland" .window_manager }}
 [config.wallpaper]
 command = "swww"
@@ -7,29 +11,30 @@ arguments = ["img", "--transition-type", "center", "--transition-fps", "60"]
 set = true
 
 [templates.hyprland]
-input_path = '~/.config/matugen/templates/hyprland-colors.conf'
+input_path = '~/.config/matugen/templates/hyprland.conf'
 output_path = '~/.config/hypr/colors/matugen.conf'
 post_hook = 'hyprctl reload'
 
 [templates.waybar]
-input_path = '~/.config/matugen/templates/waybar-colors.css'
+input_path = '~/.config/matugen/templates/waybar.css'
 output_path = '~/.config/waybar/colors/matugen.css'
 post_hook = 'pkill -SIGUSR2 waybar'
-{{- end }}
 
-[templates.rofi]
-input_path = '~/.config/matugen/templates/rofi-colors.rasi'
-output_path = '~/.config/rofi/themes/colors.rasi'
+[templates.swaync]
+input_path = '~/.config/matugen/templates/waybar.css'
+output_path = '~/.config/swaync/colors/matugen.css'
+
+{{- end }}
 
 {{ if has "i3" .window_manager }}
 [templates.i3]
-input_path = '~/.config/matugen/templates/i3-colors.conf'
+input_path = '~/.config/matugen/templates/i3.conf'
 output_path = '~/.config/i3/colors.conf'
 {{- end }}
 
 {{ if has "qtile" .window_manager }}
 [templates.qtile]
-input_path = '~/.config/matugen/templates/qtile-colors.py'
+input_path = '~/.config/matugen/templates/qtile.py'
 output_path = '~/.config/qtile/colors.py'
 {{- end }}
 

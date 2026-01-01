@@ -35,6 +35,7 @@ tooltip label {
 #workspaces,
 #custom-notification,
 #pulseaudio,
+#custom-vpn,
 #network,
 #memory,
 #cpu {
@@ -57,6 +58,16 @@ margin: 0px 3px;
 border-radius: 50px;
 transition: all 0.3s ease-in-out;
 background-color: @on_secondary;
+}
+
+/* for visible but not focused workspaces */
+#workspaces button.visible {
+background-color: @secondary;  /* or choose another color from your theme */
+color: @surface;
+min-width: 50px;
+transition: all 0.3s ease-in-out;
+font-size: 13px;
+border-radius: 5px;
 }
 
 #workspaces button.active {
