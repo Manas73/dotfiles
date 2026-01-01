@@ -23,6 +23,7 @@ post_hook = 'pkill -SIGUSR2 waybar'
 [templates.swaync]
 input_path = '~/.config/matugen/templates/waybar.css'
 output_path = '~/.config/swaync/colors/matugen.css'
+post_hook = 'swaync-client -rs -R'
 
 {{- end }}
 
