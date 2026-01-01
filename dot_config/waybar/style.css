@@ -5,7 +5,7 @@ border: none;
 border-radius: 0;
 font-family: "JetBrainsMono Nerd Font Propo", Roboto, Helvetica, Arial, sans-serif;
 font-weight: 600;
-font-size: 15px;
+font-size: 14px;
 min-height: 0;
 border-radius: 50px;
 }
@@ -59,6 +59,7 @@ padding: 8px 5px;
 border-radius: 16px;
 background-color: @surface;
 color: @primary;
+font-size: 14px;
 }
 
 #workspaces button {
@@ -75,7 +76,6 @@ background-color: @secondary;  /* or choose another color from your theme */
 color: @surface;
 min-width: 50px;
 transition: all 0.3s ease-in-out;
-font-size: 15px;
 border-radius: 5px;
 }
 
@@ -84,7 +84,6 @@ background-color: @primary;
 color: @surface;
 min-width: 50px;
 transition: all 0.3s ease-in-out;
-font-size: 15px;
 border-radius: 5px;
 }
 

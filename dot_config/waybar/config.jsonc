@@ -3,10 +3,10 @@
     "margin-top": 7,
     "modules-left": ["custom/launcher", "hyprland/workspaces", "hyprland/submap"],
     "modules-center": ["clock"],
-    "modules-right": ["custom/pacman", "custom/notification", "pulseaudio", "custom/vpn", "network", "memory", "cpu"],
+    "modules-right": ["tray", "custom/notification", "pulseaudio", "custom/vpn", "network", "memory", "cpu"],
 
     "custom/launcher": {
-        "format": "󰣇",
+        "format": "<span font='20px'>󰣇</span>",
         "on-click": "rofi -show drun -show-icons"
     },
 
@@ -15,7 +15,7 @@
         "format-alt": " {:%Y-%m-%d %I:%M:%S %p}"
     },
     "hyprland/workspaces": {
-        "format": "{icon}",
+        "format": "<span font='20px'>{icon}</span>",
         "on-click": "activate",
         "format-icons": {
             "1": "",
@@ -36,9 +36,14 @@
         "tooltip": true,
         "tooltip-format": "Mode: {}"
     },
+    "tray": {
+        "icon-size": 21,
+        "spacing": 10,
+        "show-passive-items": true
+    },
     "custom/notification": {
         "tooltip": true,
-        "format": "<span size='16pt'>{icon}</span>",
+        "format": "<span size='15pt'>{icon}</span>",
         "format-icons": {
             "notification": "󱅫",
             "none": "󰂜",
