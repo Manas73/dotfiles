@@ -69,7 +69,7 @@
             "alsa_output.usb-SteelSeries_Arctis_7_-00.analog-stereo-muted": "󰟎",
             "default": ["󰓃"]
         },
-        "scroll-step": 1,
+        "scroll-step": 2,
         "on-click": "pavucontrol",
         "ignored-sinks": ["Easy Effects Sink"]
     },
