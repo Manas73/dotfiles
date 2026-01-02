@@ -82,7 +82,7 @@ border-radius: 5px;
 }
 
 #workspaces button.active {
-background-color: @primary;
+background-color: @secondary;
 color: @surface;
 min-width: 50px;
 transition: all 0.3s ease-in-out;
