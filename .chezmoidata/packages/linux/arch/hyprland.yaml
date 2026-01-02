@@ -10,6 +10,7 @@ extra:
   - qt6-wayland
   - rofi-wayland
   - swaync
+  - swayosd
   - swww
   - udiskie
   - uwsm
