@@ -43,6 +43,7 @@ extra:
   - git
   - gparted
   - gwenview
+  - headsetcontrol
   - jq
   - kcharselect
   - kitty

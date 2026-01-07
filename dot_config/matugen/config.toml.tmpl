@@ -45,8 +45,12 @@ output_path = '~/.config/i3/colors.conf'
 {{ if has "qtile" .window_manager }}
 [templates.qtile]
 input_path = '~/.config/matugen/templates/qtile.py'
-output_path = '~/.config/qtile/colors.py'
+output_path = '~/.config/qtile/matugen.py'
 {{- end }}
+
+[templates.alacritty]
+input_path = '~/.config/matugen/templates/alacritty.toml'
+output_path = '~/.config/alacritty/colors/matugen.toml'
 
 [templates.zellij]
 input_path = '~/.config/matugen/templates/zellij-colors.kdl'
