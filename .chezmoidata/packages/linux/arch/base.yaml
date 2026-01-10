@@ -76,6 +76,7 @@ extra:
   - vivaldi
   - vivaldi-ffmpeg-codecs
   - vlc
+  - vlc-plugins-all
   - xclip
   - xdg-desktop-portal-gtk
   - xorg-xkill
