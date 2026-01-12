@@ -1,75 +1,16 @@
-HDMI-0 Height 1920x1080=668
-HDMI-0 Width 1920x1080=1195
-HDMI-0 XPosition 1920x1080=345
-HDMI-0 YPosition 1920x1080=220
-MenuBar=Disabled
-State=AAAA/wAAAAD9AAAAAwAAAAAAAAC4AAACcvwCAAAAAvsAAAAWAGYAbwBsAGQAZQByAHMARABvAGMAawAAAAAA/////wAAAAIA////+wAAABQAcABsAGEAYwBlAHMARABvAGMAawEAAAAqAAACcgAAAE4A////AAAAAQAAAAAAAAAA/AIAAAAB+wAAABAAaQBuAGYAbwBEAG8AYwBrAAAAAAD/////AAAAAgD///8AAAADAAAAAAAAAAD8AQAAAAH7AAAAGAB0AGUAcgBtAGkAbgBhAGwARABvAGMAawAAAAAA/////wAAAAIA////AAAD7wAAAnIAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
-
-[$Version]
-update_info=dolphin_detailsmodesettings.upd:rename-leading-padding,dolphin_detailsmodesettings.upd:move-content-display
-
-[ExtractDialog]
-2 screens: Height=480
-2 screens: Width=845
-
 [General]
-RememberOpenedTabs=false
 Version=202
-ViewPropsTimestamp=2021,11,13,19,50,54.354
-
-[IconsMode]
-PreviewSize=80
+ViewPropsTimestamp=2026,1,12,13,8,48.09
 
 [KFileDialog Settings]
 Places Icons Auto-resize=false
 Places Icons Static Size=32
 
-[KPropertiesDialog]
-2 screens: Height=474
-2 screens: Width=413
-DP-0 DP-4 Height 2560x1440=636
-DP-0 DP-4 Width 2560x1440=528
-DP-4 DP-0 Height 2560x1440=476
-DP-4 DP-0 Height 2560x1440 DP-0=563
-DP-4 DP-0 Width 2560x1440=433
-DP-4 DP-0 Width 2560x1440 DP-0=513
-HDMI-0 Height 1920x1080=636
-HDMI-0 Width 1920x1080=528
-
 [MainWindow]
-DP-0 DP-4 Height 2560x1440=917
-DP-0 DP-4 Width 2560x1440=1430
-DP-0 DP-4 XPosition 2560x1440=3498
-DP-0 DP-4 YPosition 2560x1440=149
-DP-4 DP-0 Height 2560x1440=796
-DP-4 DP-0 Width 2560x1440=1507
-DP-4 DP-0 XPosition 2560x1440=3019
-DP-4 DP-0 YPosition 2560x1440=293
-HDMI-0 DP-2 Height 2560x1440=854
-HDMI-0 DP-2 Width 2560x1440=1254
-HDMI-0 DP-2 XPosition 2560x1440=2968
-HDMI-0 DP-2 YPosition 2560x1440=356
-HDMI-0 Height 1920x1080=596
-HDMI-0 Width 1920x1080=1211
-HDMI-0 XPosition 1440x1080=0
-HDMI-0 XPosition 1920x1080=343
-HDMI-0 YPosition 1440x1080=0
-HDMI-0 YPosition 1920x1080=77
 MenuBar=Disabled
-
-[Open-with settings]
-CompletionMode=1
-History=exc,kate,calc,only,at,vlc
 
 [PlacesPanel]
 IconSize=32
 
-[PreviewSettings]
-Plugins=appimagethumbnail,audiothumbnail,blenderthumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,opendocumentthumbnail,gsthumbnail,rawthumbnail,svgthumbnail,ffmpegthumbs
-
-[SettingsDialog]
-HDMI-0 Height 1920x1080=508
-HDMI-0 Width 1920x1080=647
-
-[VersionControl]
-enabledPlugins=Dropbox
+[UiSettings]
+ColorScheme=Kvantum
