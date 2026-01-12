@@ -1,1 +1,1 @@
-pycharm-professional
+pycharm

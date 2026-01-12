@@ -1,7 +1,6 @@
 aur:
   - aws-cli-v2
   - aws-session-manager-plugin
-  - cursor-bin
   - datagrip
   - datagrip-jre
   - gitkraken
@@ -9,7 +8,7 @@ aur:
   - lazydocker
   - mysql
   - postman-bin
-  - pycharm-professional
+  - pycharm
   - sublime-text-4
   - webstorm
   - webstorm-jre
