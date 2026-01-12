@@ -63,14 +63,14 @@
     "pulseaudio": {
         "format": "{icon} {volume}%",
         "format-bluetooth": "{icon} {volume}%",
-        "format-muted": "󰓄",
+        "format-muted": "󰓄 {volume}%",
         "format-icons": {
             "alsa_output.usb-SteelSeries_Arctis_7_-00.analog-stereo": "󰋋",
             "alsa_output.usb-SteelSeries_Arctis_7_-00.analog-stereo-muted": "󰟎",
             "default": ["󰓃"]
         },
         "scroll-step": 2,
-        "on-click": "pavucontrol",
+        "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
         "ignored-sinks": ["Easy Effects Sink"]
     },
     "custom/vpn": {
