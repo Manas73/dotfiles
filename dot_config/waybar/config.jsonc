@@ -3,7 +3,7 @@
     "margin-top": 7,
     "modules-left": ["custom/launcher", "hyprland/workspaces", "hyprland/submap"],
     "modules-center": ["clock"],
-    "modules-right": ["tray", "custom/notification", "pulseaudio", "custom/vpn", "network", "memory", "cpu"],
+    "modules-right": ["custom/voxtype","tray", "custom/notification", "pulseaudio", "custom/vpn", "network", "memory", "cpu"],
 
     "custom/launcher": {
         "format": "<span font='18px'>󰣇</span>",
@@ -34,6 +34,12 @@
         "format": "{}",
         "tooltip": true,
         "tooltip-format": "Mode: {}"
+    },
+    "custom/voxtype": {
+        "exec": "voxtype status --follow --format json --icon-theme dots",
+        "return-type": "json",
+        "format": "{}",
+        "tooltip": true
     },
     "tray": {
         "icon-size": 21,

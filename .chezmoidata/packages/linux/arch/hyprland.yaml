@@ -18,6 +18,7 @@ extra:
   - waybar
   - wl-clipboard
   - wl-clip-persist
+  - wtype
   - xdg-desktop-portal-hyprland
 aur: []
 core: []
