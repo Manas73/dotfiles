@@ -3,6 +3,7 @@ aur:
   - aws-session-manager-plugin
   - datagrip
   - datagrip-jre
+  - fresh-editor-bin
   - gitkraken
   - google-cloud-cli
   - lazydocker
