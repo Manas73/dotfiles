@@ -11,7 +11,7 @@ get_current_source_description() {
 }
 
 get_audio_sources() {
-    pactl list short sources | grep -v '\.monitor' | grep 'alsa_input.*analog' | awk '{print $1, $2}'
+    pactl list short sources | grep -v '\.monitor' | awk '{print $1, $2}'
 }
 
 get_toggle_option() {
