@@ -1,1 +1,1 @@
-[ "$XDG_SESSION_TYPE" = "wayland" ] && vivaldi-stable --password-store=kwallet6 || vivaldi-stable --password-store=kwallet6
+ [ "$XDG_SESSION_TYPE" = "wayland" ] && vivaldi-stable --password-store=kwallet6 --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer --ozone-platform=wayland || vivaldi-stable --password-store=kwallet6
