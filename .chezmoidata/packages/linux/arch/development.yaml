@@ -1,6 +1,7 @@
 aur:
   - aws-cli-v2
   - aws-session-manager-plugin
+  - cloud-sql-proxy
   - datagrip
   - datagrip-jre
   - fresh-editor-bin
@@ -8,6 +9,7 @@ aur:
   - google-cloud-cli
   - lazydocker
   - mysql
+  - opencode-bin
   - postman-bin
   - pycharm
   - sublime-text-4
