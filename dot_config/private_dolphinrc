@@ -1,4 +1,11 @@
+[ExtractDialog]
+2 screens: Window-Maximized=true
+DirHistory[$e]=$HOME/Downloads/temp/
+
 [General]
+BrowseThroughArchives=true
+DoubleClickViewAction=none
+RememberOpenedTabs=false
 Version=202
 ViewPropsTimestamp=2026,1,12,13,8,48.09
 
@@ -11,6 +18,9 @@ MenuBar=Disabled
 
 [PlacesPanel]
 IconSize=32
+
+[PreviewSettings]
+Plugins=fontthumbnail,appimagethumbnail,audiothumbnail,comicbookthumbnail,cursorthumbnail,directorythumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,opendocumentthumbnail,svgthumbnail,windowsexethumbnail,windowsimagethumbnail,ffmpegthumbs,blenderthumbnail,gsthumbnail,mobithumbnail,rawthumbnail,glycin-heif,glycin-image-rs,glycin-jxl,glycin-svg
 
 [UiSettings]
 ColorScheme=Kvantum
