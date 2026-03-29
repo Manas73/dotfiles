@@ -1,4 +1,5 @@
 extra:
+  - awww
   - copyq
   - hypridle
   - hyprland
@@ -12,7 +13,6 @@ extra:
   - rofi-wayland
   - swaync
   - swayosd
-  - swww
   - udiskie
   - uwsm
   - waybar

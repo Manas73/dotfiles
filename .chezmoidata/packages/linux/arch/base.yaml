@@ -14,7 +14,6 @@ aur:
   - redshift
   - slack-desktop
   - selectdefaultapplication-git
-  - stremio
   - ttf-material-design-icons-git
   - ttf-material-icons-git
   - ttf-ms-fonts
@@ -35,6 +34,7 @@ extra:
   - dolphin-plugins
   - eza
   - fastfetch
+  - fd
   - firefox
   - fish
   - flameshot
@@ -64,6 +64,7 @@ extra:
   - solaar
   - starship
   - sxhkd
+  - television
   - ttf-dejavu
   - ttf-droid
   - ttf-fira-code
