@@ -1,6 +1,7 @@
 aur:
   - aws-cli-v2
   - aws-session-manager-plugin
+  - beads-git
   - cloud-sql-proxy
   - datagrip
   - datagrip-jre
