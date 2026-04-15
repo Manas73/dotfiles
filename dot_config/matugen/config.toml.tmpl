@@ -1,15 +1,14 @@
+# chezmoi:template:left-delimiter="[[" right-delimiter=]]
 [config]
 
 [templates.rofi]
 input_path = '~/.config/matugen/templates/rofi.rasi'
 output_path = '~/.config/rofi/themes/colors.rasi'
 
-{{- if has "hyprland" .window_manager }}
-
+[[if has "hyprland" .window_manager ]]
 [config.wallpaper]
-command = "awww"
-arguments = ["img", "--transition-type", "center", "--transition-fps", "60"]
 set = true
+command = 'awww img --transition-type center --transition-fps 60 "{{ image }}"'
 
 [templates.hyprland]
 input_path = '~/.config/matugen/templates/hyprland.conf'
@@ -33,20 +32,19 @@ output_path = '~/.config/swayosd/colors/matugen.css'
 [templates.copyq]
 input_path = '~/.config/matugen/templates/copyq.ini'
 output_path = '~/.config/copyq/themes/matugen.ini'
+[[- end ]]
 
-{{- end }}
-
-{{ if has "i3" .window_manager }}
+[[ if has "i3" .window_manager ]]
 [templates.i3]
 input_path = '~/.config/matugen/templates/i3.conf'
 output_path = '~/.config/i3/colors.conf'
-{{- end }}
+[[- end ]]
 
-{{ if has "qtile" .window_manager }}
+[[- if has "qtile" .window_manager ]]
 [templates.qtile]
 input_path = '~/.config/matugen/templates/qtile.py'
 output_path = '~/.config/qtile/matugen.py'
-{{- end }}
+[[- end ]]
 
 [templates.alacritty]
 input_path = '~/.config/matugen/templates/alacritty.toml'
