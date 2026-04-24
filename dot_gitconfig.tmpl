@@ -13,7 +13,12 @@
 	program =
 	allowedSignersFile = 
 [credential]
-	helper = store
+	# Store credentials in the system keyring via libsecret instead of the
+	# plaintext ~/.git-credentials file. The helper binary lives inside
+	# the git package at /usr/lib/git-core/git-credential-libsecret. On
+	# this machine the Secret Service is provided by gnome-keyring-daemon
+	# and unlocked at session login.
+	helper = /usr/lib/git-core/git-credential-libsecret
 [ghq]
 	root = ~/Repositories
 
