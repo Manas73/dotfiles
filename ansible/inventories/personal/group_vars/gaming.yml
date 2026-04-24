@@ -1,6 +1,6 @@
 ---
-# Shared defaults for gaming hosts.
-# Real package lists will be populated by chezmoi-fwb.
+# Gaming profile defaults.
+# Populated by Beads chezmoi-fwb. Only applied when gaming_enabled is true.
 
 gaming_packages: []
 gaming_multilib_packages: []

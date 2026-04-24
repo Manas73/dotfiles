@@ -7,8 +7,8 @@ ansible_python_interpreter: /usr/bin/python
 
 primary_user: ms-garuda
 
-# Chezmoi intent for this host. Future Chezmoi role will render
-# ~/.config/chezmoi/chezmoi.toml from these values.
+# Chezmoi intent for this host. The chezmoi role (Beads chezmoi-g19)
+# renders ~/.config/chezmoi/chezmoi.toml from these values.
 chezmoi_email: "manas.sambare@gmail.com"
 chezmoi_profile: "personal"
 chezmoi_osid: "linux-arch"
@@ -18,13 +18,14 @@ chezmoi_window_manager:
   - hyprland
 chezmoi_plasma_window_manager: "i3"
 
-# Machine capability flags.
+# Machine capabilities. Linux-specific; omit on macOS hosts.
 gpu_vendor: "nvidia"
 window_managers:
   - i3
   - hyprland
 plasma_window_manager: "i3"
 
+# Feature flags.
 docker_enabled: true
 kanata_enabled: true
 gaming_enabled: true

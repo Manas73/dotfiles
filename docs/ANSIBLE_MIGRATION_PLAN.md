@@ -7,27 +7,30 @@ Split this repository into two clear responsibilities:
 - Chezmoi manages user-owned dotfiles under `$HOME`.
 - Ansible manages machine provisioning, packages, OS services, groups, udev rules, and Chezmoi configuration.
 
-The long-term target is that Ansible owns `~/.config/chezmoi/chezmoi.toml` and runs Chezmoi non-interactively. Chezmoi should no longer prompt for machine choices or mutate system state.
+The long-term target: Ansible owns `~/.config/chezmoi/chezmoi.toml` and runs Chezmoi non-interactively. Chezmoi no longer prompts for machine choices or mutates system state.
+
+## Guiding Principles
+
+- **KISS**: groups, roles, and playbooks exist only when they gate real behavior. Speculative scaffolding is removed.
+- **DRY**: shared package/config intent lives in `group_vars/`. Host vars contain only true per-machine values.
+- **SOLID (light touch)**: each role has one responsibility; host vars declare intent; roles implement it.
+- **Chezmoi safety**: repo-only paths stay outside managed home files.
 
 ## Chezmoi Boundary
 
-Chezmoi must only manage files that are intended to land in the user's home directory.
-
-Repo-only paths must be ignored by Chezmoi:
+Chezmoi must only manage files intended for `$HOME`. Repo-only paths are ignored:
 
 - `docs/`
 - `ansible/`
-- `bootstrap/`
+- `bootstrap/` (if added later)
 - `AGENTS.md`
 - `CLAUDE.md`
 - `README.md`
 - `key.txt.age`
 
-This prevents Ansible playbooks, migration docs, agent instructions, and bootstrap scripts from being copied into `$HOME` as managed files.
+Add new top-level repo-only directories to `.chezmoiignore` before adding files under them.
 
-Before adding any new top-level repo-only directory, add it to `.chezmoiignore` first.
-
-## Target Repository Layout
+## Repository Layout
 
 ```text
 .
@@ -40,399 +43,195 @@ Before adding any new top-level repo-only directory, add it to `.chezmoiignore` 
 ├── dot_ssh/
 ├── key.txt.age
 ├── docs/
-│   └── ANSIBLE_MIGRATION_PLAN.md
-├── ansible/
-│   ├── README.md
-│   ├── ansible.cfg
-│   ├── requirements.yml
-│   ├── inventories/
-│   │   └── personal/
-│   │       ├── hosts.yml
-│   │       ├── group_vars/
-│   │       │   ├── all.yml
-│   │       │   ├── linux.yml
-│   │       │   ├── darwin.yml
-│   │       │   ├── arch.yml
-│   │       │   ├── desktop.yml
-│   │       │   ├── development.yml
-│   │       │   ├── hyprland.yml
-│   │       │   ├── i3.yml
-│   │       │   ├── gaming.yml
-│   │       │   ├── workstations.yml
-│   │       │   ├── laptops.yml
-│   │       │   └── work.yml
-│   │       ├── host_vars/
-│   │       │   └── alfred.yml
-│   │       └── examples/
-│   │           ├── README.md
-│   │           └── host_vars/
-│   │               ├── future-linux-laptop.yml
-│   │               └── future-macbook.yml
-│   ├── playbooks/
-│   │   ├── site.yml
-│   │   ├── packages.yml
-│   │   ├── dotfiles.yml
-│   │   ├── desktop.yml
-│   │   └── system.yml
-│   └── roles/
-│       ├── chezmoi/
-│       ├── arch_packages/
-│       ├── aur_packages/
-│       ├── darwin_packages/
-│       ├── fish/
-│       ├── docker/
-│       ├── kanata/
-│       ├── plasma_custom_wm/
-│       ├── hyprland/
-│       ├── i3/
-│       ├── development/
-│       └── gaming/
-└── bootstrap/
-    ├── arch.sh
-    └── macos.sh
+│   ├── ANSIBLE_MIGRATION_PLAN.md
+│   └── ONBOARDING.md
+└── ansible/
+    ├── README.md
+    ├── ansible.cfg
+    ├── inventories/
+    │   └── personal/
+    │       ├── hosts.yml
+    │       ├── group_vars/
+    │       │   ├── all.yml
+    │       │   ├── linux.yml
+    │       │   ├── darwin.yml
+    │       │   ├── arch.yml
+    │       │   ├── hyprland.yml
+    │       │   ├── i3.yml
+    │       │   └── gaming.yml
+    │       └── host_vars/
+    │           └── alfred.yml
+    ├── playbooks/
+    │   ├── site.yml
+    │   └── dotfiles.yml
+    └── roles/
+        ├── chezmoi/
+        ├── arch_packages/
+        ├── aur_packages/
+        ├── darwin_packages/
+        ├── fish/
+        ├── docker/
+        ├── kanata/
+        ├── plasma_custom_wm/
+        ├── hyprland/
+        └── i3/
 ```
+
+New groups, roles, or playbooks are added only when they earn their keep.
 
 ## Inventory Model
 
-Use inventory groups to express shared behavior. Hosts should opt into capabilities by group membership instead of duplicating package lists per host.
+Groups used today:
 
-Suggested groups:
-
-- `all`: universal package/config intent.
-- `linux`: shared Linux behavior.
-- `darwin`: shared macOS behavior.
+- `all`: universal intent (Chezmoi, dotfiles).
+- `linux`: Linux-only behavior.
+- `darwin`: macOS-only behavior.
 - `arch`: Arch/Garuda package implementation.
-- `desktop`: graphical desktop machines.
-- `workstations`: desktop-class machines.
-- `laptops`: portable machines.
-- `development`: machines used for software development.
-- `hyprland`: Wayland/Hyprland desktop profile.
-- `i3`: i3 desktop profile.
-- `gaming`: optional gaming packages.
-- `personal` and `work`: profile-specific behavior.
+- `hyprland`: Hyprland ecosystem packages.
+- `i3`: i3 ecosystem packages.
+- `gaming`: optional gaming packages, gated per-host by `gaming_enabled`.
 
-Example inventory shape:
+Groups to add **only when they gate real behavior**:
 
-```yaml
-all:
-  children:
-    linux:
-      children:
-        arch:
-          hosts:
-            alfred:
-            future-linux-laptop:
+- `desktop`, `workstations`, `laptops`, `development`, `personal`, `work`.
 
-    darwin:
-      hosts:
-        future-macbook:
-
-    workstations:
-      hosts:
-        alfred:
-
-    laptops:
-      hosts:
-        future-linux-laptop:
-        future-macbook:
-
-    development:
-      hosts:
-        alfred:
-        future-linux-laptop:
-        future-macbook:
-
-    hyprland:
-      hosts:
-        alfred:
-        future-linux-laptop:
-
-    i3:
-      hosts:
-        alfred:
-```
+Today none of these change provisioning logic, so they do not exist.
 
 ## Variable Layering
 
-Keep host-specific files small. Most package and behavior declarations should live in group vars.
+- `group_vars/all.yml`: Chezmoi defaults and feature-flag defaults (`docker_enabled`, `kanata_enabled`, `gaming_enabled`).
+- `group_vars/linux.yml`: Linux-only common package lists (populated in `chezmoi-fwb`).
+- `group_vars/darwin.yml`: Homebrew formulas and casks (populated in `chezmoi-fwb`).
+- `group_vars/arch.yml`: Arch core/extra/multilib/AUR lists.
+- `group_vars/hyprland.yml`, `group_vars/i3.yml`, `group_vars/gaming.yml`: profile package lists.
+- `host_vars/<hostname>.yml`: per-machine intent only.
 
-Use this layering:
+Host vars stay small. A host var file should contain user, GPU, WM choices, Chezmoi intent, and feature flags. Nothing package-shaped.
 
-- `group_vars/all.yml`: cross-platform intent such as Fish, Git, Vivaldi, PyCharm, Neovim, Starship, Zoxide.
-- `group_vars/linux.yml`: Linux-only common tooling.
-- `group_vars/darwin.yml`: Homebrew formulae/casks for macOS.
-- `group_vars/arch.yml`: Arch/Garuda pacman and AUR package lists.
-- `group_vars/development.yml`: Docker, cloud CLIs, IDEs, language tooling, project tools.
-- `group_vars/desktop.yml`: graphical desktop packages common to Linux desktops.
-- `group_vars/hyprland.yml`: Hyprland, Waybar, SwayNC, SwayOSD, Hyprlock, Hypridle, UWSM, portal, Wayland clipboard, Matugen.
-- `group_vars/i3.yml`: i3, Picom, Polybar, sxhkd, rofi plugins.
-- `host_vars/*.yml`: true machine differences only.
+### Platform-Specific Keys
 
-Example host vars for the current workstation:
+Linux-only keys are omitted on macOS hosts rather than faked with empty values. Roles guard reads with `is defined` or default filters. Group membership (`linux`, `arch`, `hyprland`, `i3`) is the primary selector.
 
-```yaml
-ansible_connection: local
-primary_user: ms-garuda
-machine_profile: workstation
+Linux-only keys:
 
-chezmoi_email: manas.sambare@gmail.com
-chezmoi_profile: personal
-chezmoi_osid: linux-arch
-chezmoi_gpu: nvidia
-chezmoi_window_manager:
-  - i3
-  - hyprland
-chezmoi_plasma_window_manager: i3
-
-window_managers:
-  - i3
-  - hyprland
-plasma_window_manager: i3
-gpu_vendor: nvidia
-
-docker_enabled: true
-kanata_enabled: true
-gaming_enabled: true
-```
-
-Example future MacBook host vars:
-
-```yaml
-primary_user: manas
-machine_profile: laptop
-
-chezmoi_email: manas.sambare@gmail.com
-chezmoi_profile: personal
-chezmoi_osid: darwin
-chezmoi_gpu: none
-chezmoi_window_manager: []
-chezmoi_plasma_window_manager: ""
-
-docker_enabled: true
-kanata_enabled: false
-gaming_enabled: false
-```
+- `window_managers`
+- `plasma_window_manager`
+- `gpu_vendor`
+- `chezmoi_window_manager`
+- `chezmoi_plasma_window_manager`
+- `chezmoi_gpu` (set to `"none"` on darwin where Chezmoi templating still expects it, if needed)
 
 ## Chezmoi Ownership Model
 
-Ansible should own `~/.config/chezmoi/chezmoi.toml`.
+Ansible owns `~/.config/chezmoi/chezmoi.toml`. The `chezmoi` role:
 
-The `chezmoi` role should:
+- Installs Chezmoi if missing.
+- Ensures `~/.config/chezmoi/` exists.
+- Renders `chezmoi.toml` from inventory vars.
+- Ensures the age identity is present or documents the required manual unlock step.
+- Initializes this repository as the Chezmoi source if needed.
+- Runs `chezmoi apply` non-interactively.
 
-- Install Chezmoi if missing.
-- Ensure `~/.config/chezmoi` exists.
-- Render `chezmoi.toml` from Ansible host/group vars.
-- Ensure the age identity is present or document the required manual unlock step.
-- Initialize this repository as the Chezmoi source if needed.
-- Run `chezmoi apply` non-interactively.
-
-Long-term, `.chezmoi.toml.tmpl` should no longer be the primary source of machine configuration. It can remain as a fallback for manual Chezmoi-only bootstrap, but the normal path should be Ansible-rendered config.
+Long-term, `.chezmoi.toml.tmpl` stays as a manual-fallback path for Chezmoi-only bootstrap. The normal path is Ansible-rendered config.
 
 ## Role Responsibilities
 
-Each role should have one reason to change.
+Each role has one reason to change.
 
-`chezmoi`:
+- `chezmoi`: installs Chezmoi, renders `chezmoi.toml`, runs apply. Does not install packages or manage services.
+- `arch_packages`: installs pacman packages from inventory vars.
+- `aur_packages`: ensures `yay` exists and installs AUR packages.
+- `darwin_packages`: ensures Homebrew exists and installs formulas and casks.
+- `fish`: installs Fish and sets it as the login shell.
+- `docker`: installs Docker, manages the group and socket/service. Gated by `docker_enabled`.
+- `kanata`: installs Kanata, manages input/uinput groups, udev, and the user systemd service. Gated by `kanata_enabled`.
+- `plasma_custom_wm`: masks KWin and enables a `plasma-wm.service` for the chosen WM, or restores KWin. Gated by `plasma_window_manager`.
+- `hyprland`, `i3`: install their ecosystem packages. They do not manage dotfiles.
 
-- Owns Chezmoi installation and `~/.config/chezmoi/chezmoi.toml` rendering.
-- Runs Chezmoi apply.
-- Does not install desktop packages or configure system services.
-
-`arch_packages`:
-
-- Installs pacman packages for Arch/Garuda.
-- Does not install AUR packages.
-
-`aur_packages`:
-
-- Ensures `yay` exists.
-- Installs AUR packages.
-
-`darwin_packages`:
-
-- Ensures Homebrew exists.
-- Installs formulas and casks.
-
-`fish`:
-
-- Ensures Fish is installed and configured as the user's login shell.
-- Does not own Fish dotfiles.
-
-`docker`:
-
-- Installs/enables Docker where supported.
-- Adds Linux user to `docker` group.
-- Handles macOS separately or skips service management there.
-
-`kanata`:
-
-- Installs Kanata.
-- Configures Linux groups, udev rules, and systemd user service.
-- Runs only when `kanata_enabled` is true.
-
-`plasma_custom_wm`:
-
-- Configures Plasma to launch a selected custom WM or restores KWin.
-- Uses `plasma_window_manager` from Ansible vars.
-
-`hyprland`:
-
-- Installs Hyprland ecosystem packages.
-- Does not own `~/.config/hypr`; Chezmoi owns those files.
-
-`i3`:
-
-- Installs i3 ecosystem packages.
-- Does not own `~/.config/i3`; Chezmoi owns those files.
-
-`development`:
-
-- Installs development tools and IDEs appropriate to the platform.
-
-`gaming`:
-
-- Installs optional gaming packages only when enabled.
+Gaming and development are **not roles**. They are group vars that feed into the package roles. If a host is in the `gaming` group, `arch_packages`/`aur_packages` install the gaming lists. Development tooling follows the same pattern on Arch/darwin.
 
 ## Playbooks
 
-Start with one primary playbook and a few focused entry points.
+- `site.yml`: full machine provisioning. Uses tags (`packages`, `system`, `dotfiles`, etc.) for slicing.
+- `dotfiles.yml`: Chezmoi config/apply only. Kept separate because dotfile-only applies are frequent.
 
-`playbooks/site.yml` should orchestrate the full machine:
-
-```yaml
-- hosts: all
-  roles:
-    - chezmoi
-
-- hosts: arch
-  roles:
-    - arch_packages
-    - aur_packages
-
-- hosts: darwin
-  roles:
-    - darwin_packages
-
-- hosts: all
-  roles:
-    - fish
-
-- hosts: development
-  roles:
-    - development
-
-- hosts: hyprland
-  roles:
-    - hyprland
-
-- hosts: i3
-  roles:
-    - i3
-
-- hosts: all
-  roles:
-    - docker
-      when: docker_enabled | default(false)
-
-- hosts: linux
-  roles:
-    - kanata
-      when: kanata_enabled | default(false)
-
-- hosts: linux
-  roles:
-    - plasma_custom_wm
-      when: plasma_window_manager is defined
-```
-
-Also provide focused playbooks:
-
-- `packages.yml`: package installation only.
-- `dotfiles.yml`: Chezmoi config/apply only.
-- `desktop.yml`: desktop/window-manager setup only.
-- `system.yml`: groups, services, udev, shell, Docker, Kanata.
+Additional playbooks are not added until there is a recurring operation that cannot be expressed as a tag on `site.yml`.
 
 ## Tags
 
-Use tags for common operational slices:
+Used on plays in `site.yml` for operational slicing:
 
-- `packages`
-- `aur`
-- `dotfiles`
-- `fish`
-- `docker`
-- `kanata`
-- `hyprland`
-- `i3`
-- `plasma`
-- `development`
-- `gaming`
-- `linux`
-- `darwin`
+- `packages`, `aur`, `darwin`
+- `system`, `fish`, `docker`, `kanata`, `plasma`
+- `desktop`, `hyprland`, `i3`
+- `dotfiles`, `chezmoi`
 
-Keep tags coarse. Avoid one tag per task unless there is a real operational need.
+Tags stay coarse. One tag per role or per operational slice, not per task.
+
+## How Chezmoi and Ansible Interact
+
+```text
+Ansible answers: what should this machine have installed and enabled?
+Chezmoi answers: what should this user's home config look like?
+```
+
+Ansible renders Chezmoi config from host vars and runs `chezmoi apply`. Chezmoi never installs packages or mutates services.
 
 ## Migration Phases
 
-### Phase 1: Safety Boundary
+### Phase 1 — Safety Boundary
 
 - Add repo-only paths to `.chezmoiignore`.
 - Verify `chezmoi managed` does not include `docs/`, `ansible/`, or `bootstrap/`.
-- Add this migration plan.
+- Add the migration plan and onboarding doc.
 
-### Phase 2: Ansible Skeleton
+### Phase 2 — Ansible Skeleton
 
 - Add `ansible/ansible.cfg`.
-- Add `ansible/requirements.yml`.
-- Add `inventories/personal/hosts.yml`.
-- Add initial `group_vars` and `host_vars/alfred.yml`.
-- Add empty role skeletons with README files describing ownership.
+- Add minimal inventory, group vars, and `host_vars/alfred.yml`.
+- Add `site.yml` and `dotfiles.yml`.
+- Add role skeletons with READMEs describing ownership.
 
-### Phase 3: Chezmoi Role
+### Phase 3 — Chezmoi Role
 
 - Implement `chezmoi` role.
 - Render `~/.config/chezmoi/chezmoi.toml` from Ansible vars.
 - Make Chezmoi apply non-interactive.
 - Preserve age identity handling.
-- Validate that `chezmoi apply --dry-run` does not try to manage repo-only files.
 
-### Phase 4: Package Roles
+### Phase 4 — Package Data
 
-- Move package data from `.chezmoidata/packages/linux/arch/*.yaml` into Ansible group vars.
-- Implement `arch_packages` for pacman packages.
-- Implement `aur_packages` for yay/AUR packages.
-- Implement `darwin_packages` using Homebrew formulas/casks.
-- Keep package lists layered by group rather than copied per host.
+- Move package lists from `.chezmoidata/packages/linux/arch/*.yaml` into Ansible group vars.
+- Layer by OS (`arch.yml`, `darwin.yml`, `linux.yml`) and profile (`hyprland.yml`, `i3.yml`, `gaming.yml`).
 
-### Phase 5: System Roles
+### Phase 5 — Package Roles
 
-- Move Fish shell switching into `fish` role.
-- Move Docker group/socket setup into `docker` role.
-- Move Kanata groups, udev, and service setup into `kanata` role.
-- Move Plasma custom WM service/masking into `plasma_custom_wm` role.
+- Implement `arch_packages`, `aur_packages`, `darwin_packages`.
+- Wire them into `site.yml` with tags.
 
-### Phase 6: Desktop Roles
+### Phase 6 — System Roles
 
-- Implement `hyprland` role for Hyprland ecosystem dependencies.
-- Implement `i3` role for i3 ecosystem dependencies.
-- Keep desktop config files in Chezmoi.
-- Ensure group membership controls which desktop package sets are installed.
+- Implement `fish`, `docker`, `kanata`, `plasma_custom_wm`.
+- Gate each by its feature flag or relevant host var.
 
-### Phase 7: Remove Chezmoi Provisioning Scripts
+### Phase 7 — Desktop Roles
 
-- Remove or neutralize Chezmoi scripts that install packages or mutate system state.
-- Keep only Chezmoi-specific secret/decryption support if still needed.
-- Verify `chezmoi apply` is safe to run repeatedly without sudo or OS provisioning side effects.
+- Implement `hyprland` and `i3` package installation.
+- Desktop dotfiles stay with Chezmoi.
 
-### Phase 8: Documentation and Validation
+### Phase 8 — Remove Chezmoi Provisioning
 
-- Update README with separate workflows for dotfiles-only and full provisioning.
+- Remove `.chezmoiscripts/linux/arch/*install*` and system-mutation scripts.
+- Keep age decryption support if still needed.
+- Verify `chezmoi apply` runs without sudo and without OS side effects.
+
+### Phase 9 — Documentation and Validation
+
+- Update README with separate flows: dotfiles-only vs full provisioning.
+- Keep `docs/ONBOARDING.md` current.
 - Add validation commands for Ansible syntax, check mode, and Chezmoi dry-run.
-- Document bootstrap commands for Arch/Garuda and macOS.
 
 ## Validation Targets
-
-Use these checks during migration:
 
 ```sh
 chezmoi managed | grep -E '^(docs|ansible|bootstrap)/' && false || true
@@ -445,20 +244,17 @@ Long-term, `chezmoi apply` should not require sudo and should not install packag
 
 ## Design Rules
 
-Follow these rules while implementing the migration:
-
 - Keep Chezmoi and Ansible responsibilities separate.
-- Put shared package lists in group vars, not host vars.
+- Put shared package lists in group vars. Never in host vars.
 - Use host vars only for true machine-specific differences.
-- Avoid hostname-specific conditionals inside roles.
-- Keep role logic boring and explicit.
-- Prefer idempotent Ansible modules over shell commands.
-- Use shell commands only when there is no good module or the target command is the supported interface.
-- Do not duplicate the same package list in Chezmoi and Ansible.
-- Add new groups only when they represent a real reusable capability.
+- Avoid hostname conditionals inside roles.
+- Prefer idempotent modules over shell commands.
+- Use shell only when the target command is the supported interface.
+- Do not duplicate package lists between Chezmoi and Ansible.
+- Add groups, roles, and playbooks only when they gate real, recurring behavior.
 
 ## Open Decisions
 
-- Whether to keep `.chezmoi.toml.tmpl` as a fallback manual bootstrap path after Ansible owns `chezmoi.toml`.
-- Whether age identity decryption remains Chezmoi-driven or becomes an Ansible pre-task with a manual passphrase step.
-- Whether macOS support should be implemented immediately or as a scaffold until the MacBook exists.
+- Whether `.chezmoi.toml.tmpl` remains a manual-fallback bootstrap path after Ansible owns `chezmoi.toml`.
+- Whether age identity decryption remains Chezmoi-driven or becomes an Ansible pre-task.
+- Whether macOS Docker uses Homebrew cask, Docker Desktop, or is skipped.

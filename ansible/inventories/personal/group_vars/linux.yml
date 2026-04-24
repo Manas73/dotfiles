@@ -1,15 +1,6 @@
 ---
 # Linux-only shared defaults.
-# Real package lists will be populated by chezmoi-fwb and chezmoi-a2q.
-#
-# Examples of values that belong here in the future:
-#   linux_common_cli_packages:
-#     - git
-#     - fish
-#     - neovim
-#   linux_common_desktop_packages:
-#     - alacritty
-#     - dolphin
+# Populated by Beads chezmoi-fwb.
 
 linux_common_cli_packages: []
 linux_common_desktop_packages: []

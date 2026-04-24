@@ -1,7 +1,3 @@
 ---
-# plasma_custom_wm role scaffold.
-# Real implementation is tracked by Beads issue chezmoi-hoz.
-
-- name: Placeholder for plasma_custom_wm role
-  ansible.builtin.debug:
-    msg: "plasma_custom_wm role not yet implemented (see Beads issue chezmoi-hoz)"
+# plasma_custom_wm role.
+# Not yet implemented. Tracked by Beads.

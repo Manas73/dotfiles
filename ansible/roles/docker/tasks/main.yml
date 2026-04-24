@@ -1,7 +1,3 @@
 ---
-# docker role scaffold.
-# Real implementation is tracked by Beads issue chezmoi-hoz.
-
-- name: Placeholder for docker role
-  ansible.builtin.debug:
-    msg: "docker role not yet implemented (see Beads issue chezmoi-hoz)"
+# docker role.
+# Not yet implemented. Tracked by Beads.

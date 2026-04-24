@@ -1,7 +1,3 @@
 ---
-# kanata role scaffold.
-# Real implementation is tracked by Beads issue chezmoi-hoz.
-
-- name: Placeholder for kanata role
-  ansible.builtin.debug:
-    msg: "kanata role not yet implemented (see Beads issue chezmoi-hoz)"
+# kanata role.
+# Not yet implemented. Tracked by Beads.

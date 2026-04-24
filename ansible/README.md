@@ -1,8 +1,8 @@
 # Ansible
 
-This directory contains the Ansible provisioning layer that manages OS packages, services, groups, and Chezmoi configuration on each machine.
+Provisioning layer for OS packages, services, groups, and Chezmoi configuration.
 
-See `docs/ANSIBLE_MIGRATION_PLAN.md` for the long-term plan.
+See `docs/ANSIBLE_MIGRATION_PLAN.md` for the long-term plan and `docs/ONBOARDING.md` for adding a new machine.
 
 ## Scope
 
@@ -25,18 +25,22 @@ Ansible does not own:
 ```text
 ansible/
 ├── ansible.cfg
-├── requirements.yml
 ├── inventories/
 │   └── personal/
 │       ├── hosts.yml
 │       ├── group_vars/
+│       │   ├── all.yml
+│       │   ├── linux.yml
+│       │   ├── darwin.yml
+│       │   ├── arch.yml
+│       │   ├── hyprland.yml
+│       │   ├── i3.yml
+│       │   └── gaming.yml
 │       └── host_vars/
+│           └── alfred.yml
 ├── playbooks/
 │   ├── site.yml
-│   ├── packages.yml
-│   ├── dotfiles.yml
-│   ├── desktop.yml
-│   └── system.yml
+│   └── dotfiles.yml
 └── roles/
     ├── chezmoi/
     ├── arch_packages/
@@ -47,34 +51,35 @@ ansible/
     ├── kanata/
     ├── plasma_custom_wm/
     ├── hyprland/
-    ├── i3/
-    ├── development/
-    └── gaming/
+    └── i3/
 ```
 
 ## Status
 
-This is a skeleton. Roles are intentionally empty until later Beads tasks implement them:
+Skeleton only. Role bodies arrive in later Beads tasks:
 
-- `chezmoi-g19`: Chezmoi role implementation.
-- `chezmoi-fwb`: Package variable migration.
-- `chezmoi-a2q`: Arch/AUR package roles.
-- `chezmoi-7tw`: macOS Homebrew role.
-- `chezmoi-hoz`: System setup roles.
-- `chezmoi-c7u`: Desktop profile roles.
+- `chezmoi-g19` chezmoi
+- `chezmoi-fwb` populate group vars with package lists
+- `chezmoi-a2q` arch_packages, aur_packages
+- `chezmoi-7tw` darwin_packages
+- `chezmoi-hoz` fish, docker, kanata, plasma_custom_wm
+- `chezmoi-c7u` hyprland, i3
+
+Running `site.yml` today is a no-op on purpose.
 
 ## Usage
 
-Once roles are implemented, typical commands will be:
-
 ```sh
-ansible-playbook -i ansible/inventories/personal/hosts.yml ansible/playbooks/site.yml --limit alfred --ask-become-pass
-ansible-playbook -i ansible/inventories/personal/hosts.yml ansible/playbooks/packages.yml --limit alfred --ask-become-pass
-ansible-playbook -i ansible/inventories/personal/hosts.yml ansible/playbooks/dotfiles.yml --limit alfred
+cd ansible
+ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml --limit alfred --ask-become-pass
+ansible-playbook -i inventories/personal/hosts.yml playbooks/dotfiles.yml --limit alfred
 ```
 
-Syntax-check everything:
+Syntax check:
 
 ```sh
-ansible-playbook -i ansible/inventories/personal/hosts.yml ansible/playbooks/site.yml --syntax-check
+ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml --syntax-check
+ansible-playbook -i inventories/personal/hosts.yml playbooks/dotfiles.yml --syntax-check
 ```
+
+Add more groups or roles only when they gate real behavior.

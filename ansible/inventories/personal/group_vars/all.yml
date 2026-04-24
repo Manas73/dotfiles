@@ -1,8 +1,7 @@
 ---
-# Universal defaults for every host. Keep this minimal and cross-platform.
-# Package lists belong in OS-specific group vars (linux.yml, darwin.yml, arch.yml).
+# Universal defaults. Keep this minimal and cross-platform.
 
-# Chezmoi defaults. Host vars should override per machine.
+# Chezmoi defaults. Host vars override per machine.
 chezmoi_source_repo: "https://github.com/Manas73/dotfiles.git"
 chezmoi_source_path: "{{ ansible_user_dir }}/.local/share/chezmoi"
 chezmoi_config_path: "{{ ansible_user_dir }}/.config/chezmoi/chezmoi.toml"

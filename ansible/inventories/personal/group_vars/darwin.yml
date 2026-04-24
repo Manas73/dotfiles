@@ -1,15 +1,6 @@
 ---
 # macOS-only shared defaults.
-# Real Homebrew lists will be populated by chezmoi-7tw.
-#
-# Examples of values that belong here in the future:
-#   darwin_common_brews:
-#     - fish
-#     - git
-#     - neovim
-#   darwin_common_casks:
-#     - vivaldi
-#     - pycharm
+# Populated by Beads chezmoi-7tw.
 
 darwin_common_brews: []
 darwin_common_casks: []
