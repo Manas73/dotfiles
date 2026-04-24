@@ -1,3 +1,38 @@
 ---
 # i3 role.
-# Not yet implemented. Tracked by Beads.
+#
+# Represents i3 desktop readiness on a host. Package installation itself
+# is performed by arch_packages/aur_packages, which aggregate
+# i3_pacman_packages, i3_aur_packages, and i3_multilib_packages when the
+# host is in the `i3` group.
+#
+# This role does not:
+#   - install packages (arch_packages owns pacman; aur_packages owns yay)
+#   - manage i3 dotfiles (~/.config/i3, ~/.config/picom, ~/.config/polybar
+#     are owned by Chezmoi)
+#   - start the i3 session (handled by the display manager or startx)
+#
+# It exists as the explicit home for future non-package i3 work:
+#   - systemd user services for background helpers
+#   - picom service enablement
+#   - graphical.target wiring
+#
+# Keep the role a no-op until one of those needs actually arises.
+
+- name: Assert the host is Arch-based
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Archlinux'
+    fail_msg: >-
+      i3 role currently supports Arch-based hosts only. Detected
+      os_family={{ ansible_facts['os_family'] }}.
+    quiet: true
+
+- name: Assert the host is in the i3 inventory group
+  ansible.builtin.assert:
+    that:
+      - "'i3' in group_names"
+    fail_msg: >-
+      i3 role should only run for hosts in the `i3` inventory group.
+      Add the host to the group in inventories/personal/hosts.yml.
+    quiet: true

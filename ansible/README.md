@@ -60,10 +60,10 @@ Progress:
 
 - `chezmoi-g19` ✓ chezmoi role renders `~/.config/chezmoi/chezmoi.toml` and runs `chezmoi apply`.
 - `chezmoi-fwb` ✓ package data migrated into group vars.
-- `chezmoi-a2q` arch_packages, aur_packages.
+- `chezmoi-a2q` ✓ arch_packages, aur_packages.
+- `chezmoi-c7u` ✓ hyprland, i3 desktop profile roles.
 - `chezmoi-7tw` darwin_packages.
 - `chezmoi-hoz` fish, docker, kanata, plasma_custom_wm.
-- `chezmoi-c7u` hyprland, i3.
 
 ## Package Vars
 

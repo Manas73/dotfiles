@@ -1,3 +1,38 @@
 ---
 # hyprland role.
-# Not yet implemented. Tracked by Beads.
+#
+# Represents Hyprland desktop readiness on a host. Package installation
+# itself is performed by arch_packages/aur_packages, which aggregate
+# hyprland_pacman_packages, hyprland_aur_packages, and
+# hyprland_multilib_packages when the host is in the `hyprland` group.
+#
+# This role does not:
+#   - install packages (arch_packages owns pacman; aur_packages owns yay)
+#   - manage Hyprland dotfiles (~/.config/hypr/ is owned by Chezmoi)
+#   - start the Hyprland session (handled by the display manager or uwsm)
+#
+# It exists as the explicit home for future non-package Hyprland work:
+#   - systemd user services (e.g. hypridle, hyprsunset autostart)
+#   - XDG portal selection
+#   - graphical.target wiring
+#   - seat/session integration if needed
+#
+# Keep the role a no-op until one of those needs actually arises.
+
+- name: Assert the host is Arch-based
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Archlinux'
+    fail_msg: >-
+      hyprland role currently supports Arch-based hosts only. Detected
+      os_family={{ ansible_facts['os_family'] }}.
+    quiet: true
+
+- name: Assert the host is in the hyprland inventory group
+  ansible.builtin.assert:
+    that:
+      - "'hyprland' in group_names"
+    fail_msg: >-
+      hyprland role should only run for hosts in the `hyprland` inventory
+      group. Add the host to the group in inventories/personal/hosts.yml.
+    quiet: true

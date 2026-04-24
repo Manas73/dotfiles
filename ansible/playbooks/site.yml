@@ -5,13 +5,13 @@
 #   ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml --limit alfred --ask-become-pass
 #   ansible-playbook ... --tags packages
 #   ansible-playbook ... --tags aur
+#   ansible-playbook ... --tags desktop
 #   ansible-playbook ... --tags dotfiles
 #
 # Roles are added to plays only after they have real task bodies.
 # Tracking:
 #   chezmoi-7tw  darwin_packages
 #   chezmoi-hoz  fish, docker, kanata, plasma_custom_wm
-#   chezmoi-c7u  hyprland, i3
 
 - name: Install Arch pacman and multilib packages
   hosts: arch
@@ -26,6 +26,20 @@
   tags: [packages, aur, arch]
   roles:
     - role: aur_packages
+
+- name: Apply Hyprland desktop profile
+  hosts: hyprland
+  gather_facts: true
+  tags: [desktop, hyprland]
+  roles:
+    - role: hyprland
+
+- name: Apply i3 desktop profile
+  hosts: i3
+  gather_facts: true
+  tags: [desktop, i3]
+  roles:
+    - role: i3
 
 - name: Render Chezmoi config and apply dotfiles
   hosts: all

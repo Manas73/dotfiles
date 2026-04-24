@@ -1,21 +1,36 @@
 # Role: i3
 
-Installs i3 ecosystem dependencies on hosts in the `i3` group.
+Represents i3 desktop readiness on a host.
 
 ## Responsibilities
 
-- Install i3-wm, Picom, Polybar, sxhkd, feh, and Rofi plugins.
-- Composes with `arch_packages` and `aur_packages` via inventory vars.
+- Assert the host is Arch-based.
+- Assert the host is in the `i3` inventory group.
+- Act as the explicit home for future non-package i3 work.
 
 ## Does Not
 
-- Write to `~/.config/i3`, `~/.config/picom`, `~/.config/polybar`, or any other dotfiles.
+- **Install packages.** `arch_packages` and `aur_packages` handle that via the `i3_pacman_packages`, `i3_aur_packages`, and `i3_multilib_packages` group vars (see `inventories/personal/group_vars/i3.yml`).
+- **Manage i3 dotfiles.** `~/.config/i3/`, `~/.config/picom/`, and `~/.config/polybar/` stay with Chezmoi.
+- **Start the i3 session.** The display manager or `startx` handles that.
+
+## Why This Role Exists
+
+Package installation via group membership is enough today, but i3 may grow non-package needs:
+
+- Systemd user services for background helpers.
+- Picom service enablement.
+- `graphical.target` wiring.
+
+Having a dedicated role keeps those additions discoverable and testable.
 
 ## Inputs
 
-- `i3_packages`
-- `i3_aur_packages`
+Currently none beyond group membership.
 
-## Implementation Task
+## Example
 
-Tracked by Beads issue `chezmoi-c7u`.
+```sh
+ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml \
+    --limit alfred --tags desktop,i3 --ask-become-pass
+```
