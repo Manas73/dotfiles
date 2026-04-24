@@ -20,20 +20,25 @@
 # -- Multi-account credential routing -----------------------------------------
 #
 # Two GitHub accounts live in ~/.git-credentials: Manas73 (personal) and
-# manas-turing (work). The `store` helper returns the first matching entry
-# per host, which makes host-level lookups ambiguous.
+# manas-turing (work). The `store` helper returns the first matching
+# entry per host, which would otherwise route everything to whichever
+# account sorted first.
 #
-# Default: rewrite GitHub URLs to embed Manas73 so the credential helper
-# returns the Manas73 token. Turing clones (listed below via includeIf)
-# override this default with their own url.insteadOf entry pointing at
-# manas-turing.
+# Fix: tell git which username to use for github.com access based on
+# the clone's filesystem path. credential.<url>.username is a
+# single-value scalar, so later includes override earlier ones cleanly
+# (unlike url.insteadOf, which is multi-valued and ambiguous when two
+# bases match the same input).
+#
+# Individual repo origin URLs stay canonical
+# (https://github.com/<owner>/<repo>.git) so repos remain portable.
 
-[url "https://Manas73@github.com/"]
-	insteadOf = https://github.com/
+[credential "https://github.com"]
+	username = Manas73
 
 # Turing-specific overrides. Each includeIf points at the same
-# github-turing.inc fragment, which replaces the default url.insteadOf
-# so the credential helper returns the Turing token for these clones.
+# github-turing.inc fragment, which overrides credential.username for
+# github.com to manas-turing. Later includes win for scalar keys.
 #
 # Add a new [includeIf] entry below when a new Turing org shows up
 # under ~/Repositories/github.com/.
