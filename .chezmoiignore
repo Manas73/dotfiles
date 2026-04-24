@@ -5,6 +5,7 @@ CLAUDE.md
 docs/
 ansible/
 bootstrap/
+scripts/
 
 {{- if ne .chezmoi.os "linux" }}
 .config/.settings
