@@ -1,3 +1,4 @@
 {
-  "check_for_updates": false
+  "check_for_updates": false,
+  "theme": "one-dark.json"
 }
