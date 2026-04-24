@@ -13,49 +13,11 @@
 	program =
 	allowedSignersFile = 
 [credential]
-	# Store credentials in the system keyring via libsecret instead of the
-	# plaintext ~/.git-credentials file. The helper binary lives inside
-	# the git package at /usr/lib/git-core/git-credential-libsecret. On
-	# this machine the Secret Service is provided by gnome-keyring-daemon
-	# and unlocked at session login.
+	# libsecret-backed credential helper for any residual HTTPS auth
+	# (e.g. gh CLI, non-github submodule URLs). Day-to-day GitHub access
+	# is via SSH host aliases declared in ~/.ssh/config, so git itself
+	# rarely exercises this helper. The Secret Service backend is
+	# gnome-keyring-daemon on this machine.
 	helper = /usr/lib/git-core/git-credential-libsecret
 [ghq]
 	root = ~/Repositories
-
-# -- Multi-account credential routing -----------------------------------------
-#
-# Two GitHub accounts live in ~/.git-credentials: Manas73 (personal) and
-# manas-turing (work). The `store` helper returns the first matching
-# entry per host, which would otherwise route everything to whichever
-# account sorted first.
-#
-# Fix: tell git which username to use for github.com access based on
-# the clone's filesystem path. credential.<url>.username is a
-# single-value scalar, so later includes override earlier ones cleanly
-# (unlike url.insteadOf, which is multi-valued and ambiguous when two
-# bases match the same input).
-#
-# Individual repo origin URLs stay canonical
-# (https://github.com/<owner>/<repo>.git) so repos remain portable.
-
-[credential "https://github.com"]
-	username = Manas73
-
-# Turing-specific overrides. Each includeIf points at the same
-# github-turing.inc fragment, which overrides credential.username for
-# github.com to manas-turing. Later includes win for scalar keys.
-#
-# Add a new [includeIf] entry below when a new Turing org shows up
-# under ~/Repositories/github.com/.
-
-[includeIf "gitdir:~/Repositories/github.com/manas-turing/"]
-	path = ~/.config/git/github-turing.inc
-
-[includeIf "gitdir:~/Repositories/github.com/TuringEnterprises/"]
-	path = ~/.config/git/github-turing.inc
-
-[includeIf "gitdir:~/Repositories/github.com/turing-genai-apps/"]
-	path = ~/.config/git/github-turing.inc
-
-[includeIf "gitdir:~/Repositories/github.com/TuringGpt/"]
-	path = ~/.config/git/github-turing.inc
