@@ -45,11 +45,13 @@ all:
           hosts:
             alfred:
             <hostname>:
-    hyprland:
-      hosts:
-        alfred:
-        <hostname>:
+        hyprland:
+          hosts:
+            alfred:
+            <hostname>:
 ```
+
+`hyprland`, `i3`, and `gaming` are children of `linux`, so a host in any of them is automatically in `linux`. Package roles also check `group_names` before including profile-specific packages, so adding a host to only `arch` and `i3` (for example) will not install Hyprland or gaming packages.
 
 ## Example: macOS (MacBook Pro)
 

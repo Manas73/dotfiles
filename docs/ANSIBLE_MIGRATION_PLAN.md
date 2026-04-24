@@ -81,15 +81,21 @@ New groups, roles, or playbooks are added only when they earn their keep.
 
 ## Inventory Model
 
-Groups used today:
+Hierarchy reflects semantic relationships:
 
-- `all`: universal intent (Chezmoi, dotfiles).
-- `linux`: Linux-only behavior.
-- `darwin`: macOS-only behavior.
-- `arch`: Arch/Garuda package implementation.
-- `hyprland`: Hyprland ecosystem packages.
-- `i3`: i3 ecosystem packages.
-- `gaming`: optional gaming packages, gated per-host by `gaming_enabled`.
+```text
+all
+├── linux        every Linux host
+│   ├── arch     Arch/Garuda package implementation
+│   ├── hyprland Wayland/Hyprland desktop profile (Linux only)
+│   ├── i3       i3 desktop profile (Linux only)
+│   └── gaming   optional gaming packages (Linux only today)
+└── darwin       every macOS host
+```
+
+A Hyprland host is automatically in `linux`. A macOS host cannot end up in `hyprland` or `arch` because those groups are children of `linux`.
+
+Package aggregation in `arch_packages` and `aur_packages` further guards each profile's contribution by checking `group_names`, so a host that is in `arch` but not `hyprland` does not pick up Hyprland packages, even though `hyprland_*` vars exist in `group_vars`.
 
 Groups to add **only when they gate real behavior**:
 

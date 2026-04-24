@@ -34,19 +34,23 @@
 
 - name: Build the aggregate pacman package list
   ansible.builtin.set_fact:
+    # Each profile contributes its list only when the host is in the
+    # corresponding inventory group. This prevents Arch hosts that are
+    # not in hyprland/i3/gaming from receiving those profile's packages
+    # even though the vars exist in group_vars.
     arch_all_pacman_packages: >-
       {{
-        (arch_pacman_packages       | default([]))
-        + (hyprland_pacman_packages  | default([]))
-        + (i3_pacman_packages        | default([]))
-        + ((gaming_pacman_packages   | default([])) if (gaming_enabled | default(false) | bool) else [])
+        (arch_pacman_packages | default([]))
+        + ((hyprland_pacman_packages | default([])) if ('hyprland' in group_names) else [])
+        + ((i3_pacman_packages       | default([])) if ('i3'       in group_names) else [])
+        + ((gaming_pacman_packages   | default([])) if (('gaming' in group_names) and (gaming_enabled | default(false) | bool)) else [])
       }}
     arch_all_multilib_packages: >-
       {{
-        (arch_multilib_packages       | default([]))
-        + (hyprland_multilib_packages  | default([]))
-        + (i3_multilib_packages        | default([]))
-        + ((gaming_multilib_packages   | default([])) if (gaming_enabled | default(false) | bool) else [])
+        (arch_multilib_packages | default([]))
+        + ((hyprland_multilib_packages | default([])) if ('hyprland' in group_names) else [])
+        + ((i3_multilib_packages       | default([])) if ('i3'       in group_names) else [])
+        + ((gaming_multilib_packages   | default([])) if (('gaming' in group_names) and (gaming_enabled | default(false) | bool)) else [])
       }}
 
 - name: Perform a full system upgrade (pacman -Syu)

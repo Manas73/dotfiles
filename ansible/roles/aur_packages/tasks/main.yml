@@ -35,12 +35,14 @@
 
 - name: Build the aggregate AUR package list
   ansible.builtin.set_fact:
+    # Each profile contributes its list only when the host is in the
+    # corresponding inventory group. See arch_packages for the rationale.
     aur_all_packages: >-
       {{
-        (arch_aur_packages       | default([]))
-        + (hyprland_aur_packages  | default([]))
-        + (i3_aur_packages        | default([]))
-        + ((gaming_aur_packages   | default([])) if (gaming_enabled | default(false) | bool) else [])
+        (arch_aur_packages | default([]))
+        + ((hyprland_aur_packages | default([])) if ('hyprland' in group_names) else [])
+        + ((i3_aur_packages       | default([])) if ('i3'       in group_names) else [])
+        + ((gaming_aur_packages   | default([])) if (('gaming' in group_names) and (gaming_enabled | default(false) | bool)) else [])
       }}
 
 - name: Warn and skip AUR tasks in check mode
