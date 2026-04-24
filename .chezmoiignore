@@ -1,5 +1,10 @@
 README.md
 key.txt.age
+AGENTS.md
+CLAUDE.md
+docs/
+ansible/
+bootstrap/
 
 {{- if ne .chezmoi.os "linux" }}
 .config/.settings
@@ -58,4 +63,3 @@ key.txt.age
 .ssh/id_ed25519.pub
 .ssh/mangesh
 {{- end }}
-
