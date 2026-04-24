@@ -1,0 +1,34 @@
+---
+# Example host vars for a future macOS laptop (MacBook Pro).
+#
+# This file is intentionally outside the active host_vars/ directory.
+# To onboard this machine:
+#   1. Move this file into host_vars/ and rename it to the real hostname.
+#   2. Update values below for the actual machine.
+#   3. Add the host to the relevant groups in hosts.yml (darwin, laptops,
+#      development, personal).
+#
+# macOS hosts use an empty window_managers list and empty plasma_window_manager
+# to keep the schema identical across platforms. Linux-only playbooks/roles
+# are gated by group membership and `when:` checks, not by missing keys.
+
+primary_user: manas
+
+# Chezmoi intent. Consumed by the future chezmoi role (Beads chezmoi-g19)
+# to render ~/.config/chezmoi/chezmoi.toml.
+chezmoi_email: "manas.sambare@gmail.com"
+chezmoi_profile: "personal"
+chezmoi_osid: "darwin"
+chezmoi_gpu: "none"
+chezmoi_window_manager: []
+chezmoi_plasma_window_manager: ""
+
+# Machine capabilities.
+gpu_vendor: "none"
+window_managers: []
+plasma_window_manager: ""
+
+# Feature flags.
+docker_enabled: true
+kanata_enabled: false
+gaming_enabled: false

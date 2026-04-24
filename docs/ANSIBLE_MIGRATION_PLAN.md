@@ -57,12 +57,17 @@ Before adding any new top-level repo-only directory, add it to `.chezmoiignore` 
 │   │       │   ├── development.yml
 │   │       │   ├── hyprland.yml
 │   │       │   ├── i3.yml
+│   │       │   ├── gaming.yml
 │   │       │   ├── workstations.yml
-│   │       │   └── laptops.yml
-│   │       └── host_vars/
-│   │           ├── alfred.yml
-│   │           ├── future-linux-laptop.yml
-│   │           └── future-macbook.yml
+│   │       │   ├── laptops.yml
+│   │       │   └── work.yml
+│   │       ├── host_vars/
+│   │       │   └── alfred.yml
+│   │       └── examples/
+│   │           ├── README.md
+│   │           └── host_vars/
+│   │               ├── future-linux-laptop.yml
+│   │               └── future-macbook.yml
 │   ├── playbooks/
 │   │   ├── site.yml
 │   │   ├── packages.yml
