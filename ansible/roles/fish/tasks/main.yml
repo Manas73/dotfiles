@@ -1,3 +1,44 @@
 ---
 # fish role.
-# Not yet implemented. Tracked by Beads.
+#
+# Ensures Fish is the login shell for the primary user. Fish itself is
+# installed by the package roles (arch_packages on Arch, darwin_packages
+# on macOS). This role does not own Fish configuration; ~/.config/fish
+# stays with Chezmoi.
+
+- name: Locate the fish binary
+  ansible.builtin.shell: command -v fish
+  register: fish_binary
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Fail fast if fish is not installed
+  ansible.builtin.fail:
+    msg: >-
+      fish is not installed on this host. Install it via the relevant
+      package role (arch_packages on Arch, darwin_packages on macOS)
+      before running the fish role.
+  when: fish_binary.rc != 0
+
+- name: Ensure fish is a registered login shell
+  ansible.builtin.lineinfile:
+    path: /etc/shells
+    line: "{{ fish_binary.stdout }}"
+    state: present
+    create: false
+  become: true
+
+- name: Set fish as the primary user's login shell
+  ansible.builtin.user:
+    name: "{{ primary_user }}"
+    shell: "{{ fish_binary.stdout }}"
+  become: true
+  register: fish_shell_change
+
+- name: Report when the shell has just been switched
+  ansible.builtin.debug:
+    msg: >-
+      Login shell changed to {{ fish_binary.stdout }} for {{ primary_user }}.
+      Log out and back in for the change to take effect.
+  when: fish_shell_change is changed

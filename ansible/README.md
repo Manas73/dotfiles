@@ -62,8 +62,8 @@ Progress:
 - `chezmoi-fwb` ✓ package data migrated into group vars.
 - `chezmoi-a2q` ✓ arch_packages, aur_packages.
 - `chezmoi-c7u` ✓ hyprland, i3 desktop profile roles.
+- `chezmoi-hoz` ✓ fish, docker, kanata, plasma_custom_wm.
 - `chezmoi-7tw` darwin_packages.
-- `chezmoi-hoz` fish, docker, kanata, plasma_custom_wm.
 
 ## Package Vars
 

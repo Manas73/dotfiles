@@ -1,3 +1,10 @@
 ---
 # Defaults for the kanata role.
-# Real values live in inventory group_vars.
+# Behavior flag lives in group_vars/all.yml as kanata_enabled.
+
+# Kanata config path inside the primary user's home directory.
+# The file itself is owned by Chezmoi.
+kanata_config_path: "{{ ansible_facts['user_dir'] }}/.config/kanata/config.kbd"
+
+# System paths.
+kanata_udev_rules_path: /etc/udev/rules.d/99-input.rules

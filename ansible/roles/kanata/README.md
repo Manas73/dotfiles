@@ -1,25 +1,29 @@
 # Role: kanata
 
-Configures the Kanata keyboard remapper on Linux hosts.
+Sets up the Kanata keyboard remapper on Linux hosts.
 
 ## Responsibilities
 
-- Install Kanata (via package role).
-- Ensure `input` and `uinput` groups exist and include the user.
-- Install `/etc/udev/rules.d/99-input.rules`.
-- Load the `uinput` module.
-- Create and enable the `kanata.service` user unit.
-- Only runs when `kanata_enabled: true`.
+- Verify `kanata` is installed (via `aur_packages`).
+- Ensure the `uinput` group exists.
+- Add `primary_user` to `input` and `uinput`.
+- Install `/etc/udev/rules.d/99-input.rules` and reload udev.
+- Persist the `uinput` kernel module load via `/etc/modules-load.d/uinput.conf` and load it immediately.
+- Install `~/.config/systemd/user/kanata.service` and enable+start it.
 
 ## Does Not
 
-- Manage the Kanata config file (Chezmoi owns `~/.config/kanata/config.kbd`).
+- Install Kanata.
+- Manage the Kanata config file (`~/.config/kanata/config.kbd` stays with Chezmoi).
 
 ## Inputs
 
-- `primary_user`
-- `kanata_enabled`
+- `primary_user` (host_vars).
+- `kanata_enabled` (host_vars). Role runs only when true; gated at site.yml.
+- `kanata_config_path` (defaults to `~/.config/kanata/config.kbd`).
 
-## Implementation Task
+## Notes
 
-Tracked by Beads issue `chezmoi-hoz`.
+- The systemd user service runs kanata with the user-owned config; Chezmoi must have placed the config before this role runs.
+- Users must log out and back in for group membership changes to take effect.
+- The role persists the kernel module load across reboots via `/etc/modules-load.d/`, which is a small improvement over the original Chezmoi script that only `modprobe`d once.

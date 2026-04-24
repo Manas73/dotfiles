@@ -1,17 +1,22 @@
 ---
 # Full machine provisioning.
 #
+# Order:
+#   1. Install OS packages so binaries exist.
+#   2. Apply Chezmoi dotfiles so configs exist for the services below.
+#   3. Configure system services (login shell, Docker, Kanata, Plasma WM).
+#   4. Apply desktop profile hooks (future non-package desktop work).
+#
 # Run examples:
 #   ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml --limit alfred --ask-become-pass
 #   ansible-playbook ... --tags packages
 #   ansible-playbook ... --tags aur
-#   ansible-playbook ... --tags desktop
 #   ansible-playbook ... --tags dotfiles
+#   ansible-playbook ... --tags system
+#   ansible-playbook ... --tags desktop
 #
-# Roles are added to plays only after they have real task bodies.
 # Tracking:
 #   chezmoi-7tw  darwin_packages
-#   chezmoi-hoz  fish, docker, kanata, plasma_custom_wm
 
 - name: Install Arch pacman and multilib packages
   hosts: arch
@@ -27,6 +32,44 @@
   roles:
     - role: aur_packages
 
+- name: Render Chezmoi config and apply dotfiles
+  hosts: all
+  gather_facts: true
+  tags: [dotfiles, chezmoi]
+  roles:
+    - role: chezmoi
+
+- name: Ensure Fish is the login shell
+  hosts: all
+  gather_facts: true
+  tags: [system, fish]
+  roles:
+    - role: fish
+
+- name: Configure Docker for the primary user
+  hosts: all
+  gather_facts: true
+  tags: [system, docker]
+  roles:
+    - role: docker
+      when: docker_enabled | default(false) | bool
+
+- name: Configure Kanata keyboard remapper
+  hosts: linux
+  gather_facts: true
+  tags: [system, kanata]
+  roles:
+    - role: kanata
+      when: kanata_enabled | default(false) | bool
+
+- name: Configure Plasma with custom window manager
+  hosts: linux
+  gather_facts: true
+  tags: [system, plasma]
+  roles:
+    - role: plasma_custom_wm
+      when: plasma_window_manager is defined
+
 - name: Apply Hyprland desktop profile
   hosts: hyprland
   gather_facts: true
@@ -40,10 +83,3 @@
   tags: [desktop, i3]
   roles:
     - role: i3
-
-- name: Render Chezmoi config and apply dotfiles
-  hosts: all
-  gather_facts: true
-  tags: [dotfiles, chezmoi]
-  roles:
-    - role: chezmoi

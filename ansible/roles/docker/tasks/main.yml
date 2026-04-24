@@ -1,3 +1,57 @@
 ---
 # docker role.
-# Not yet implemented. Tracked by Beads.
+#
+# Configures Docker for the primary user on Linux hosts: creates the
+# docker group, adds the user to it, and enables docker.socket.
+#
+# Gated by docker_enabled (default: false; set true in host_vars).
+# Docker itself is installed by arch_packages (the `docker` package is
+# in arch_pacman_packages).
+#
+# macOS handling is intentionally a no-op for now; Docker Desktop or a
+# Homebrew cask will be wired in when the MacBook onboards.
+
+- name: Skip docker role on non-Linux hosts
+  ansible.builtin.meta: end_host
+  when: ansible_facts['system'] | lower != 'linux'
+
+- name: Verify docker binary is present
+  ansible.builtin.shell: command -v docker
+  register: docker_binary
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Fail fast if docker is not installed
+  ansible.builtin.fail:
+    msg: >-
+      docker is not installed. On Arch it is installed by arch_packages
+      (the `docker` package). Install it before running the docker role.
+  when: docker_binary.rc != 0
+
+- name: Ensure the docker group exists
+  ansible.builtin.group:
+    name: docker
+    state: present
+  become: true
+
+- name: Ensure the primary user is in the docker group
+  ansible.builtin.user:
+    name: "{{ primary_user }}"
+    groups: docker
+    append: true
+  become: true
+  register: docker_group_change
+
+- name: Enable docker.socket (starts Docker on demand)
+  ansible.builtin.systemd_service:
+    name: docker.socket
+    enabled: true
+  become: true
+
+- name: Report when group membership was just granted
+  ansible.builtin.debug:
+    msg: >-
+      {{ primary_user }} added to the docker group. Log out and back in
+      for the group membership to take effect.
+  when: docker_group_change is changed

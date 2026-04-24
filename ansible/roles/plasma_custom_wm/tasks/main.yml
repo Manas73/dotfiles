@@ -1,3 +1,91 @@
 ---
 # plasma_custom_wm role.
-# Not yet implemented. Tracked by Beads.
+#
+# Configures KDE Plasma to launch a custom window manager instead of
+# KWin, or restores KWin, based on the plasma_window_manager host var.
+#
+# When plasma_window_manager is kwin (or empty/undefined):
+#   - Disable plasma-wm.service
+#   - Unmask plasma-kwin_x11.service
+#
+# When plasma_window_manager is anything else (i3, qtile, hyprland):
+#   - Render ~/.config/systemd/user/plasma-wm.service
+#   - Mask plasma-kwin_x11.service
+#   - Enable plasma-wm.service
+#
+# Non-Linux hosts are skipped.
+
+- name: Skip plasma_custom_wm role on non-Linux hosts
+  ansible.builtin.meta: end_host
+  when: ansible_facts['system'] | lower != 'linux'
+
+- name: Ensure the systemd user directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.config/systemd/user"
+    state: directory
+    mode: "0755"
+
+# -- kwin (or nothing) path: restore defaults --------------------------------
+
+- name: Ensure plasma-wm.service is disabled (kwin mode)
+  ansible.builtin.systemd_service:
+    name: plasma-wm.service
+    scope: user
+    enabled: false
+  when: (plasma_window_manager | default('')) in ['', 'kwin']
+  failed_when: false
+  register: plasma_wm_disable
+
+- name: Remove the plasma-wm.service unit when unused
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.config/systemd/user/plasma-wm.service"
+    state: absent
+  when: (plasma_window_manager | default('')) in ['', 'kwin']
+  notify: reload systemd user
+
+- name: Unmask plasma-kwin_x11.service (kwin mode)
+  ansible.builtin.command:
+    cmd: systemctl --user unmask plasma-kwin_x11.service
+  when: (plasma_window_manager | default('')) in ['', 'kwin']
+  register: plasma_kwin_unmask
+  changed_when:
+    - plasma_kwin_unmask.stdout is defined
+    - "'Removed' in plasma_kwin_unmask.stdout or 'removed' in plasma_kwin_unmask.stdout"
+
+# -- custom WM path: install unit, mask KWin, enable plasma-wm ---------------
+
+- name: Render the plasma-wm.service unit (custom WM mode)
+  ansible.builtin.template:
+    src: plasma-wm.service.j2
+    dest: "{{ ansible_facts['user_dir'] }}/.config/systemd/user/plasma-wm.service"
+    mode: "0644"
+  when:
+    - plasma_window_manager is defined
+    - plasma_window_manager | length > 0
+    - plasma_window_manager != 'kwin'
+  notify: reload systemd user
+
+- name: Flush handlers so the user daemon reload happens before enable/mask
+  ansible.builtin.meta: flush_handlers
+
+- name: Mask plasma-kwin_x11.service (custom WM mode)
+  ansible.builtin.command:
+    cmd: systemctl --user mask plasma-kwin_x11.service
+  when:
+    - plasma_window_manager is defined
+    - plasma_window_manager | length > 0
+    - plasma_window_manager != 'kwin'
+  register: plasma_kwin_mask
+  changed_when:
+    - plasma_kwin_mask.stdout is defined
+    - "'Created' in plasma_kwin_mask.stdout or 'created' in plasma_kwin_mask.stdout"
+
+- name: Enable plasma-wm.service (custom WM mode)
+  ansible.builtin.systemd_service:
+    name: plasma-wm.service
+    scope: user
+    enabled: true
+  when:
+    - plasma_window_manager is defined
+    - plasma_window_manager | length > 0
+    - plasma_window_manager != 'kwin'

@@ -1,3 +1,109 @@
 ---
 # kanata role.
-# Not yet implemented. Tracked by Beads.
+#
+# Sets up the Kanata keyboard remapper on Linux hosts:
+#   - Ensures input + uinput groups exist and the primary user is in both.
+#   - Installs the udev rule so /dev/uinput is accessible to the uinput group.
+#   - Loads the uinput kernel module and makes the load persistent.
+#   - Installs a systemd user service that launches kanata on session start.
+#
+# Gated by kanata_enabled (default: false; set true in host_vars).
+# Kanata itself is installed by aur_packages (kanata-bin is in
+# arch_aur_packages).
+
+- name: Skip kanata role on non-Linux hosts
+  ansible.builtin.meta: end_host
+  when: ansible_facts['system'] | lower != 'linux'
+
+- name: Verify kanata binary is present
+  ansible.builtin.shell: command -v kanata
+  register: kanata_binary
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Fail fast if kanata is not installed
+  ansible.builtin.fail:
+    msg: >-
+      kanata is not installed. On Arch it is installed by aur_packages
+      (kanata-bin). Install it before running the kanata role.
+  when: kanata_binary.rc != 0
+
+- name: Ensure the uinput group exists
+  ansible.builtin.group:
+    name: uinput
+    state: present
+  become: true
+
+- name: Ensure the primary user is in the input group
+  ansible.builtin.user:
+    name: "{{ primary_user }}"
+    groups: input
+    append: true
+  become: true
+  register: kanata_input_group
+
+- name: Ensure the primary user is in the uinput group
+  ansible.builtin.user:
+    name: "{{ primary_user }}"
+    groups: uinput
+    append: true
+  become: true
+  register: kanata_uinput_group
+
+- name: Install the uinput udev rule
+  ansible.builtin.copy:
+    src: 99-input.rules
+    dest: "{{ kanata_udev_rules_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: reload udev
+
+- name: Persist uinput kernel module loading
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/uinput.conf
+    content: "uinput\n"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Load uinput kernel module now
+  community.general.modprobe:
+    name: uinput
+    state: present
+    persistent: disabled
+  become: true
+
+- name: Ensure the systemd user directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.config/systemd/user"
+    state: directory
+    mode: "0755"
+
+- name: Install the kanata systemd user unit
+  ansible.builtin.template:
+    src: kanata.service.j2
+    dest: "{{ ansible_facts['user_dir'] }}/.config/systemd/user/kanata.service"
+    mode: "0644"
+  notify: reload systemd user
+  register: kanata_service_unit
+
+- name: Flush handlers so the user daemon reload happens before enable
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable and start kanata.service for the primary user
+  ansible.builtin.systemd_service:
+    name: kanata.service
+    scope: user
+    enabled: true
+    state: started
+
+- name: Report when group membership was just granted
+  ansible.builtin.debug:
+    msg: >-
+      {{ primary_user }} added to input/uinput groups. Log out and back
+      in for the group membership to take effect.
+  when: kanata_input_group is changed or kanata_uinput_group is changed

@@ -1,2 +1,6 @@
 ---
-# Handlers for the plasma_custom_wm role.
+- name: Reload systemd user daemon
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    scope: user
+  listen: reload systemd user

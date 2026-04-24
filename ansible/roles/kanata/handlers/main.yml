@@ -1,2 +1,16 @@
 ---
-# Handlers for the kanata role.
+- name: Reload udev rules
+  ansible.builtin.command: udevadm control --reload-rules
+  become: true
+  listen: reload udev
+
+- name: Trigger udev
+  ansible.builtin.command: udevadm trigger
+  become: true
+  listen: reload udev
+
+- name: Reload systemd user daemon
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    scope: user
+  listen: reload systemd user
