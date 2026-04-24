@@ -1,0 +1,53 @@
+---
+# sudoers role.
+#
+# Manages narrowly scoped /etc/sudoers.d/ drop-ins required by other roles.
+# Kept separate from aur_packages so the concern (privilege grants) is not
+# coupled to the consumer (AUR installs).
+#
+# Current grants:
+#   - NOPASSWD for /usr/bin/pacman to primary_user. yay invokes sudo pacman
+#     internally during AUR builds; when Ansible runs yay there is no TTY
+#     and the sudo prompt fails. Scoping to pacman keeps the blast radius
+#     small.
+#
+# Every drop-in is validated with `visudo -cf` before being installed. A
+# bad sudoers file can lock the user out of sudo entirely, so validation
+# is mandatory.
+
+- name: Skip sudoers role on non-Linux hosts
+  ansible.builtin.meta: end_host
+  when: ansible_facts['system'] | lower != 'linux'
+
+- name: Assert primary_user is defined
+  ansible.builtin.assert:
+    that:
+      - primary_user is defined
+      - primary_user | length > 0
+    fail_msg: >-
+      sudoers role requires primary_user to be set (host_vars).
+    quiet: true
+
+- name: Ensure /etc/sudoers.d exists with correct permissions
+  ansible.builtin.file:
+    path: /etc/sudoers.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+  become: true
+
+- name: Install NOPASSWD drop-in for pacman
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/10-{{ primary_user }}-pacman"
+    content: |
+      # Managed by ansible (roles/sudoers). Do not edit by hand.
+      # Allows {{ primary_user }} to run pacman without a password so yay
+      # can invoke sudo pacman non-interactively from Ansible.
+      {{ primary_user }} ALL=(root) NOPASSWD: /usr/bin/pacman
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+  become: true
+  tags: [sudoers, pacman]

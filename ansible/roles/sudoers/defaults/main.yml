@@ -1,0 +1,5 @@
+---
+# Defaults for the sudoers role.
+#
+# Currently no tunables; primary_user comes from host_vars. Kept here for
+# parity with other roles so future knobs (e.g. opt-in grants) have a home.

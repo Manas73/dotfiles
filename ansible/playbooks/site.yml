@@ -17,6 +17,14 @@
 #
 # Tracking:
 #   chezmoi-7tw  darwin_packages
+#   chezmoi-ck1  sudoers role for passwordless pacman
+
+- name: Install sudoers drop-ins required by other roles
+  hosts: linux
+  gather_facts: true
+  tags: [system, sudoers]
+  roles:
+    - role: sudoers
 
 - name: Install Arch pacman and multilib packages
   hosts: arch
