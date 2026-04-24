@@ -18,30 +18,30 @@ The long-term target: Ansible owns `~/.config/chezmoi/chezmoi.toml` and runs Che
 
 ## Chezmoi Boundary
 
-Chezmoi must only manage files intended for `$HOME`. Repo-only paths are ignored:
+Chezmoi must only manage files intended for `$HOME`. The repo uses a `.chezmoiroot` file at the repository root containing `chezmoi`, which pins Chezmoi's source directory to the `chezmoi/` subdirectory. Everything outside `chezmoi/` is invisible to Chezmoi by construction:
 
-- `docs/`
-- `ansible/`
-- `bootstrap/` (if added later)
-- `AGENTS.md`
-- `CLAUDE.md`
-- `README.md`
-- `key.txt.age`
+- `docs/` — outside the source dir
+- `ansible/` — outside the source dir
+- `AGENTS.md`, `CLAUDE.md`, `README.md` — outside the source dir
+- `key.txt.age` — inside `chezmoi/`, ignored via `.chezmoiignore` so it is not applied into `$HOME`
 
-Add new top-level repo-only directories to `.chezmoiignore` before adding files under them.
+`chezmoi/.chezmoiignore` only needs to list paths that live *inside* `chezmoi/` but should not be applied into `$HOME`. Repo-only directories at the top level do not need ignore entries.
 
 ## Repository Layout
 
 ```text
 .
 ├── README.md
-├── .chezmoi.toml.tmpl
-├── .chezmoiignore
-├── dot_config/
-├── dot_gitconfig.tmpl
-├── dot_local/
-├── dot_ssh/
-├── key.txt.age
+├── .chezmoiroot              pins Chezmoi's source dir to chezmoi/
+├── chezmoi/                  Chezmoi source state
+│   ├── .chezmoi.toml.tmpl
+│   ├── .chezmoiignore
+│   ├── .chezmoiscripts/
+│   ├── dot_config/
+│   ├── dot_gitconfig.tmpl
+│   ├── dot_local/
+│   ├── dot_ssh/
+│   └── key.txt.age
 ├── docs/
 │   ├── ANSIBLE_MIGRATION_PLAN.md
 │   └── ONBOARDING.md
@@ -187,8 +187,9 @@ Ansible renders Chezmoi config from host vars and runs `chezmoi apply`. Chezmoi 
 
 ### Phase 1 — Safety Boundary ✓
 
-- Added repo-only paths to `.chezmoiignore`.
-- Verified `chezmoi managed` excludes `docs/`, `ansible/`, and `bootstrap/`.
+- Initially added repo-only paths to `.chezmoiignore`.
+- Later superseded by moving the Chezmoi source state into the `chezmoi/` subdirectory and adding `.chezmoiroot` at the repo root (beads-iwd). Repo-only directories are now outside Chezmoi's view by construction; `.chezmoiignore` only handles in-source exceptions.
+- Verified `chezmoi managed` excludes `docs/`, `ansible/`, and other repo-only top-level paths.
 - Added this plan and `docs/ONBOARDING.md`.
 
 ### Phase 2 — Ansible Skeleton ✓

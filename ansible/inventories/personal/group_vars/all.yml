@@ -3,7 +3,12 @@
 
 # Chezmoi defaults. Host vars override per machine.
 chezmoi_source_repo: "https://github.com/Manas73/dotfiles.git"
-chezmoi_source_path: "{{ ansible_facts['user_dir'] }}/.local/share/chezmoi"
+# chezmoi_repo_path is the git-clone root (contains .chezmoiroot, ansible/, docs/, chezmoi/).
+# chezmoi_source_path is the resolved Chezmoi source directory, i.e., the chezmoi/ subdir
+# pointed at by .chezmoiroot. Keep the two distinct: git-clone checks use repo_path,
+# source-state lookups (key.txt.age, etc.) use source_path.
+chezmoi_repo_path: "{{ ansible_facts['user_dir'] }}/.local/share/chezmoi"
+chezmoi_source_path: "{{ chezmoi_repo_path }}/chezmoi"
 chezmoi_config_path: "{{ ansible_facts['user_dir'] }}/.config/chezmoi/chezmoi.toml"
 chezmoi_age_identity: "{{ ansible_facts['user_dir'] }}/.config/chezmoi/key.txt"
 chezmoi_age_recipient: "age1egva8dwupvqgh2r3d48j2jsrjkfrgvvpjk83vttdcjftlyze5cgs7ccffj"

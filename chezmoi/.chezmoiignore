@@ -1,10 +1,4 @@
-README.md
 key.txt.age
-AGENTS.md
-CLAUDE.md
-docs/
-ansible/
-bootstrap/
 
 {{- if ne .chezmoi.os "linux" }}
 .config/.settings
