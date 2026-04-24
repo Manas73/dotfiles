@@ -1,3 +1,105 @@
 ---
-# chezmoi role.
-# Not yet implemented. Tracked by Beads.
+# Chezmoi role.
+#
+# Responsibilities:
+# - Verify Chezmoi is installed (installation is the package role's job).
+# - Ensure ~/.config/chezmoi/ exists.
+# - Decrypt the age identity from key.txt.age if needed (interactive).
+# - Verify the Chezmoi source repo exists.
+# - Render ~/.config/chezmoi/chezmoi.toml from Ansible inventory vars.
+# - Run `chezmoi apply` non-interactively.
+#
+# This role runs as the primary user. It never uses become; no sudo is required.
+
+- name: Verify required host vars are set
+  ansible.builtin.assert:
+    that:
+      - primary_user is defined and primary_user | length > 0
+      - chezmoi_email is defined and chezmoi_email | length > 0
+      - chezmoi_profile is defined and chezmoi_profile | length > 0
+      - chezmoi_osid is defined and chezmoi_osid | length > 0
+      - chezmoi_gpu is defined and chezmoi_gpu | length > 0
+      - chezmoi_age_recipient is defined and chezmoi_age_recipient | length > 0
+      - chezmoi_config_path is defined
+      - chezmoi_age_identity is defined
+      - chezmoi_source_path is defined
+    fail_msg: >-
+      Missing required vars for the chezmoi role. Ensure host_vars/<hostname>.yml
+      and group_vars/all.yml define the chezmoi_* values (see docs/ONBOARDING.md).
+    quiet: true
+
+- name: Locate chezmoi binary
+  ansible.builtin.shell: command -v chezmoi
+  register: chezmoi_binary
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Fail fast if chezmoi is not installed
+  ansible.builtin.fail:
+    msg: >-
+      chezmoi is not installed on this host. On Arch/Garuda it is installed by
+      the arch_packages role (base package list). On macOS it comes from the
+      darwin_packages role. Install it and re-run this playbook.
+  when: chezmoi_binary.rc != 0
+
+- name: Ensure ~/.config/chezmoi directory exists
+  ansible.builtin.file:
+    path: "{{ chezmoi_config_path | dirname }}"
+    state: directory
+    mode: "0700"
+
+- name: Check whether age identity exists
+  ansible.builtin.stat:
+    path: "{{ chezmoi_age_identity }}"
+  register: chezmoi_age_identity_stat
+
+- name: Check whether encrypted age identity exists in the source repo
+  ansible.builtin.stat:
+    path: "{{ chezmoi_source_path }}/key.txt.age"
+  register: chezmoi_age_identity_encrypted_stat
+
+- name: Decrypt the age identity (interactive passphrase prompt)
+  ansible.builtin.command: >-
+    chezmoi age decrypt
+    --output {{ chezmoi_age_identity | quote }}
+    --passphrase
+    {{ (chezmoi_source_path ~ '/key.txt.age') | quote }}
+  args:
+    creates: "{{ chezmoi_age_identity }}"
+  when:
+    - not chezmoi_age_identity_stat.stat.exists
+    - chezmoi_age_identity_encrypted_stat.stat.exists
+
+- name: Enforce age identity permissions
+  ansible.builtin.file:
+    path: "{{ chezmoi_age_identity }}"
+    mode: "0600"
+  when: chezmoi_age_identity_encrypted_stat.stat.exists or chezmoi_age_identity_stat.stat.exists
+
+- name: Verify Chezmoi source repo exists
+  ansible.builtin.stat:
+    path: "{{ chezmoi_source_path }}/.git"
+  register: chezmoi_source_stat
+
+- name: Fail fast if the Chezmoi source repo is missing
+  ansible.builtin.fail:
+    msg: >-
+      Chezmoi source repo not found at {{ chezmoi_source_path }}. Clone this
+      repository there before running Ansible:
+        git clone {{ chezmoi_source_repo }} {{ chezmoi_source_path }}
+  when: not chezmoi_source_stat.stat.isdir | default(false)
+
+- name: Render ~/.config/chezmoi/chezmoi.toml from inventory vars
+  ansible.builtin.template:
+    src: chezmoi.toml.j2
+    dest: "{{ chezmoi_config_path }}"
+    mode: "0600"
+    backup: true
+  register: chezmoi_config_render
+
+- name: Apply Chezmoi non-interactively
+  ansible.builtin.command: chezmoi apply --force
+  register: chezmoi_apply
+  changed_when: chezmoi_apply.stdout | length > 0 or chezmoi_apply.stderr | length > 0
+  # Chezmoi apply is idempotent; we report change only when it actually said anything.

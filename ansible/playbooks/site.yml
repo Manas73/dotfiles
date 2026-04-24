@@ -13,13 +13,10 @@
 #   chezmoi-7tw  darwin_packages
 #   chezmoi-hoz  fish, docker, kanata, plasma_custom_wm
 #   chezmoi-c7u  hyprland, i3
-#   chezmoi-g19  chezmoi
-#
-# Intentionally no placeholder plays while roles are empty; running this
-# playbook today simply does nothing, which is the correct behavior.
 
 - name: Render Chezmoi config and apply dotfiles
   hosts: all
   gather_facts: true
   tags: [dotfiles, chezmoi]
-  roles: []
+  roles:
+    - role: chezmoi

@@ -1,9 +1,9 @@
 ---
 # Chezmoi config rendering and dotfile apply only.
-# Role body arrives in Beads chezmoi-g19.
 
 - name: Render Chezmoi config and apply dotfiles
   hosts: all
   gather_facts: true
   tags: [dotfiles, chezmoi]
-  roles: []
+  roles:
+    - role: chezmoi

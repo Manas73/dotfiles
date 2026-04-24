@@ -1,0 +1,18 @@
+{{ ansible_managed | comment }}
+encryption = "age"
+
+[age]
+    identity = "~/.config/chezmoi/key.txt"
+    recipient = "{{ chezmoi_age_recipient }}"
+
+[data]
+    email = "{{ chezmoi_email }}"
+    profile = "{{ chezmoi_profile }}"
+    osid = "{{ chezmoi_osid }}"
+    gpu = "{{ chezmoi_gpu }}"
+{% if chezmoi_window_manager is defined %}
+    window_manager = {{ chezmoi_window_manager | to_json }}
+{% else %}
+    window_manager = []
+{% endif %}
+    plasma_window_manager = "{{ chezmoi_plasma_window_manager | default('') }}"
