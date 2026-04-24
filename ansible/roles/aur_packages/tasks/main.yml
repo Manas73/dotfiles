@@ -1,3 +1,113 @@
 ---
 # aur_packages role.
-# Not yet implemented. Tracked by Beads.
+#
+# Installs AUR packages on Arch/Garuda hosts via yay. Bootstraps yay itself
+# if missing. Consumes AUR vars contributed by every group the host belongs
+# to:
+#
+#   arch_aur_packages     hyprland_aur_packages
+#   i3_aur_packages       gaming_aur_packages
+#
+# Gaming packages are only included when gaming_enabled is true.
+#
+# yay must run as the primary user (not root). makepkg refuses to run as
+# root as well. The user is expected to have sudo rights for pacman; yay
+# invokes sudo itself as needed during dependency resolution.
+#
+# Check mode: AUR tasks are skipped in check mode because yay and makepkg
+# cannot preview installs without fetching PKGBUILDs. A warning task reports
+# the skip.
+
+- name: Assert the host is Arch-based
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Archlinux'
+    fail_msg: >-
+      aur_packages role requires an Arch-based host (Arch, Garuda, Manjaro).
+    quiet: true
+
+- name: Assert makepkg is available
+  ansible.builtin.shell: command -v makepkg
+  register: aur_makepkg_binary
+  changed_when: false
+  failed_when: aur_makepkg_binary.rc != 0
+  check_mode: false
+
+- name: Build the aggregate AUR package list
+  ansible.builtin.set_fact:
+    aur_all_packages: >-
+      {{
+        (arch_aur_packages       | default([]))
+        + (hyprland_aur_packages  | default([]))
+        + (i3_aur_packages        | default([]))
+        + ((gaming_aur_packages   | default([])) if (gaming_enabled | default(false) | bool) else [])
+      }}
+
+- name: Warn and skip AUR tasks in check mode
+  ansible.builtin.debug:
+    msg: >-
+      Check mode: skipping AUR tasks. yay and makepkg cannot preview installs
+      safely. Re-run without --check to install AUR packages.
+  when:
+    - ansible_check_mode
+    - aur_all_packages | length > 0
+
+- name: Detect yay
+  ansible.builtin.shell: command -v yay
+  register: aur_yay_binary
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Bootstrap yay from the AUR (first-time install)
+  when:
+    - not ansible_check_mode
+    - aur_yay_binary.rc != 0
+    - aur_all_packages | length > 0
+  block:
+    - name: Ensure git is present for the bootstrap clone
+      community.general.pacman:
+        name:
+          - git
+          - base-devel
+        state: present
+      become: true
+
+    - name: Remove any previous yay bootstrap directory
+      ansible.builtin.file:
+        path: "{{ aur_bootstrap_dir }}"
+        state: absent
+
+    - name: Clone yay-bin from the AUR
+      ansible.builtin.git:
+        repo: https://aur.archlinux.org/yay-bin.git
+        dest: "{{ aur_bootstrap_dir }}"
+        depth: 1
+        version: master
+
+    - name: Build and install yay via makepkg
+      ansible.builtin.command:
+        cmd: makepkg -si --noconfirm
+        chdir: "{{ aur_bootstrap_dir }}"
+      register: aur_yay_makepkg
+      changed_when: "'Packages (' in aur_yay_makepkg.stdout or 'installing' in (aur_yay_makepkg.stdout | lower)"
+
+    - name: Clean up yay bootstrap directory
+      ansible.builtin.file:
+        path: "{{ aur_bootstrap_dir }}"
+        state: absent
+
+- name: Install AUR packages via yay
+  ansible.builtin.command:
+    cmd: >-
+      yay -S --needed --noconfirm --removemake
+      {{ (aur_all_packages | unique | sort) | join(' ') }}
+  register: aur_install
+  when:
+    - not ansible_check_mode
+    - aur_all_packages | length > 0
+  changed_when: >-
+    'installing' in (aur_install.stdout | default('') | lower)
+    or 'building' in (aur_install.stdout | default('') | lower)
+    or 'downloading' in (aur_install.stdout | default('') | lower)
+  tags: [packages, aur]

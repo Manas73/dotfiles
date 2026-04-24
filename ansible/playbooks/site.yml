@@ -4,15 +4,28 @@
 # Run examples:
 #   ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml --limit alfred --ask-become-pass
 #   ansible-playbook ... --tags packages
-#   ansible-playbook ... --tags system
+#   ansible-playbook ... --tags aur
 #   ansible-playbook ... --tags dotfiles
 #
 # Roles are added to plays only after they have real task bodies.
 # Tracking:
-#   chezmoi-a2q  arch_packages, aur_packages
 #   chezmoi-7tw  darwin_packages
 #   chezmoi-hoz  fish, docker, kanata, plasma_custom_wm
 #   chezmoi-c7u  hyprland, i3
+
+- name: Install Arch pacman and multilib packages
+  hosts: arch
+  gather_facts: true
+  tags: [packages, arch]
+  roles:
+    - role: arch_packages
+
+- name: Install AUR packages
+  hosts: arch
+  gather_facts: true
+  tags: [packages, aur, arch]
+  roles:
+    - role: aur_packages
 
 - name: Render Chezmoi config and apply dotfiles
   hosts: all

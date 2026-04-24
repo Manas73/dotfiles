@@ -1,3 +1,5 @@
 ---
 # Defaults for the aur_packages role.
-# Real values live in inventory group_vars.
+
+# Where to clone yay-bin for the initial bootstrap when yay is missing.
+aur_bootstrap_dir: "/tmp/yay-bin-bootstrap"

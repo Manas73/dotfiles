@@ -1,0 +1,12 @@
+---
+# Ansible Galaxy requirements.
+# Install with:
+#   ansible-galaxy install -r ansible/requirements.yml
+#
+# Needed for:
+#   community.general.pacman  (arch_packages role)
+
+collections:
+  - name: community.general
+
+roles: []

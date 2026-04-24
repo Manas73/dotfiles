@@ -1,3 +1,12 @@
 ---
 # Defaults for the arch_packages role.
-# Real values live in inventory group_vars.
+
+# Refresh package databases before installing (pacman -Sy equivalent).
+# Idempotent; safe to leave on.
+arch_refresh_databases: true
+
+# Perform a full system upgrade (pacman -Syu) before installing packages.
+# Off by default. Flip to true, or run site.yml with -e arch_perform_upgrade=true,
+# to upgrade. Partial upgrades on Arch are unsafe; this exists only for cases
+# where a full upgrade is intentional.
+arch_perform_upgrade: false

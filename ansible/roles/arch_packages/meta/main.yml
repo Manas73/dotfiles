@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: arch_packages
   author: Manas Sambare
-  description: Install native pacman packages on Arch/Garuda hosts.
+  description: Install pacman and multilib packages on Arch/Garuda hosts.
   license: MIT
   min_ansible_version: "2.15"
   platforms:

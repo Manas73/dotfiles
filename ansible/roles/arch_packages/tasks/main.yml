@@ -1,3 +1,83 @@
 ---
 # arch_packages role.
-# Not yet implemented. Tracked by Beads.
+#
+# Installs pacman and multilib packages on Arch/Garuda hosts. Consumes
+# package vars contributed by every group the host belongs to:
+#
+#   arch_pacman_packages      arch_multilib_packages
+#   hyprland_pacman_packages  hyprland_multilib_packages
+#   i3_pacman_packages        i3_multilib_packages
+#   gaming_pacman_packages    gaming_multilib_packages
+#
+# Gaming packages are only included when gaming_enabled is true.
+#
+# AUR installation is handled by the aur_packages role.
+#
+# This role uses become: true (sudo) for pacman. Keep it scoped to pacman
+# only; feature flags belong to the feature-owning role, not here.
+
+- name: Assert the host is Arch-based
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Archlinux'
+    fail_msg: >-
+      arch_packages role requires an Arch-based host (Arch, Garuda, Manjaro).
+      Detected os_family={{ ansible_facts['os_family'] }}.
+    quiet: true
+
+- name: Verify pacman is available
+  ansible.builtin.shell: command -v pacman
+  register: arch_pacman_binary
+  changed_when: false
+  failed_when: arch_pacman_binary.rc != 0
+  check_mode: false
+
+- name: Build the aggregate pacman package list
+  ansible.builtin.set_fact:
+    arch_all_pacman_packages: >-
+      {{
+        (arch_pacman_packages       | default([]))
+        + (hyprland_pacman_packages  | default([]))
+        + (i3_pacman_packages        | default([]))
+        + ((gaming_pacman_packages   | default([])) if (gaming_enabled | default(false) | bool) else [])
+      }}
+    arch_all_multilib_packages: >-
+      {{
+        (arch_multilib_packages       | default([]))
+        + (hyprland_multilib_packages  | default([]))
+        + (i3_multilib_packages        | default([]))
+        + ((gaming_multilib_packages   | default([])) if (gaming_enabled | default(false) | bool) else [])
+      }}
+
+- name: Perform a full system upgrade (pacman -Syu)
+  community.general.pacman:
+    update_cache: true
+    upgrade: true
+  become: true
+  when: arch_perform_upgrade | bool
+  tags: [packages, upgrade]
+
+- name: Refresh pacman databases (pacman -Sy)
+  community.general.pacman:
+    update_cache: true
+  become: true
+  when:
+    - arch_refresh_databases | bool
+    - not (arch_perform_upgrade | bool)
+  tags: [packages]
+
+- name: Install pacman packages (-S --needed)
+  community.general.pacman:
+    name: "{{ arch_all_pacman_packages | unique | sort }}"
+    state: present
+  become: true
+  when: arch_all_pacman_packages | length > 0
+  tags: [packages]
+
+- name: Install multilib packages (-S --needed)
+  community.general.pacman:
+    name: "{{ arch_all_multilib_packages | unique | sort }}"
+    state: present
+  become: true
+  when: arch_all_multilib_packages | length > 0
+  tags: [packages, multilib]

@@ -9,3 +9,6 @@ dot_config/polybar/dot_git/
 .dolt/
 *.db
 .beads-credential-key
+
+# Ansible: installed collections (managed by ansible-galaxy)
+ansible/collections/
