@@ -1,3 +1,15 @@
+{{- /*
+  Chezmoi bootstrap template (manual-fallback path).
+
+  The normal path is Ansible: the chezmoi role in ansible/roles/chezmoi
+  renders ~/.config/chezmoi/chezmoi.toml non-interactively from host_vars.
+  See docs/ONBOARDING.md.
+
+  This template is only exercised when a user runs `chezmoi init --apply`
+  directly without Ansible, e.g. on a machine where only dotfiles are
+  needed. It prompts for the same values the Ansible role reads from
+  inventory.
+*/ -}}
 {{- $email := promptStringOnce . "email" "Commit email address" -}}
 
 {{- /* Ask Profile Choices */ -}}

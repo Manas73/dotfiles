@@ -1,35 +1,75 @@
 # My Dotfiles
 
-This repository contains the dotfiles for my system, managed using [chezmoi](https://www.chezmoi.io/).
+This repository holds the dotfiles and machine provisioning setup for my personal systems.
+
+Two layers, one repo:
+
+- **Chezmoi** manages user dotfiles under `$HOME`.
+- **Ansible** manages OS packages, services, groups, udev rules, and renders `~/.config/chezmoi/chezmoi.toml`.
+
+`chezmoi apply` never installs packages, switches your shell, or writes to `/etc`. Provisioning happens through Ansible.
+
+See `docs/ANSIBLE_MIGRATION_PLAN.md` for architecture and `docs/ONBOARDING.md` for adding a new machine.
 
 ## Requirements
 
-Ensure you have the following installed on your system:
 - `git`
-- `age` (version `1.2.0` or newer)
-- `chezmoi` (version `2.52.2` or newer)
+- `age` (1.2.0+)
+- `chezmoi` (2.52.2+)
+- `ansible-core` (2.15+) and the `community.general` collection for full machine provisioning
 
-## Installation
+## Full Provisioning (New Machine)
 
-You have two options for installation:
+```sh
+# Clone the repo into the Chezmoi source path.
+git clone https://github.com/Manas73/dotfiles.git ~/.local/share/chezmoi
 
-### Option 1: One-step process (Recommended)
+# Install the required Ansible collection.
+ansible-galaxy install -r ~/.local/share/chezmoi/ansible/requirements.yml
 
-- Initialize and apply the dotfiles in a single command:
-    ```shell
-    chezmoi init --apply https://github.com/Manas73/dotfiles.git
-    ```
+# Run the full site playbook against this host.
+cd ~/.local/share/chezmoi/ansible
+ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml \
+    --limit "$(hostname)" --ask-become-pass
+```
 
-### Option 2: Two-step process
+The site playbook installs packages, applies dotfiles via Chezmoi, and configures system services (Fish login shell, Docker, Kanata, Plasma custom WM).
 
-1. Initialize the dotfiles repository:
+Log out and back in afterwards so group membership changes (docker, input, uinput) take effect.
 
-    ```shell
-    chezmoi init https://github.com/Manas73/dotfiles.git
-    ```
+## Dotfiles Only
 
-2. Apply the configuration:
+If you just want dotfiles applied on an already-provisioned machine, or the target is a machine that is not yet modeled in Ansible inventory, use Chezmoi directly:
 
-    ```shell
-    chezmoi apply
-    ```
+```sh
+chezmoi init --apply https://github.com/Manas73/dotfiles.git
+```
+
+Chezmoi will prompt for commit email, profile, WM choices, and GPU vendor. On a machine that is already in Ansible inventory, `ansible-playbook playbooks/dotfiles.yml --limit <host>` is the non-interactive alternative.
+
+## Repo Layout
+
+```text
+.
+├── dot_*/                   source files for Chezmoi
+├── key.txt.age              encrypted age identity
+├── .chezmoi.toml.tmpl       manual-fallback Chezmoi config
+├── .chezmoiignore           repo-only paths Chezmoi must skip
+├── .chezmoiscripts/         Chezmoi-specific scripts (age decrypt only)
+├── ansible/                 provisioning (inventories, playbooks, roles)
+└── docs/                    plan and onboarding docs
+```
+
+## Troubleshooting
+
+### Ansible locale warning
+
+If `ansible --version` complains about `ISO-8859-1`, set a UTF-8 locale before running:
+
+```sh
+export LC_ALL=C.UTF-8 LANG=C.UTF-8
+```
+
+### Chezmoi cannot find age identity
+
+On the very first run, the Chezmoi source repo contains `key.txt.age` (passphrase-encrypted). The `chezmoi` role decrypts it once using `chezmoi age decrypt --passphrase`; it will prompt interactively. After that, `~/.config/chezmoi/key.txt` persists and subsequent runs are non-interactive.

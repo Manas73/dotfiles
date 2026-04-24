@@ -185,57 +185,60 @@ Ansible renders Chezmoi config from host vars and runs `chezmoi apply`. Chezmoi 
 
 ## Migration Phases
 
-### Phase 1 — Safety Boundary
+### Phase 1 — Safety Boundary ✓
 
-- Add repo-only paths to `.chezmoiignore`.
-- Verify `chezmoi managed` does not include `docs/`, `ansible/`, or `bootstrap/`.
-- Add the migration plan and onboarding doc.
+- Added repo-only paths to `.chezmoiignore`.
+- Verified `chezmoi managed` excludes `docs/`, `ansible/`, and `bootstrap/`.
+- Added this plan and `docs/ONBOARDING.md`.
 
-### Phase 2 — Ansible Skeleton
+### Phase 2 — Ansible Skeleton ✓
 
-- Add `ansible/ansible.cfg`.
-- Add minimal inventory, group vars, and `host_vars/alfred.yml`.
-- Add `site.yml` and `dotfiles.yml`.
-- Add role skeletons with READMEs describing ownership.
+- Added `ansible/ansible.cfg`, inventory, group_vars, `host_vars/alfred.yml`.
+- Added `site.yml` and `dotfiles.yml`.
+- Added role skeletons with ownership READMEs.
 
-### Phase 3 — Chezmoi Role
+### Phase 3 — Chezmoi Role ✓
 
-- Implement `chezmoi` role.
-- Render `~/.config/chezmoi/chezmoi.toml` from Ansible vars.
-- Make Chezmoi apply non-interactive.
-- Preserve age identity handling.
+- `chezmoi` role renders `~/.config/chezmoi/chezmoi.toml` from Ansible vars.
+- Runs `chezmoi apply` non-interactively.
+- Preserves the age identity (interactive passphrase only on first run).
 
-### Phase 4 — Package Data
+### Phase 4 — Package Data ✓
 
-- Move package lists from `.chezmoidata/packages/linux/arch/*.yaml` into Ansible group vars.
-- Layer by OS (`arch.yml`, `darwin.yml`, `linux.yml`) and profile (`hyprland.yml`, `i3.yml`, `gaming.yml`).
+- Moved package lists from `.chezmoidata/packages/linux/arch/*.yaml` into Ansible group vars.
+- Layered by OS (`arch.yml`, `darwin.yml`) and profile (`hyprland.yml`, `i3.yml`, `gaming.yml`).
 
-### Phase 5 — Package Roles
+### Phase 5 — Package Roles ✓
 
-- Implement `arch_packages`, `aur_packages`, `darwin_packages`.
-- Wire them into `site.yml` with tags.
+- `arch_packages`, `aur_packages` implemented.
+- `darwin_packages` scaffold present; full implementation tracked by `chezmoi-7tw`.
+- Aggregation guards by `group_names` so each host only gets its profile's packages.
 
-### Phase 6 — System Roles
+### Phase 6 — System Roles ✓
 
-- Implement `fish`, `docker`, `kanata`, `plasma_custom_wm`.
-- Gate each by its feature flag or relevant host var.
+- `fish`, `docker`, `kanata`, `plasma_custom_wm` implemented.
+- Gated by `docker_enabled`, `kanata_enabled`, `plasma_window_manager` respectively.
 
-### Phase 7 — Desktop Roles
+### Phase 7 — Desktop Roles ✓
 
-- Implement `hyprland` and `i3` package installation.
+- `hyprland` and `i3` assert group membership and act as explicit hooks for future non-package work.
 - Desktop dotfiles stay with Chezmoi.
 
-### Phase 8 — Remove Chezmoi Provisioning
+### Phase 8 — Remove Chezmoi Provisioning ✓
 
-- Remove `.chezmoiscripts/linux/arch/*install*` and system-mutation scripts.
-- Keep age decryption support if still needed.
-- Verify `chezmoi apply` runs without sudo and without OS side effects.
+- Removed `.chezmoiscripts/linux/arch/*install*.sh.tmpl` and `.chezmoiscripts/linux/run_*.sh` for shell/Docker/Kanata/Plasma.
+- Removed `.chezmoidata/packages/linux/arch/*.yaml`.
+- Kept `.chezmoiscripts/run_once_before_decrypt-private-key.sh.tmpl`; it is Chezmoi-specific.
+- `.chezmoi.toml.tmpl` retained as a manual-fallback bootstrap path.
+- `chezmoi apply` no longer runs pacman, yay, chsh, systemctl, groupadd, usermod, modprobe, or udevadm.
 
 ### Phase 9 — Documentation and Validation
 
-- Update README with separate flows: dotfiles-only vs full provisioning.
+Tracked by `chezmoi-16a` (P2):
+
+- Keep README current as flows evolve.
 - Keep `docs/ONBOARDING.md` current.
-- Add validation commands for Ansible syntax, check mode, and Chezmoi dry-run.
+- Add validation commands to CI or a Justfile if desired.
 
 ## Validation Targets
 
@@ -259,8 +262,12 @@ Long-term, `chezmoi apply` should not require sudo and should not install packag
 - Do not duplicate package lists between Chezmoi and Ansible.
 - Add groups, roles, and playbooks only when they gate real, recurring behavior.
 
+## Resolved Decisions
+
+- `.chezmoi.toml.tmpl` stays as a manual-fallback bootstrap path for `chezmoi init --apply` on machines not yet modeled in Ansible inventory.
+- Age identity decryption stays in `.chezmoiscripts/run_once_before_decrypt-private-key.sh.tmpl` and is additionally exposed by the Ansible `chezmoi` role. Both call the same `chezmoi age decrypt --passphrase` flow; the passphrase prompt is accepted as interactive.
+- Inventory hierarchy puts `hyprland`, `i3`, and `gaming` under `linux`. Package roles guard profile-specific aggregation by `group_names`.
+
 ## Open Decisions
 
-- Whether `.chezmoi.toml.tmpl` remains a manual-fallback bootstrap path after Ansible owns `chezmoi.toml`.
-- Whether age identity decryption remains Chezmoi-driven or becomes an Ansible pre-task.
-- Whether macOS Docker uses Homebrew cask, Docker Desktop, or is skipped.
+- Whether macOS Docker uses Homebrew cask, Docker Desktop, or is skipped. (Decide when the MacBook arrives.)
