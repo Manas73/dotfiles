@@ -45,10 +45,12 @@ git clone git@github.com/Manas73/dotfiles.git ~/.local/share/chezmoi
 
 # Install the required Ansible collection.
 cd ~/.local/share/chezmoi
+
 ansible-galaxy install -r ansible/requirements.yml
 
 # Run the full site playbook against this host.
 cd ansible
+
 ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml \
     --limit "$(hostname)" --ask-become-pass
 ```
@@ -72,6 +74,7 @@ On a machine already provisioned (or one you don't plan to fully provision), app
 
 ```sh
 cd ~/.local/share/chezmoi/ansible
+
 ansible-playbook -i inventories/personal/hosts.yml playbooks/dotfiles.yml \
     --limit "$(hostname)"
 ```
