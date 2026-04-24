@@ -139,17 +139,19 @@ chezmoi managed | grep -E '^(ansible|docs|bootstrap)/' && echo FAIL \
     || echo "chezmoi boundary ok"
 ```
 
-`chezmoi managed` returning any line under `ansible/`, `docs/`, or `bootstrap/` means `.chezmoiignore` is broken and repo-only files would be deployed into `$HOME`.
+`chezmoi managed` returning any line under `ansible/`, `docs/`, or `bootstrap/` means something is wrong with the `.chezmoiroot`/`.chezmoiignore` setup and repo-only files would be deployed into `$HOME`. The `.chezmoiroot` file pins Chezmoi's source directory to `chezmoi/`, so `ansible/` and `docs/` are outside Chezmoi's view by construction.
 
 ## Repo Layout
 
 ```text
 .
-├── dot_*/                   source files for Chezmoi
-├── key.txt.age              encrypted age identity (first-run bootstrap)
-├── .chezmoi.toml.tmpl       manual-fallback Chezmoi config
-├── .chezmoiignore           repo-only paths Chezmoi must skip
-├── .chezmoiscripts/         Chezmoi-specific scripts (age decrypt only)
+├── .chezmoiroot             pins Chezmoi's source dir to chezmoi/
+├── chezmoi/                 Chezmoi source state
+│   ├── dot_*/               source files for Chezmoi
+│   ├── key.txt.age          encrypted age identity (first-run bootstrap)
+│   ├── .chezmoi.toml.tmpl   manual-fallback Chezmoi config
+│   ├── .chezmoiignore       paths under chezmoi/ that Chezmoi must skip
+│   └── .chezmoiscripts/     Chezmoi-specific scripts (age decrypt only)
 ├── ansible/                 provisioning (inventories, playbooks, roles)
 └── docs/                    architecture plan and onboarding docs
 ```
@@ -166,7 +168,7 @@ export LC_ALL=C.UTF-8 LANG=C.UTF-8
 
 ### Chezmoi cannot find the age identity
 
-On the very first run, the Chezmoi source repo contains `key.txt.age` (passphrase-encrypted). The Chezmoi role (and the `run_once_before_decrypt-private-key.sh.tmpl` script) decrypts it using `chezmoi age decrypt --passphrase` and prompts interactively for the passphrase. After decryption, `~/.config/chezmoi/key.txt` persists and subsequent runs are non-interactive.
+On the very first run, the Chezmoi source directory (`chezmoi/`, via `.chezmoiroot`) contains `key.txt.age` (passphrase-encrypted). The Chezmoi role (and the `run_once_before_decrypt-private-key.sh.tmpl` script) decrypts it using `chezmoi age decrypt --passphrase` and prompts interactively for the passphrase. After decryption, `~/.config/chezmoi/key.txt` persists and subsequent runs are non-interactive.
 
 ### SSH: "Repository not found" from a Turing org
 

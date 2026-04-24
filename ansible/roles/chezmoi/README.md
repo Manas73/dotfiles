@@ -7,7 +7,7 @@ Renders `~/.config/chezmoi/chezmoi.toml` from Ansible inventory vars and applies
 - Verify `chezmoi` is installed (installation is a package role's job).
 - Ensure `~/.config/chezmoi/` exists.
 - Decrypt the age identity from `key.txt.age` if it is missing (interactive passphrase).
-- Verify the Chezmoi source repo exists at `chezmoi_source_path`.
+- Verify the Chezmoi source repo is cloned at `chezmoi_repo_path`.
 - Render `chezmoi.toml` from inventory vars.
 - Run `chezmoi apply --force` non-interactively.
 
@@ -23,7 +23,8 @@ Renders `~/.config/chezmoi/chezmoi.toml` from Ansible inventory vars and applies
 From `group_vars/all.yml`:
 
 - `chezmoi_source_repo`
-- `chezmoi_source_path`
+- `chezmoi_repo_path` — git-clone root (contains `.chezmoiroot`, `ansible/`, `chezmoi/`, `docs/`).
+- `chezmoi_source_path` — resolved Chezmoi source dir (the `chezmoi/` subdir pointed at by `.chezmoiroot`). Holds `key.txt.age` and all `dot_*` source state.
 - `chezmoi_config_path`
 - `chezmoi_age_identity`
 - `chezmoi_age_recipient`

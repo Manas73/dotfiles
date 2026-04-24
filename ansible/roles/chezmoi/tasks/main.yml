@@ -23,6 +23,7 @@
       - chezmoi_config_path is defined
       - chezmoi_age_identity is defined
       - chezmoi_source_path is defined
+      - chezmoi_repo_path is defined
     fail_msg: >-
       Missing required vars for the chezmoi role. Ensure host_vars/<hostname>.yml
       and group_vars/all.yml define the chezmoi_* values (see docs/ONBOARDING.md).
@@ -79,15 +80,15 @@
 
 - name: Verify Chezmoi source repo exists
   ansible.builtin.stat:
-    path: "{{ chezmoi_source_path }}/.git"
+    path: "{{ chezmoi_repo_path }}/.git"
   register: chezmoi_source_stat
 
 - name: Fail fast if the Chezmoi source repo is missing
   ansible.builtin.fail:
     msg: >-
-      Chezmoi source repo not found at {{ chezmoi_source_path }}. Clone this
+      Chezmoi source repo not found at {{ chezmoi_repo_path }}. Clone this
       repository there before running Ansible:
-        git clone {{ chezmoi_source_repo }} {{ chezmoi_source_path }}
+        git clone {{ chezmoi_source_repo }} {{ chezmoi_repo_path }}
   when: not chezmoi_source_stat.stat.isdir | default(false)
 
 - name: Render ~/.config/chezmoi/chezmoi.toml from inventory vars
