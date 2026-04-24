@@ -56,16 +56,28 @@ ansible/
 
 ## Status
 
-Skeleton only. Role bodies arrive in later Beads tasks:
+Progress:
 
-- `chezmoi-g19` chezmoi
-- `chezmoi-fwb` populate group vars with package lists
-- `chezmoi-a2q` arch_packages, aur_packages
-- `chezmoi-7tw` darwin_packages
-- `chezmoi-hoz` fish, docker, kanata, plasma_custom_wm
-- `chezmoi-c7u` hyprland, i3
+- `chezmoi-g19` ✓ chezmoi role renders `~/.config/chezmoi/chezmoi.toml` and runs `chezmoi apply`.
+- `chezmoi-fwb` ✓ package data migrated into group vars.
+- `chezmoi-a2q` arch_packages, aur_packages.
+- `chezmoi-7tw` darwin_packages.
+- `chezmoi-hoz` fish, docker, kanata, plasma_custom_wm.
+- `chezmoi-c7u` hyprland, i3.
 
-Running `site.yml` today is a no-op on purpose.
+## Package Vars
+
+Package roles (pending) consume these group vars, concatenated across every group a host belongs to:
+
+| Group | Vars |
+|---|---|
+| `arch` | `arch_pacman_packages`, `arch_aur_packages`, `arch_multilib_packages` |
+| `hyprland` | `hyprland_pacman_packages`, `hyprland_aur_packages`, `hyprland_multilib_packages` |
+| `i3` | `i3_pacman_packages`, `i3_aur_packages`, `i3_multilib_packages` |
+| `gaming` | `gaming_pacman_packages`, `gaming_aur_packages`, `gaming_multilib_packages` |
+| `darwin` | `darwin_brews`, `darwin_casks` |
+
+Gaming packages install only when `gaming_enabled: true` (set per host).
 
 ## Usage
 

@@ -1,3 +1,7 @@
+# DEPRECATED: source of record moved to ansible/inventories/personal/group_vars/.
+# This file is kept only until the Chezmoi install scripts that `include` it
+# are removed in Beads chezmoi-xe2. Do not edit; edit the Ansible group_vars instead.
+#
 aur:
   - 1password
   - bazecor

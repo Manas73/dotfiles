@@ -1,6 +1,35 @@
 ---
-# Hyprland profile defaults.
-# Populated by Beads chezmoi-fwb and installed by chezmoi-c7u.
+# Hyprland profile packages.
+#
+# Installed by the arch_packages and aur_packages roles when a host is in
+# the hyprland group. Desktop dotfiles stay with Chezmoi; this file only
+# declares system-level package dependencies.
+#
+# Source of record: this file. The old .chezmoidata/packages/linux/arch/hyprland.yaml
+# is deprecated.
 
-hyprland_packages: []
+hyprland_pacman_packages:
+  - awww
+  - copyq
+  - hypridle
+  - hyprland
+  - hyprlock
+  - hyprsunset
+  - nwg-look
+  - pipewire
+  - polkit-gnome
+  - qt5-wayland
+  - qt6-wayland
+  - rofi-wayland
+  - swaync
+  - swayosd
+  - udiskie
+  - uwsm
+  - waybar
+  - wl-clip-persist
+  - wl-clipboard
+  - wtype
+  - xdg-desktop-portal-hyprland
+
 hyprland_aur_packages: []
+hyprland_multilib_packages: []

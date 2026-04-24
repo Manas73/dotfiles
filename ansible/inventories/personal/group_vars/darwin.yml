@@ -1,6 +1,19 @@
 ---
-# macOS-only shared defaults.
-# Populated by Beads chezmoi-7tw.
+# macOS package lists.
+#
+# Consumed by the darwin_packages role (Beads chezmoi-7tw).
+#
+# Schema:
+#   darwin_brews   Homebrew formulas (CLI tooling)
+#   darwin_casks   Homebrew casks (GUI apps)
+#
+# Currently empty; populated when the MacBook lands. Onboarding:
+#   1. Pick the common CLI tools from arch_pacman_packages that have
+#      Homebrew formulas (fish, git, neovim, starship, zoxide, yazi,
+#      zellij, fzf, fd, bat, jq, eza, atuin, ghq, etc.).
+#   2. Pick the GUI apps that have casks (vivaldi, pycharm, datagrip,
+#      webstorm, slack, zoom, google-chrome, etc.).
+#   3. Add a homebrew bootstrap step to the darwin_packages role.
 
-darwin_common_brews: []
-darwin_common_casks: []
+darwin_brews: []
+darwin_casks: []

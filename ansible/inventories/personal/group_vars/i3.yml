@@ -1,6 +1,25 @@
 ---
-# i3 profile defaults.
-# Populated by Beads chezmoi-fwb and installed by chezmoi-c7u.
+# i3 profile packages.
+#
+# Installed by the arch_packages and aur_packages roles when a host is in
+# the i3 group. Desktop dotfiles stay with Chezmoi; this file only
+# declares system-level package dependencies.
+#
+# Source of record: this file. The old .chezmoidata/packages/linux/arch/i3.yaml
+# is deprecated.
 
-i3_packages: []
+i3_pacman_packages:
+  - feh
+  - i3-wm
+  - libxcb
+  - picom
+  - polybar
+  - python-i3ipc
+  - rofi-calc
+  - rofi-emoji
+  - rofi-greenclip
+  - rofi-wayland
+  - xcb-util-cursor
+
 i3_aur_packages: []
+i3_multilib_packages: []

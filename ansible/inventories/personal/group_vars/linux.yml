@@ -1,6 +1,6 @@
 ---
 # Linux-only shared defaults.
-# Populated by Beads chezmoi-fwb.
-
-linux_common_cli_packages: []
-linux_common_desktop_packages: []
+#
+# Currently empty. Arch-specific packages live in arch.yml. If a non-Arch
+# Linux host ever joins the inventory, shared Linux packages can move here
+# with OS-specific lists overriding in the child group.

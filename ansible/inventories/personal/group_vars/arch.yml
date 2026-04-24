@@ -1,8 +1,141 @@
 ---
-# Arch/Garuda shared defaults.
-# Populated by Beads chezmoi-fwb and installed by chezmoi-a2q.
+# Arch/Garuda package lists.
+#
+# Consumed by the arch_packages and aur_packages roles (Beads chezmoi-a2q).
+# Package roles concatenate the vars contributed by every group the host
+# belongs to. Profile-specific lists live in hyprland.yml, i3.yml,
+# gaming.yml, etc.
+#
+# Schema:
+#   arch_pacman_packages    packages installed via pacman (official repos)
+#   arch_aur_packages       packages installed via yay (AUR)
+#   arch_multilib_packages  packages from the multilib repo (e.g. steam deps)
+#
+# Source of record: this file. The old .chezmoidata/packages/linux/arch/*.yaml
+# are deprecated (kept only until chezmoi-xe2 removes the scripts that
+# reference them).
 
-arch_core_packages: []
-arch_extra_packages: []
+arch_pacman_packages:
+  # Base system + tooling (previously base.yaml core + extra).
+  - alacritty
+  - atuin
+  - bat
+  - btop
+  - chezmoi
+  - dolphin
+  - dolphin-plugins
+  - eza
+  - fastfetch
+  - fd
+  - firefox
+  - fish
+  - flameshot
+  - fzf
+  - ghq
+  - git
+  - gnupg
+  - gparted
+  - gwenview
+  - headsetcontrol
+  - jq
+  - kcharselect
+  - kitty
+  - libadwaita
+  - libnotify
+  - libreoffice-fresh
+  - neovim
+  - network-manager-applet
+  - networkmanager
+  - nm-connection-editor
+  - nodejs
+  - npm
+  - nvm
+  - plasma-x11-session
+  - playerctl
+  - psmisc
+  - python
+  - python-gpgme
+  - python-pip
+  - python-virtualenv
+  - solaar
+  - starship
+  - sxhkd
+  - television
+  - ttf-dejavu
+  - ttf-droid
+  - ttf-fira-code
+  - ttf-fira-sans
+  - ttf-firacode-nerd
+  - ttf-jetbrains-mono-nerd
+  - ttf-nerd-fonts-symbols
+  - ttf-nerd-fonts-symbols-common
+  - ttf-noto-nerd
+  - vivaldi
+  - vivaldi-ffmpeg-codecs
+  - vlc
+  - vlc-plugins-all
+  - xclip
+  - xdg-desktop-portal-gtk
+  - xorg-xev
+  - xorg-xkill
+  - yazi
+  - zellij
+  - zoxide
+  # Development tooling (previously development.yaml core + extra).
+  - docker
+  - docker-buildx
+  - docker-compose
+  - gcc
+  - git-filter-repo
+  - go
+  - hugo
+  - lazygit
+  - moreutils
+  - nvtop
+  - pre-commit
+  - python-black
+  - python-poetry
+  - uv
+
+arch_aur_packages:
+  # Base/GUI apps (previously base.yaml aur).
+  - 1password
+  - bazecor
+  - dropbox
+  - epson-inkjet-printer-escpr2
+  - google-chrome
+  - kanata-bin
+  - masterpdfeditor
+  - matugen-bin
+  - onlyoffice-bin
+  - pacseek
+  - python-screeninfo
+  - rambox-pro-bin
+  - redshift
+  - selectdefaultapplication-git
+  - slack-desktop
+  - ttf-material-design-icons-git
+  - ttf-material-icons-git
+  - ttf-ms-fonts
+  - ttf-vista-fonts
+  - zoom
+  # Development tooling (previously development.yaml aur).
+  - aws-cli-v2
+  - aws-session-manager-plugin
+  - beads-git
+  - cloud-sql-proxy
+  - datagrip
+  - datagrip-jre
+  - fresh-editor-bin
+  - gitkraken
+  - google-cloud-cli
+  - lazydocker
+  - mysql
+  - opencode-bin
+  - postman-bin
+  - pycharm
+  - sublime-text-4
+  - webstorm
+  - webstorm-jre
+
 arch_multilib_packages: []
-arch_aur_packages: []

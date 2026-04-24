@@ -1,7 +1,14 @@
 ---
-# Gaming profile defaults.
-# Populated by Beads chezmoi-fwb. Only applied when gaming_enabled is true.
+# Gaming profile packages.
+#
+# Installed by the arch_packages/aur_packages/multilib roles when a host
+# is in the gaming group AND gaming_enabled is true. Currently just Steam
+# via multilib; extend here as needed.
+#
+# Source of record: this file. The old .chezmoidata/packages/linux/arch/gaming.yaml
+# is deprecated.
 
-gaming_packages: []
-gaming_multilib_packages: []
+gaming_pacman_packages: []
 gaming_aur_packages: []
+gaming_multilib_packages:
+  - steam
