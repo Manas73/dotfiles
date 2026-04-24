@@ -1,0 +1,7 @@
+---
+# darwin_packages role scaffold.
+# Real implementation is tracked by Beads issue chezmoi-7tw.
+
+- name: Placeholder for darwin_packages role
+  ansible.builtin.debug:
+    msg: "darwin_packages role not yet implemented (see Beads issue chezmoi-7tw)"

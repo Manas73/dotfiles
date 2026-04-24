@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: chezmoi
+  author: Manas Sambare
+  description: Render Chezmoi config and apply dotfiles non-interactively.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Archlinux
+    - name: MacOSX
+  galaxy_tags:
+    - dotfiles
+    - chezmoi
+
+dependencies: []

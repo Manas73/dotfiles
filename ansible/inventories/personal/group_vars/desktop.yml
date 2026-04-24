@@ -1,0 +1,4 @@
+---
+# Shared defaults for graphical desktop machines.
+
+desktop_common_packages: []

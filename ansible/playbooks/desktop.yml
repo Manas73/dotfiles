@@ -1,0 +1,17 @@
+---
+# Desktop/window-manager profile package installation.
+# Role bodies land in chezmoi-c7u.
+
+- name: Install Hyprland profile packages
+  hosts: hyprland
+  gather_facts: true
+  tags: [desktop, hyprland]
+  roles:
+    - role: hyprland
+
+- name: Install i3 profile packages
+  hosts: i3
+  gather_facts: true
+  tags: [desktop, i3]
+  roles:
+    - role: i3

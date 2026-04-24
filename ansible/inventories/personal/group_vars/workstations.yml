@@ -1,0 +1,4 @@
+---
+# Workstation-class (desktop) machine defaults.
+
+machine_class: workstation

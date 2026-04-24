@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: aur_packages
+  author: Manas Sambare
+  description: Install AUR packages on Arch/Garuda hosts via yay.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Archlinux
+  galaxy_tags:
+    - packages
+    - aur
+    - arch
+
+dependencies: []

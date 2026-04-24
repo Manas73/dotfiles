@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: fish
+  author: Manas Sambare
+  description: Ensure Fish is the login shell for the primary user.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Archlinux
+    - name: MacOSX
+  galaxy_tags:
+    - shell
+    - fish
+
+dependencies: []

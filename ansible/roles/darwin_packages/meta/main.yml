@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: darwin_packages
+  author: Manas Sambare
+  description: Install macOS packages via Homebrew.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: MacOSX
+  galaxy_tags:
+    - packages
+    - darwin
+    - homebrew
+
+dependencies: []

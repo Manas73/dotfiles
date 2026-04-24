@@ -1,0 +1,7 @@
+---
+# Shared defaults for gaming hosts.
+# Real package lists will be populated by chezmoi-fwb.
+
+gaming_packages: []
+gaming_multilib_packages: []
+gaming_aur_packages: []

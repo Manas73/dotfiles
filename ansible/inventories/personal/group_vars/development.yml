@@ -1,0 +1,8 @@
+---
+# Shared defaults for development machines.
+# Real package lists will be populated by chezmoi-fwb.
+
+development_packages: []
+development_aur_packages: []
+development_brews: []
+development_casks: []

@@ -1,0 +1,3 @@
+---
+# Defaults for the arch_packages role.
+# Real values live in inventory group_vars.

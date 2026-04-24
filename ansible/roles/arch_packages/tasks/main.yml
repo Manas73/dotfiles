@@ -1,0 +1,7 @@
+---
+# arch_packages role scaffold.
+# Real implementation is tracked by Beads issue chezmoi-a2q.
+
+- name: Placeholder for arch_packages role
+  ansible.builtin.debug:
+    msg: "arch_packages role not yet implemented (see Beads issue chezmoi-a2q)"

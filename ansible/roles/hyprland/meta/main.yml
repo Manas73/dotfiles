@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: hyprland
+  author: Manas Sambare
+  description: Install Hyprland ecosystem dependencies on desktop hosts.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Archlinux
+  galaxy_tags:
+    - desktop
+    - hyprland
+    - wayland
+
+dependencies: []

@@ -1,0 +1,7 @@
+---
+# fish role scaffold.
+# Real implementation is tracked by Beads issue chezmoi-hoz.
+
+- name: Placeholder for fish role
+  ansible.builtin.debug:
+    msg: "fish role not yet implemented (see Beads issue chezmoi-hoz)"

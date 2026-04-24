@@ -1,0 +1,7 @@
+---
+# hyprland role scaffold.
+# Real implementation is tracked by Beads issue chezmoi-c7u.
+
+- name: Placeholder for hyprland role
+  ansible.builtin.debug:
+    msg: "hyprland role not yet implemented (see Beads issue chezmoi-c7u)"

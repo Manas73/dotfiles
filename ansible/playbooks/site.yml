@@ -1,0 +1,23 @@
+---
+# Full machine provisioning entry point.
+#
+# Order of operations (intentionally boring):
+#   1. Install OS packages.
+#   2. Install desktop and development profile packages.
+#   3. Apply system-level setup (shell, services, groups).
+#   4. Render Chezmoi config and apply dotfiles.
+#
+# Role implementations arrive in later Beads tasks. This file intentionally
+# imports smaller playbooks so each concern stays isolated.
+
+- name: Install OS packages
+  ansible.builtin.import_playbook: packages.yml
+
+- name: Apply desktop profile packages
+  ansible.builtin.import_playbook: desktop.yml
+
+- name: Apply system-level setup
+  ansible.builtin.import_playbook: system.yml
+
+- name: Apply dotfiles via Chezmoi
+  ansible.builtin.import_playbook: dotfiles.yml

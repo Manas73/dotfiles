@@ -1,0 +1,7 @@
+---
+# Chezmoi role scaffold.
+# Real implementation is tracked by Beads issue chezmoi-g19.
+
+- name: Placeholder for Chezmoi role
+  ansible.builtin.debug:
+    msg: "chezmoi role not yet implemented (see Beads issue chezmoi-g19)"

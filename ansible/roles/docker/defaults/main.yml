@@ -1,0 +1,3 @@
+---
+# Defaults for the docker role.
+# Real values live in inventory group_vars.

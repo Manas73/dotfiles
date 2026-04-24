@@ -1,0 +1,7 @@
+---
+# development role scaffold.
+# Real implementation is tracked by Beads issues chezmoi-a2q and chezmoi-7tw.
+
+- name: Placeholder for development role
+  ansible.builtin.debug:
+    msg: "development role not yet implemented (see Beads issues chezmoi-a2q and chezmoi-7tw)"

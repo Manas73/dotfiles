@@ -1,0 +1,7 @@
+---
+# gaming role scaffold.
+# Real implementation is tracked by Beads issue chezmoi-a2q.
+
+- name: Placeholder for gaming role
+  ansible.builtin.debug:
+    msg: "gaming role not yet implemented (see Beads issue chezmoi-a2q)"

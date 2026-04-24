@@ -1,0 +1,14 @@
+---
+# Arch/Garuda shared defaults.
+# Real package lists will be populated by chezmoi-fwb and installed by chezmoi-a2q.
+#
+# Examples of values that belong here in the future:
+#   arch_core_packages: [...]
+#   arch_extra_packages: [...]
+#   arch_multilib_packages: [...]
+#   arch_aur_packages: [...]
+
+arch_core_packages: []
+arch_extra_packages: []
+arch_multilib_packages: []
+arch_aur_packages: []

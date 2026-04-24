@@ -1,0 +1,6 @@
+---
+# Shared defaults for Hyprland hosts.
+# Real package lists will be populated by chezmoi-fwb and installed by chezmoi-c7u.
+
+hyprland_packages: []
+hyprland_aur_packages: []

@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: i3
+  author: Manas Sambare
+  description: Install i3 ecosystem dependencies on desktop hosts.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Archlinux
+  galaxy_tags:
+    - desktop
+    - i3
+    - x11
+
+dependencies: []

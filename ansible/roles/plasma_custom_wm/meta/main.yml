@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  role_name: plasma_custom_wm
+  author: Manas Sambare
+  description: Configure Plasma to launch a custom window manager or restore KWin.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Archlinux
+  galaxy_tags:
+    - plasma
+    - kde
+
+dependencies: []

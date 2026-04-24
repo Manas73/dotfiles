@@ -1,0 +1,10 @@
+---
+# Chezmoi configuration rendering and dotfile apply.
+# Role body lands in chezmoi-g19.
+
+- name: Render Chezmoi config and apply dotfiles
+  hosts: all
+  gather_facts: true
+  tags: [dotfiles, chezmoi]
+  roles:
+    - role: chezmoi

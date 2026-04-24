@@ -1,0 +1,30 @@
+---
+# Current Linux workstation (Garuda/Arch).
+# Host-specific values only. Shared behavior lives in group_vars.
+
+ansible_connection: local
+ansible_python_interpreter: /usr/bin/python
+
+primary_user: ms-garuda
+
+# Chezmoi intent for this host. Future Chezmoi role will render
+# ~/.config/chezmoi/chezmoi.toml from these values.
+chezmoi_email: "manas.sambare@gmail.com"
+chezmoi_profile: "personal"
+chezmoi_osid: "linux-arch"
+chezmoi_gpu: "nvidia"
+chezmoi_window_manager:
+  - i3
+  - hyprland
+chezmoi_plasma_window_manager: "i3"
+
+# Machine capability flags.
+gpu_vendor: "nvidia"
+window_managers:
+  - i3
+  - hyprland
+plasma_window_manager: "i3"
+
+docker_enabled: true
+kanata_enabled: true
+gaming_enabled: true

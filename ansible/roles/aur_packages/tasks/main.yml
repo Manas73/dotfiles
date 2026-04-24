@@ -1,0 +1,7 @@
+---
+# aur_packages role scaffold.
+# Real implementation is tracked by Beads issue chezmoi-a2q.
+
+- name: Placeholder for aur_packages role
+  ansible.builtin.debug:
+    msg: "aur_packages role not yet implemented (see Beads issue chezmoi-a2q)"

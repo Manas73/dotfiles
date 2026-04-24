@@ -1,0 +1,7 @@
+---
+# i3 role scaffold.
+# Real implementation is tracked by Beads issue chezmoi-c7u.
+
+- name: Placeholder for i3 role
+  ansible.builtin.debug:
+    msg: "i3 role not yet implemented (see Beads issue chezmoi-c7u)"
