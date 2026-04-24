@@ -16,3 +16,36 @@
 	helper = store
 [ghq]
 	root = ~/Repositories
+
+# -- Multi-account credential routing -----------------------------------------
+#
+# Two GitHub accounts live in ~/.git-credentials: Manas73 (personal) and
+# manas-turing (work). The `store` helper returns the first matching entry
+# per host, which makes host-level lookups ambiguous.
+#
+# Default: rewrite GitHub URLs to embed Manas73 so the credential helper
+# returns the Manas73 token. Turing clones (listed below via includeIf)
+# override this default with their own url.insteadOf entry pointing at
+# manas-turing.
+
+[url "https://Manas73@github.com/"]
+	insteadOf = https://github.com/
+
+# Turing-specific overrides. Each includeIf points at the same
+# github-turing.inc fragment, which replaces the default url.insteadOf
+# so the credential helper returns the Turing token for these clones.
+#
+# Add a new [includeIf] entry below when a new Turing org shows up
+# under ~/Repositories/github.com/.
+
+[includeIf "gitdir:~/Repositories/github.com/manas-turing/"]
+	path = ~/.config/git/github-turing.inc
+
+[includeIf "gitdir:~/Repositories/github.com/TuringEnterprises/"]
+	path = ~/.config/git/github-turing.inc
+
+[includeIf "gitdir:~/Repositories/github.com/turing-genai-apps/"]
+	path = ~/.config/git/github-turing.inc
+
+[includeIf "gitdir:~/Repositories/github.com/TuringGpt/"]
+	path = ~/.config/git/github-turing.inc
