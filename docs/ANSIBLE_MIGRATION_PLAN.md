@@ -232,24 +232,64 @@ Ansible renders Chezmoi config from host vars and runs `chezmoi apply`. Chezmoi 
 - `.chezmoi.toml.tmpl` retained as a manual-fallback bootstrap path.
 - `chezmoi apply` no longer runs pacman, yay, chsh, systemctl, groupadd, usermod, modprobe, or udevadm.
 
-### Phase 9 — Documentation and Validation
+### Phase 9 — Documentation and Validation ✓ (non-macOS)
 
-Tracked by `chezmoi-16a` (P2):
+Tracked by `chezmoi-16a` (non-macOS, Linux bootstrap + validation) and `chezmoi-qxl` (macOS bootstrap, blocked on `chezmoi-7tw`).
 
-- Keep README current as flows evolve.
-- Keep `docs/ONBOARDING.md` current.
-- Add validation commands to CI or a Justfile if desired.
+- README covers the two-layer split, full-provisioning vs dotfiles-only flows, tags, validation commands, and troubleshooting.
+- `docs/ONBOARDING.md` covers prerequisites, host_vars/inventory wiring for Linux hosts, validation, and run steps. macOS section is a placeholder pointing at `chezmoi-qxl`.
+- Validation command set (see below) is authoritative.
+
+### Phase 10 — Inventory Hierarchy Cleanup ✓
+
+Tracked by `chezmoi-8dn`. Corrected two defects found during review:
+
+- Inventory: `hyprland`, `i3`, `gaming` became children of `linux` rather than siblings, so Linux-only profiles can't be applied to macOS hosts by mistake.
+- Aggregation: `arch_packages` and `aur_packages` now check `group_names` when combining profile package vars, so a host in `arch` but not `hyprland` never picks up Hyprland packages.
 
 ## Validation Targets
 
+Ansible requires a UTF-8 locale on Garuda; export one before running:
+
 ```sh
-chezmoi managed | grep -E '^(docs|ansible|bootstrap)/' && false || true
-chezmoi diff
-ansible-playbook -i ansible/inventories/personal/hosts.yml ansible/playbooks/site.yml --syntax-check
-ansible-playbook -i ansible/inventories/personal/hosts.yml ansible/playbooks/site.yml --check --limit alfred --ask-become-pass
+export LC_ALL=C.UTF-8 LANG=C.UTF-8
 ```
 
-Long-term, `chezmoi apply` should not require sudo and should not install packages.
+Boundary and inventory checks:
+
+```sh
+# Chezmoi must not manage any repo-only path.
+chezmoi managed | grep -E '^(ansible|docs|bootstrap)/' && echo FAIL || echo OK
+
+# Inventory resolves to the expected groups and hosts. Run from `ansible/`
+# so `ansible.cfg`'s relative paths resolve.
+cd ~/.local/share/chezmoi/ansible
+ansible-inventory -i inventories/personal/hosts.yml --graph
+ansible-inventory -i inventories/personal/hosts.yml --host "$(hostname)"
+```
+
+Playbook checks (run from `ansible/` so `ansible.cfg`'s `roles_path` resolves):
+
+```sh
+cd ~/.local/share/chezmoi/ansible
+
+ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml --syntax-check
+ansible-playbook -i inventories/personal/hosts.yml playbooks/dotfiles.yml --syntax-check
+
+# Dry-run. Without --ask-become-pass the sudo-gated tasks stop early, which
+# is fine for validating structure and non-become tasks.
+ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml \
+    --check --diff --limit "$(hostname)" --ask-become-pass
+```
+
+Chezmoi checks:
+
+```sh
+chezmoi diff            # pending dotfile deltas
+chezmoi managed         # full list of managed targets
+```
+
+Long-term invariant: `chezmoi apply` should not require sudo and should not install packages.
 
 ## Design Rules
 
