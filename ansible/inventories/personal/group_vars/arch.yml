@@ -82,6 +82,7 @@ arch_pacman_packages:
   - zellij
   - zoxide
   # Development tooling (previously development.yaml core + extra).
+  - bun
   - docker
   - docker-buildx
   - docker-compose
