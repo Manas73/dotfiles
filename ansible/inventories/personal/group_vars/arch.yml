@@ -93,10 +93,12 @@ arch_pacman_packages:
   - lazygit
   - moreutils
   - nvtop
+  - plasma5-integration
   - pre-commit
   - python-black
   - python-poetry
   - uv
+  - zed
 
 arch_aur_packages:
   # Base/GUI apps (previously base.yaml aur).
