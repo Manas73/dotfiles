@@ -8,7 +8,9 @@
 # Source of record: this file. The old .chezmoidata/packages/linux/arch/gaming.yaml
 # is deprecated.
 
-gaming_pacman_packages: []
-gaming_aur_packages: []
+gaming_pacman_packages:
+  - lutris
+gaming_aur_packages:
+  - umu-launcher
 gaming_multilib_packages:
   - steam
