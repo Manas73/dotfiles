@@ -193,6 +193,7 @@
     },
     "unspecified-high": {
       "model": "anthropic/claude-sonnet-4-6",
+      "variant": "max",
       "fallback_models": [
         {
           "model": "openai/gpt-5.3-codex",

@@ -4,11 +4,12 @@
     "plan": {
       "mode": "primary",
       "temperature": 0.1,
-      "effort": "high",
+      "effort": "high"
     }
   },
   "plugin": [
-      "opencode-zellij-namer",
-      "opencode-beads@0.6.0"
+    "opencode-zellij-namer",
+    "opencode-beads@0.6.0",
+    "oh-my-openagent@latest"
   ]
 }
