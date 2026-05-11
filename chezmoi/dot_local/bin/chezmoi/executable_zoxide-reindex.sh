@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 # zoxide-reindex.sh — Reproducible zoxide DB seeding.
 #
-#   Step 1: ~/Repositories indexed at .git-parent granularity
+#   Step 1: ~/Repositories indexed at .git-parent granularity (+5 for repo roots)
 #   Step 2: ~/Sambare's Dropbox/Sambare's Team Folder (full recursion, filtered)
 #   Step 3: manas_sambare subtree boost (+10)
-#   Step 4: 'current' folder boost (+2)  → `z manas passport` lands on current/
+#   Step 4: 'current' folder boost (+2)
+#   Step 5: Family-member root + 'passport' parent dirs extra boost (+5)
+#           So `z manas` → manas_sambare root; `z manas passport` → passport parent.
 #
-# Source-of-truth: chezmoi → dot_local/bin/executable_zoxide-reindex.sh
+# Source-of-truth: chezmoi → dot_local/bin/chezmoi/executable_zoxide-reindex.sh
+# Deployed to:    ~/.local/bin/chezmoi/zoxide-reindex.sh
 # Usage: zoxide-reindex.sh [--force] [--dry-run] [-h|--help]
 
 set -euo pipefail
@@ -15,9 +18,13 @@ set -euo pipefail
 readonly REPOS_ROOT="${HOME}/Repositories"
 readonly DROPBOX_ROOT="${HOME}/Sambare's Dropbox/Sambare's Team Folder"
 readonly MANAS_DIR="${DROPBOX_ROOT}/family_members/manas_sambare"
+readonly FAMILY_MEMBERS_DIR="${DROPBOX_ROOT}/family_members"
 
-readonly MANAS_BOOST=10
-readonly CURRENT_BOOST=2
+# Boost factors (each unit = one additional `zoxide add` call)
+readonly REPO_BASE_BOOST=5      # repo roots get 5x so they outweigh deep Dropbox dirs
+readonly MANAS_BOOST=10         # manas_sambare subtree
+readonly CURRENT_BOOST=2        # 'current' folders
+readonly KEY_DIR_BOOST=5        # family-member roots + 'passport' parent dirs
 
 readonly EXCLUDE_NAMES=(
   .git node_modules .venv __pycache__ target dist build
@@ -29,6 +36,9 @@ readonly REPO_EXCLUDE_PATTERNS=(
   "/.cache/"
 )
 
+# Specific basenames to treat as "key parent" dirs and boost extra under family_members
+readonly KEY_PARENT_NAMES=(passport)
+
 # ────── Flags ──────────────────────────────────────────────────────
 FORCE=0
 DRY_RUN=0
@@ -36,7 +46,7 @@ for arg in "$@"; do
   case "$arg" in
     --force)   FORCE=1 ;;
     --dry-run) DRY_RUN=1 ;;
-    -h|--help) sed -n '2,12p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
     *) printf 'Unknown arg: %s\n' "$arg" >&2; exit 2 ;;
   esac
 done
@@ -89,7 +99,7 @@ fi
 
 # ────── Step 1: Repositories ───────────────────────────────────────
 step1_index_repos() {
-  log "Step 1: indexing repo roots under $REPOS_ROOT"
+  log "Step 1: indexing repo roots under $REPOS_ROOT (+$REPO_BASE_BOOST each)"
   local count=0 gitdir skip pat
   while IFS= read -r -d '' gitdir; do
     skip=0
@@ -97,7 +107,7 @@ step1_index_repos() {
       [[ "$gitdir" == *"$pat"* ]] && { skip=1; break; }
     done
     [[ "$skip" -eq 1 ]] && continue
-    zadd "${gitdir%/.git}" 1
+    zadd "${gitdir%/.git}" "$REPO_BASE_BOOST"
     count=$((count+1))
   done < <(find "$REPOS_ROOT" -type d -name .git -prune -print0 2>/dev/null)
   log "  indexed $count repo roots"
@@ -139,6 +149,33 @@ step4_boost_current() {
   log "  boosted $count 'current' dirs by +$CURRENT_BOOST"
 }
 
+# ────── Step 5: Key parent dirs (family roots + passport) ──────────
+# Goal:
+#   - `z manas`           → manas_sambare root (not a random sub-doc with "Manas" in name)
+#   - `z manas passport`  → manas_sambare/.../passport (parent, holds current/ + previous/)
+step5_boost_key_dirs() {
+  log "Step 5: +$KEY_DIR_BOOST boost to family-member roots + key parent dirs"
+  local count=0 dir name
+
+  # 5a: each family member's root dir
+  if [[ -d "$FAMILY_MEMBERS_DIR" ]]; then
+    while IFS= read -r -d '' dir; do
+      zadd "$dir" "$KEY_DIR_BOOST"
+      count=$((count+1))
+    done < <(find "$FAMILY_MEMBERS_DIR" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null)
+  fi
+
+  # 5b: 'passport' (and any other key parents) under family_members/*
+  for name in "${KEY_PARENT_NAMES[@]}"; do
+    while IFS= read -r -d '' dir; do
+      zadd "$dir" "$KEY_DIR_BOOST"
+      count=$((count+1))
+    done < <(find "$FAMILY_MEMBERS_DIR" -type d -iname "$name" -print0 2>/dev/null)
+  done
+
+  log "  boosted $count key parent dirs by +$KEY_DIR_BOOST"
+}
+
 # ────── Verification ───────────────────────────────────────────────
 verify() {
   log "Verification:"
@@ -146,8 +183,9 @@ verify() {
   echo "  --- top 15 by score ---"
   zoxide query -ls | head -15 | sed 's/^/    /'
   echo "  --- probes ---"
-  for q in "manas" "manas passport" "mangesh passport" "image"; do
-    printf '    z %-20s → %s\n' "$q" "$(zoxide query $q 2>/dev/null || echo '(no match)')"
+  local q
+  for q in "manas" "manas passport" "manas current" "mangesh passport" "image" "image_service" "current"; do
+    printf '    z %-22s → %s\n' "$q" "$(zoxide query $q 2>/dev/null || echo '(no match)')"
   done
 }
 
@@ -156,5 +194,6 @@ step1_index_repos
 step2_index_dropbox
 step3_boost_manas
 step4_boost_current
+step5_boost_key_dirs
 verify
 log "Done."
