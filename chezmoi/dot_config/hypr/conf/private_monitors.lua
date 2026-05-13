@@ -7,8 +7,8 @@
 local leftMonitor  = "DP-1"
 local rightMonitor = "DP-2"
 
-hl.monitor({ output = leftMonitor,  mode = "2560x1440@165", position = "0x0",    scale = 1 })
-hl.monitor({ output = rightMonitor, mode = "2560x1440@165", position = "2560x0", scale = 1 })
+hl.monitor({ output = leftMonitor,  mode = "highrr", position = "0x0",    scale = 1 })
+hl.monitor({ output = rightMonitor, mode = "highrr", position = "2560x0", scale = 1 })
 
 -- Right-monitor workspaces 1..5 (1 is persistent/default)
 for _, ws in ipairs({ 1, 2, 3, 4, 5 }) do
