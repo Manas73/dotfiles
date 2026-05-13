@@ -25,11 +25,11 @@ hyprland_pacman_packages:
   - swayosd
   - udiskie
   - uwsm
-  - waybar
   - wl-clip-persist
   - wl-clipboard
   - wtype
   - xdg-desktop-portal-hyprland
 
-hyprland_aur_packages: []
+hyprland_aur_packages:
+  - waybar-git
 hyprland_multilib_packages: []
