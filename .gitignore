@@ -12,3 +12,5 @@ dot_config/polybar/dot_git/
 
 # Ansible: installed collections (managed by ansible-galaxy)
 ansible/collections/
+
+chezmoi/dot_config/hypr/colors/
