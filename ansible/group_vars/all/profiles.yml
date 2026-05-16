@@ -14,15 +14,6 @@
 # prior group_vars/{hyprland,i3,gaming}.yml files.
 
 profile_apps:
-
-  # Cross-platform CLI tools and language runtimes. Every entry installs
-  # via default-provider passthrough on both OSes (pacman on arch, brew
-  # on darwin) under the same logical name -- with one catalog-routed
-  # exception, lazydocker, which routes to provider: aur on arch and
-  # falls through to brew on darwin.
-  #
-  # Opt in by adding `cli` to `profiles:` in host_vars. Intended baseline
-  # for any developer machine regardless of OS.
   cli:
     - atuin
     - bat
@@ -55,16 +46,12 @@ profile_apps:
     - zellij
     - zoxide
 
-  # Cloud / DevOps CLIs. Cross-OS via the catalog: each entry has both
-  # arch (AUR) and darwin (brew / cask) routings.
   cloud:
     - aws-cli
     - aws-session-manager-plugin
     - cloud-sql-proxy
     - google-cloud-cli
 
-  # Development environment: IDEs, editors, and adjacent dev tools.
-  # Cross-OS via the catalog (JetBrains casks + brew taps + cross-OS casks).
   development:
     - beads
     - datagrip
@@ -77,9 +64,6 @@ profile_apps:
     - webstorm
     - zed
 
-  # Font set. Linux-only as a profile because the ttf-* logical names map
-  # cleanly to pacman / AUR but not to brew formulae. macOS hosts that want
-  # the same fonts should use homebrew-cask-fonts directly.
   fonts:
     - ttf-dejavu
     - ttf-droid
@@ -141,7 +125,6 @@ profile_apps:
     - xorg-xev
     - xorg-xkill
 
-  # KDE Plasma desktop integration. Linux-only; no Mac analogue.
   kde:
     - dolphin
     - dolphin-plugins
