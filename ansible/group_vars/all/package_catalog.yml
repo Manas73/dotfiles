@@ -34,22 +34,8 @@ package_catalog:
     darwin: { provider: cask, packages: [datagrip] }
 
   docker:
-    includes:
-      - docker-engine
-      - docker-buildx-plugin
-      - docker-compose-plugin
-
-  docker-buildx-plugin:
-    arch:   { provider: pacman, packages: [docker-buildx] }
-    darwin: { provider: brew,   packages: [docker-buildx] }
-
-  docker-compose-plugin:
-    arch:   { provider: pacman, packages: [docker-compose] }
-    darwin: { provider: brew,   packages: [docker-compose] }
-
-  docker-engine:
-    arch:   { provider: pacman, packages: [docker] }
-    darwin: { provider: brew,   packages: [docker] }
+    arch:   { provider: pacman, packages: [docker, docker-buildx, docker-compose] }
+    darwin: { provider: brew,   packages: [docker, docker-buildx, docker-compose] }
 
   dropbox:
     arch:   { provider: aur,  packages: [dropbox] }
