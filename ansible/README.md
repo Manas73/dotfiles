@@ -322,27 +322,3 @@ Syntax check:
 ansible-playbook playbooks/site.yml --syntax-check
 ansible-playbook playbooks/dotfiles.yml --syntax-check
 ```
-
-## Status
-
-| Issue          | Status     | Description                                                  |
-|----------------|------------|--------------------------------------------------------------|
-| `chezmoi-g19`  | done       | chezmoi role renders chezmoi.toml and runs `chezmoi apply`.  |
-| `chezmoi-fwb`  | done       | Package data migrated into group vars.                       |
-| `chezmoi-a2q`  | done       | Legacy `arch_packages` + `aur_packages`.                     |
-| `chezmoi-c7u`  | done       | hyprland, i3 desktop profile role hooks (since removed).     |
-| `chezmoi-hoz`  | done       | fish, docker, kanata, plasma_custom_wm.                      |
-| `chezmoi-7tw`  | superseded | Legacy `darwin_packages`; replaced by chezmoi-97d SOLID.     |
-| `chezmoi-97d`  | done       | SOLID four-layer package refactor (epic).                    |
-| `chezmoi-ci1`  | done       | Phase 1: filter_plugins/catalog.py + tests.                  |
-| `chezmoi-80i`  | done       | Phase 2: provider_* roles + roles/packages dispatcher.       |
-| `chezmoi-88b`  | done       | Phase 3: migrate alfred (pacman=113, aur=39, zero diff).     |
-| `chezmoi-vkr`  | done       | Phase 5: documentation (this README + role READMEs).         |
-| `chezmoi-boe`  | active     | Epic: flat inventory + profile-list simplification.          |
-| `chezmoi-87v`  | done       | Phase 1: flatten inventory (drop `inventories/personal/`).   |
-| `chezmoi-ut9`  | done       | Phase 2: profiles list in host_vars + profile_apps dict.     |
-| `chezmoi-6l2`  | done       | Phase 3: unprefix host_vars data keys (email/profile/...).   |
-| `chezmoi-71g`  | done       | Phase 4: drop dead vars (gpu_vendor, window_managers).       |
-| `chezmoi-wh5`  | active     | Phase 5: refresh documentation for the simplified layout.    |
-
-Add more groups or roles only when they gate real behavior.
