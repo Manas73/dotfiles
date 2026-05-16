@@ -11,7 +11,7 @@ Two layers, one repo:
 
 See `docs/ANSIBLE_MIGRATION_PLAN.md` for architecture and `docs/ONBOARDING.md` for adding a new machine.
 
-> macOS bootstrap documentation is pending: tracked by Beads issue `chezmoi-qxl`, which is blocked on `chezmoi-7tw` (Homebrew role implementation) until a MacBook exists.
+> macOS bootstrap documentation is pending: tracked by Beads issue `chezmoi-qxl`. The Homebrew provider work it depended on (`chezmoi-7tw`) was superseded by the SOLID four-layer refactor (`chezmoi-97d`), so `chezmoi-qxl` is unblocked and ready to be filled in when a MacBook is actually onboarded.
 
 ## Requirements
 
@@ -32,7 +32,7 @@ Clones and pushes go through SSH. `~/.ssh/config` defines two host aliases:
 Repo origins use those aliases, e.g.:
 
 ```text
-git@github.com-personal/Manas73/dotfiles.git
+git@github.com-personal:Manas73/dotfiles.git
 ```
 
 You need the matching SSH keys on the machine and their public keys registered on the correct GitHub account. If an org enforces SAML SSO (Turing orgs do), authorize the key per-org at `https://github.com/settings/keys` after adding it.
@@ -41,7 +41,7 @@ You need the matching SSH keys on the machine and their public keys registered o
 
 ```sh
 # Clone the repo into the Chezmoi source path.
-git clone git@github.com/Manas73/dotfiles.git ~/.local/share/chezmoi
+git clone git@github.com-personal:Manas73/dotfiles.git ~/.local/share/chezmoi
 
 # Install the required Ansible collection.
 cd ~/.local/share/chezmoi
@@ -111,14 +111,30 @@ Package architecture (four layers, in dependency order):
    profiles via a `profiles:` list in their host_vars.
 2. **Catalog** — `group_vars/all/package_catalog.yml` maps logical app
    names to per-OS install instructions (provider + concrete packages).
+   Roll-up entries (one logical name -> N concrete packages per OS) keep
+   bundles like `docker`, `nodejs`, `python`, and the JetBrains IDEs
+   inline.
 3. **Dispatcher** — `roles/packages` aggregates intent, resolves through
    the catalog, and includes the matching provider role per bucket.
 4. **Providers** — one `roles/provider_<name>/` per package manager
    (`pacman`, `aur`, `brew`, `cask`). Adding a provider requires no edits
    to the dispatcher.
 
-See `ansible/README.md` for the full description and the rules for adding
-apps, profiles, or providers.
+Available profiles (`group_vars/all/profiles.yml`):
+
+| Profile        | Scope     | What it brings                                       |
+|----------------|-----------|------------------------------------------------------|
+| `cli`          | cross-OS  | Shell, navigation, editors, version control, runtimes.|
+| `cloud`        | cross-OS  | AWS / GCP toolchain.                                 |
+| `development`  | cross-OS  | IDEs, editors, dev tools (JetBrains, Postman, …).    |
+| `fonts`        | Linux     | ttf-* font set.                                      |
+| `gaming`       | Linux     | Steam, Lutris, umu-launcher.                         |
+| `hyprland`     | Linux     | Hyprland window manager and adjacent tools.          |
+| `i3`           | Linux     | i3 + X11 ecosystem (xclip, xorg-xev, ...).           |
+| `kde`          | Linux     | KDE Plasma desktop integration.                      |
+
+See `ansible/README.md` for the full description, the catalog schema,
+and the rules for adding apps, profiles, or providers.
 
 Examples:
 

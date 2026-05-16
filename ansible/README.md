@@ -32,7 +32,7 @@ ansible/
 │   ├── all/                     # directory form
 │   │   ├── main.yml             # chezmoi paths, ansible_connection, feature defaults
 │   │   ├── package_catalog.yml  # Layer 2: logical name -> per-OS install instructions
-│   │   └── profiles.yml         # Layer 1: profile_apps dict (cli/hyprland/i3/gaming)
+│   │   └── profiles.yml         # Layer 1: profile_apps dict (cli/cloud/development/fonts/gaming/hyprland/i3/kde)
 │   ├── arch.yml                 # arch_apps (Layer 1)
 │   └── darwin.yml               # darwin_apps (Layer 1)
 ├── host_vars/
@@ -97,32 +97,44 @@ Two sources of intent feed the orchestrator:
 
    ```yaml
    profile_apps:
-     cli:      [atuin, bat, fish, fzf, neovim, git, go, python, ...]
-     hyprland: [waybar-git, hyprland, hyprlock, ...]
-     i3:       [i3-wm, picom, polybar, ...]
-     gaming:   [steam, lutris, umu-launcher]
+     cli:          [atuin, bat, fish, fzf, neovim, git, go, nodejs, python, ...]
+     cloud:        [aws-cli, aws-session-manager-plugin, cloud-sql-proxy, google-cloud-cli]
+     development:  [beads, datagrip, gitkraken, opencode, postman, pycharm, sublime-text, webstorm, zed, ...]
+     fonts:        [ttf-dejavu, ttf-fira-code, ttf-material-design-icons, ...]
+     gaming:       [steam, lutris, umu-launcher]
+     hyprland:     [waybar, hyprland, hyprlock, matugen, ...]
+     i3:           [i3-wm, picom, polybar, sxhkd, xclip, ...]
+     kde:          [dolphin, gwenview, plasma-x11-session, ...]
    ```
 
-   The `cli` profile holds the cross-platform CLI and runtime baseline
-   (shell, navigation, editors, version control, languages) that should
-   exist on every developer machine regardless of OS. Every entry uses
-   default-provider passthrough on both Arch (pacman) and macOS (brew)
-   under the same logical name, with one catalog-routed exception
-   (`lazydocker` -> AUR on Arch, brew on macOS).
+   | Profile        | Scope     | Purpose                                              |
+   |----------------|-----------|------------------------------------------------------|
+   | `cli`          | cross-OS  | Shell experience, navigation, editors, runtimes.     |
+   | `cloud`        | cross-OS  | AWS / GCP toolchain.                                 |
+   | `development`  | cross-OS  | IDEs, editors, and dev tools (JetBrains, Postman, …).|
+   | `fonts`        | Linux     | ttf-* font set. macOS uses homebrew-cask-fonts.      |
+   | `gaming`       | Linux     | Steam, Lutris, umu-launcher.                         |
+   | `hyprland`     | Linux     | Hyprland window manager and adjacent tools.          |
+   | `i3`           | Linux     | i3 + X11 ecosystem (xclip, xorg-xev, ...).           |
+   | `kde`          | Linux     | KDE Plasma desktop integration.                      |
 
    A host opts into profiles by listing them in `host_vars/<hostname>.yml`:
 
    ```yaml
    profiles:
      - cli
+     - cloud
+     - development
      - hyprland
-     - gaming
+     - i3
    ```
 
    Profiles are NOT inventory groups; declaring them in host_vars is the
    single source of truth. The dispatcher unions `arch_apps` (or
    `darwin_apps`) with the lists pulled from `profile_apps` for every
-   profile the host opts into.
+   profile the host opts into. Unknown profile names are silently
+   ignored, so removing a profile from `profile_apps` won't break hosts
+   that still reference it.
 
 All four sources are pure lists of logical app names. They know nothing
 about pacman, AUR, brew, or cask.
@@ -137,41 +149,53 @@ Schema:
 ```yaml
 package_catalog:
 
-  # Cross-OS GUI app: per-OS keys with provider + packages.
+  # Cross-OS GUI app: per-OS keys, each holding a provider and a list of
+  # concrete packages. Both keys are independent and can contain multiple
+  # packages -- this is the "roll-up" pattern.
   vivaldi:
     arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs] }
     darwin: { provider: cask,   packages: [vivaldi] }
 
-  # Bundle: expands recursively into other logical names.
+  # Roll-up: one logical name expands to N concrete packages per OS.
+  # Differences between OSes are encoded inline. Used for docker, nodejs,
+  # python, the JetBrains IDEs (with their -jre companion on Arch), etc.
   docker:
-    includes:
-      - docker-engine
-      - docker-buildx-plugin
-      - docker-compose-plugin
+    arch:   { provider: pacman, packages: [docker, docker-buildx, docker-compose] }
+    darwin: { provider: brew,   packages: [docker, docker-buildx, docker-compose] }
+
+  nodejs:
+    arch:   { provider: pacman, packages: [nodejs, npm, nvm] }
+    darwin: { provider: brew,   packages: [node, nvm] }
 
   # Arch-only routing: AUR package that wouldn't be reachable via plain
-  # `pacman -S`. Has only an `arch:` key.
-  kanata-bin:
-    arch: { provider: aur, packages: [kanata-bin] }
+  # `pacman -S`. Has only an `arch:` key; darwin hosts skip it silently.
+  pacseek:
+    arch: { provider: aur, packages: [pacseek] }
 ```
 
 Rules:
 
-- An entry has either `includes:` (bundle) or per-OS keys, never both.
-- `includes:` expands recursively. Cycles raise `CatalogError`.
+- Each entry has per-OS keys (`arch`, `darwin`, ...). Every key contains a
+  `provider` and a `packages` list of concrete names; the list can hold
+  one or many packages.
 - A logical name **not** in the catalog falls through to the default
   provider for the target OS (`pacman` on arch, `brew` on darwin). This is
-  why everyday Arch packages like `alacritty`, `networkmanager`, and fonts
-  do not need catalog entries.
+  why everyday Arch packages like `alacritty`, `networkmanager`, and most
+  pacman fonts do not need catalog entries.
 - An entry without a key for the current `target_os` is silently dropped, so
-  darwin-only apps don't fail on Arch and vice versa.
+  arch-only entries (like `pacseek`) don't fail on darwin and vice versa.
 - Output buckets are deduped and sorted per provider for stable diffs.
+- The filter plugin also supports a fallback `includes:` mechanism that
+  expands one logical name into other logical names (recursive, cycle-
+  detected). No current entry uses it; the roll-up pattern above is
+  preferred because the resulting `packages:` list is self-contained.
 
-The catalog currently has ~35 entries: cross-OS GUI apps (vivaldi,
-1password, firefox, vlc, slack, zoom, google-chrome, dropbox, docker
-bundle), arch-only AUR routing (kanata-bin, pacseek, all JetBrains
-products, opencode, sublime-text, ...), and gaming entries
-(steam, umu-launcher, waybar-git).
+The catalog currently has ~45 entries: cross-OS GUI apps (vivaldi,
+1password, firefox, vlc, slack, zoom, google-chrome, dropbox), cross-OS
+runtime/dev bundles (docker, nodejs, python, datagrip, pycharm,
+webstorm), AUR routing for Arch-only packages (pacseek, redshift, ...),
+and miscellaneous Arch / darwin name-mapping (e.g. `aws-cli` ->
+`aws-cli-v2` on AUR, `awscli` on brew).
 
 ### Layer 3: Dispatcher
 
@@ -256,8 +280,9 @@ The Mac host slot is scaffolded but not activated. To bring a Mac online:
 1. Rename `host_vars/mac-placeholder.yml` to `host_vars/<your-hostname>.yml`.
 2. Fill in the TODO fields in that file (`primary_user`, etc.). See the
    comments in the file for the full checklist. The expected schema is the
-   same unprefixed data keys (`email`, `profile`, `osid`, `gpu`,
-   `profiles: []`) the chezmoi role reads directly.
+   same unprefixed data keys (`email`, `profile`, `osid`, `gpu`) the chezmoi
+   role reads directly, plus a `profiles:` list. mac-placeholder defaults
+   to `[cli, cloud, development]` -- adjust to taste.
 3. In `hosts.yml`, uncomment the host entry under the `darwin` group and
    replace `mac-placeholder` with your hostname.
 4. If on an Intel Mac, set `provider_brew_path: /usr/local/bin/brew` and
