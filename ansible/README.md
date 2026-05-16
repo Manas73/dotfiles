@@ -170,7 +170,7 @@ Rules:
 The catalog currently has ~35 entries: cross-OS GUI apps (vivaldi,
 1password, firefox, vlc, slack, zoom, google-chrome, dropbox, docker
 bundle), arch-only AUR routing (kanata-bin, pacseek, all JetBrains
-products, opencode-bin, sublime-text-4, ...), and gaming entries
+products, opencode, sublime-text, ...), and gaming entries
 (steam, umu-launcher, waybar-git).
 
 ### Layer 3: Dispatcher

@@ -28,33 +28,33 @@ arch_apps:
   # ----------------------------------------------------------------
   # Arch-only AUR (catalog routes via provider: aur).
   # ----------------------------------------------------------------
-  - aws-cli-v2
+  - aws-cli
   - aws-session-manager-plugin
   - bazecor
-  - beads-git
+  - beads
   - cloud-sql-proxy
   - datagrip
   - datagrip-jre
   - epson-inkjet-printer-escpr2
-  - fresh-editor-bin
+  - fresh-editor
   - gitkraken
   - google-cloud-cli
-  - kanata-bin
+  - kanata
   - masterpdfeditor
-  - matugen-bin
+  - matugen
   - mysql
-  - onlyoffice-bin
-  - opencode-bin
+  - onlyoffice
+  - opencode
   - pacseek
-  - postman-bin
+  - postman
   - pycharm
   - python-screeninfo
-  - rambox-pro-bin
+  - rambox
   - redshift
-  - selectdefaultapplication-git
-  - sublime-text-4
-  - ttf-material-design-icons-git
-  - ttf-material-icons-git
+  - selectdefaultapplication
+  - sublime-text
+  - ttf-material-design-icons
+  - ttf-material-icons
   - ttf-ms-fonts
   - ttf-vista-fonts
   - webstorm

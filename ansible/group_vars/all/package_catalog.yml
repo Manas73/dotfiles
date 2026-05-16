@@ -9,23 +9,29 @@ package_catalog:
     arch:   { provider: aur,  packages: ["1password"] }
     darwin: { provider: cask, packages: ["1password"] }
 
-  aws-cli-v2:
+  aws-cli:
     arch: { provider: aur, packages: [aws-cli-v2] }
+    darwin: { provider: brew, packages: [awscli] }
 
   aws-session-manager-plugin:
     arch: { provider: aur, packages: [aws-session-manager-plugin] }
+    darwin: { provider: cask, packages: [session-manager-plugin] }
 
   bazecor:
     arch: { provider: aur, packages: [bazecor] }
+    darwin: { provider: cask, packages: [bazecor] }
 
-  beads-git:
+  beads:
     arch: { provider: aur, packages: [beads-git] }
+    darwin: { provider: brew, packages: [beads] }
 
   cloud-sql-proxy:
     arch: { provider: aur, packages: [cloud-sql-proxy] }
+    darwin: { provider: brew, packages: [cloud-sql-proxy] }
 
   datagrip:
     arch: { provider: aur, packages: [datagrip] }
+    darwin: { provider: cask, packages: [datagrip] }
 
   datagrip-jre:
     arch: { provider: aur, packages: [datagrip-jre] }
@@ -59,11 +65,13 @@ package_catalog:
     arch:   { provider: pacman, packages: [firefox] }
     darwin: { provider: cask,   packages: [firefox] }
 
-  fresh-editor-bin:
+  fresh-editor:
     arch: { provider: aur, packages: [fresh-editor-bin] }
+    darwin: { provider: brew, packages: [sinelaw/fresh/fresh-editor] }
 
   gitkraken:
     arch: { provider: aur, packages: [gitkraken] }
+    darwin: { provider: cask, packages: [gitkraken] }
 
   google-chrome:
     arch:   { provider: aur,  packages: [google-chrome] }
@@ -71,9 +79,11 @@ package_catalog:
 
   google-cloud-cli:
     arch: { provider: aur, packages: [google-cloud-cli] }
+    darwin: { provider: cask, packages: [gcloud-cli] }
 
-  kanata-bin:
+  kanata:
     arch: { provider: aur, packages: [kanata-bin] }
+    darwin: { provider: brew, packages: [kanata] }
 
   lazydocker:
     arch:   { provider: aur,  packages: [lazydocker] }
@@ -81,38 +91,44 @@ package_catalog:
 
   masterpdfeditor:
     arch: { provider: aur, packages: [masterpdfeditor] }
+    darwin: { provider: cask, packages: [master-pdf-editor] }
 
-  matugen-bin:
+  matugen:
     arch: { provider: aur, packages: [matugen-bin] }
 
   mysql:
     arch: { provider: aur, packages: [mysql] }
+    darwin: { provider: brew, packages: [mysql] }
 
-  onlyoffice-bin:
+  onlyoffice:
     arch: { provider: aur, packages: [onlyoffice-bin] }
 
-  opencode-bin:
+  opencode:
     arch: { provider: aur, packages: [opencode-bin] }
+    darwin: { provider: brew, packages: [opencode] }
 
   pacseek:
     arch: { provider: aur, packages: [pacseek] }
 
-  postman-bin:
+  postman:
     arch: { provider: aur, packages: [postman-bin] }
+    darwin: { provider: cask, packages: [postman] }
 
   pycharm:
     arch: { provider: aur, packages: [pycharm] }
+    darwin: { provider: cask, packages: [pycharm] }
 
   python-screeninfo:
     arch: { provider: aur, packages: [python-screeninfo] }
 
-  rambox-pro-bin:
+  rambox:
     arch: { provider: aur, packages: [rambox-pro-bin] }
+    darwin: { provider: cask, packages: [rambox] }
 
   redshift:
     arch: { provider: aur, packages: [redshift] }
 
-  selectdefaultapplication-git:
+  selectdefaultapplication:
     arch: { provider: aur, packages: [selectdefaultapplication-git] }
 
   slack:
@@ -120,16 +136,20 @@ package_catalog:
     darwin: { provider: cask, packages: [slack] }
 
   steam:
-    arch: { provider: pacman, packages: [steam] }  # multilib repo
+    arch: { provider: pacman, packages: [steam] }
+    darwin: { provider: cask, packages: [steam] }
 
-  sublime-text-4:
+  sublime-text:
     arch: { provider: aur, packages: [sublime-text-4] }
+    darwin: { provider: cask, packages: [sublime-text] }
 
-  ttf-material-design-icons-git:
+  ttf-material-design-icons:
     arch: { provider: aur, packages: [ttf-material-design-icons-git] }
+    darwin: { provider: cask, packages: [font-material-design-icons-webfont] }
 
-  ttf-material-icons-git:
+  ttf-material-icons:
     arch: { provider: aur, packages: [ttf-material-icons-git] }
+    darwin: { provider: cask, packages: [font-material-icons] }
 
   ttf-ms-fonts:
     arch: { provider: aur, packages: [ttf-ms-fonts] }
@@ -153,6 +173,7 @@ package_catalog:
 
   webstorm:
     arch: { provider: aur, packages: [webstorm] }
+    darwin: { provider: cask, packages: [webstorm] }
 
   webstorm-jre:
     arch: { provider: aur, packages: [webstorm-jre] }
