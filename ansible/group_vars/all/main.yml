@@ -24,4 +24,4 @@ chezmoi_age_recipient: "age1egva8dwupvqgh2r3d48j2jsrjkfrgvvpjk83vttdcjftlyze5cgs
 # Feature enablement defaults. Host vars override.
 docker_enabled: false
 kanata_enabled: false
-gaming_enabled: false
+libvirt_enabled: false

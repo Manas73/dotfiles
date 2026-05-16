@@ -71,6 +71,14 @@
     - role: kanata
       when: kanata_enabled | default(false) | bool
 
+- name: Configure libvirt for the primary user
+  hosts: linux
+  gather_facts: true
+  tags: [system, libvirt]
+  roles:
+    - role: libvirt
+      when: libvirt_enabled | default(false) | bool
+
 - name: Configure Plasma with custom window manager
   hosts: linux
   gather_facts: true

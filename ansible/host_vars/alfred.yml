@@ -37,3 +37,4 @@ profiles:
 # Feature flags.
 docker_enabled: true
 kanata_enabled: true
+libvirt_enabled: true

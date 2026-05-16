@@ -1,0 +1,78 @@
+---
+# libvirt role.
+#
+# Configures the libvirt / qemu virtualization stack on Linux hosts: adds
+# the primary user to the kvm and libvirt groups, and enables
+# libvirtd.socket so libvirt starts on demand. This is the wiring that
+# lets a regular user run virt-manager / virsh / qemu-system without
+# sudo.
+#
+# Gated by libvirt_enabled (default: false; set true in host_vars).
+# libvirt itself is installed by the `packages` orchestrator: the
+# `virtualization` profile pulls in libvirt + qemu-desktop + virt-manager
+# + virt-viewer + dnsmasq + iptables-nft + edk2-ovmf + swtpm, dispatched
+# to provider_pacman on Arch.
+#
+# macOS handling is intentionally a no-op for now; the virtualization
+# profile is arch only at the moment.
+
+- name: Skip libvirt role on non-Linux hosts
+  ansible.builtin.meta: end_host
+  when: ansible_facts['system'] | lower != 'linux'
+
+- name: Verify libvirtd binary is present
+  ansible.builtin.shell: command -v libvirtd
+  register: libvirtd_binary
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Fail fast if libvirt is not installed
+  ansible.builtin.fail:
+    msg: >-
+      libvirtd is not installed. Add the `virtualization` profile to
+      this host's profiles: list so the `packages` orchestrator installs
+      the qemu / libvirt stack via provider_pacman, then re-run.
+  when: libvirtd_binary.rc != 0
+
+- name: Ensure the kvm group exists
+  ansible.builtin.group:
+    name: kvm
+    state: present
+  become: true
+
+- name: Ensure the libvirt group exists
+  ansible.builtin.group:
+    name: libvirt
+    state: present
+  become: true
+
+- name: Ensure the primary user is in the kvm and libvirt groups
+  ansible.builtin.user:
+    name: "{{ primary_user }}"
+    groups:
+      - kvm
+      - libvirt
+    append: true
+  become: true
+  register: libvirt_group_change
+
+- name: Enable libvirtd.socket (starts libvirtd on demand)
+  ansible.builtin.systemd_service:
+    name: libvirtd.socket
+    enabled: true
+  become: true
+
+- name: Enable virtlogd.socket (libvirt logging daemon)
+  ansible.builtin.systemd_service:
+    name: virtlogd.socket
+    enabled: true
+  become: true
+
+- name: Report when group membership was just granted
+  ansible.builtin.debug:
+    msg: >-
+      {{ primary_user }} added to kvm and libvirt groups. Log out and
+      back in for the group membership to take effect (or use
+      `newgrp libvirt` and `newgrp kvm` in your current shell).
+  when: libvirt_group_change is changed
