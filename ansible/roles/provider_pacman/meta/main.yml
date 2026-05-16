@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  role_name: provider_pacman
+  author: Manas Sambare
+  description: >-
+    Install pacman packages (including multilib) on Arch/Garuda hosts. Layer 4
+    provider role called by the packages orchestrator with provider_packages.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Archlinux
+  galaxy_tags:
+    - packages
+    - pacman
+    - arch
+
+dependencies: []

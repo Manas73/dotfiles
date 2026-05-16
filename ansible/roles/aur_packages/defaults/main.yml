@@ -1,5 +1,0 @@
----
-# Defaults for the aur_packages role.
-
-# Where to clone yay-bin for the initial bootstrap when yay is missing.
-aur_bootstrap_dir: "/tmp/yay-bin-bootstrap"

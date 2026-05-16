@@ -1,0 +1,70 @@
+---
+# provider_pacman: install pacman packages on Arch/Garuda hosts.
+#
+# Layer 4 of the four-layer package model. Called by the packages
+# orchestrator with provider_packages set to the resolved bucket for
+# this provider.
+#
+# Multilib note: multilib is a pacman repo, not a separate package
+# manager. Steam and friends are installed via this same role; the
+# `multilib` repo must be enabled in /etc/pacman.conf. There is no
+# separate provider_multilib role by design.
+#
+# Liskov contract (shared by all provider_* roles):
+#   * Input: provider_packages (list[str]), empty list = no-op.
+#   * Asserts the host OS.
+#   * Idempotent. Uses `state: present` (== --needed semantics).
+#   * Self-bootstraps if the underlying tool is missing.
+#   * No side effects beyond installing packages.
+
+- name: Assert provider_packages is defined and a list
+  ansible.builtin.assert:
+    that:
+      - provider_packages is defined
+      - provider_packages is sequence
+    fail_msg: "provider_pacman: provider_packages must be a list."
+    quiet: true
+  tags: [packages, pacman, arch]
+
+- name: Assert the host is Arch-based
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Archlinux'
+    fail_msg: >-
+      provider_pacman requires an Arch-based host (Arch, Garuda, Manjaro).
+      Detected os_family={{ ansible_facts['os_family'] }}.
+    quiet: true
+  tags: [packages, pacman, arch]
+
+- name: Verify pacman is available
+  ansible.builtin.shell: command -v pacman
+  register: provider_pacman_binary
+  changed_when: false
+  failed_when: provider_pacman_binary.rc != 0
+  check_mode: false
+  tags: [packages, pacman, arch]
+
+- name: Perform a full system upgrade (pacman -Syu)
+  community.general.pacman:
+    update_cache: true
+    upgrade: true
+  become: true
+  when: provider_pacman_perform_upgrade | bool
+  tags: [packages, pacman, arch, upgrade]
+
+- name: Refresh pacman databases (pacman -Sy)
+  community.general.pacman:
+    update_cache: true
+  become: true
+  when:
+    - provider_pacman_refresh_databases | bool
+    - not (provider_pacman_perform_upgrade | bool)
+  tags: [packages, pacman, arch]
+
+- name: Install pacman packages (-S --needed)
+  community.general.pacman:
+    name: "{{ provider_packages | unique | sort }}"
+    state: present
+  become: true
+  when: provider_packages | length > 0
+  tags: [packages, pacman, arch]

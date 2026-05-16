@@ -2,21 +2,29 @@
 # Full machine provisioning.
 #
 # Order:
-#   1. Install OS packages so binaries exist.
-#   2. Apply Chezmoi dotfiles so configs exist for the services below.
-#   3. Configure system services (login shell, Docker, Kanata, Plasma WM).
-#   4. Apply desktop profile hooks (future non-package desktop work).
+#   1. Sudoers drop-in for passwordless pacman (linux only).
+#   2. Install OS packages so binaries exist.
+#   3. Apply Chezmoi dotfiles so configs exist for the services below.
+#   4. Configure system services (login shell, Docker, Kanata, Plasma WM).
+#   5. Apply desktop profile hooks (future non-package desktop work).
+#
+# Packaging architecture (four layers; see ansible/README.md):
+#   Intent       <group>_apps lists in group_vars
+#   Catalog      group_vars/all/package_catalog.yml
+#   Dispatcher   roles/packages (orchestrator)
+#   Providers    roles/provider_{pacman,aur,brew,cask}
 #
 # Run examples:
 #   ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml --limit alfred --ask-become-pass
-#   ansible-playbook ... --tags packages
-#   ansible-playbook ... --tags aur
+#   ansible-playbook ... --tags packages           # all packages, any OS
+#   ansible-playbook ... --tags aur                # arch AUR only
+#   ansible-playbook ... --tags brew               # darwin brew only
 #   ansible-playbook ... --tags dotfiles
 #   ansible-playbook ... --tags system
 #   ansible-playbook ... --tags desktop
 #
 # Tracking:
-#   chezmoi-7tw  darwin_packages
+#   chezmoi-97d  SOLID four-layer package refactor (epic)
 #   chezmoi-ck1  sudoers role for passwordless pacman
 
 - name: Install sudoers drop-ins required by other roles
@@ -26,19 +34,12 @@
   roles:
     - role: sudoers
 
-- name: Install Arch pacman and multilib packages
-  hosts: arch
+- name: Install packages (cross-OS orchestrator)
+  hosts: all
   gather_facts: true
-  tags: [packages, arch]
+  tags: [packages]
   roles:
-    - role: arch_packages
-
-- name: Install AUR packages
-  hosts: arch
-  gather_facts: true
-  tags: [packages, aur, arch]
-  roles:
-    - role: aur_packages
+    - role: packages
 
 - name: Render Chezmoi config and apply dotfiles
   hosts: all

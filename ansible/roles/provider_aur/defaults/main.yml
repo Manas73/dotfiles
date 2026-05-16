@@ -1,0 +1,5 @@
+---
+# Defaults for provider_aur.
+
+# Where to clone yay-bin for the initial bootstrap when yay is missing.
+provider_aur_bootstrap_dir: "/tmp/yay-bin-bootstrap"

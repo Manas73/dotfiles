@@ -1,16 +1,17 @@
 ---
-# Gaming profile packages.
+# Gaming profile package intent.
 #
-# Installed by the arch_packages/aur_packages/multilib roles when a host
-# is in the gaming group AND gaming_enabled is true. Currently just Steam
-# via multilib; extend here as needed.
+# Logical app names installed by the packages orchestrator when a host
+# is in the gaming group AND gaming_enabled is true.
 #
-# Source of record: this file. The old .chezmoidata/packages/linux/arch/gaming.yaml
-# is deprecated.
+# steam ships from the pacman multilib repo (not a separate provider;
+# multilib is a repo, not a manager). The multilib repo must be enabled
+# in /etc/pacman.conf for steam to install.
+#
+# Source of record: this file (replaces the prior gaming_pacman_packages
+# / gaming_aur_packages / gaming_multilib_packages variables).
 
-gaming_pacman_packages:
+gaming_apps:
   - lutris
-gaming_aur_packages:
-  - umu-launcher
-gaming_multilib_packages:
-  - steam
+  - steam            # catalog -> provider: pacman (multilib repo)
+  - umu-launcher     # catalog -> provider: aur

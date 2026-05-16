@@ -1,48 +1,103 @@
 ---
-# Arch/Garuda package lists.
+# Arch/Garuda package intent.
 #
-# Consumed by the arch_packages and aur_packages roles (Beads chezmoi-a2q).
-# Package roles concatenate the vars contributed by every group the host
-# belongs to. Profile-specific lists live in hyprland.yml, i3.yml,
-# gaming.yml, etc.
+# Layer 1 of the four-layer package model. Single list of logical
+# application names. Resolved by roles/packages (orchestrator) against
+# group_vars/all/package_catalog.yml, then dispatched to provider_pacman
+# or provider_aur as the catalog dictates. Names not in the catalog fall
+# through to the default provider for arch (pacman).
 #
-# Schema:
-#   arch_pacman_packages    packages installed via pacman (official repos)
-#   arch_aur_packages       packages installed via yay (AUR)
-#   arch_multilib_packages  packages from the multilib repo (e.g. steam deps)
+# Profile-specific lists live in hyprland.yml, i3.yml, gaming.yml.
 #
-# Source of record: this file. The old .chezmoidata/packages/linux/arch/*.yaml
-# are deprecated (kept only until chezmoi-xe2 removes the scripts that
-# reference them).
+# Source of record: this file (replaces the prior arch_pacman_packages /
+# arch_aur_packages / arch_multilib_packages variables).
 
-arch_pacman_packages:
-  # Base system + tooling (previously base.yaml core + extra).
+arch_apps:
+  # ----------------------------------------------------------------
+  # Cross-OS apps & bundles (catalog handles routing per OS).
+  # ----------------------------------------------------------------
+  - "1password"        # catalog -> arch aur, darwin cask
+  - docker             # catalog bundle -> docker-engine + buildx + compose
+  - dropbox            # catalog -> arch aur, darwin cask
+  - firefox            # catalog -> arch pacman, darwin cask
+  - google-chrome      # catalog -> arch aur, darwin cask
+  - slack              # catalog -> arch aur (slack-desktop), darwin cask
+  - vivaldi            # catalog -> arch pacman (+ codecs), darwin cask
+  - vlc                # catalog -> arch pacman (+ plugins-all), darwin cask
+  - zoom               # catalog -> arch aur, darwin cask
+
+  # ----------------------------------------------------------------
+  # Arch-only AUR (catalog routes via provider: aur).
+  # ----------------------------------------------------------------
+  - aws-cli-v2
+  - aws-session-manager-plugin
+  - bazecor
+  - beads-git
+  - cloud-sql-proxy
+  - datagrip
+  - datagrip-jre
+  - epson-inkjet-printer-escpr2
+  - fresh-editor-bin
+  - gitkraken
+  - google-cloud-cli
+  - kanata-bin
+  - lazydocker
+  - masterpdfeditor
+  - matugen-bin
+  - mysql
+  - onlyoffice-bin
+  - opencode-bin
+  - pacseek
+  - postman-bin
+  - pycharm
+  - python-screeninfo
+  - rambox-pro-bin
+  - redshift
+  - selectdefaultapplication-git
+  - sublime-text-4
+  - ttf-material-design-icons-git
+  - ttf-material-icons-git
+  - ttf-ms-fonts
+  - ttf-vista-fonts
+  - webstorm
+  - webstorm-jre
+
+  # ----------------------------------------------------------------
+  # Arch-only pacman (no catalog entry -> default provider: pacman).
+  # Includes base system tooling, fonts, plasma, networking, dev CLI.
+  # ----------------------------------------------------------------
   - alacritty
   - atuin
   - bat
   - btop
+  - bun
   - chezmoi
   - dolphin
   - dolphin-plugins
   - eza
   - fastfetch
   - fd
-  - firefox
   - fish
   - flameshot
   - fzf
+  - gcc
   - ghq
   - git
+  - git-filter-repo
   - gnupg
+  - go
   - gparted
   - gwenview
   - headsetcontrol
+  - hugo
   - jq
   - kcharselect
   - kitty
+  - lazygit
   - libadwaita
   - libnotify
   - libreoffice-fresh
+  - moreutils
   - neovim
   - network-manager-applet
   - networkmanager
@@ -50,12 +105,17 @@ arch_pacman_packages:
   - nodejs
   - npm
   - nvm
+  - nvtop
   - plasma-x11-session
+  - plasma5-integration
   - playerctl
+  - pre-commit
   - psmisc
   - python
+  - python-black
   - python-gpgme
   - python-pip
+  - python-poetry
   - python-virtualenv
   - solaar
   - starship
@@ -70,75 +130,12 @@ arch_pacman_packages:
   - ttf-nerd-fonts-symbols
   - ttf-nerd-fonts-symbols-common
   - ttf-noto-nerd
-  - vivaldi
-  - vivaldi-ffmpeg-codecs
-  - vlc
-  - vlc-plugins-all
+  - uv
   - xclip
   - xdg-desktop-portal-gtk
   - xorg-xev
   - xorg-xkill
   - yazi
+  - zed
   - zellij
   - zoxide
-  # Development tooling (previously development.yaml core + extra).
-  - bun
-  - docker
-  - docker-buildx
-  - docker-compose
-  - gcc
-  - git-filter-repo
-  - go
-  - hugo
-  - lazygit
-  - moreutils
-  - nvtop
-  - plasma5-integration
-  - pre-commit
-  - python-black
-  - python-poetry
-  - uv
-  - zed
-
-arch_aur_packages:
-  # Base/GUI apps (previously base.yaml aur).
-  - 1password
-  - bazecor
-  - dropbox
-  - epson-inkjet-printer-escpr2
-  - google-chrome
-  - kanata-bin
-  - masterpdfeditor
-  - matugen-bin
-  - onlyoffice-bin
-  - pacseek
-  - python-screeninfo
-  - rambox-pro-bin
-  - redshift
-  - selectdefaultapplication-git
-  - slack-desktop
-  - ttf-material-design-icons-git
-  - ttf-material-icons-git
-  - ttf-ms-fonts
-  - ttf-vista-fonts
-  - zoom
-  # Development tooling (previously development.yaml aur).
-  - aws-cli-v2
-  - aws-session-manager-plugin
-  - beads-git
-  - cloud-sql-proxy
-  - datagrip
-  - datagrip-jre
-  - fresh-editor-bin
-  - gitkraken
-  - google-cloud-cli
-  - lazydocker
-  - mysql
-  - opencode-bin
-  - postman-bin
-  - pycharm
-  - sublime-text-4
-  - webstorm
-  - webstorm-jre
-
-arch_multilib_packages: []

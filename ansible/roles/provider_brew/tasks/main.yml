@@ -1,0 +1,61 @@
+---
+# provider_brew: install Homebrew formulae on macOS hosts.
+#
+# Layer 4 of the four-layer package model. Bootstraps Homebrew itself if
+# missing via the official install script.
+#
+# Liskov contract (shared by all provider_* roles):
+#   * Input: provider_packages (list[str]), empty list = no-op.
+#   * Asserts the host OS.
+#   * Idempotent. brew install (community.general.homebrew is idempotent).
+#   * Self-bootstraps brew if absent.
+#   * No side effects beyond installing packages.
+#
+# Cask installation is the separate provider_cask role.
+
+- name: Assert provider_packages is defined and a list
+  ansible.builtin.assert:
+    that:
+      - provider_packages is defined
+      - provider_packages is sequence
+    fail_msg: "provider_brew: provider_packages must be a list."
+    quiet: true
+  tags: [packages, brew, darwin]
+
+- name: Assert the host is Darwin
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Darwin'
+    fail_msg: >-
+      provider_brew requires a macOS host.
+      Detected os_family={{ ansible_facts['os_family'] }}.
+    quiet: true
+  tags: [packages, brew, darwin]
+
+- name: Detect Homebrew
+  ansible.builtin.stat:
+    path: "{{ provider_brew_path }}"
+  register: provider_brew_binary_stat
+  tags: [packages, brew, darwin]
+
+- name: Bootstrap Homebrew if missing
+  # The official installer is interactive by default; NONINTERACTIVE=1 makes
+  # it scriptable. CI=1 silences further prompts.
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      NONINTERACTIVE=1 CI=1 /bin/bash -c \
+        "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  when:
+    - not provider_brew_binary_stat.stat.exists
+    - not ansible_check_mode
+  changed_when: true
+  tags: [packages, brew, darwin]
+
+- name: Install Homebrew formulae
+  community.general.homebrew:
+    name: "{{ provider_packages | unique | sort }}"
+    state: present
+    update_homebrew: "{{ provider_brew_update | bool }}"
+  when: provider_packages | length > 0
+  tags: [packages, brew, darwin]

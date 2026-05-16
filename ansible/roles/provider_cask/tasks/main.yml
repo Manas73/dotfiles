@@ -1,0 +1,57 @@
+---
+# provider_cask: install Homebrew casks (GUI apps) on macOS hosts.
+#
+# Layer 4 of the four-layer package model. Assumes Homebrew is already
+# installed; provider_brew bootstraps brew when needed. If you install
+# casks without ever installing formulae, list `provider_brew` as a
+# soft prerequisite by including any formula in your darwin_apps.
+#
+# Liskov contract (shared by all provider_* roles):
+#   * Input: provider_packages (list[str]), empty list = no-op.
+#   * Asserts the host OS.
+#   * Idempotent. brew install --cask (community.general.homebrew_cask).
+#   * No side effects beyond installing packages.
+
+- name: Assert provider_packages is defined and a list
+  ansible.builtin.assert:
+    that:
+      - provider_packages is defined
+      - provider_packages is sequence
+    fail_msg: "provider_cask: provider_packages must be a list."
+    quiet: true
+  tags: [packages, cask, darwin]
+
+- name: Assert the host is Darwin
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Darwin'
+    fail_msg: >-
+      provider_cask requires a macOS host.
+      Detected os_family={{ ansible_facts['os_family'] }}.
+    quiet: true
+  tags: [packages, cask, darwin]
+
+- name: Verify Homebrew is available (provider_brew should have run first)
+  ansible.builtin.stat:
+    path: "{{ provider_cask_brew_path }}"
+  register: provider_cask_brew_stat
+  tags: [packages, cask, darwin]
+
+- name: Fail if Homebrew is missing
+  ansible.builtin.fail:
+    msg: >-
+      provider_cask requires Homebrew at {{ provider_cask_brew_path }} but
+      it is missing. Either install brew manually, or list at least one
+      formula in darwin_apps so provider_brew bootstraps it first.
+  when:
+    - not provider_cask_brew_stat.stat.exists
+    - not ansible_check_mode
+    - provider_packages | length > 0
+  tags: [packages, cask, darwin]
+
+- name: Install Homebrew casks
+  community.general.homebrew_cask:
+    name: "{{ provider_packages | unique | sort }}"
+    state: present
+  when: provider_packages | length > 0
+  tags: [packages, cask, darwin]

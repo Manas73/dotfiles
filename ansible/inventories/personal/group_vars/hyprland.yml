@@ -1,14 +1,18 @@
 ---
-# Hyprland profile packages.
+# Hyprland profile package intent.
 #
-# Installed by the arch_packages and aur_packages roles when a host is in
-# the hyprland group. Desktop dotfiles stay with Chezmoi; this file only
-# declares system-level package dependencies.
+# Logical app names installed by the packages orchestrator when a host
+# is in the hyprland group. Linux-only today; if the Mac ever runs a
+# Hyprland profile (unlikely) the catalog would gain darwin: entries.
 #
-# Source of record: this file. The old .chezmoidata/packages/linux/arch/hyprland.yaml
-# is deprecated.
+# Source of record: this file (replaces the prior hyprland_pacman_packages
+# / hyprland_aur_packages / hyprland_multilib_packages variables).
 
-hyprland_pacman_packages:
+hyprland_apps:
+  # AUR (catalog routes to provider: aur).
+  - waybar-git
+
+  # Pacman passthrough (no catalog entry needed).
   - awww
   - copyq
   - hypridle
@@ -29,7 +33,3 @@ hyprland_pacman_packages:
   - wl-clipboard
   - wtype
   - xdg-desktop-portal-hyprland
-
-hyprland_aur_packages:
-  - waybar-git
-hyprland_multilib_packages: []

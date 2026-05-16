@@ -1,0 +1,115 @@
+---
+# provider_aur: install AUR packages via yay on Arch/Garuda hosts.
+#
+# Layer 4 of the four-layer package model. Bootstraps yay-bin from the AUR
+# if missing. yay must run as the primary user (not root); makepkg refuses
+# to run as root.
+#
+# Check mode: AUR tasks are skipped because yay/makepkg cannot dry-run.
+#
+# Liskov contract (shared by all provider_* roles):
+#   * Input: provider_packages (list[str]), empty list = no-op.
+#   * Asserts the host OS.
+#   * Idempotent. yay -S --needed.
+#   * Self-bootstraps yay if absent.
+#   * No side effects beyond installing packages.
+
+- name: Assert provider_packages is defined and a list
+  ansible.builtin.assert:
+    that:
+      - provider_packages is defined
+      - provider_packages is sequence
+    fail_msg: "provider_aur: provider_packages must be a list."
+    quiet: true
+  tags: [packages, aur, arch]
+
+- name: Assert the host is Arch-based
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Archlinux'
+    fail_msg: >-
+      provider_aur requires an Arch-based host (Arch, Garuda, Manjaro).
+    quiet: true
+  tags: [packages, aur, arch]
+
+- name: Assert makepkg is available
+  ansible.builtin.shell: command -v makepkg
+  register: provider_aur_makepkg_binary
+  changed_when: false
+  failed_when: provider_aur_makepkg_binary.rc != 0
+  check_mode: false
+  tags: [packages, aur, arch]
+
+- name: Warn and skip AUR tasks in check mode
+  ansible.builtin.debug:
+    msg: >-
+      Check mode: skipping AUR tasks. yay and makepkg cannot preview
+      installs safely. Re-run without --check to install AUR packages.
+  when:
+    - ansible_check_mode
+    - provider_packages | length > 0
+  tags: [packages, aur, arch]
+
+- name: Detect yay
+  ansible.builtin.shell: command -v yay
+  register: provider_aur_yay_binary
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  tags: [packages, aur, arch]
+
+- name: Bootstrap yay from the AUR (first-time install)
+  when:
+    - not ansible_check_mode
+    - provider_aur_yay_binary.rc != 0
+    - provider_packages | length > 0
+  block:
+    - name: Ensure git and base-devel are present for the bootstrap clone
+      community.general.pacman:
+        name:
+          - git
+          - base-devel
+        state: present
+      become: true
+
+    - name: Remove any previous yay bootstrap directory
+      ansible.builtin.file:
+        path: "{{ provider_aur_bootstrap_dir }}"
+        state: absent
+
+    - name: Clone yay-bin from the AUR
+      ansible.builtin.git:
+        repo: https://aur.archlinux.org/yay-bin.git
+        dest: "{{ provider_aur_bootstrap_dir }}"
+        depth: 1
+        version: master
+
+    - name: Build and install yay via makepkg
+      ansible.builtin.command:
+        cmd: makepkg -si --noconfirm
+        chdir: "{{ provider_aur_bootstrap_dir }}"
+      register: provider_aur_yay_makepkg
+      changed_when: >-
+        'Packages (' in provider_aur_yay_makepkg.stdout
+        or 'installing' in (provider_aur_yay_makepkg.stdout | lower)
+
+    - name: Clean up yay bootstrap directory
+      ansible.builtin.file:
+        path: "{{ provider_aur_bootstrap_dir }}"
+        state: absent
+  tags: [packages, aur, arch]
+
+- name: Install AUR packages via yay
+  ansible.builtin.command:
+    cmd: >-
+      yay -S --needed --noconfirm --removemake
+      {{ (provider_packages | unique | sort) | join(' ') }}
+  register: provider_aur_install
+  when:
+    - not ansible_check_mode
+    - provider_packages | length > 0
+  changed_when: >-
+    'installing' in (provider_aur_install.stdout | default('') | lower)
+    or 'building' in (provider_aur_install.stdout | default('') | lower)
+    or 'downloading' in (provider_aur_install.stdout | default('') | lower)
+  tags: [packages, aur, arch]

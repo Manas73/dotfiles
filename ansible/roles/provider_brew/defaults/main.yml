@@ -1,0 +1,9 @@
+---
+# Defaults for provider_brew.
+
+# Path where Homebrew installs `brew` on Apple Silicon. On Intel macs,
+# override this to /usr/local/bin/brew via host_vars.
+provider_brew_path: "/opt/homebrew/bin/brew"
+
+# Run `brew update` before installing. Idempotent; safe to leave on.
+provider_brew_update: true

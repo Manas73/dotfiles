@@ -1,0 +1,150 @@
+---
+# Cross-OS package catalog.
+#
+# This file maps logical application names to per-OS install instructions.
+# Consumed by roles/packages (the orchestrator) via filter_plugins/catalog.py.
+#
+# Schema:
+#
+#   <logical_name>:
+#     arch:   { provider: pacman|aur|multilib, packages: [pkg, ...] }
+#     darwin: { provider: brew|cask,           packages: [pkg, ...] }
+#
+#   <bundle_name>:
+#     includes: [logical_name, ...]   # recursive expansion, no cycles
+#
+# Rules:
+#   * An entry has either `includes:` OR per-OS keys, never both.
+#   * An app NOT in this catalog is routed verbatim to the default provider
+#     for the target OS (pacman on arch, brew on darwin).
+#   * An entry without a target_os key is silently skipped on that OS.
+#   * Entries are deduped per provider in the final install bucket.
+#
+# Scope:
+#   * Cross-OS GUI apps and dev tools (vivaldi, 1password, firefox, ...).
+#   * Arch-only packages that need a non-default provider (anything from
+#     AUR or multilib that wouldn't be reachable via plain `pacman -S name`).
+#   * Anything Arch-only that defaults to pacman (alacritty, networkmanager,
+#     fonts, ...) does NOT need a catalog entry; it falls through.
+#
+# Adding a new app:
+#   1. Add the entry below.
+#   2. Add the logical name to the appropriate <group>_apps list.
+#   3. Test with: ansible-playbook ... --check --diff --tags=packages
+#
+# Adding a new provider (e.g. flatpak):
+#   1. Create roles/provider_flatpak/.
+#   2. Add "flatpak" to VALID_PROVIDERS in filter_plugins/catalog.py.
+#   3. Add `provider: flatpak` to relevant catalog entries.
+#   The orchestrator picks it up dynamically.
+
+package_catalog:
+
+  # ---------------------------------------------------------------------
+  # Cross-OS GUI apps (both arch and darwin keys).
+  # ---------------------------------------------------------------------
+
+  vivaldi:
+    arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs] }
+    darwin: { provider: cask,   packages: [vivaldi] }
+
+  "1password":
+    arch:   { provider: aur,    packages: ["1password"] }
+    darwin: { provider: cask,   packages: ["1password"] }
+
+  firefox:
+    arch:   { provider: pacman, packages: [firefox] }
+    darwin: { provider: cask,   packages: [firefox] }
+
+  vlc:
+    arch:   { provider: pacman, packages: [vlc, vlc-plugins-all] }
+    darwin: { provider: cask,   packages: [vlc] }
+
+  slack:
+    arch:   { provider: aur,    packages: [slack-desktop] }
+    darwin: { provider: cask,   packages: [slack] }
+
+  zoom:
+    arch:   { provider: aur,    packages: [zoom] }
+    darwin: { provider: cask,   packages: [zoom] }
+
+  google-chrome:
+    arch:   { provider: aur,    packages: [google-chrome] }
+    darwin: { provider: cask,   packages: [google-chrome] }
+
+  dropbox:
+    arch:   { provider: aur,    packages: [dropbox] }
+    darwin: { provider: cask,   packages: [dropbox] }
+
+  # Bundle: logical "docker" expands to engine + buildx + compose.
+  docker:
+    includes:
+      - docker-engine
+      - docker-buildx-plugin
+      - docker-compose-plugin
+
+  docker-engine:
+    arch:   { provider: pacman, packages: [docker] }
+    darwin: { provider: brew,   packages: [docker] }
+
+  docker-buildx-plugin:
+    arch:   { provider: pacman, packages: [docker-buildx] }
+    darwin: { provider: brew,   packages: [docker-buildx] }
+
+  docker-compose-plugin:
+    arch:   { provider: pacman, packages: [docker-compose] }
+    darwin: { provider: brew,   packages: [docker-compose] }
+
+  # ---------------------------------------------------------------------
+  # Arch-only routing: packages that exist only on Arch and need a
+  # non-default provider (AUR / multilib). These have ONLY an `arch:` key.
+  #
+  # Pure-pacman Arch packages (alacritty, networkmanager, fonts, ...) are
+  # omitted: the resolver routes unknown names to the default provider.
+  # ---------------------------------------------------------------------
+
+  # AUR: arch_aur_packages (base/GUI apps)
+  bazecor:                       { arch: { provider: aur, packages: [bazecor] } }
+  epson-inkjet-printer-escpr2:   { arch: { provider: aur, packages: [epson-inkjet-printer-escpr2] } }
+  kanata-bin:                    { arch: { provider: aur, packages: [kanata-bin] } }
+  masterpdfeditor:               { arch: { provider: aur, packages: [masterpdfeditor] } }
+  matugen-bin:                   { arch: { provider: aur, packages: [matugen-bin] } }
+  onlyoffice-bin:                { arch: { provider: aur, packages: [onlyoffice-bin] } }
+  pacseek:                       { arch: { provider: aur, packages: [pacseek] } }
+  python-screeninfo:             { arch: { provider: aur, packages: [python-screeninfo] } }
+  rambox-pro-bin:                { arch: { provider: aur, packages: [rambox-pro-bin] } }
+  redshift:                      { arch: { provider: aur, packages: [redshift] } }
+  selectdefaultapplication-git:  { arch: { provider: aur, packages: [selectdefaultapplication-git] } }
+  ttf-material-design-icons-git: { arch: { provider: aur, packages: [ttf-material-design-icons-git] } }
+  ttf-material-icons-git:        { arch: { provider: aur, packages: [ttf-material-icons-git] } }
+  ttf-ms-fonts:                  { arch: { provider: aur, packages: [ttf-ms-fonts] } }
+  ttf-vista-fonts:               { arch: { provider: aur, packages: [ttf-vista-fonts] } }
+
+  # AUR: arch_aur_packages (development tooling)
+  aws-cli-v2:                    { arch: { provider: aur, packages: [aws-cli-v2] } }
+  aws-session-manager-plugin:    { arch: { provider: aur, packages: [aws-session-manager-plugin] } }
+  beads-git:                     { arch: { provider: aur, packages: [beads-git] } }
+  cloud-sql-proxy:               { arch: { provider: aur, packages: [cloud-sql-proxy] } }
+  datagrip:                      { arch: { provider: aur, packages: [datagrip] } }
+  datagrip-jre:                  { arch: { provider: aur, packages: [datagrip-jre] } }
+  fresh-editor-bin:              { arch: { provider: aur, packages: [fresh-editor-bin] } }
+  gitkraken:                     { arch: { provider: aur, packages: [gitkraken] } }
+  google-cloud-cli:              { arch: { provider: aur, packages: [google-cloud-cli] } }
+  lazydocker:                    { arch: { provider: aur, packages: [lazydocker] } }
+  mysql:                         { arch: { provider: aur, packages: [mysql] } }
+  opencode-bin:                  { arch: { provider: aur, packages: [opencode-bin] } }
+  postman-bin:                   { arch: { provider: aur, packages: [postman-bin] } }
+  pycharm:                       { arch: { provider: aur, packages: [pycharm] } }
+  sublime-text-4:                { arch: { provider: aur, packages: [sublime-text-4] } }
+  webstorm:                      { arch: { provider: aur, packages: [webstorm] } }
+  webstorm-jre:                  { arch: { provider: aur, packages: [webstorm-jre] } }
+
+  # Hyprland profile AUR.
+  waybar-git:                    { arch: { provider: aur, packages: [waybar-git] } }
+
+  # Gaming profile AUR + multilib.
+  # NOTE: steam lives in the multilib repo, but provider_pacman installs it
+  # via the same `pacman` module. Multilib is a repo, not a separate manager,
+  # so it isn't a distinct provider here.
+  umu-launcher:                  { arch: { provider: aur,    packages: [umu-launcher] } }
+  steam:                         { arch: { provider: pacman, packages: [steam] } }

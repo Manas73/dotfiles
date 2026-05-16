@@ -1,0 +1,12 @@
+---
+# Defaults for provider_pacman.
+
+# Refresh package databases before installing (pacman -Sy equivalent).
+# Idempotent; safe to leave on.
+provider_pacman_refresh_databases: true
+
+# Perform a full system upgrade (pacman -Syu) before installing packages.
+# Off by default. Flip to true, or pass -e provider_pacman_perform_upgrade=true,
+# to upgrade. Partial upgrades on Arch are unsafe; this exists only for
+# cases where a full upgrade is intentional.
+provider_pacman_perform_upgrade: false

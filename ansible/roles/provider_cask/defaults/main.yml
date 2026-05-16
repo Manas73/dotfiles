@@ -1,0 +1,6 @@
+---
+# Defaults for provider_cask.
+
+# Path used to verify Homebrew is installed before attempting casks.
+# Apple Silicon default; override to /usr/local/bin/brew on Intel.
+provider_cask_brew_path: "/opt/homebrew/bin/brew"

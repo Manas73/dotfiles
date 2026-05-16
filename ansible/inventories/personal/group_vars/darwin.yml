@@ -1,19 +1,77 @@
 ---
-# macOS package lists.
+# macOS package intent.
 #
-# Consumed by the darwin_packages role (Beads chezmoi-7tw).
+# Layer 1 of the four-layer package model. Single list of logical
+# application names. Resolved by roles/packages (orchestrator) against
+# group_vars/all/package_catalog.yml, then dispatched to provider_brew
+# or provider_cask. Names not in the catalog fall through to brew with
+# the same name verbatim (good enough for ~90% of CLI tools whose
+# logical name == brew formula name).
 #
-# Schema:
-#   darwin_brews   Homebrew formulas (CLI tooling)
-#   darwin_casks   Homebrew casks (GUI apps)
+# Mirrors the cross-OS subset of alfred's arch_apps. Adjust per machine.
 #
-# Currently empty; populated when the MacBook lands. Onboarding:
-#   1. Pick the common CLI tools from arch_pacman_packages that have
-#      Homebrew formulas (fish, git, neovim, starship, zoxide, yazi,
-#      zellij, fzf, fd, bat, jq, eza, atuin, ghq, etc.).
-#   2. Pick the GUI apps that have casks (vivaldi, pycharm, datagrip,
-#      webstorm, slack, zoom, google-chrome, etc.).
-#   3. Add a homebrew bootstrap step to the darwin_packages role.
+# Source of record: this file (replaces the prior darwin_brews /
+# darwin_casks variables).
 
-darwin_brews: []
-darwin_casks: []
+darwin_apps:
+  # ----------------------------------------------------------------
+  # Cross-OS GUI apps via catalog (route to cask).
+  # ----------------------------------------------------------------
+  - "1password"
+  - dropbox
+  - firefox
+  - google-chrome
+  - slack
+  - vivaldi
+  - vlc
+  - zoom
+
+  # ----------------------------------------------------------------
+  # Cross-OS bundles via catalog.
+  # ----------------------------------------------------------------
+  - docker             # bundle -> docker-engine + buildx + compose (brew)
+
+  # ----------------------------------------------------------------
+  # CLI tools that brew packages under the same name. Default-provider
+  # passthrough means we don't need a catalog entry; the resolver routes
+  # the logical name to `brew install <name>`. Verify formula names exist
+  # at https://formulae.brew.sh/ before adding to this list.
+  # ----------------------------------------------------------------
+  - atuin
+  - bat
+  - btop
+  - chezmoi
+  - eza
+  - fastfetch
+  - fd
+  - fish
+  - fzf
+  - ghq
+  - git
+  - git-filter-repo
+  - gnupg
+  - go
+  - hugo
+  - jq
+  - lazydocker
+  - lazygit
+  - moreutils
+  - neovim
+  - node                # brew formula is `node`, not `nodejs`
+  - pre-commit
+  - python              # brew alias for python3
+  - starship
+  - television
+  - uv
+  - yazi
+  - zellij
+  - zoxide
+
+  # ----------------------------------------------------------------
+  # macOS-only GUI apps via cask (will need catalog entries below).
+  # Add as Mac onboarding progresses. Examples:
+  #   - iterm2
+  #   - rectangle
+  #   - karabiner-elements
+  #   - alt-tab
+  # ----------------------------------------------------------------

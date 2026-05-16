@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: provider_brew
+  author: Manas Sambare
+  description: >-
+    Install Homebrew formulae on macOS. Bootstraps Homebrew if missing.
+    Layer 4 provider role called by the packages orchestrator.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: MacOSX
+  galaxy_tags:
+    - packages
+    - brew
+    - darwin
+    - homebrew
+
+dependencies: []
