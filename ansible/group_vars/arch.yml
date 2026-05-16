@@ -8,8 +8,12 @@
 # through to the default provider for arch (pacman).
 #
 # Scope: Arch-specific packages only. Cross-platform CLI tools and
-# runtimes live in the `cli` profile (group_vars/all/profiles.yml);
-# alfred opts in via `profiles: [..., cli]` in host_vars.
+# domain-grouped bundles live in profiles (group_vars/all/profiles.yml):
+#   cli    cross-platform CLI tools and runtimes
+#   cloud  AWS / GCP CLIs
+#   fonts  ttf-* font set
+#   kde    KDE Plasma desktop integration
+# alfred opts into the relevant profiles via host_vars.
 
 arch_apps:
   # ----------------------------------------------------------------
@@ -28,16 +32,12 @@ arch_apps:
   # ----------------------------------------------------------------
   # Arch-only AUR (catalog routes via provider: aur).
   # ----------------------------------------------------------------
-  - aws-cli
-  - aws-session-manager-plugin
   - bazecor
   - beads
-  - cloud-sql-proxy
   - datagrip
   - epson-inkjet-printer-escpr2
   - fresh-editor
   - gitkraken
-  - google-cloud-cli
   - kanata
   - masterpdfeditor
   - matugen
@@ -52,27 +52,17 @@ arch_apps:
   - redshift
   - selectdefaultapplication
   - sublime-text
-  - ttf-material-design-icons
-  - ttf-material-icons
-  - ttf-ms-fonts
-  - ttf-vista-fonts
   - webstorm
   - zed
 
   # ----------------------------------------------------------------
   # Arch-only pacman (no catalog entry -> default provider: pacman).
-  # Linux desktop / system / fonts that have no cross-platform analogue
-  # or use a different package name on Mac. Cross-platform CLI tools
-  # moved to the `cli` profile.
+  # Linux desktop / system bits that have no cross-platform analogue.
   # ----------------------------------------------------------------
   - alacritty
-  - dolphin
-  - dolphin-plugins
   - flameshot
   - gparted
-  - gwenview
   - headsetcontrol
-  - kcharselect
   - kitty
   - libadwaita
   - libnotify
@@ -81,21 +71,10 @@ arch_apps:
   - networkmanager
   - nm-connection-editor
   - nvtop
-  - plasma-x11-session
-  - plasma5-integration
   - playerctl
   - psmisc
   - solaar
   - sxhkd
-  - ttf-dejavu
-  - ttf-droid
-  - ttf-fira-code
-  - ttf-fira-sans
-  - ttf-firacode-nerd
-  - ttf-jetbrains-mono-nerd
-  - ttf-nerd-fonts-symbols
-  - ttf-nerd-fonts-symbols-common
-  - ttf-noto-nerd
   - xclip
   - xdg-desktop-portal-gtk
   - xorg-xev

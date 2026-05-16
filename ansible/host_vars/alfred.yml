@@ -25,9 +25,12 @@ plasma_window_manager: "i3"
 # desktop names.
 profiles:
   - cli
-  - i3
-  - hyprland
+  - cloud
+  - fonts
   - gaming
+  - hyprland
+  - i3
+  - kde
 
 # Feature flags.
 docker_enabled: true

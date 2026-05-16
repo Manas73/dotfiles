@@ -23,11 +23,12 @@ profile: "personal"
 osid: "darwin"
 gpu: "none"
 
-# Profile membership. The `cli` profile pulls in the cross-platform
-# baseline (atuin, bat, fish, neovim, git, go, ...). macOS hosts
-# typically don't need the Linux desktop or gaming profiles.
+# Profile membership. cli pulls in the cross-platform baseline; cloud
+# adds the AWS / GCP toolchain (also cross-OS). macOS hosts skip the
+# Linux-only profiles (kde, fonts, gaming, hyprland, i3).
 profiles:
   - cli
+  - cloud
 
 # Feature flags. macOS-default values; flip per machine.
 docker_enabled: false   # Docker Desktop on Mac is a separate install

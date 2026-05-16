@@ -55,6 +55,37 @@ profile_apps:
     - zellij
     - zoxide
 
+  # Cloud / DevOps CLIs. Cross-OS via the catalog: each entry has both
+  # arch (AUR) and darwin (brew / cask) routings.
+  cloud:
+    - aws-cli
+    - aws-session-manager-plugin
+    - cloud-sql-proxy
+    - google-cloud-cli
+
+  # Font set. Linux-only as a profile because the ttf-* logical names map
+  # cleanly to pacman / AUR but not to brew formulae. macOS hosts that want
+  # the same fonts should use homebrew-cask-fonts directly.
+  fonts:
+    - ttf-dejavu
+    - ttf-droid
+    - ttf-fira-code
+    - ttf-fira-sans
+    - ttf-firacode-nerd
+    - ttf-jetbrains-mono-nerd
+    - ttf-material-design-icons
+    - ttf-material-icons
+    - ttf-ms-fonts
+    - ttf-nerd-fonts-symbols
+    - ttf-nerd-fonts-symbols-common
+    - ttf-noto-nerd
+    - ttf-vista-fonts
+
+  gaming:
+    - lutris
+    - steam
+    - umu-launcher
+
   hyprland:
     - waybar
     - awww
@@ -91,7 +122,11 @@ profile_apps:
     - rofi-wayland
     - xcb-util-cursor
 
-  gaming:
-    - lutris
-    - steam
-    - umu-launcher
+  # KDE Plasma desktop integration. Linux-only; no Mac analogue.
+  kde:
+    - dolphin
+    - dolphin-plugins
+    - gwenview
+    - kcharselect
+    - plasma-x11-session
+    - plasma5-integration
