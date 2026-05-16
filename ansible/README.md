@@ -24,25 +24,20 @@ Ansible does not own:
 
 ```text
 ansible/
-├── ansible.cfg                  # filter_plugins = filter_plugins
+├── ansible.cfg                  # inventory = hosts.yml; filter_plugins = filter_plugins
+├── hosts.yml                    # flat inventory at the ansible/ root
 ├── filter_plugins/
 │   └── catalog.py               # resolve_catalog jinja filter
-├── inventories/
-│   └── personal/
-│       ├── hosts.yml
-│       ├── group_vars/
-│       │   ├── all/             # directory form
-│       │   │   ├── main.yml
-│       │   │   └── package_catalog.yml
-│       │   ├── linux.yml
-│       │   ├── darwin.yml
-│       │   ├── arch.yml
-│       │   ├── hyprland.yml
-│       │   ├── i3.yml
-│       │   └── gaming.yml
-│       └── host_vars/
-│           ├── alfred.yml
-│           └── mac-placeholder.yml
+├── group_vars/
+│   ├── all/                     # directory form
+│   │   ├── main.yml             # chezmoi paths, ansible_connection, feature defaults
+│   │   ├── package_catalog.yml  # Layer 2: logical name -> per-OS install instructions
+│   │   └── profiles.yml         # Layer 1: profile_apps dict (hyprland/i3/gaming)
+│   ├── arch.yml                 # arch_apps (Layer 1)
+│   └── darwin.yml               # darwin_apps (Layer 1)
+├── host_vars/
+│   ├── alfred.yml
+│   └── mac-placeholder.yml
 ├── playbooks/
 │   ├── site.yml
 │   └── dotfiles.yml
@@ -57,13 +52,23 @@ ansible/
     ├── fish/
     ├── docker/
     ├── kanata/
-    ├── plasma_custom_wm/
-    ├── hyprland/
-    └── i3/
+    └── plasma_custom_wm/
 ```
 
-The legacy roles `arch_packages`, `aur_packages`, and `darwin_packages` have
-been deleted. Their behavior is fully replaced by the four-layer model below.
+Notes on the layout:
+
+- The inventory is flat. There is no `inventories/personal/` wrapper layer.
+  `ansible.cfg` points `inventory = hosts.yml`, so commands omit `-i` by
+  default when run from the `ansible/` directory.
+- Inventory hierarchy is just `all → linux → arch` and `all → darwin`.
+  Desktop profiles (hyprland, i3) and feature buckets (gaming) are **not**
+  inventory groups; they are declared per-host in
+  `host_vars/<hostname>.yml` via the `profiles:` list and resolved against
+  `profile_apps` in `group_vars/all/profiles.yml`. Single source of truth
+  per host.
+- Legacy roles `arch_packages`, `aur_packages`, `darwin_packages`, and the
+  empty `hyprland`/`i3` profile-hook roles have been deleted. Their
+  behavior is fully replaced by the four-layer model below.
 
 ## Package Architecture
 
@@ -79,25 +84,44 @@ Layer 4: Providers        roles/provider_{pacman,aur,brew,cask}
 
 ### Layer 1: Intent
 
-One list per inventory group, in `group_vars/<group>.yml`:
+Two sources of intent feed the orchestrator:
 
-| Group     | Var             |
-|-----------|-----------------|
-| `linux`   | `linux_apps`    |
-| `arch`    | `arch_apps`     |
-| `darwin`  | `darwin_apps`   |
-| `hyprland`| `hyprland_apps` |
-| `i3`      | `i3_apps`       |
-| `gaming`  | `gaming_apps`   |
+1. **OS-family lists** in `group_vars/<os>.yml`:
 
-These are pure lists of logical app names. They know nothing about pacman,
-AUR, brew, or cask. Gaming packages install only when `gaming_enabled: true`
-is set per host.
+   | Group    | Var           | File                  |
+   |----------|---------------|-----------------------|
+   | `arch`   | `arch_apps`   | `group_vars/arch.yml` |
+   | `darwin` | `darwin_apps` | `group_vars/darwin.yml` |
+
+2. **Profile bundles** in `group_vars/all/profiles.yml`:
+
+   ```yaml
+   profile_apps:
+     hyprland: [waybar-git, hyprland, hyprlock, ...]
+     i3:       [i3-wm, picom, polybar, ...]
+     gaming:   [steam, lutris, umu-launcher]
+   ```
+
+   A host opts into profiles by listing them in `host_vars/<hostname>.yml`:
+
+   ```yaml
+   profiles:
+     - hyprland
+     - gaming
+   ```
+
+   Profiles are NOT inventory groups; declaring them in host_vars is the
+   single source of truth. The dispatcher unions `arch_apps` (or
+   `darwin_apps`) with the lists pulled from `profile_apps` for every
+   profile the host opts into.
+
+All four sources are pure lists of logical app names. They know nothing
+about pacman, AUR, brew, or cask.
 
 ### Layer 2: Catalog
 
-`inventories/personal/group_vars/all/package_catalog.yml` maps logical app
-names to concrete per-OS install instructions.
+`group_vars/all/package_catalog.yml` maps logical app names to concrete
+per-OS install instructions.
 
 Schema:
 
@@ -148,9 +172,10 @@ products, opencode-bin, sublime-text-4, ...), and gaming entries
 1. Compute `packages_target_os` (`arch`|`darwin`) from
    `ansible_facts['os_family']`.
 2. Compute `packages_default_provider` (`pacman`|`brew`) from the OS.
-3. Aggregate `<group>_apps` lists from every inventory group the host is in,
-   using explicit `group_names` membership checks (not just var presence)
-   so a host in `arch` but not `hyprland` does not pick up Hyprland apps.
+3. Aggregate logical app names: the OS-family list (`arch_apps` or
+   `darwin_apps`, gated by `group_names` membership) unioned with each
+   `profile_apps[<name>]` for every entry in the host's `profiles:` list.
+   Unknown profile names are silently ignored via `extract(..., default=[])`.
 4. Resolve the aggregated list through the catalog via the `resolve_catalog`
    filter, producing `packages_resolved = {provider: [pkg, ...]}`.
 5. Dispatch dynamically: iterate `dict2items(packages_resolved)` and
@@ -185,16 +210,23 @@ and install via the same module (with multilib enabled in
 
 ## Adding a New App
 
-1. Add the logical name to the relevant `<group>_apps` list.
+1. Pick the right intent bucket and add the logical name there:
+   - OS-wide on every Arch host: `group_vars/arch.yml` (`arch_apps`).
+   - OS-wide on every macOS host: `group_vars/darwin.yml` (`darwin_apps`).
+   - Tied to a desktop or feature profile: the relevant key under
+     `profile_apps` in `group_vars/all/profiles.yml`.
 2. If the app is cross-OS, or needs a non-default provider on Arch (AUR),
    add a catalog entry. Otherwise it falls through to the default provider
    for the OS and needs no catalog entry.
 3. Verify the resolution:
 
    ```sh
-   ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml \
+   ansible-playbook playbooks/site.yml \
      --limit <host> --check --diff --tags packages
    ```
+
+   (Inventory is read from `hosts.yml` by default per `ansible.cfg`; pass
+   `-i hosts.yml` if you want to be explicit.)
 
 ## Adding a New Provider
 
@@ -214,18 +246,24 @@ The Mac host slot is scaffolded but not activated. To bring a Mac online:
 
 1. Rename `host_vars/mac-placeholder.yml` to `host_vars/<your-hostname>.yml`.
 2. Fill in the TODO fields in that file (`primary_user`, etc.). See the
-   comments in the file for the full checklist.
-3. In `inventories/personal/hosts.yml`, uncomment the `mac-placeholder`
-   block under the `darwin` group and replace it with your hostname.
+   comments in the file for the full checklist. The expected schema is the
+   same unprefixed data keys (`email`, `profile`, `osid`, `gpu`,
+   `profiles: []`) the chezmoi role reads directly.
+3. In `hosts.yml`, uncomment the host entry under the `darwin` group and
+   replace `mac-placeholder` with your hostname.
 4. If on an Intel Mac, set `provider_brew_path: /usr/local/bin/brew` and
    `provider_cask_brew_path: /usr/local/bin/brew` in host_vars.
 5. Optionally trim `darwin_apps` in `group_vars/darwin.yml` to taste.
 6. Dry-run first:
 
    ```sh
-   ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml \
+   ansible-playbook playbooks/site.yml \
      --limit <your-hostname> --check --diff --tags packages
    ```
+
+The full Mac bootstrap flow (Homebrew install, ansible-core via brew,
+first-run checklist) is tracked separately by `chezmoi-qxl` and will be
+filled in when a real MacBook is onboarded.
 
 ## Tags
 
@@ -240,50 +278,62 @@ The Mac host slot is scaffolded but not activated. To bring a Mac online:
 | `darwin`   | All darwin-OS package work.                          |
 | `upgrade`  | `pacman -Syu` task in `provider_pacman`.             |
 | `dotfiles` | Chezmoi render + apply.                              |
-| `system`   | sudoers, fish, docker, kanata, plasma.               |
-| `desktop`  | Hyprland, i3 profile hooks.                          |
+| `chezmoi`  | Alias for the chezmoi role play (same as `dotfiles`).|
+| `system`   | sudoers, fish, docker, kanata, plasma (umbrella).    |
+| `sudoers`  | sudoers drop-in only.                                |
+| `fish`     | Fish login shell role only.                          |
+| `docker`   | Docker role only.                                    |
+| `kanata`   | Kanata role only.                                    |
+| `plasma`   | plasma_custom_wm role only.                          |
 
 ## Usage
+
+`ansible.cfg` sets `inventory = hosts.yml`, so `-i` can be omitted when
+running from the `ansible/` directory.
 
 ```sh
 cd ansible
 
 # Full provisioning run.
-ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml \
-  --limit alfred --ask-become-pass
+ansible-playbook playbooks/site.yml --limit alfred --ask-become-pass
 
 # Just packages, any OS.
-ansible-playbook ... --tags packages
+ansible-playbook playbooks/site.yml --limit alfred --tags packages --ask-become-pass
 
 # Just AUR.
-ansible-playbook ... --tags aur
+ansible-playbook playbooks/site.yml --limit alfred --tags aur --ask-become-pass
 
 # Just dotfiles.
-ansible-playbook -i inventories/personal/hosts.yml playbooks/dotfiles.yml \
-  --limit alfred
+ansible-playbook playbooks/dotfiles.yml --limit alfred
 ```
 
 Syntax check:
 
 ```sh
-ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml --syntax-check
-ansible-playbook -i inventories/personal/hosts.yml playbooks/dotfiles.yml --syntax-check
+ansible-playbook playbooks/site.yml --syntax-check
+ansible-playbook playbooks/dotfiles.yml --syntax-check
 ```
 
 ## Status
 
-| Issue          | Status | Description                                                  |
-|----------------|--------|--------------------------------------------------------------|
-| `chezmoi-g19`  | done   | chezmoi role renders chezmoi.toml and runs `chezmoi apply`.  |
-| `chezmoi-fwb`  | done   | Package data migrated into group vars.                       |
-| `chezmoi-a2q`  | done   | Legacy `arch_packages` + `aur_packages`.                     |
-| `chezmoi-c7u`  | done   | hyprland, i3 desktop profile roles.                          |
-| `chezmoi-hoz`  | done   | fish, docker, kanata, plasma_custom_wm.                      |
-| `chezmoi-7tw`  | done   | Legacy `darwin_packages`.                                    |
-| `chezmoi-97d`  | active | SOLID four-layer package refactor (epic).                    |
-| `chezmoi-ci1`  | done   | Phase 1: filter_plugins/catalog.py + tests.                  |
-| `chezmoi-80i`  | done   | Phase 2: provider_* roles + roles/packages dispatcher.       |
-| `chezmoi-88b`  | done   | Phase 3: migrate alfred (pacman=113, aur=39, zero diff).     |
-| `chezmoi-vkr`  | active | Phase 5: documentation (this README + role READMEs).         |
+| Issue          | Status     | Description                                                  |
+|----------------|------------|--------------------------------------------------------------|
+| `chezmoi-g19`  | done       | chezmoi role renders chezmoi.toml and runs `chezmoi apply`.  |
+| `chezmoi-fwb`  | done       | Package data migrated into group vars.                       |
+| `chezmoi-a2q`  | done       | Legacy `arch_packages` + `aur_packages`.                     |
+| `chezmoi-c7u`  | done       | hyprland, i3 desktop profile role hooks (since removed).     |
+| `chezmoi-hoz`  | done       | fish, docker, kanata, plasma_custom_wm.                      |
+| `chezmoi-7tw`  | superseded | Legacy `darwin_packages`; replaced by chezmoi-97d SOLID.     |
+| `chezmoi-97d`  | done       | SOLID four-layer package refactor (epic).                    |
+| `chezmoi-ci1`  | done       | Phase 1: filter_plugins/catalog.py + tests.                  |
+| `chezmoi-80i`  | done       | Phase 2: provider_* roles + roles/packages dispatcher.       |
+| `chezmoi-88b`  | done       | Phase 3: migrate alfred (pacman=113, aur=39, zero diff).     |
+| `chezmoi-vkr`  | done       | Phase 5: documentation (this README + role READMEs).         |
+| `chezmoi-boe`  | active     | Epic: flat inventory + profile-list simplification.          |
+| `chezmoi-87v`  | done       | Phase 1: flatten inventory (drop `inventories/personal/`).   |
+| `chezmoi-ut9`  | done       | Phase 2: profiles list in host_vars + profile_apps dict.     |
+| `chezmoi-6l2`  | done       | Phase 3: unprefix host_vars data keys (email/profile/...).   |
+| `chezmoi-71g`  | done       | Phase 4: drop dead vars (gpu_vendor, window_managers).       |
+| `chezmoi-wh5`  | active     | Phase 5: refresh documentation for the simplified layout.    |
 
 Add more groups or roles only when they gate real behavior.

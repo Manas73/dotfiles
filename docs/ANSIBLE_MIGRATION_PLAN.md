@@ -1,5 +1,23 @@
 # Ansible Migration Plan
 
+> **Historical document.** This plan describes the original Chezmoi → Ansible
+> split and how the package architecture evolved. The migration is complete:
+>
+> - `chezmoi-fwb` — package data moved into `group_vars/`.
+> - `chezmoi-a2q` — legacy `arch_packages` / `aur_packages` roles retired.
+> - `chezmoi-7tw` — legacy `darwin_packages` plan; **superseded** by
+>   `chezmoi-97d`, which folded darwin into the unified four-layer model
+>   alongside arch.
+> - `chezmoi-97d` — SOLID four-layer package refactor
+>   (Intent → Catalog → Dispatcher → Providers).
+> - `chezmoi-boe` — inventory simplification: flat `ansible/hosts.yml`,
+>   profile membership via host_vars `profiles:` list (not inventory
+>   groups), unprefixed chezmoi data keys, removal of dead vars.
+>
+> For the **current** architecture and how-to, see `ansible/README.md` and
+> `docs/ONBOARDING.md`. The sections below reflect the plan as written,
+> not necessarily the present-day layout.
+
 ## Goal
 
 Split this repository into two clear responsibilities:
@@ -263,10 +281,12 @@ Boundary and inventory checks:
 chezmoi managed | grep -E '^(ansible|docs|bootstrap)/' && echo FAIL || echo OK
 
 # Inventory resolves to the expected groups and hosts. Run from `ansible/`
-# so `ansible.cfg`'s relative paths resolve.
+# so `ansible.cfg`'s relative paths resolve. The current layout uses a flat
+# `ansible/hosts.yml` (no `inventories/personal/` wrapper); `ansible.cfg`
+# sets `inventory = hosts.yml` so `-i` can be omitted.
 cd ~/.local/share/chezmoi/ansible
-ansible-inventory -i inventories/personal/hosts.yml --graph
-ansible-inventory -i inventories/personal/hosts.yml --host "$(hostname)"
+ansible-inventory --graph
+ansible-inventory --host "$(hostname)"
 ```
 
 Playbook checks (run from `ansible/` so `ansible.cfg`'s `roles_path` resolves):
@@ -274,12 +294,12 @@ Playbook checks (run from `ansible/` so `ansible.cfg`'s `roles_path` resolves):
 ```sh
 cd ~/.local/share/chezmoi/ansible
 
-ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml --syntax-check
-ansible-playbook -i inventories/personal/hosts.yml playbooks/dotfiles.yml --syntax-check
+ansible-playbook playbooks/site.yml --syntax-check
+ansible-playbook playbooks/dotfiles.yml --syntax-check
 
 # Dry-run. Without --ask-become-pass the sudo-gated tasks stop early, which
 # is fine for validating structure and non-become tasks.
-ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml \
+ansible-playbook playbooks/site.yml \
     --check --diff --limit "$(hostname)" --ask-become-pass
 ```
 
@@ -311,4 +331,7 @@ Long-term invariant: `chezmoi apply` should not require sudo and should not inst
 
 ## Open Decisions
 
-- Whether macOS Docker uses Homebrew cask, Docker Desktop, or is skipped. (Decide when the MacBook arrives.)
+- Whether macOS Docker uses Homebrew cask, Docker Desktop, or is skipped.
+  Current resolution: **deferred**. Nothing is installed on Mac today; the
+  decision is folded into `chezmoi-qxl` (Mac bootstrap docs) and will be
+  made when a real MacBook is onboarded.

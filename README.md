@@ -51,16 +51,21 @@ ansible-galaxy install -r ansible/requirements.yml
 # Run the full site playbook against this host.
 cd ansible
 
-ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml \
+ansible-playbook playbooks/site.yml \
     --limit "$(hostname)" --ask-become-pass
 ```
 
+(`ansible.cfg` sets `inventory = hosts.yml`, so `-i` is not required when
+running from the `ansible/` directory.)
+
 The site playbook:
 
-1. Installs pacman, multilib, and AUR packages (bootstraps `yay` if missing).
+1. Installs OS packages through the four-layer package orchestrator. Pacman
+   and AUR on Arch; Homebrew formulae and casks on macOS. `yay` is
+   bootstrapped automatically on Arch; the official Homebrew installer
+   runs on first Mac use.
 2. Renders `~/.config/chezmoi/chezmoi.toml` from inventory vars and runs `chezmoi apply`.
 3. Applies system setup: Fish login shell, Docker group/socket, Kanata udev + user service, Plasma custom-WM wiring.
-4. Composes the Hyprland and i3 desktop profile hooks for hosts in those groups.
 
 Notes:
 
@@ -75,8 +80,7 @@ On a machine already provisioned (or one you don't plan to fully provision), app
 ```sh
 cd ~/.local/share/chezmoi/ansible
 
-ansible-playbook -i inventories/personal/hosts.yml playbooks/dotfiles.yml \
-    --limit "$(hostname)"
+ansible-playbook playbooks/dotfiles.yml --limit "$(hostname)"
 ```
 
 Or, if the host isn't in Ansible inventory yet:
@@ -93,12 +97,28 @@ Chezmoi will prompt for commit email, profile, WM choices, and GPU vendor (these
 
 | Tag | What runs |
 |---|---|
-| `packages` | pacman + multilib via `arch_packages` |
-| `aur` | AUR via `aur_packages` |
-| `dotfiles` | `chezmoi` role only |
-| `system` | fish, docker, kanata, plasma_custom_wm (gated by host feature flags) |
-| `desktop` | hyprland and i3 profile hooks |
-| `upgrade` | `pacman -Syu` (only when you explicitly want a full upgrade) |
+| `packages` | The four-layer package orchestrator (`roles/packages`) and every provider it dispatches to. |
+| `pacman` / `aur` / `brew` / `cask` | A single provider role only (`roles/provider_*`). |
+| `arch` / `darwin` | All package work for the matching OS. |
+| `dotfiles` / `chezmoi` | `chezmoi` role only (render `chezmoi.toml` + `chezmoi apply`). |
+| `system` | fish, docker, kanata, plasma_custom_wm (gated by host feature flags). Sub-tags: `sudoers`, `fish`, `docker`, `kanata`, `plasma`. |
+| `upgrade` | `pacman -Syu` (only when you explicitly want a full upgrade). |
+
+Package architecture (four layers, in dependency order):
+
+1. **Intent** — `arch_apps` / `darwin_apps` in `group_vars/<os>.yml` plus
+   `profile_apps` in `group_vars/all/profiles.yml`. Hosts opt into
+   profiles via a `profiles:` list in their host_vars.
+2. **Catalog** — `group_vars/all/package_catalog.yml` maps logical app
+   names to per-OS install instructions (provider + concrete packages).
+3. **Dispatcher** — `roles/packages` aggregates intent, resolves through
+   the catalog, and includes the matching provider role per bucket.
+4. **Providers** — one `roles/provider_<name>/` per package manager
+   (`pacman`, `aur`, `brew`, `cask`). Adding a provider requires no edits
+   to the dispatcher.
+
+See `ansible/README.md` for the full description and the rules for adding
+apps, profiles, or providers.
 
 Examples:
 
@@ -121,17 +141,16 @@ export LC_ALL=C.UTF-8 LANG=C.UTF-8
 cd ~/.local/share/chezmoi/ansible
 
 # Playbook syntax.
-ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml --syntax-check
-ansible-playbook -i inventories/personal/hosts.yml playbooks/dotfiles.yml --syntax-check
+ansible-playbook playbooks/site.yml --syntax-check
+ansible-playbook playbooks/dotfiles.yml --syntax-check
 
 # Inventory resolves as expected (hosts, groups, merged vars).
-ansible-inventory -i inventories/personal/hosts.yml --graph
-ansible-inventory -i inventories/personal/hosts.yml --host "$(hostname)"
+ansible-inventory --graph
+ansible-inventory --host "$(hostname)"
 
 # Dry-run. Skips sudo-gated tasks if --ask-become-pass is omitted, which is
 # useful for quickly exercising the playbook structure.
-ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml \
-    --limit "$(hostname)" --check --diff
+ansible-playbook playbooks/site.yml --limit "$(hostname)" --check --diff
 
 # Chezmoi side.
 chezmoi diff                                    # pending dotfile changes
@@ -152,7 +171,7 @@ chezmoi managed | grep -E '^(ansible|docs|bootstrap)/' && echo FAIL \
 │   ├── .chezmoi.toml.tmpl   manual-fallback Chezmoi config
 │   ├── .chezmoiignore       paths under chezmoi/ that Chezmoi must skip
 │   └── .chezmoiscripts/     Chezmoi-specific scripts (age decrypt only)
-├── ansible/                 provisioning (inventories, playbooks, roles)
+├── ansible/                 provisioning (hosts.yml, group_vars, host_vars, playbooks, roles)
 └── docs/                    architecture plan and onboarding docs
 ```
 
