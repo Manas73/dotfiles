@@ -148,7 +148,7 @@ package_catalog:
     arch:   { provider: pacman, packages: [vlc, vlc-plugins-all] }
     darwin: { provider: cask,   packages: [vlc] }
 
-  waybar-git:
+  waybar:
     arch: { provider: aur, packages: [waybar-git] }
 
   webstorm:

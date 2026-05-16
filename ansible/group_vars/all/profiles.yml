@@ -24,46 +24,39 @@ profile_apps:
   # Opt in by adding `cli` to `profiles:` in host_vars. Intended baseline
   # for any developer machine regardless of OS.
   cli:
-    # Shell experience and terminal navigation.
     - atuin
     - bat
     - btop
+    - bun
+    - chezmoi
     - eza
     - fastfetch
     - fd
     - fish
     - fzf
+    - gcc
     - ghq
+    - git
+    - git-filter-repo
+    - gnupg
+    - go
+    - hugo
+    - jq
+    - lazydocker
+    - lazygit
     - moreutils
+    - neovim
+    - pre-commit
+    - python
     - starship
     - television
+    - uv
     - yazi
     - zellij
     - zoxide
 
-    # Editors, version control, secrets, JSON.
-    - chezmoi
-    - git
-    - git-filter-repo
-    - gnupg
-    - jq
-    - lazydocker            # catalog -> provider: aur on arch
-    - lazygit
-    - neovim
-    - pre-commit
-
-    # Languages and runtimes.
-    - bun
-    - gcc
-    - go
-    - hugo
-    - python
-    - uv
-
   hyprland:
-    # AUR (catalog routes to provider: aur).
-    - waybar-git
-    # Pacman passthrough (no catalog entry needed).
+    - waybar
     - awww
     - copyq
     - hypridle
@@ -99,8 +92,6 @@ profile_apps:
     - xcb-util-cursor
 
   gaming:
-    # steam ships from the pacman multilib repo; catalog routes to
-    # provider: pacman (multilib is a repo, not a separate manager).
     - lutris
     - steam
     - umu-launcher
