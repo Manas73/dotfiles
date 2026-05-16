@@ -24,6 +24,7 @@ profile_apps:
     - fastfetch
     - fd
     - fish
+    - fresh-editor
     - fzf
     - gcc
     - ghq
@@ -55,7 +56,6 @@ profile_apps:
   development:
     - beads
     - datagrip
-    - fresh-editor
     - gitkraken
     - mysql
     - opencode
