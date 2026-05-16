@@ -119,7 +119,7 @@ package_catalog:
     darwin: { provider: cask, packages: [pycharm] }
 
   python:
-    arch:   { provider: pacman, packages: [python, uv] }
+    arch:   { provider: pacman, packages: [python, python-black, python-gpgme, python-pip, python-poetry, python-virtualenv, uv] }
     darwin: { provider: brew,   packages: [python, uv] }
 
   python-screeninfo:
