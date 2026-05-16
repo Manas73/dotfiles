@@ -51,7 +51,6 @@ profile_apps:
     - python
     - starship
     - television
-    - uv
     - yazi
     - zellij
     - zoxide

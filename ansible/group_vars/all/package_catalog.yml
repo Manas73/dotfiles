@@ -118,6 +118,10 @@ package_catalog:
     arch:   { provider: aur,  packages: [pycharm, pycharm-jre] }
     darwin: { provider: cask, packages: [pycharm] }
 
+  python:
+    arch:   { provider: pacman, packages: [python, uv] }
+    darwin: { provider: brew,   packages: [python, uv] }
+
   python-screeninfo:
     arch: { provider: aur, packages: [python-screeninfo] }
 
