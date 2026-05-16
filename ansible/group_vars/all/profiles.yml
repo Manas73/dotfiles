@@ -133,3 +133,13 @@ profile_apps:
     - kcharselect
     - plasma-x11-session
     - plasma5-integration
+
+  virtualization:
+    - dnsmasq
+    - edk2-ovmf
+    - iptables-nft
+    - libvirt
+    - qemu-desktop
+    - swtpm
+    - virt-manager
+    - virt-viewer
