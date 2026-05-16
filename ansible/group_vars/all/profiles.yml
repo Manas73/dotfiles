@@ -57,6 +57,7 @@ profile_apps:
     - datagrip
     - fresh-editor
     - gitkraken
+    - mysql
     - opencode
     - postman
     - pycharm

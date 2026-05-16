@@ -20,35 +20,23 @@ arch_apps:
   # Cross-OS apps & bundles (catalog handles routing per OS).
   # ----------------------------------------------------------------
   - "1password"
+  - bazecor
   - docker
   - dropbox
   - firefox
   - google-chrome
+  - kanata
+  - masterpdfeditor
+  - rambox
   - slack
   - vivaldi
   - vlc
   - zoom
-
   # ----------------------------------------------------------------
-  # Arch-only AUR (catalog routes via provider: aur).
-  # ----------------------------------------------------------------
-  - bazecor
-  - epson-inkjet-printer-escpr2
-  - kanata
-  - masterpdfeditor
-  - mysql
-  - onlyoffice
-  - pacseek
-  - python-screeninfo
-  - rambox
-  - redshift
-  - selectdefaultapplication
-
-  # ----------------------------------------------------------------
-  # Arch-only pacman (no catalog entry -> default provider: pacman).
-  # Linux desktop / system bits that have no cross-platform analogue.
+  # Arch-only
   # ----------------------------------------------------------------
   - alacritty
+  - epson-inkjet-printer-escpr2
   - flameshot
   - gparted
   - headsetcontrol
@@ -60,7 +48,12 @@ arch_apps:
   - networkmanager
   - nm-connection-editor
   - nvtop
+  - onlyoffice
+  - pacseek
   - playerctl
   - psmisc
+  - python-screeninfo
+  - redshift
+  - selectdefaultapplication
   - solaar
   - xdg-desktop-portal-gtk
