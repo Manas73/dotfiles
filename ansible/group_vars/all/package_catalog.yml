@@ -120,7 +120,7 @@ package_catalog:
 
   python:
     arch:   { provider: pacman, packages: [python, python-black, python-gpgme, python-pip, python-poetry, python-virtualenv, uv] }
-    darwin: { provider: brew,   packages: [python, uv] }
+    darwin: { provider: brew,   packages: [black, python, uv] }
 
   python-screeninfo:
     arch: { provider: aur, packages: [python-screeninfo] }
