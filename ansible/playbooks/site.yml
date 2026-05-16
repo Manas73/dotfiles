@@ -15,7 +15,7 @@
 #   Providers    roles/provider_{pacman,aur,brew,cask}
 #
 # Run examples:
-#   ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml --limit alfred --ask-become-pass
+#   ansible-playbook -i hosts.yml playbooks/site.yml --limit alfred --ask-become-pass
 #   ansible-playbook ... --tags packages           # all packages, any OS
 #   ansible-playbook ... --tags aur                # arch AUR only
 #   ansible-playbook ... --tags brew               # darwin brew only
