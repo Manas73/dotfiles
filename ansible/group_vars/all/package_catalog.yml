@@ -30,11 +30,8 @@ package_catalog:
     darwin: { provider: brew, packages: [cloud-sql-proxy] }
 
   datagrip:
-    arch: { provider: aur, packages: [datagrip] }
+    arch:   { provider: aur,  packages: [datagrip, datagrip-jre] }
     darwin: { provider: cask, packages: [datagrip] }
-
-  datagrip-jre:
-    arch: { provider: aur, packages: [datagrip-jre] }
 
   docker:
     includes:
@@ -115,7 +112,7 @@ package_catalog:
     darwin: { provider: cask, packages: [postman] }
 
   pycharm:
-    arch: { provider: aur, packages: [pycharm] }
+    arch:   { provider: aur,  packages: [pycharm, pycharm-jre] }
     darwin: { provider: cask, packages: [pycharm] }
 
   python-screeninfo:
@@ -172,11 +169,8 @@ package_catalog:
     arch: { provider: aur, packages: [waybar-git] }
 
   webstorm:
-    arch: { provider: aur, packages: [webstorm] }
+    arch:   { provider: aur,  packages: [webstorm, webstorm-jre] }
     darwin: { provider: cask, packages: [webstorm] }
-
-  webstorm-jre:
-    arch: { provider: aur, packages: [webstorm-jre] }
 
   zoom:
     arch:   { provider: aur,  packages: [zoom] }

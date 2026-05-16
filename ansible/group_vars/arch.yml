@@ -34,7 +34,6 @@ arch_apps:
   - beads
   - cloud-sql-proxy
   - datagrip
-  - datagrip-jre
   - epson-inkjet-printer-escpr2
   - fresh-editor
   - gitkraken
@@ -58,7 +57,6 @@ arch_apps:
   - ttf-ms-fonts
   - ttf-vista-fonts
   - webstorm
-  - webstorm-jre
 
   # ----------------------------------------------------------------
   # Arch-only pacman (no catalog entry -> default provider: pacman).
