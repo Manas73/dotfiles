@@ -1,7 +1,8 @@
 # Role: provider_aur
 
-Layer 4 provider for the Arch User Repository (yay). Replaces the legacy
-`aur_packages` role.
+Layer 4 provider for the Arch User Repository (yay). Invoked by the
+`packages` orchestrator with a resolved list of concrete AUR package
+names; does no catalog resolution or intent aggregation itself.
 
 ## Liskov contract
 

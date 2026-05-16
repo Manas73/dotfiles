@@ -4,7 +4,7 @@ Configures Docker so the primary user can run it without sudo.
 
 ## Responsibilities
 
-- Verify `docker` is installed (package install happens in `arch_packages`).
+- Verify `docker` is installed (package install happens in the `packages` orchestrator, which resolves the `docker` catalog bundle to `provider_pacman`).
 - Ensure the `docker` group exists.
 - Add `primary_user` to the `docker` group.
 - Enable `docker.socket` (socket-activated Docker starts on demand).

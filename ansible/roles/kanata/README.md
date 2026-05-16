@@ -4,7 +4,7 @@ Sets up the Kanata keyboard remapper on Linux hosts.
 
 ## Responsibilities
 
-- Verify `kanata` is installed (via `aur_packages`).
+- Verify `kanata` is installed (installed by the `packages` orchestrator, which dispatches `kanata-bin` to `provider_aur` via the catalog).
 - Ensure the `uinput` group exists.
 - Add `primary_user` to `input` and `uinput`.
 - Install `/etc/udev/rules.d/99-input.rules` and reload udev.

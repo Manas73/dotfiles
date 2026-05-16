@@ -2,9 +2,10 @@
 # fish role.
 #
 # Ensures Fish is the login shell for the primary user. Fish itself is
-# installed by the package roles (arch_packages on Arch, darwin_packages
-# on macOS). This role does not own Fish configuration; ~/.config/fish
-# stays with Chezmoi.
+# installed by the `packages` orchestrator: intent `fish` in arch_apps /
+# darwin_apps is resolved through the catalog and dispatched to
+# provider_pacman on Arch or provider_brew on macOS. This role does not
+# own Fish configuration; ~/.config/fish stays with Chezmoi.
 
 - name: Locate the fish binary
   ansible.builtin.shell: command -v fish
@@ -16,8 +17,9 @@
 - name: Fail fast if fish is not installed
   ansible.builtin.fail:
     msg: >-
-      fish is not installed on this host. Install it via the relevant
-      package role (arch_packages on Arch, darwin_packages on macOS)
+      fish is not installed on this host. Install it via the `packages`
+      role (intent `fish` in arch_apps / darwin_apps, dispatched through
+      the catalog to provider_pacman on Arch or provider_brew on macOS)
       before running the fish role.
   when: fish_binary.rc != 0
 

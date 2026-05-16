@@ -5,8 +5,9 @@
 # docker group, adds the user to it, and enables docker.socket.
 #
 # Gated by docker_enabled (default: false; set true in host_vars).
-# Docker itself is installed by arch_packages (the `docker` package is
-# in arch_pacman_packages).
+# Docker itself is installed by the `packages` orchestrator: `docker` is
+# listed as intent in arch_apps, resolved through the catalog as a bundle
+# (docker-engine + buildx + compose), and dispatched to provider_pacman.
 #
 # macOS handling is intentionally a no-op for now; Docker Desktop or a
 # Homebrew cask will be wired in when the MacBook onboards.
@@ -25,8 +26,9 @@
 - name: Fail fast if docker is not installed
   ansible.builtin.fail:
     msg: >-
-      docker is not installed. On Arch it is installed by arch_packages
-      (the `docker` package). Install it before running the docker role.
+      docker is not installed. On Arch it is installed by the `packages`
+      role (intent `docker` in arch_apps, dispatched to provider_pacman
+      via the catalog). Run the `packages` role before the docker role.
   when: docker_binary.rc != 0
 
 - name: Ensure the docker group exists

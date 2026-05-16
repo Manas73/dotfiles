@@ -8,8 +8,9 @@
 #   - Installs a systemd user service that launches kanata on session start.
 #
 # Gated by kanata_enabled (default: false; set true in host_vars).
-# Kanata itself is installed by aur_packages (kanata-bin is in
-# arch_aur_packages).
+# Kanata itself is installed by the `packages` orchestrator: `kanata-bin`
+# is listed as intent (e.g. in a profile under profiles/) and routed
+# through the catalog to provider_aur.
 
 - name: Skip kanata role on non-Linux hosts
   ansible.builtin.meta: end_host
@@ -25,8 +26,10 @@
 - name: Fail fast if kanata is not installed
   ansible.builtin.fail:
     msg: >-
-      kanata is not installed. On Arch it is installed by aur_packages
-      (kanata-bin). Install it before running the kanata role.
+      kanata is not installed. On Arch it is installed by the `packages`
+      role (intent `kanata-bin` resolved through the catalog and
+      dispatched to provider_aur). Run the `packages` role before the
+      kanata role.
   when: kanata_binary.rc != 0
 
 - name: Ensure the uinput group exists

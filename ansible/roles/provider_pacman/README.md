@@ -1,8 +1,9 @@
 # Role: provider_pacman
 
 Layer 4 provider for pacman (Arch/Garuda). Installs packages from the
-official and multilib repos via `community.general.pacman`. Replaces the
-legacy `arch_packages` role.
+official and multilib repos via `community.general.pacman`. Invoked by
+the `packages` orchestrator with a resolved list of concrete pacman
+package names; does no catalog resolution or intent aggregation itself.
 
 ## Liskov contract (uniform across providers)
 

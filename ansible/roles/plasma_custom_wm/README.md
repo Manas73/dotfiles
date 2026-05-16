@@ -18,7 +18,7 @@ When `plasma_window_manager` is `kwin` or empty:
 
 ## Does Not
 
-- Install the selected window manager (handled by `arch_packages`/desktop roles).
+- Install the selected window manager (handled by the `packages` orchestrator via profile intent in `profile_apps`, dispatched through the catalog to `provider_pacman`/`provider_aur`).
 - Manage Plasma dotfiles (Chezmoi owns them).
 
 ## Inputs

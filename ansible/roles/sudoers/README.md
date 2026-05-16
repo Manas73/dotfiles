@@ -31,11 +31,11 @@ sudo: a terminal is required to read the password
  -> error installing repo packages
 ```
 
-A `NOPASSWD` rule scoped to `pacman` is the conventional fix. The `aur_packages` role's `yay` task is not marked `become: true` because `yay` and `makepkg` refuse to run as root; the grant here is what makes that design work.
+A `NOPASSWD` rule scoped to `pacman` is the conventional fix. The `provider_aur` role's `yay` task is not marked `become: true` because `yay` and `makepkg` refuse to run as root; the grant here is what makes that design work.
 
 ## Example
 
-Played automatically by `site.yml` before `aur_packages`:
+Played automatically by `site.yml` before the `packages` orchestrator dispatches to `provider_aur`:
 
 ```sh
 ansible-playbook -i inventories/personal/hosts.yml playbooks/site.yml \

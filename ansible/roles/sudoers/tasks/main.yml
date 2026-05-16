@@ -2,7 +2,7 @@
 # sudoers role.
 #
 # Manages narrowly scoped /etc/sudoers.d/ drop-ins required by other roles.
-# Kept separate from aur_packages so the concern (privilege grants) is not
+# Kept separate from provider_aur so the concern (privilege grants) is not
 # coupled to the consumer (AUR installs).
 #
 # Current grants:

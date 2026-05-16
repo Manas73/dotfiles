@@ -4,7 +4,7 @@
 #   ansible-galaxy install -r ansible/requirements.yml
 #
 # Needed for:
-#   community.general.pacman  (arch_packages role)
+#   community.general.pacman  (provider_pacman role)
 
 collections:
   - name: community.general
