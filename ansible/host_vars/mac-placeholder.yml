@@ -24,6 +24,10 @@ chezmoi_email: "manas.sambare@gmail.com"
 chezmoi_profile: "personal"
 chezmoi_osid: "darwin"
 
+# Profile membership. macOS hosts typically have no desktops/gaming
+# profiles; populate if you adopt aerospace/yabai or similar later.
+profiles: []
+
 # Feature flags. macOS-default values; flip per machine.
 docker_enabled: false   # Docker Desktop on Mac is a separate install
 kanata_enabled: false   # Kanata on macOS needs different setup; defer

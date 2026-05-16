@@ -25,7 +25,14 @@ window_managers:
   - hyprland
 plasma_window_manager: "i3"
 
+# Profile membership. Single source of truth for which package profiles
+# this host opts into. Each name resolves against profile_apps in
+# group_vars/all/profiles.yml.
+profiles:
+  - i3
+  - hyprland
+  - gaming
+
 # Feature flags.
 docker_enabled: true
 kanata_enabled: true
-gaming_enabled: true

@@ -78,17 +78,3 @@
   roles:
     - role: plasma_custom_wm
       when: plasma_window_manager is defined
-
-- name: Apply Hyprland desktop profile
-  hosts: hyprland
-  gather_facts: true
-  tags: [desktop, hyprland]
-  roles:
-    - role: hyprland
-
-- name: Apply i3 desktop profile
-  hosts: i3
-  gather_facts: true
-  tags: [desktop, i3]
-  roles:
-    - role: i3

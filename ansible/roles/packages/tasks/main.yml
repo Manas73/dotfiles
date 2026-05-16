@@ -52,20 +52,20 @@
     quiet: true
   tags: [packages, always]
 
-- name: Aggregate logical app names from this host's groups
+- name: Aggregate logical app names from this host's OS group and profiles
   ansible.builtin.set_fact:
-    # Each <group>_apps list is included only when the host is actually
-    # in that inventory group, not merely because the file defining it
-    # is loaded. This is the same defensive pattern the legacy
-    # arch_packages role used; it prevents profile package leakage.
+    # OS-family <group>_apps lists are included only when the host is
+    # actually in that inventory group (defensive guard).
+    #
+    # Profile apps are pulled from group_vars/all/profiles.yml via the
+    # host_vars `profiles:` list. extract() with default [] silently skips
+    # unknown profile names. This replaces the prior per-profile inventory
+    # groups (hyprland, i3, gaming) and their group_names checks.
     packages_logical_apps: >-
       {{
-        (linux_apps    | default([]) if 'linux'    in group_names else [])
-        + (arch_apps     | default([]) if 'arch'     in group_names else [])
-        + (darwin_apps   | default([]) if 'darwin'   in group_names else [])
-        + (hyprland_apps | default([]) if 'hyprland' in group_names else [])
-        + (i3_apps       | default([]) if 'i3'       in group_names else [])
-        + (gaming_apps   | default([]) if (('gaming' in group_names) and (gaming_enabled | default(false) | bool)) else [])
+        (arch_apps   | default([]) if 'arch'   in group_names else [])
+        + (darwin_apps | default([]) if 'darwin' in group_names else [])
+        + ((profiles | default([])) | map('extract', profile_apps | default({}), []) | flatten)
       }}
   tags: [packages, always]
 
