@@ -15,6 +15,51 @@
 
 profile_apps:
 
+  # Cross-platform CLI tools and language runtimes. Every entry installs
+  # via default-provider passthrough on both OSes (pacman on arch, brew
+  # on darwin) under the same logical name -- with one catalog-routed
+  # exception, lazydocker, which routes to provider: aur on arch and
+  # falls through to brew on darwin.
+  #
+  # Opt in by adding `cli` to `profiles:` in host_vars. Intended baseline
+  # for any developer machine regardless of OS.
+  cli:
+    # Shell experience and terminal navigation.
+    - atuin
+    - bat
+    - btop
+    - eza
+    - fastfetch
+    - fd
+    - fish
+    - fzf
+    - ghq
+    - moreutils
+    - starship
+    - television
+    - yazi
+    - zellij
+    - zoxide
+
+    # Editors, version control, secrets, JSON.
+    - chezmoi
+    - git
+    - git-filter-repo
+    - gnupg
+    - jq
+    - lazydocker            # catalog -> provider: aur on arch
+    - lazygit
+    - neovim
+    - pre-commit
+
+    # Languages and runtimes.
+    - bun
+    - gcc
+    - go
+    - hugo
+    - python
+    - uv
+
   hyprland:
     # AUR (catalog routes to provider: aur).
     - waybar-git

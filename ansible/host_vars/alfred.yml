@@ -24,6 +24,7 @@ plasma_window_manager: "i3"
 # its `window_manager` data field by intersecting this list with known
 # desktop names.
 profiles:
+  - cli
   - i3
   - hyprland
   - gaming

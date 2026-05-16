@@ -5,13 +5,12 @@
 # application names. Resolved by roles/packages (orchestrator) against
 # group_vars/all/package_catalog.yml, then dispatched to provider_brew
 # or provider_cask. Names not in the catalog fall through to brew with
-# the same name verbatim (good enough for ~90% of CLI tools whose
-# logical name == brew formula name).
+# the same name verbatim (good enough for most CLI tools whose logical
+# name equals the brew formula name).
 #
-# Mirrors the cross-OS subset of alfred's arch_apps. Adjust per machine.
-#
-# Source of record: this file (replaces the prior darwin_brews /
-# darwin_casks variables).
+# Scope: macOS-specific apps only. Cross-platform CLI tools and
+# runtimes live in the `cli` profile (group_vars/all/profiles.yml);
+# Mac hosts opt in via `profiles: [..., cli]` in host_vars.
 
 darwin_apps:
   # ----------------------------------------------------------------
@@ -32,40 +31,11 @@ darwin_apps:
   - docker             # bundle -> docker-engine + buildx + compose (brew)
 
   # ----------------------------------------------------------------
-  # CLI tools that brew packages under the same name. Default-provider
-  # passthrough means we don't need a catalog entry; the resolver routes
-  # the logical name to `brew install <name>`. Verify formula names exist
-  # at https://formulae.brew.sh/ before adding to this list.
+  # macOS-only CLI passthroughs. The `cli` profile covers the
+  # cross-platform baseline (atuin, bat, fish, neovim, ...); list only
+  # darwin-specific names here.
   # ----------------------------------------------------------------
-  - atuin
-  - bat
-  - btop
-  - chezmoi
-  - eza
-  - fastfetch
-  - fd
-  - fish
-  - fzf
-  - ghq
-  - git
-  - git-filter-repo
-  - gnupg
-  - go
-  - hugo
-  - jq
-  - lazydocker
-  - lazygit
-  - moreutils
-  - neovim
-  - node                # brew formula is `node`, not `nodejs`
-  - pre-commit
-  - python              # brew alias for python3
-  - starship
-  - television
-  - uv
-  - yazi
-  - zellij
-  - zoxide
+  - node                # brew formula `node`; on Arch we use nodejs+npm
 
   # ----------------------------------------------------------------
   # macOS-only GUI apps via cask (will need catalog entries below).

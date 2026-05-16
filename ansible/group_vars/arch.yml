@@ -7,10 +7,9 @@
 # or provider_aur as the catalog dictates. Names not in the catalog fall
 # through to the default provider for arch (pacman).
 #
-# Profile-specific lists live in hyprland.yml, i3.yml, gaming.yml.
-#
-# Source of record: this file (replaces the prior arch_pacman_packages /
-# arch_aur_packages / arch_multilib_packages variables).
+# Scope: Arch-specific packages only. Cross-platform CLI tools and
+# runtimes live in the `cli` profile (group_vars/all/profiles.yml);
+# alfred opts in via `profiles: [..., cli]` in host_vars.
 
 arch_apps:
   # ----------------------------------------------------------------
@@ -41,7 +40,6 @@ arch_apps:
   - gitkraken
   - google-cloud-cli
   - kanata-bin
-  - lazydocker
   - masterpdfeditor
   - matugen-bin
   - mysql
@@ -64,41 +62,22 @@ arch_apps:
 
   # ----------------------------------------------------------------
   # Arch-only pacman (no catalog entry -> default provider: pacman).
-  # Includes base system tooling, fonts, plasma, networking, dev CLI.
+  # Linux desktop / system / fonts that have no cross-platform analogue
+  # or use a different package name on Mac. Cross-platform CLI tools
+  # moved to the `cli` profile.
   # ----------------------------------------------------------------
   - alacritty
-  - atuin
-  - bat
-  - btop
-  - bun
-  - chezmoi
   - dolphin
   - dolphin-plugins
-  - eza
-  - fastfetch
-  - fd
-  - fish
   - flameshot
-  - fzf
-  - gcc
-  - ghq
-  - git
-  - git-filter-repo
-  - gnupg
-  - go
   - gparted
   - gwenview
   - headsetcontrol
-  - hugo
-  - jq
   - kcharselect
   - kitty
-  - lazygit
   - libadwaita
   - libnotify
   - libreoffice-fresh
-  - moreutils
-  - neovim
   - network-manager-applet
   - networkmanager
   - nm-connection-editor
@@ -109,18 +88,14 @@ arch_apps:
   - plasma-x11-session
   - plasma5-integration
   - playerctl
-  - pre-commit
   - psmisc
-  - python
   - python-black
   - python-gpgme
   - python-pip
   - python-poetry
   - python-virtualenv
   - solaar
-  - starship
   - sxhkd
-  - television
   - ttf-dejavu
   - ttf-droid
   - ttf-fira-code
@@ -130,12 +105,8 @@ arch_apps:
   - ttf-nerd-fonts-symbols
   - ttf-nerd-fonts-symbols-common
   - ttf-noto-nerd
-  - uv
   - xclip
   - xdg-desktop-portal-gtk
   - xorg-xev
   - xorg-xkill
-  - yazi
   - zed
-  - zellij
-  - zoxide

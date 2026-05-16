@@ -32,7 +32,7 @@ ansible/
 │   ├── all/                     # directory form
 │   │   ├── main.yml             # chezmoi paths, ansible_connection, feature defaults
 │   │   ├── package_catalog.yml  # Layer 2: logical name -> per-OS install instructions
-│   │   └── profiles.yml         # Layer 1: profile_apps dict (hyprland/i3/gaming)
+│   │   └── profiles.yml         # Layer 1: profile_apps dict (cli/hyprland/i3/gaming)
 │   ├── arch.yml                 # arch_apps (Layer 1)
 │   └── darwin.yml               # darwin_apps (Layer 1)
 ├── host_vars/
@@ -97,15 +97,24 @@ Two sources of intent feed the orchestrator:
 
    ```yaml
    profile_apps:
+     cli:      [atuin, bat, fish, fzf, neovim, git, go, python, ...]
      hyprland: [waybar-git, hyprland, hyprlock, ...]
      i3:       [i3-wm, picom, polybar, ...]
      gaming:   [steam, lutris, umu-launcher]
    ```
 
+   The `cli` profile holds the cross-platform CLI and runtime baseline
+   (shell, navigation, editors, version control, languages) that should
+   exist on every developer machine regardless of OS. Every entry uses
+   default-provider passthrough on both Arch (pacman) and macOS (brew)
+   under the same logical name, with one catalog-routed exception
+   (`lazydocker` -> AUR on Arch, brew on macOS).
+
    A host opts into profiles by listing them in `host_vars/<hostname>.yml`:
 
    ```yaml
    profiles:
+     - cli
      - hyprland
      - gaming
    ```
