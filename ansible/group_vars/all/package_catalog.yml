@@ -172,6 +172,10 @@ package_catalog:
     arch:   { provider: aur,  packages: [webstorm, webstorm-jre] }
     darwin: { provider: cask, packages: [webstorm] }
 
+  zed:
+    arch: { provider: aur, packages: [zed] }
+    darwin: { provider: cask, packages: [zed] }
+
   zoom:
     arch:   { provider: aur,  packages: [zoom] }
     darwin: { provider: cask, packages: [zoom] }

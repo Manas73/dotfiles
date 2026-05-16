@@ -15,15 +15,15 @@ arch_apps:
   # ----------------------------------------------------------------
   # Cross-OS apps & bundles (catalog handles routing per OS).
   # ----------------------------------------------------------------
-  - "1password"        # catalog -> arch aur, darwin cask
-  - docker             # catalog bundle -> docker-engine + buildx + compose
-  - dropbox            # catalog -> arch aur, darwin cask
-  - firefox            # catalog -> arch pacman, darwin cask
-  - google-chrome      # catalog -> arch aur, darwin cask
-  - slack              # catalog -> arch aur (slack-desktop), darwin cask
-  - vivaldi            # catalog -> arch pacman (+ codecs), darwin cask
-  - vlc                # catalog -> arch pacman (+ plugins-all), darwin cask
-  - zoom               # catalog -> arch aur, darwin cask
+  - "1password"
+  - docker
+  - dropbox
+  - firefox
+  - google-chrome
+  - slack
+  - vivaldi
+  - vlc
+  - zoom
 
   # ----------------------------------------------------------------
   # Arch-only AUR (catalog routes via provider: aur).
@@ -57,6 +57,7 @@ arch_apps:
   - ttf-ms-fonts
   - ttf-vista-fonts
   - webstorm
+  - zed
 
   # ----------------------------------------------------------------
   # Arch-only pacman (no catalog entry -> default provider: pacman).
@@ -107,4 +108,3 @@ arch_apps:
   - xdg-desktop-portal-gtk
   - xorg-xev
   - xorg-xkill
-  - zed
