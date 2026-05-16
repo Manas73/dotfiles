@@ -4,27 +4,26 @@
 #
 # Onboarding checklist:
 #   1. Rename this file to match the inventory key in hosts.yml.
-#   2. Set ansible_host / ansible_connection appropriately. For a local
-#      bootstrap on the Mac itself, keep ansible_connection: local.
+#   2. Set ansible_host if running ansible from a different machine.
+#      ansible_connection: local is inherited from group_vars/all/main.yml
+#      for a bootstrap-on-the-Mac flow.
 #   3. Replace primary_user with your macOS username.
-#   4. Fill in chezmoi_* fields (mirror your alfred conventions).
+#   4. Fill in email / profile / osid for the chezmoi template.
 #   5. Override provider_brew_path if you're on Intel mac.
 #   6. Optional: trim darwin_apps in group_vars/darwin.yml to taste.
 
-# Connection. Default to local bootstrap so the first run can come from a
-# fresh `git clone`.
-ansible_connection: local
 ansible_python_interpreter: /usr/bin/python3
 
 # TODO: set this to your macOS username.
 primary_user: TODO
 
-# Chezmoi config for this host.
-chezmoi_email: "manas.sambare@gmail.com"
-chezmoi_profile: "personal"
-chezmoi_osid: "darwin"
+# Chezmoi inventory data.
+email: "manas.sambare@gmail.com"
+profile: "personal"
+osid: "darwin"
+gpu: "none"
 
-# Profile membership. macOS hosts typically have no desktops/gaming
+# Profile membership. macOS hosts typically have no desktop or gaming
 # profiles; populate if you adopt aerospace/yabai or similar later.
 profiles: []
 

@@ -20,7 +20,7 @@ Renders `~/.config/chezmoi/chezmoi.toml` from Ansible inventory vars and applies
 
 ## Inputs
 
-From `group_vars/all.yml`:
+From `group_vars/all/main.yml` (paths and age config, prefixed with `chezmoi_`):
 
 - `chezmoi_source_repo`
 - `chezmoi_repo_path` — git-clone root (contains `.chezmoiroot`, `ansible/`, `chezmoi/`, `docs/`).
@@ -29,15 +29,16 @@ From `group_vars/all.yml`:
 - `chezmoi_age_identity`
 - `chezmoi_age_recipient`
 
-From `host_vars/<hostname>.yml`:
+From `host_vars/<hostname>.yml` (inventory data, unprefixed):
 
 - `primary_user`
-- `chezmoi_email`
-- `chezmoi_profile`
-- `chezmoi_osid`
-- `chezmoi_gpu`
-- `chezmoi_window_manager` (Linux only)
-- `chezmoi_plasma_window_manager` (Linux only)
+- `email`
+- `profile`
+- `osid`
+- `gpu`
+- `plasma_window_manager` (Linux only; consumed by `plasma_custom_wm` role)
+- `profiles` (template derives the `window_manager` data field by
+  intersecting this list with `[i3, hyprland, qtile]`)
 
 ## Interactive Prompts
 

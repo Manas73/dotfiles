@@ -29,7 +29,7 @@
       {%- elif ansible_facts['os_family'] == 'Darwin' -%}darwin
       {%- else -%}unknown
       {%- endif -%}
-  tags: [packages, always]
+  tags: [packages]
 
 - name: Compute default provider for target OS
   ansible.builtin.set_fact:
@@ -38,7 +38,7 @@
       {%- elif packages_target_os == 'darwin' -%}brew
       {%- else -%}unknown
       {%- endif -%}
-  tags: [packages, always]
+  tags: [packages]
 
 - name: Assert target OS is supported
   ansible.builtin.assert:
@@ -50,7 +50,7 @@
       {{ ansible_facts['os_family'] | default('<unknown>') }}.
       Supported: Archlinux (provider pacman), Darwin (provider brew).
     quiet: true
-  tags: [packages, always]
+  tags: [packages]
 
 - name: Aggregate logical app names from this host's OS group and profiles
   ansible.builtin.set_fact:
@@ -67,7 +67,7 @@
         + (darwin_apps | default([]) if 'darwin' in group_names else [])
         + ((profiles | default([])) | map('extract', profile_apps | default({}), []) | flatten)
       }}
-  tags: [packages, always]
+  tags: [packages]
 
 - name: Resolve logical names through the package catalog
   ansible.builtin.set_fact:
@@ -80,13 +80,13 @@
             packages_default_provider
           )
       }}
-  tags: [packages, always]
+  tags: [packages]
 
 - name: Show resolved per-provider package buckets
   ansible.builtin.debug:
     msg: "{{ packages_resolved }}"
     verbosity: 1
-  tags: [packages, always]
+  tags: [packages]
 
 - name: Dispatch to provider roles for each non-empty bucket
   # OCP: this loop discovers providers from the catalog resolution, not from
@@ -102,4 +102,4 @@
   loop_control:
     label: "provider_{{ item.key }} ({{ item.value | length }} pkg)"
   when: item.value | length > 0
-  tags: [packages, always]
+  tags: [packages]

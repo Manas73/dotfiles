@@ -1,33 +1,28 @@
 ---
 # Current Linux workstation (Garuda/Arch).
-# Host-specific values only. Shared behavior lives in group_vars.
+# Host-specific values only. Shared behavior lives in group_vars/.
 
-ansible_connection: local
 ansible_python_interpreter: /usr/bin/python
 
 primary_user: ms-garuda
 
-# Chezmoi intent for this host. The chezmoi role (Beads chezmoi-g19)
-# renders ~/.config/chezmoi/chezmoi.toml from these values.
-chezmoi_email: "manas.sambare@gmail.com"
-chezmoi_profile: "personal"
-chezmoi_osid: "linux-arch"
-chezmoi_gpu: "nvidia"
-chezmoi_window_manager:
-  - i3
-  - hyprland
-chezmoi_plasma_window_manager: "i3"
+# Chezmoi inventory data. Rendered into ~/.config/chezmoi/chezmoi.toml by
+# the chezmoi role. The chezmoi.toml.j2 template reads these names
+# directly (no chezmoi_ prefix needed at the inventory layer).
+email: "manas.sambare@gmail.com"
+profile: "personal"
+osid: "linux-arch"
+gpu: "nvidia"
 
-# Machine capabilities. Linux-specific; omit on macOS hosts.
-gpu_vendor: "nvidia"
-window_managers:
-  - i3
-  - hyprland
+# Plasma custom window manager. Consumed by the plasma_custom_wm role.
+# Set to "kwin" or omit to disable masking and use stock KWin.
 plasma_window_manager: "i3"
 
 # Profile membership. Single source of truth for which package profiles
 # this host opts into. Each name resolves against profile_apps in
-# group_vars/all/profiles.yml.
+# group_vars/all/profiles.yml. The chezmoi.toml.j2 template also derives
+# its `window_manager` data field by intersecting this list with known
+# desktop names.
 profiles:
   - i3
   - hyprland

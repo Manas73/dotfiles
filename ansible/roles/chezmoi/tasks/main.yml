@@ -15,18 +15,19 @@
   ansible.builtin.assert:
     that:
       - primary_user is defined and primary_user | length > 0
-      - chezmoi_email is defined and chezmoi_email | length > 0
-      - chezmoi_profile is defined and chezmoi_profile | length > 0
-      - chezmoi_osid is defined and chezmoi_osid | length > 0
-      - chezmoi_gpu is defined and chezmoi_gpu | length > 0
+      - email is defined and email | length > 0
+      - profile is defined and profile | length > 0
+      - osid is defined and osid | length > 0
+      - gpu is defined and gpu | length > 0
       - chezmoi_age_recipient is defined and chezmoi_age_recipient | length > 0
       - chezmoi_config_path is defined
       - chezmoi_age_identity is defined
       - chezmoi_source_path is defined
       - chezmoi_repo_path is defined
     fail_msg: >-
-      Missing required vars for the chezmoi role. Ensure host_vars/<hostname>.yml
-      and group_vars/all.yml define the chezmoi_* values (see docs/ONBOARDING.md).
+      Missing required vars for the chezmoi role. host_vars/<hostname>.yml
+      must define email, profile, osid, gpu, primary_user. The chezmoi_*
+      paths come from group_vars/all/main.yml. See docs/ONBOARDING.md.
     quiet: true
 
 - name: Locate chezmoi binary
@@ -39,9 +40,11 @@
 - name: Fail fast if chezmoi is not installed
   ansible.builtin.fail:
     msg: >-
-      chezmoi is not installed on this host. On Arch/Garuda it is installed by
-      the arch_packages role (base package list). On macOS it comes from the
-      darwin_packages role. Install it and re-run this playbook.
+      chezmoi is not installed on this host. It should be installed by the
+      packages orchestrator (roles/packages) which dispatches to
+      provider_pacman on Arch (the `chezmoi` entry in arch_apps) and
+      provider_brew on macOS (the `chezmoi` entry in darwin_apps). Install
+      it and re-run this playbook.
   when: chezmoi_binary.rc != 0
 
 - name: Ensure ~/.config/chezmoi directory exists

@@ -2,7 +2,12 @@
 # Universal defaults. Keep this minimal and cross-platform.
 #
 # Loaded for every host. Lives under group_vars/all/ as a directory so
-# package_catalog.yml can sit beside it without polluting this file.
+# package_catalog.yml and profiles.yml can sit beside it without
+# polluting this file.
+
+# All personal hosts run ansible locally on themselves. Override in
+# host_vars when ansible runs over SSH against a remote.
+ansible_connection: local
 
 # Chezmoi defaults. Host vars override per machine.
 chezmoi_source_repo: "https://github.com/Manas73/dotfiles.git"
