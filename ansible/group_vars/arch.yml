@@ -80,9 +80,6 @@ arch_apps:
   - network-manager-applet
   - networkmanager
   - nm-connection-editor
-  - nodejs
-  - npm
-  - nvm
   - nvtop
   - plasma-x11-session
   - plasma5-integration

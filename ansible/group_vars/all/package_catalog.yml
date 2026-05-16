@@ -95,9 +95,12 @@ package_catalog:
 
   mysql:
     arch: { provider: aur, packages: [mysql] }
-    darwin: { provider: brew, packages: [mysql] }
 
-  onlyoffice:
+  nodejs:
+    arch:   { provider: pacman, packages: [nodejs, npm, nvm] }
+    darwin: { provider: brew,   packages: [node, nvm] }
+
+  onlyoffice-bin:
     arch: { provider: aur, packages: [onlyoffice-bin] }
 
   opencode:

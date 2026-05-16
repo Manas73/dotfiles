@@ -46,6 +46,7 @@ profile_apps:
     - lazygit
     - moreutils
     - neovim
+    - nodejs
     - pre-commit
     - python
     - starship

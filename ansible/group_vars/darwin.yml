@@ -31,13 +31,6 @@ darwin_apps:
   - docker             # bundle -> docker-engine + buildx + compose (brew)
 
   # ----------------------------------------------------------------
-  # macOS-only CLI passthroughs. The `cli` profile covers the
-  # cross-platform baseline (atuin, bat, fish, neovim, ...); list only
-  # darwin-specific names here.
-  # ----------------------------------------------------------------
-  - node                # brew formula `node`; on Arch we use nodejs+npm
-
-  # ----------------------------------------------------------------
   # macOS-only GUI apps via cask (will need catalog entries below).
   # Add as Mac onboarding progresses. Examples:
   #   - iterm2
