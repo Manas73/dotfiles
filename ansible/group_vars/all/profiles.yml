@@ -63,6 +63,20 @@ profile_apps:
     - cloud-sql-proxy
     - google-cloud-cli
 
+  # Development environment: IDEs, editors, and adjacent dev tools.
+  # Cross-OS via the catalog (JetBrains casks + brew taps + cross-OS casks).
+  development:
+    - beads
+    - datagrip
+    - fresh-editor
+    - gitkraken
+    - opencode
+    - postman
+    - pycharm
+    - sublime-text
+    - webstorm
+    - zed
+
   # Font set. Linux-only as a profile because the ttf-* logical names map
   # cleanly to pacman / AUR but not to brew formulae. macOS hosts that want
   # the same fonts should use homebrew-cask-fonts directly.
@@ -87,13 +101,13 @@ profile_apps:
     - umu-launcher
 
   hyprland:
-    - waybar
     - awww
     - copyq
     - hypridle
     - hyprland
     - hyprlock
     - hyprsunset
+    - matugen
     - nwg-look
     - pipewire
     - polkit-gnome
@@ -104,6 +118,7 @@ profile_apps:
     - swayosd
     - udiskie
     - uwsm
+    - waybar
     - wl-clip-persist
     - wl-clipboard
     - wtype
@@ -120,7 +135,11 @@ profile_apps:
     - rofi-emoji
     - rofi-greenclip
     - rofi-wayland
+    - sxhkd
     - xcb-util-cursor
+    - xclip
+    - xorg-xev
+    - xorg-xkill
 
   # KDE Plasma desktop integration. Linux-only; no Mac analogue.
   kde:

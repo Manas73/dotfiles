@@ -33,27 +33,16 @@ arch_apps:
   # Arch-only AUR (catalog routes via provider: aur).
   # ----------------------------------------------------------------
   - bazecor
-  - beads
-  - datagrip
   - epson-inkjet-printer-escpr2
-  - fresh-editor
-  - gitkraken
   - kanata
   - masterpdfeditor
-  - matugen
   - mysql
   - onlyoffice
-  - opencode
   - pacseek
-  - postman
-  - pycharm
   - python-screeninfo
   - rambox
   - redshift
   - selectdefaultapplication
-  - sublime-text
-  - webstorm
-  - zed
 
   # ----------------------------------------------------------------
   # Arch-only pacman (no catalog entry -> default provider: pacman).
@@ -74,8 +63,4 @@ arch_apps:
   - playerctl
   - psmisc
   - solaar
-  - sxhkd
-  - xclip
   - xdg-desktop-portal-gtk
-  - xorg-xev
-  - xorg-xkill

@@ -26,6 +26,7 @@ plasma_window_manager: "i3"
 profiles:
   - cli
   - cloud
+  - development
   - fonts
   - gaming
   - hyprland

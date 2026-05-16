@@ -24,11 +24,12 @@ osid: "darwin"
 gpu: "none"
 
 # Profile membership. cli pulls in the cross-platform baseline; cloud
-# adds the AWS / GCP toolchain (also cross-OS). macOS hosts skip the
-# Linux-only profiles (kde, fonts, gaming, hyprland, i3).
+# adds the AWS / GCP toolchain; development adds IDEs / editors / tools.
+# macOS hosts skip the Linux-only profiles (kde, fonts, gaming, hyprland, i3).
 profiles:
   - cli
   - cloud
+  - development
 
 # Feature flags. macOS-default values; flip per machine.
 docker_enabled: false   # Docker Desktop on Mac is a separate install
