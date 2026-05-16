@@ -9,16 +9,32 @@ package_catalog:
     arch:   { provider: aur,  packages: ["1password"] }
     darwin: { provider: cask, packages: ["1password"] }
 
-  aws-cli-v2: { arch: { provider: aur, packages: [aws-cli-v2] } }
-  aws-session-manager-plugin: { arch: { provider: aur, packages: [aws-session-manager-plugin] } }
-  bazecor: { arch: { provider: aur, packages: [bazecor] } }
-  beads-git: { arch: { provider: aur, packages: [beads-git] } }
-  cloud-sql-proxy: { arch: { provider: aur, packages: [cloud-sql-proxy] } }
-  datagrip: { arch: { provider: aur, packages: [datagrip] } }
-  datagrip-jre: { arch: { provider: aur, packages: [datagrip-jre] } }
+  aws-cli-v2:
+    arch: { provider: aur, packages: [aws-cli-v2] }
+
+  aws-session-manager-plugin:
+    arch: { provider: aur, packages: [aws-session-manager-plugin] }
+
+  bazecor:
+    arch: { provider: aur, packages: [bazecor] }
+
+  beads-git:
+    arch: { provider: aur, packages: [beads-git] }
+
+  cloud-sql-proxy:
+    arch: { provider: aur, packages: [cloud-sql-proxy] }
+
+  datagrip:
+    arch: { provider: aur, packages: [datagrip] }
+
+  datagrip-jre:
+    arch: { provider: aur, packages: [datagrip-jre] }
 
   docker:
-    includes: [docker-engine, docker-buildx-plugin, docker-compose-plugin]
+    includes:
+      - docker-engine
+      - docker-buildx-plugin
+      - docker-compose-plugin
 
   docker-buildx-plugin:
     arch:   { provider: pacman, packages: [docker-buildx] }
@@ -36,50 +52,93 @@ package_catalog:
     arch:   { provider: aur,  packages: [dropbox] }
     darwin: { provider: cask, packages: [dropbox] }
 
-  epson-inkjet-printer-escpr2: { arch: { provider: aur, packages: [epson-inkjet-printer-escpr2] } }
+  epson-inkjet-printer-escpr2:
+    arch: { provider: aur, packages: [epson-inkjet-printer-escpr2] }
 
   firefox:
     arch:   { provider: pacman, packages: [firefox] }
     darwin: { provider: cask,   packages: [firefox] }
 
-  fresh-editor-bin: { arch: { provider: aur, packages: [fresh-editor-bin] } }
-  gitkraken: { arch: { provider: aur, packages: [gitkraken] } }
+  fresh-editor-bin:
+    arch: { provider: aur, packages: [fresh-editor-bin] }
+
+  gitkraken:
+    arch: { provider: aur, packages: [gitkraken] }
 
   google-chrome:
     arch:   { provider: aur,  packages: [google-chrome] }
     darwin: { provider: cask, packages: [google-chrome] }
 
-  google-cloud-cli: { arch: { provider: aur, packages: [google-cloud-cli] } }
-  kanata-bin: { arch: { provider: aur, packages: [kanata-bin] } }
+  google-cloud-cli:
+    arch: { provider: aur, packages: [google-cloud-cli] }
+
+  kanata-bin:
+    arch: { provider: aur, packages: [kanata-bin] }
 
   lazydocker:
     arch:   { provider: aur,  packages: [lazydocker] }
     darwin: { provider: brew, packages: [lazydocker] }
 
-  masterpdfeditor: { arch: { provider: aur, packages: [masterpdfeditor] } }
-  matugen-bin: { arch: { provider: aur, packages: [matugen-bin] } }
-  mysql: { arch: { provider: aur, packages: [mysql] } }
-  onlyoffice-bin: { arch: { provider: aur, packages: [onlyoffice-bin] } }
-  opencode-bin: { arch: { provider: aur, packages: [opencode-bin] } }
-  pacseek: { arch: { provider: aur, packages: [pacseek] } }
-  postman-bin: { arch: { provider: aur, packages: [postman-bin] } }
-  pycharm: { arch: { provider: aur, packages: [pycharm] } }
-  python-screeninfo: { arch: { provider: aur, packages: [python-screeninfo] } }
-  rambox-pro-bin: { arch: { provider: aur, packages: [rambox-pro-bin] } }
-  redshift: { arch: { provider: aur, packages: [redshift] } }
-  selectdefaultapplication-git: { arch: { provider: aur, packages: [selectdefaultapplication-git] } }
+  masterpdfeditor:
+    arch: { provider: aur, packages: [masterpdfeditor] }
+
+  matugen-bin:
+    arch: { provider: aur, packages: [matugen-bin] }
+
+  mysql:
+    arch: { provider: aur, packages: [mysql] }
+
+  onlyoffice-bin:
+    arch: { provider: aur, packages: [onlyoffice-bin] }
+
+  opencode-bin:
+    arch: { provider: aur, packages: [opencode-bin] }
+
+  pacseek:
+    arch: { provider: aur, packages: [pacseek] }
+
+  postman-bin:
+    arch: { provider: aur, packages: [postman-bin] }
+
+  pycharm:
+    arch: { provider: aur, packages: [pycharm] }
+
+  python-screeninfo:
+    arch: { provider: aur, packages: [python-screeninfo] }
+
+  rambox-pro-bin:
+    arch: { provider: aur, packages: [rambox-pro-bin] }
+
+  redshift:
+    arch: { provider: aur, packages: [redshift] }
+
+  selectdefaultapplication-git:
+    arch: { provider: aur, packages: [selectdefaultapplication-git] }
 
   slack:
     arch:   { provider: aur,  packages: [slack-desktop] }
     darwin: { provider: cask, packages: [slack] }
 
-  steam: { arch: { provider: pacman, packages: [steam] } }  # multilib repo (no separate provider)
-  sublime-text-4: { arch: { provider: aur, packages: [sublime-text-4] } }
-  ttf-material-design-icons-git: { arch: { provider: aur, packages: [ttf-material-design-icons-git] } }
-  ttf-material-icons-git: { arch: { provider: aur, packages: [ttf-material-icons-git] } }
-  ttf-ms-fonts: { arch: { provider: aur, packages: [ttf-ms-fonts] } }
-  ttf-vista-fonts: { arch: { provider: aur, packages: [ttf-vista-fonts] } }
-  umu-launcher: { arch: { provider: aur, packages: [umu-launcher] } }
+  steam:
+    arch: { provider: pacman, packages: [steam] }  # multilib repo
+
+  sublime-text-4:
+    arch: { provider: aur, packages: [sublime-text-4] }
+
+  ttf-material-design-icons-git:
+    arch: { provider: aur, packages: [ttf-material-design-icons-git] }
+
+  ttf-material-icons-git:
+    arch: { provider: aur, packages: [ttf-material-icons-git] }
+
+  ttf-ms-fonts:
+    arch: { provider: aur, packages: [ttf-ms-fonts] }
+
+  ttf-vista-fonts:
+    arch: { provider: aur, packages: [ttf-vista-fonts] }
+
+  umu-launcher:
+    arch: { provider: aur, packages: [umu-launcher] }
 
   vivaldi:
     arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs] }
@@ -89,9 +148,14 @@ package_catalog:
     arch:   { provider: pacman, packages: [vlc, vlc-plugins-all] }
     darwin: { provider: cask,   packages: [vlc] }
 
-  waybar-git: { arch: { provider: aur, packages: [waybar-git] } }
-  webstorm: { arch: { provider: aur, packages: [webstorm] } }
-  webstorm-jre: { arch: { provider: aur, packages: [webstorm-jre] } }
+  waybar-git:
+    arch: { provider: aur, packages: [waybar-git] }
+
+  webstorm:
+    arch: { provider: aur, packages: [webstorm] }
+
+  webstorm-jre:
+    arch: { provider: aur, packages: [webstorm-jre] }
 
   zoom:
     arch:   { provider: aur,  packages: [zoom] }
