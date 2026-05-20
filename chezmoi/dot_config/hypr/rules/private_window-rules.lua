@@ -99,6 +99,7 @@ hl.window_rule({
   name  = "zoom-default-float",
   match = { class = "zoom" },
   float = true,
+  group = "unset barred"
 })
 
 hl.window_rule({
@@ -112,14 +113,21 @@ hl.window_rule({
   name  = "zoom-ws-main",
   match = { class = "zoom", initial_title = "Zoom Workplace - Licensed account" },
   float = false,
-  group = "set always, lock, invade",
+  group = "set always lock invade always",
 })
 
 hl.window_rule({
   name  = "zoom-ws-meeting",
   match = { class = "zoom", initial_title = "Meeting" },
   float = false,
-  group = "set always, lock, invade",
+  group = "set always lock invade always",
+})
+
+hl.window_rule({
+  name  = "zoom-chat-bubble",
+  match = { class = "zoom", initial_title = "Zoom Workplace", title = "Zoom Workplace" },
+  float = true,
+  group = "unset deny",
 })
 
 hl.window_rule({
