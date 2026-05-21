@@ -151,7 +151,7 @@ package_catalog:
     arch: { provider: aur, packages: [umu-launcher] }
 
   vivaldi:
-    arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs] }
+    arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs, libva-nvidia-driver] }
     darwin: { provider: cask,   packages: [vivaldi] }
 
   vlc:
