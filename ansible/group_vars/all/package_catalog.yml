@@ -90,7 +90,7 @@ package_catalog:
     arch: { provider: aur, packages: [onlyoffice-bin] }
 
   opencode:
-    arch: { provider: aur, packages: [opencode-bin] }
+    arch: { provider: pacman, packages: [opencode] }
     darwin: { provider: brew, packages: [opencode] }
 
   pacseek:
