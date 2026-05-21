@@ -113,14 +113,14 @@ hl.window_rule({
   name  = "zoom-ws-main",
   match = { class = "zoom", initial_title = "Zoom Workplace - Licensed account" },
   float = false,
-  group = "set always lock invade always",
+  group = "set always invade always",
 })
 
 hl.window_rule({
   name  = "zoom-ws-meeting",
   match = { class = "zoom", initial_title = "Meeting" },
   float = false,
-  group = "set always lock invade always",
+  group = "set always invade always",
 })
 
 hl.window_rule({
