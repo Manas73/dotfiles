@@ -1,0 +1,174 @@
+---
+# Logical app name -> per-OS install routing for the packages orchestrator.
+# Apps not listed here fall through to the default provider (pacman / brew).
+# See ansible/README.md (Layer 2) for the schema.
+
+package_catalog:
+
+  "1password":
+    arch:   { provider: aur,  packages: ["1password"] }
+    darwin: { provider: cask, packages: ["1password"] }
+
+  aws-cli:
+    arch: { provider: aur, packages: [aws-cli-v2] }
+    darwin: { provider: brew, packages: [awscli] }
+
+  aws-session-manager-plugin:
+    arch: { provider: aur, packages: [aws-session-manager-plugin] }
+    darwin: { provider: cask, packages: [session-manager-plugin] }
+
+  bazecor:
+    arch: { provider: aur, packages: [bazecor] }
+    darwin: { provider: cask, packages: [bazecor] }
+
+  beads:
+    arch: { provider: aur, packages: [beads-git] }
+    darwin: { provider: brew, packages: [beads] }
+
+  cloud-sql-proxy:
+    arch: { provider: aur, packages: [cloud-sql-proxy] }
+    darwin: { provider: brew, packages: [cloud-sql-proxy] }
+
+  datagrip:
+    arch:   { provider: aur,  packages: [datagrip, datagrip-jre] }
+    darwin: { provider: cask, packages: [datagrip] }
+
+  docker:
+    arch:   { provider: pacman, packages: [docker, docker-buildx, docker-compose] }
+    darwin: { provider: brew,   packages: [docker, docker-buildx, docker-compose] }
+
+  dropbox:
+    arch:   { provider: aur,  packages: [dropbox] }
+    darwin: { provider: cask, packages: [dropbox] }
+
+  epson-inkjet-printer-escpr2:
+    arch: { provider: aur, packages: [epson-inkjet-printer-escpr2] }
+
+  firefox:
+    arch:   { provider: pacman, packages: [firefox] }
+    darwin: { provider: cask,   packages: [firefox] }
+
+  fresh-editor:
+    arch: { provider: aur, packages: [fresh-editor-bin] }
+    darwin: { provider: brew, packages: [sinelaw/fresh/fresh-editor] }
+
+  gitkraken:
+    arch: { provider: aur, packages: [gitkraken] }
+    darwin: { provider: cask, packages: [gitkraken] }
+
+  google-chrome:
+    arch:   { provider: aur,  packages: [google-chrome] }
+    darwin: { provider: cask, packages: [google-chrome] }
+
+  google-cloud-cli:
+    arch: { provider: aur, packages: [google-cloud-cli] }
+    darwin: { provider: cask, packages: [gcloud-cli] }
+
+  kanata:
+    arch: { provider: aur, packages: [kanata-bin] }
+    darwin: { provider: brew, packages: [kanata] }
+
+  lazydocker:
+    arch:   { provider: aur,  packages: [lazydocker] }
+    darwin: { provider: brew, packages: [lazydocker] }
+
+  masterpdfeditor:
+    arch: { provider: aur, packages: [masterpdfeditor] }
+    darwin: { provider: cask, packages: [master-pdf-editor] }
+
+  matugen:
+    arch: { provider: aur, packages: [matugen-bin] }
+
+  mysql:
+    arch: { provider: aur, packages: [mysql] }
+
+  nodejs:
+    arch:   { provider: pacman, packages: [nodejs, npm, nvm] }
+    darwin: { provider: brew,   packages: [node, nvm] }
+
+  onlyoffice-bin:
+    arch: { provider: aur, packages: [onlyoffice-bin] }
+
+  opencode:
+    arch: { provider: pacman, packages: [opencode] }
+    darwin: { provider: brew, packages: [opencode] }
+
+  pacseek:
+    arch: { provider: aur, packages: [pacseek] }
+
+  postman:
+    arch: { provider: aur, packages: [postman-bin] }
+    darwin: { provider: cask, packages: [postman] }
+
+  pycharm:
+    arch:   { provider: aur,  packages: [pycharm, pycharm-jre] }
+    darwin: { provider: cask, packages: [pycharm] }
+
+  python:
+    arch:   { provider: pacman, packages: [python, python-black, python-gpgme, python-pip, python-poetry, python-virtualenv, uv] }
+    darwin: { provider: brew,   packages: [black, python, uv] }
+
+  python-screeninfo:
+    arch: { provider: aur, packages: [python-screeninfo] }
+
+  rambox:
+    arch: { provider: aur, packages: [rambox-pro-bin] }
+    darwin: { provider: cask, packages: [rambox] }
+
+  redshift:
+    arch: { provider: aur, packages: [redshift] }
+
+  selectdefaultapplication:
+    arch: { provider: aur, packages: [selectdefaultapplication-git] }
+
+  slack:
+    arch:   { provider: aur,  packages: [slack-desktop] }
+    darwin: { provider: cask, packages: [slack] }
+
+  steam:
+    arch: { provider: pacman, packages: [steam] }
+    darwin: { provider: cask, packages: [steam] }
+
+  sublime-text:
+    arch: { provider: aur, packages: [sublime-text-4] }
+    darwin: { provider: cask, packages: [sublime-text] }
+
+  ttf-material-design-icons:
+    arch: { provider: aur, packages: [ttf-material-design-icons-git] }
+    darwin: { provider: cask, packages: [font-material-design-icons-webfont] }
+
+  ttf-material-icons:
+    arch: { provider: aur, packages: [ttf-material-icons-git] }
+    darwin: { provider: cask, packages: [font-material-icons] }
+
+  ttf-ms-fonts:
+    arch: { provider: aur, packages: [ttf-ms-fonts] }
+
+  ttf-vista-fonts:
+    arch: { provider: aur, packages: [ttf-vista-fonts] }
+
+  umu-launcher:
+    arch: { provider: aur, packages: [umu-launcher] }
+
+  vivaldi:
+    arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs, libva-nvidia-driver] }
+    darwin: { provider: cask,   packages: [vivaldi] }
+
+  vlc:
+    arch:   { provider: pacman, packages: [vlc, vlc-plugins-all] }
+    darwin: { provider: cask,   packages: [vlc] }
+
+  waybar:
+    arch: { provider: aur, packages: [waybar-git] }
+
+  webstorm:
+    arch:   { provider: aur,  packages: [webstorm, webstorm-jre] }
+    darwin: { provider: cask, packages: [webstorm] }
+
+  zed:
+    arch: { provider: aur, packages: [zed] }
+    darwin: { provider: cask, packages: [zed] }
+
+  zoom:
+    arch:   { provider: aur,  packages: [zoom] }
+    darwin: { provider: cask, packages: [zoom] }

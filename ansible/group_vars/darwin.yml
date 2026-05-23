@@ -1,0 +1,40 @@
+---
+# macOS package intent.
+#
+# Layer 1 of the four-layer package model. Single list of logical
+# application names. Resolved by roles/packages (orchestrator) against
+# group_vars/all/package_catalog.yml, then dispatched to provider_brew
+# or provider_cask. Names not in the catalog fall through to brew with
+# the same name verbatim (good enough for most CLI tools whose logical
+# name equals the brew formula name).
+#
+# Scope: macOS-specific apps only. Cross-platform CLI tools and
+# runtimes live in the `cli` profile (group_vars/all/profiles.yml);
+# Mac hosts opt in via `profiles: [..., cli]` in host_vars.
+
+darwin_apps:
+  # ----------------------------------------------------------------
+  # Cross-OS GUI apps via catalog (route to cask).
+  # ----------------------------------------------------------------
+  - "1password"
+  - dropbox
+  - firefox
+  - google-chrome
+  - slack
+  - vivaldi
+  - vlc
+  - zoom
+
+  # ----------------------------------------------------------------
+  # Cross-OS bundles via catalog.
+  # ----------------------------------------------------------------
+  - docker             # bundle -> docker-engine + buildx + compose (brew)
+
+  # ----------------------------------------------------------------
+  # macOS-only GUI apps via cask (will need catalog entries below).
+  # Add as Mac onboarding progresses. Examples:
+  #   - iterm2
+  #   - rectangle
+  #   - karabiner-elements
+  #   - alt-tab
+  # ----------------------------------------------------------------

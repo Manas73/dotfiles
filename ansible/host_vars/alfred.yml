@@ -1,0 +1,40 @@
+---
+# Current Linux workstation (Garuda/Arch).
+# Host-specific values only. Shared behavior lives in group_vars/.
+
+ansible_python_interpreter: /usr/bin/python
+
+primary_user: ms-garuda
+
+# Chezmoi inventory data. Rendered into ~/.config/chezmoi/chezmoi.toml by
+# the chezmoi role. The chezmoi.toml.j2 template reads these names
+# directly (no chezmoi_ prefix needed at the inventory layer).
+email: "manas.sambare@gmail.com"
+profile: "personal"
+osid: "linux-arch"
+gpu: "nvidia"
+
+# Plasma custom window manager. Consumed by the plasma_custom_wm role.
+# Set to "kwin" or omit to disable masking and use stock KWin.
+plasma_window_manager: "i3"
+
+# Profile membership. Single source of truth for which package profiles
+# this host opts into. Each name resolves against profile_apps in
+# group_vars/all/profiles.yml. The chezmoi.toml.j2 template also derives
+# its `window_manager` data field by intersecting this list with known
+# desktop names.
+profiles:
+  - cli
+  - cloud
+  - development
+  - fonts
+  - gaming
+  - hyprland
+  - i3
+  - kde
+  - virtualization
+
+# Feature flags.
+docker_enabled: true
+kanata_enabled: true
+libvirt_enabled: true

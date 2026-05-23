@@ -1,0 +1,27 @@
+---
+# Universal defaults. Keep this minimal and cross-platform.
+#
+# Loaded for every host. Lives under group_vars/all/ as a directory so
+# package_catalog.yml and profiles.yml can sit beside it without
+# polluting this file.
+
+# All personal hosts run ansible locally on themselves. Override in
+# host_vars when ansible runs over SSH against a remote.
+ansible_connection: local
+
+# Chezmoi defaults. Host vars override per machine.
+chezmoi_source_repo: "https://github.com/Manas73/dotfiles.git"
+# chezmoi_repo_path is the git-clone root (contains .chezmoiroot, ansible/, docs/, chezmoi/).
+# chezmoi_source_path is the resolved Chezmoi source directory, i.e., the chezmoi/ subdir
+# pointed at by .chezmoiroot. Keep the two distinct: git-clone checks use repo_path,
+# source-state lookups (key.txt.age, etc.) use source_path.
+chezmoi_repo_path: "{{ ansible_facts['user_dir'] }}/.local/share/chezmoi"
+chezmoi_source_path: "{{ chezmoi_repo_path }}/chezmoi"
+chezmoi_config_path: "{{ ansible_facts['user_dir'] }}/.config/chezmoi/chezmoi.toml"
+chezmoi_age_identity: "{{ ansible_facts['user_dir'] }}/.config/chezmoi/key.txt"
+chezmoi_age_recipient: "age1egva8dwupvqgh2r3d48j2jsrjkfrgvvpjk83vttdcjftlyze5cgs7ccffj"
+
+# Feature enablement defaults. Host vars override.
+docker_enabled: false
+kanata_enabled: false
+libvirt_enabled: false

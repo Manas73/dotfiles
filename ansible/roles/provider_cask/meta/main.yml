@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  role_name: provider_cask
+  author: Manas Sambare
+  description: >-
+    Install Homebrew casks (GUI apps) on macOS. Layer 4 provider role
+    called by the packages orchestrator. Requires Homebrew already
+    installed (provider_brew handles bootstrap).
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: MacOSX
+  galaxy_tags:
+    - packages
+    - cask
+    - darwin
+    - homebrew
+
+dependencies: []

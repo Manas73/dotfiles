@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: libvirt
+  author: Manas Sambare
+  description: Configure libvirt / qemu access for the primary user.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Archlinux
+  galaxy_tags:
+    - libvirt
+    - qemu
+    - virtualization
+
+dependencies: []

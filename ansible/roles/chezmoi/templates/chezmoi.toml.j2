@@ -1,0 +1,14 @@
+{{ ansible_managed | comment }}
+encryption = "age"
+
+[age]
+    identity = "~/.config/chezmoi/key.txt"
+    recipient = "{{ chezmoi_age_recipient }}"
+
+[data]
+    email = "{{ email }}"
+    profile = "{{ profile }}"
+    osid = "{{ osid }}"
+    gpu = "{{ gpu }}"
+    window_manager = {{ (profiles | default([])) | intersect(['i3', 'hyprland', 'qtile']) | to_json }}
+    plasma_window_manager = "{{ plasma_window_manager | default('') }}"

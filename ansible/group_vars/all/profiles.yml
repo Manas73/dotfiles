@@ -1,0 +1,145 @@
+---
+# Profile package intent.
+#
+# Consumed by the packages orchestrator. A host opts into a profile by
+# listing its name in `profiles:` in host_vars. The orchestrator looks up
+# `profile_apps[<name>]` for each entry and feeds the union (after catalog
+# resolution) to the matching provider roles.
+#
+# Profiles are NOT inventory groups in hosts.yml. Membership is declared in
+# host_vars, so there is a single source of truth per host. Removing a
+# profile from a host is one edit, not two.
+#
+# Layer 1 (intent) data; complements arch_apps / darwin_apps. Replaces the
+# prior group_vars/{hyprland,i3,gaming}.yml files.
+
+profile_apps:
+  cli:
+    - atuin
+    - bat
+    - btop
+    - bun
+    - chezmoi
+    - eza
+    - fastfetch
+    - fd
+    - fish
+    - fresh-editor
+    - fzf
+    - gcc
+    - ghq
+    - git
+    - git-filter-repo
+    - gnupg
+    - go
+    - hugo
+    - jq
+    - lazydocker
+    - lazygit
+    - moreutils
+    - neovim
+    - nodejs
+    - pre-commit
+    - python
+    - starship
+    - television
+    - yazi
+    - zellij
+    - zoxide
+
+  cloud:
+    - aws-cli
+    - aws-session-manager-plugin
+    - cloud-sql-proxy
+    - google-cloud-cli
+
+  development:
+    - beads
+    - datagrip
+    - gitkraken
+    - mysql
+    - opencode
+    - postman
+    - pycharm
+    - sublime-text
+    - webstorm
+    - zed
+
+  fonts:
+    - ttf-dejavu
+    - ttf-droid
+    - ttf-fira-code
+    - ttf-fira-sans
+    - ttf-firacode-nerd
+    - ttf-jetbrains-mono-nerd
+    - ttf-material-design-icons
+    - ttf-material-icons
+    - ttf-ms-fonts
+    - ttf-nerd-fonts-symbols
+    - ttf-nerd-fonts-symbols-common
+    - ttf-noto-nerd
+    - ttf-vista-fonts
+
+  gaming:
+    - lutris
+    - steam
+    - umu-launcher
+
+  hyprland:
+    - awww
+    - copyq
+    - hypridle
+    - hyprland
+    - hyprlock
+    - hyprsunset
+    - matugen
+    - nwg-look
+    - pipewire
+    - polkit-gnome
+    - qt5-wayland
+    - qt6-wayland
+    - rofi-wayland
+    - swaync
+    - swayosd
+    - udiskie
+    - uwsm
+    - waybar
+    - wl-clip-persist
+    - wl-clipboard
+    - wtype
+    - xdg-desktop-portal-hyprland
+
+  i3:
+    - feh
+    - i3-wm
+    - libxcb
+    - picom
+    - polybar
+    - python-i3ipc
+    - rofi-calc
+    - rofi-emoji
+    - rofi-greenclip
+    - rofi-wayland
+    - sxhkd
+    - xcb-util-cursor
+    - xclip
+    - xorg-xev
+    - xorg-xkill
+
+  kde:
+    - dolphin
+    - dolphin-plugins
+    - gwenview
+    - kcharselect
+    - plasma-x11-session
+    - plasma5-integration
+
+  virtualization:
+    - dnsmasq
+    - edk2-ovmf
+    - iptables-nft
+    - libvirt
+    - qemu-desktop
+    - swtpm
+    - virt-manager
+    - virt-viewer

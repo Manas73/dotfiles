@@ -1,0 +1,71 @@
+{{- /*
+  Chezmoi bootstrap template (manual-fallback path).
+
+  The normal path is Ansible: the chezmoi role in ansible/roles/chezmoi
+  renders ~/.config/chezmoi/chezmoi.toml non-interactively from host_vars.
+  See docs/ONBOARDING.md.
+
+  This template is only exercised when a user runs `chezmoi init --apply`
+  directly without Ansible, e.g. on a machine where only dotfiles are
+  needed. It prompts for the same values the Ansible role reads from
+  inventory.
+*/ -}}
+{{- $email := promptStringOnce . "email" "Commit email address" -}}
+
+{{- /* Ask Profile Choices */ -}}
+{{- $profile_choices := list "personal" "work" -}}
+{{- $profile := promptChoiceOnce . "profile" "Select the Profile: " $profile_choices "personal" -}}
+
+{{/* Detect OS Type */}}
+{{- $osid := .chezmoi.os -}}
+{{- if hasKey .chezmoi.osRelease "id" -}}
+{{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end -}}
+{{- if (and (hasKey .chezmoi.osRelease "idLike") (ne .chezmoi.osRelease.id "manjaro")) -}}
+{{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.idLike -}}
+{{- end -}}
+
+{{- /* Ask Window Manager Choices */ -}}
+{{- $window_manager := "" -}}
+{{- $window_manager_choices := list "i3" "qtile" "hyprland" -}}
+{{- if eq .chezmoi.os "linux" -}}
+{{- $window_manager = promptMultichoice "Select Window Managers to Install: " $window_manager_choices (list "i3") -}}
+{{- end -}}
+
+{{- /* Ask Window Manager Plasma Binding Choices */ -}}
+{{- $plasma_window_manager := "" -}}
+{{- $plasma_window_manager_choices := concat (without $window_manager_choices "hyprland") (list "kwin") -}}
+{{- if eq .chezmoi.os "linux" -}}
+{{- $plasma_window_manager = promptChoice "Select Window Manager for Plasma: " $plasma_window_manager_choices "kwin" -}}
+{{- end -}}
+
+{{/* Ask GPU Type */}}
+{{- $gpu := "" -}}
+{{- if eq .chezmoi.os "linux" -}}
+{{-   $detected_gpu := output "bash" "-c" "lspci | grep -i 'vga\\|3d\\|2d'" | trim -}}
+{{-   if contains "NVIDIA" $detected_gpu -}}
+{{-     $gpu = "nvidia" -}}
+{{-   else if contains "AMD" $detected_gpu -}}
+{{-     $gpu = "amd" -}}
+{{-   else -}}
+{{-     $gpu = "none" -}}
+{{-   end -}}
+{{-   else -}}
+{{-     $gpu = "none" -}}
+{{- end -}}
+{{- $gpuchoices := list "nvidia" "amd" "none" -}}
+{{- $gpu := promptChoiceOnce . "gpu" "GPU Vendor" $gpuchoices $gpu -}}
+
+encryption = "age"
+
+[age]
+    identity = "~/.config/chezmoi/key.txt"
+    recipient = "age1egva8dwupvqgh2r3d48j2jsrjkfrgvvpjk83vttdcjftlyze5cgs7ccffj"
+
+[data]
+    email = {{ $email | quote }}
+    profile = {{ $profile | quote }}
+    osid = {{ $osid | quote }}
+    gpu = {{ $gpu | quote }}
+    window_manager = {{ $window_manager | toToml }}
+    plasma_window_manager = {{ $plasma_window_manager | quote }}

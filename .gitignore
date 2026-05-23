@@ -9,3 +9,11 @@ dot_config/polybar/dot_git/
 .dolt/
 *.db
 .beads-credential-key
+
+# Ansible: installed collections (managed by ansible-galaxy)
+ansible/collections/
+
+# Ansible: filter plugin bytecode cache
+ansible/filter_plugins/__pycache__/
+
+chezmoi/dot_config/hypr/colors/

@@ -1,0 +1,59 @@
+---
+# Arch/Garuda package intent.
+#
+# Layer 1 of the four-layer package model. Single list of logical
+# application names. Resolved by roles/packages (orchestrator) against
+# group_vars/all/package_catalog.yml, then dispatched to provider_pacman
+# or provider_aur as the catalog dictates. Names not in the catalog fall
+# through to the default provider for arch (pacman).
+#
+# Scope: Arch-specific packages only. Cross-platform CLI tools and
+# domain-grouped bundles live in profiles (group_vars/all/profiles.yml):
+#   cli    cross-platform CLI tools and runtimes
+#   cloud  AWS / GCP CLIs
+#   fonts  ttf-* font set
+#   kde    KDE Plasma desktop integration
+# alfred opts into the relevant profiles via host_vars.
+
+arch_apps:
+  # ----------------------------------------------------------------
+  # Cross-OS apps & bundles (catalog handles routing per OS).
+  # ----------------------------------------------------------------
+  - "1password"
+  - bazecor
+  - docker
+  - dropbox
+  - firefox
+  - google-chrome
+  - kanata
+  - masterpdfeditor
+  - rambox
+  - slack
+  - vivaldi
+  - vlc
+  - zoom
+  # ----------------------------------------------------------------
+  # Arch-only
+  # ----------------------------------------------------------------
+  - alacritty
+  - epson-inkjet-printer-escpr2
+  - flameshot
+  - gparted
+  - headsetcontrol
+  - kitty
+  - libadwaita
+  - libnotify
+  - libreoffice-fresh
+  - network-manager-applet
+  - networkmanager
+  - nm-connection-editor
+  - nvtop
+  - onlyoffice
+  - pacseek
+  - playerctl
+  - psmisc
+  - python-screeninfo
+  - redshift
+  - selectdefaultapplication
+  - solaar
+  - xdg-desktop-portal-gtk

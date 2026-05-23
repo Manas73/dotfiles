@@ -1,0 +1,59 @@
+key.txt.age
+
+{{- if ne .chezmoi.os "linux" }}
+.config/.settings
+.config/fastfetch
+.config/Kvantum
+.config/matugen
+.config/qtile
+.config/rofi
+
+.config/greenclip.toml
+.config/gtkrc
+.config/kdeglobals
+.config/kscreenlockerrc
+.config/kwinrc
+.config/dolphinrc
+.config/kglobalshortcutsrc
+.config/ksplashrc
+.config/plasma-org.kde.plasma.desktop-appletsrc
+.config/plasmanotifyrc
+.config/plasmarc
+
+.local/share/kxmlgui5/dolphin/dolphinui.rc
+.local/share/user-places.xbel.tmpl
+{{- end }}
+
+{{- if not (has "i3" .window_manager) }}
+.config/i3
+.config/picom
+.config/polybar
+{{- end }}
+
+{{- if not (has "hyprland" .window_manager) }}
+.config/dunst
+.config/hypr
+.config/swaync
+.config/waybar
+{{- end }}
+
+{{- if ne .osid "linux-manjaro" }}
+.config/fish/conf.d/pyenv.fish
+{{- end }}
+
+
+{{- if ne .chezmoi.os "darwin" }}
+.config/sketchybar
+{{- end }}
+
+{{- if eq .profile "work" }}
+.ssh/Manas73-GitHub
+.ssh/Manas73-GitHub.pub
+.ssh/Manas-GitLab
+.ssh/Manas-GitLab.pub
+.ssh/Manas-Sleepiz-GitLab
+.ssh/Manas-Sleepiz-GitLab.pub
+.ssh/id_ed25519
+.ssh/id_ed25519.pub
+.ssh/mangesh
+{{- end }}

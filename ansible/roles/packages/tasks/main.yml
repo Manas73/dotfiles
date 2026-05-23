@@ -1,0 +1,105 @@
+---
+# packages role: cross-OS package installation orchestrator.
+#
+# Layer 3 of the four-layer package model:
+#   Intent     -> <group>_apps lists in group_vars
+#   Catalog    -> group_vars/all/package_catalog.yml
+#   Dispatcher -> THIS role (resolve + delegate)
+#   Providers  -> roles/provider_<name>/
+#
+# Responsibilities (Single Responsibility Principle):
+#   1. Aggregate <group>_apps from every inventory group the host belongs to
+#      (using explicit group_names membership checks, not just var presence).
+#   2. Compute target_os and default_provider from ansible facts.
+#   3. Resolve logical app names through the catalog into per-provider
+#      buckets using the resolve_catalog filter plugin.
+#   4. Dispatch dynamically (Open/Closed Principle): for each non-empty
+#      bucket, include the matching provider_<name> role with the bucket as
+#      its input. Adding a new provider requires no edits here.
+#
+# Does NOT:
+#   * Install packages directly (providers do that).
+#   * Manage configuration, services, or dotfiles.
+#   * Bootstrap package managers (each provider self-bootstraps).
+
+- name: Compute target OS from ansible_facts
+  ansible.builtin.set_fact:
+    packages_target_os: >-
+      {%- if ansible_facts['os_family'] == 'Archlinux' -%}arch
+      {%- elif ansible_facts['os_family'] == 'Darwin' -%}darwin
+      {%- else -%}unknown
+      {%- endif -%}
+  tags: [packages]
+
+- name: Compute default provider for target OS
+  ansible.builtin.set_fact:
+    packages_default_provider: >-
+      {%- if packages_target_os == 'arch' -%}pacman
+      {%- elif packages_target_os == 'darwin' -%}brew
+      {%- else -%}unknown
+      {%- endif -%}
+  tags: [packages]
+
+- name: Assert target OS is supported
+  ansible.builtin.assert:
+    that:
+      - packages_target_os in ['arch', 'darwin']
+      - packages_default_provider in ['pacman', 'brew']
+    fail_msg: >-
+      packages role does not support os_family
+      {{ ansible_facts['os_family'] | default('<unknown>') }}.
+      Supported: Archlinux (provider pacman), Darwin (provider brew).
+    quiet: true
+  tags: [packages]
+
+- name: Aggregate logical app names from this host's OS group and profiles
+  ansible.builtin.set_fact:
+    # OS-family <group>_apps lists are included only when the host is
+    # actually in that inventory group (defensive guard).
+    #
+    # Profile apps are pulled from group_vars/all/profiles.yml via the
+    # host_vars `profiles:` list. extract() with default [] silently skips
+    # unknown profile names. This replaces the prior per-profile inventory
+    # groups (hyprland, i3, gaming) and their group_names checks.
+    packages_logical_apps: >-
+      {{
+        (arch_apps   | default([]) if 'arch'   in group_names else [])
+        + (darwin_apps | default([]) if 'darwin' in group_names else [])
+        + ((profiles | default([])) | map('extract', profile_apps | default({}), []) | flatten)
+      }}
+  tags: [packages]
+
+- name: Resolve logical names through the package catalog
+  ansible.builtin.set_fact:
+    packages_resolved: >-
+      {{
+        packages_logical_apps
+        | resolve_catalog(
+            package_catalog | default({}),
+            packages_target_os,
+            packages_default_provider
+          )
+      }}
+  tags: [packages]
+
+- name: Show resolved per-provider package buckets
+  ansible.builtin.debug:
+    msg: "{{ packages_resolved }}"
+    verbosity: 1
+  tags: [packages]
+
+- name: Dispatch to provider roles for each non-empty bucket
+  # OCP: this loop discovers providers from the catalog resolution, not from
+  # a hardcoded list. To wire up a new provider, create roles/provider_<name>/
+  # and add `provider: <name>` entries to the catalog; no edits here.
+  ansible.builtin.include_role:
+    name: "provider_{{ item.key }}"
+    apply:
+      tags: [packages, "{{ item.key }}"]
+  vars:
+    provider_packages: "{{ item.value }}"
+  loop: "{{ packages_resolved | dict2items }}"
+  loop_control:
+    label: "provider_{{ item.key }} ({{ item.value | length }} pkg)"
+  when: item.value | length > 0
+  tags: [packages]

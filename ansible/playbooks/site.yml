@@ -1,0 +1,88 @@
+---
+# Full machine provisioning.
+#
+# Order:
+#   1. Sudoers drop-in for passwordless pacman (linux only).
+#   2. Install OS packages so binaries exist.
+#   3. Apply Chezmoi dotfiles so configs exist for the services below.
+#   4. Configure system services (login shell, Docker, Kanata, Plasma WM).
+#   5. Apply desktop profile hooks (future non-package desktop work).
+#
+# Packaging architecture (four layers; see ansible/README.md):
+#   Intent       <group>_apps lists in group_vars
+#   Catalog      group_vars/all/package_catalog.yml
+#   Dispatcher   roles/packages (orchestrator)
+#   Providers    roles/provider_{pacman,aur,brew,cask}
+#
+# Run examples:
+#   ansible-playbook -i hosts.yml playbooks/site.yml --limit alfred --ask-become-pass
+#   ansible-playbook ... --tags packages           # all packages, any OS
+#   ansible-playbook ... --tags aur                # arch AUR only
+#   ansible-playbook ... --tags brew               # darwin brew only
+#   ansible-playbook ... --tags dotfiles
+#   ansible-playbook ... --tags system
+#   ansible-playbook ... --tags desktop
+#
+# Tracking:
+#   chezmoi-97d  SOLID four-layer package refactor (epic)
+#   chezmoi-ck1  sudoers role for passwordless pacman
+
+- name: Install sudoers drop-ins required by other roles
+  hosts: linux
+  gather_facts: true
+  tags: [system, sudoers]
+  roles:
+    - role: sudoers
+
+- name: Install packages (cross-OS orchestrator)
+  hosts: all
+  gather_facts: true
+  tags: [packages]
+  roles:
+    - role: packages
+
+- name: Render Chezmoi config and apply dotfiles
+  hosts: all
+  gather_facts: true
+  tags: [dotfiles, chezmoi]
+  roles:
+    - role: chezmoi
+
+- name: Ensure Fish is the login shell
+  hosts: all
+  gather_facts: true
+  tags: [system, fish]
+  roles:
+    - role: fish
+
+- name: Configure Docker for the primary user
+  hosts: all
+  gather_facts: true
+  tags: [system, docker]
+  roles:
+    - role: docker
+      when: docker_enabled | default(false) | bool
+
+- name: Configure Kanata keyboard remapper
+  hosts: linux
+  gather_facts: true
+  tags: [system, kanata]
+  roles:
+    - role: kanata
+      when: kanata_enabled | default(false) | bool
+
+- name: Configure libvirt for the primary user
+  hosts: linux
+  gather_facts: true
+  tags: [system, libvirt]
+  roles:
+    - role: libvirt
+      when: libvirt_enabled | default(false) | bool
+
+- name: Configure Plasma with custom window manager
+  hosts: linux
+  gather_facts: true
+  tags: [system, plasma]
+  roles:
+    - role: plasma_custom_wm
+      when: plasma_window_manager is defined

@@ -1,0 +1,9 @@
+---
+# Chezmoi config rendering and dotfile apply only.
+
+- name: Render Chezmoi config and apply dotfiles
+  hosts: all
+  gather_facts: true
+  tags: [dotfiles, chezmoi]
+  roles:
+    - role: chezmoi

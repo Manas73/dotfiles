@@ -1,0 +1,16 @@
+{{ ansible_managed | comment }}
+[Unit]
+Description=Launch Plasma with {{ plasma_window_manager }}
+Before=plasma-workspace.target
+
+[Service]
+{% if plasma_window_manager == 'qtile' %}
+ExecStart=/usr/bin/qtile start
+{% else %}
+ExecStart=/usr/bin/{{ plasma_window_manager }}
+{% endif %}
+Slice=session.slice
+Restart=on-failure
+
+[Install]
+WantedBy=plasma-workspace.target

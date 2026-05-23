@@ -1,0 +1,3 @@
+---
+# Defaults for the plasma_custom_wm role.
+# plasma_window_manager lives in host_vars (kwin | i3 | qtile | hyprland).
