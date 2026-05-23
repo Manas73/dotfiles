@@ -1,1 +1,2 @@
- [ "$XDG_SESSION_TYPE" = "wayland" ] && LIBVA_DRIVER_NAME=nvidia vivaldi-stable --password-store=kwallet6 --enable-features=VaapiVideoDecoder,UseOzonePlatform,WebRTCPipeWireCapturer --ozone-platform=wayland --ignore-gpu-blocklist --enable-gpu-rasterization --enable-zero-copy --canvas-oop-rasterization || vivaldi-stable --password-store=kwallet6
+  [ "$XDG_SESSION_TYPE" = "wayland" ] && vivaldi-stable --password-store=kwallet6 --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer --ozone-platform=wayland || vivaldi-stable --password-store=kwallet6
+ 
