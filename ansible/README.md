@@ -158,7 +158,7 @@ package_catalog:
 
   # Roll-up: one logical name expands to N concrete packages per OS.
   # Differences between OSes are encoded inline. Used for docker, nodejs,
-  # python, the JetBrains IDEs (with their -jre companion on Arch), etc.
+  # the JetBrains IDEs (with their -jre companion on Arch), etc.
   docker:
     arch:   { provider: pacman, packages: [docker, docker-buildx, docker-compose] }
     darwin: { provider: brew,   packages: [docker, docker-buildx, docker-compose] }
@@ -166,6 +166,16 @@ package_catalog:
   nodejs:
     arch:   { provider: pacman, packages: [nodejs, npm, nvm] }
     darwin: { provider: brew,   packages: [node, nvm] }
+
+  # Multi-provider per OS: the per-OS value is a LIST of {provider, packages}
+  # blocks. Use this when one logical name installs packages from different
+  # providers on the same OS (e.g. most of python from pacman, plus pyrefly
+  # from AUR on Arch).
+  python:
+    arch:
+      - { provider: pacman, packages: [python, python-pip, python-poetry] }
+      - { provider: aur,    packages: [pyrefly] }
+    darwin: { provider: brew, packages: [black, python, uv] }
 
   # Arch-only routing: AUR package that wouldn't be reachable via plain
   # `pacman -S`. Has only an `arch:` key; darwin hosts skip it silently.
@@ -175,9 +185,11 @@ package_catalog:
 
 Rules:
 
-- Each entry has per-OS keys (`arch`, `darwin`, ...). Every key contains a
-  `provider` and a `packages` list of concrete names; the list can hold
-  one or many packages.
+- Each entry has per-OS keys (`arch`, `darwin`, ...). A per-OS value is
+  either a single `{provider, packages}` mapping or a list of such mappings
+  (one per provider) when multiple providers are needed on the same OS.
+- The same provider must not appear twice in one per-OS list — merge the
+  `packages:` lists instead. The resolver fails fast on duplicates.
 - A logical name **not** in the catalog falls through to the default
   provider for the target OS (`pacman` on arch, `brew` on darwin). This is
   why everyday Arch packages like `alacritty`, `networkmanager`, and most
@@ -185,10 +197,6 @@ Rules:
 - An entry without a key for the current `target_os` is silently dropped, so
   arch-only entries (like `pacseek`) don't fail on darwin and vice versa.
 - Output buckets are deduped and sorted per provider for stable diffs.
-- The filter plugin also supports a fallback `includes:` mechanism that
-  expands one logical name into other logical names (recursive, cycle-
-  detected). No current entry uses it; the roll-up pattern above is
-  preferred because the resulting `packages:` list is self-contained.
 
 The catalog currently has ~45 entries: cross-OS GUI apps (vivaldi,
 1password, firefox, vlc, slack, zoom, google-chrome, dropbox), cross-OS

@@ -105,8 +105,10 @@ package_catalog:
     darwin: { provider: cask, packages: [pycharm] }
 
   python:
-    arch:   { provider: pacman, packages: [python, python-black, python-gpgme, python-pip, python-poetry, python-virtualenv, uv] }
-    darwin: { provider: brew,   packages: [black, python, uv] }
+    arch:
+      - { provider: pacman, packages: [python, python-black, python-gpgme, python-pip, python-poetry, python-virtualenv, uv] }
+      - { provider: aur,    packages: [pyrefly] }
+    darwin: { provider: brew, packages: [black, python, pyrefly, uv] }
 
   python-screeninfo:
     arch: { provider: aur, packages: [python-screeninfo] }
