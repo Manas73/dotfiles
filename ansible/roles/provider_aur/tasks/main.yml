@@ -50,6 +50,16 @@
     - provider_packages | length > 0
   tags: [packages, aur, arch]
 
+- name: Refresh pacman databases before AUR ops (pacman -Sy)
+  community.general.pacman:
+    update_cache: true
+  become: true
+  when:
+    - not ansible_check_mode
+    - provider_aur_refresh_databases | bool
+    - provider_packages | length > 0
+  tags: [packages, aur, arch]
+
 - name: Detect yay
   ansible.builtin.shell: command -v yay
   register: provider_aur_yay_binary

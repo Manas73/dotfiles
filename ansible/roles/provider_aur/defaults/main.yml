@@ -3,3 +3,8 @@
 
 # Where to clone yay-bin for the initial bootstrap when yay is missing.
 provider_aur_bootstrap_dir: "/tmp/yay-bin-bootstrap"
+
+# Refresh pacman databases before invoking yay (pacman -Sy equivalent).
+# yay does not auto-refresh, so a stale local DB can cause spurious
+# "package not found" or 404 errors. Idempotent; safe to leave on.
+provider_aur_refresh_databases: true
