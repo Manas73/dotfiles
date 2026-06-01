@@ -101,7 +101,7 @@ package_catalog:
     darwin: { provider: cask, packages: [postman] }
 
   pycharm:
-    arch:   { provider: aur,  packages: [pycharm, pycharm-jre] }
+    arch:   { provider: aur,  packages: [pycharm] }
     darwin: { provider: cask, packages: [pycharm] }
 
   python:
