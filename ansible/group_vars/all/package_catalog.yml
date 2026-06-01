@@ -10,23 +10,23 @@ package_catalog:
     darwin: { provider: cask, packages: ["1password"] }
 
   aws-cli:
-    arch: { provider: aur, packages: [aws-cli-v2] }
+    arch:   { provider: aur, packages: [aws-cli-v2] }
     darwin: { provider: brew, packages: [awscli] }
 
   aws-session-manager-plugin:
-    arch: { provider: aur, packages: [aws-session-manager-plugin] }
+    arch:   { provider: aur, packages: [aws-session-manager-plugin] }
     darwin: { provider: cask, packages: [session-manager-plugin] }
 
   bazecor:
-    arch: { provider: aur, packages: [bazecor] }
+    arch:   { provider: aur, packages: [bazecor] }
     darwin: { provider: cask, packages: [bazecor] }
 
   beads:
-    arch: { provider: aur, packages: [beads-git] }
+    arch:   { provider: aur, packages: [beads-git] }
     darwin: { provider: brew, packages: [beads] }
 
   cloud-sql-proxy:
-    arch: { provider: aur, packages: [cloud-sql-proxy] }
+    arch:   { provider: aur, packages: [cloud-sql-proxy] }
     darwin: { provider: brew, packages: [cloud-sql-proxy] }
 
   datagrip:
@@ -49,11 +49,11 @@ package_catalog:
     darwin: { provider: cask,   packages: [firefox] }
 
   fresh-editor:
-    arch: { provider: aur, packages: [fresh-editor-bin] }
+    arch:   { provider: aur, packages: [fresh-editor-bin] }
     darwin: { provider: brew, packages: [sinelaw/fresh/fresh-editor] }
 
   gitkraken:
-    arch: { provider: aur, packages: [gitkraken] }
+    arch:   { provider: aur, packages: [gitkraken] }
     darwin: { provider: cask, packages: [gitkraken] }
 
   google-chrome:
@@ -61,11 +61,11 @@ package_catalog:
     darwin: { provider: cask, packages: [google-chrome] }
 
   google-cloud-cli:
-    arch: { provider: aur, packages: [google-cloud-cli] }
+    arch:   { provider: aur, packages: [google-cloud-cli] }
     darwin: { provider: cask, packages: [gcloud-cli] }
 
   kanata:
-    arch: { provider: aur, packages: [kanata-bin] }
+    arch:   { provider: aur, packages: [kanata-bin] }
     darwin: { provider: brew, packages: [kanata] }
 
   lazydocker:
@@ -73,7 +73,7 @@ package_catalog:
     darwin: { provider: brew, packages: [lazydocker] }
 
   masterpdfeditor:
-    arch: { provider: aur, packages: [masterpdfeditor] }
+    arch:   { provider: aur, packages: [masterpdfeditor] }
     darwin: { provider: cask, packages: [master-pdf-editor] }
 
   matugen:
@@ -90,14 +90,14 @@ package_catalog:
     arch: { provider: aur, packages: [onlyoffice-bin] }
 
   opencode:
-    arch: { provider: pacman, packages: [opencode] }
+    arch:   { provider: pacman, packages: [opencode] }
     darwin: { provider: brew, packages: [opencode] }
 
   pacseek:
     arch: { provider: aur, packages: [pacseek] }
 
   postman:
-    arch: { provider: aur, packages: [postman-bin] }
+    arch:   { provider: aur, packages: [postman-bin] }
     darwin: { provider: cask, packages: [postman] }
 
   pycharm:
@@ -114,7 +114,7 @@ package_catalog:
     arch: { provider: aur, packages: [python-screeninfo] }
 
   rambox:
-    arch: { provider: aur, packages: [rambox-pro-bin] }
+    arch:   { provider: aur, packages: [rambox-pro-bin] }
     darwin: { provider: cask, packages: [rambox] }
 
   redshift:
@@ -126,21 +126,25 @@ package_catalog:
   slack:
     arch:   { provider: aur,  packages: [slack-desktop] }
     darwin: { provider: cask, packages: [slack] }
+   
+  spotify:
+    arch:   { provider: pacman, packages: [spotify] }
+    darwin: { provider: cask, packages: [spotify] }
 
   steam:
-    arch: { provider: pacman, packages: [steam] }
+    arch:   { provider: pacman, packages: [steam] }
     darwin: { provider: cask, packages: [steam] }
 
   sublime-text:
-    arch: { provider: aur, packages: [sublime-text-4] }
+    arch:   { provider: aur, packages: [sublime-text-4] }
     darwin: { provider: cask, packages: [sublime-text] }
 
   ttf-material-design-icons:
-    arch: { provider: aur, packages: [ttf-material-design-icons-git] }
+    arch:   { provider: aur, packages: [ttf-material-design-icons-git] }
     darwin: { provider: cask, packages: [font-material-design-icons-webfont] }
 
   ttf-material-icons:
-    arch: { provider: aur, packages: [ttf-material-icons-git] }
+    arch:   { provider: aur, packages: [ttf-material-icons-git] }
     darwin: { provider: cask, packages: [font-material-icons] }
 
   ttf-ms-fonts:
@@ -168,7 +172,7 @@ package_catalog:
     darwin: { provider: cask, packages: [webstorm] }
 
   zed:
-    arch: { provider: aur, packages: [zed] }
+    arch:   { provider: aur, packages: [zed] }
     darwin: { provider: cask, packages: [zed] }
 
   zoom:
