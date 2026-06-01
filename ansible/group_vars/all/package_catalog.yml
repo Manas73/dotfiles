@@ -25,6 +25,10 @@ package_catalog:
     arch:   { provider: aur, packages: [beads-git] }
     darwin: { provider: brew, packages: [beads] }
 
+  claude-code:
+    arch:   { provider: aur, packages: [claude-code] }
+    darwin: { provider: cask, packages: [claude-code] }
+
   cloud-sql-proxy:
     arch:   { provider: aur, packages: [cloud-sql-proxy] }
     darwin: { provider: brew, packages: [cloud-sql-proxy] }

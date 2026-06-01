@@ -55,6 +55,7 @@ profile_apps:
 
   development:
     - beads
+    - claude-code
     - datagrip
     - gitkraken
     - mysql
