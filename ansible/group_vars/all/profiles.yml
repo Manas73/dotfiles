@@ -34,6 +34,7 @@ profile_apps:
     - go
     - hugo
     - jq
+    - just
     - lazydocker
     - lazygit
     - moreutils

@@ -68,6 +68,10 @@ package_catalog:
     arch:   { provider: aur, packages: [google-cloud-cli] }
     darwin: { provider: cask, packages: [gcloud-cli] }
 
+  just:
+    arch:   { provider: pacman, packages: [just] }
+    darwin: { provider: brew,   packages: [just] }
+
   kanata:
     arch:   { provider: aur, packages: [kanata-bin] }
     darwin: { provider: brew, packages: [kanata] }

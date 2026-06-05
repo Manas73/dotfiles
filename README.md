@@ -18,9 +18,33 @@ See `docs/ANSIBLE_MIGRATION_PLAN.md` for architecture and `docs/ONBOARDING.md` f
 - `git`
 - `age` (1.2.0+)
 - `chezmoi` (2.52.2+)
+- `just` (for the task-runner recipes; see Validation)
 - `ansible-core` (2.15+) for full machine provisioning
 - `community.general` Ansible collection (installed in the bootstrap step below)
 - SSH access to `github.com` (HTTPS is no longer wired up; see Authentication below)
+
+## Quickstart
+
+Day-to-day work goes through [`just`](https://just.systems) recipes in the
+repo-root `justfile`. Run them from the repo root (`~/.local/share/chezmoi`).
+Each bakes in the UTF-8 locale Ansible needs and `cd`s into `ansible/` so the
+inventory resolves — no manual `export` or directory juggling.
+
+```sh
+just            # list all recipes
+just check      # full pre-commit validation (run before committing)
+just test       # chezmoi-boundary guard only
+just diff       # pending dotfile changes (chezmoi diff)
+just apply      # full site playbook for this host (prompts for sudo)
+just dotfiles   # re-apply dotfiles only
+just packages   # install packages only (prompts for sudo)
+```
+
+All host-acting recipes (`apply`, `dotfiles`, `packages`) scope to the current
+host via `--limit "$(hostname)"`.
+
+New machine? Skip to [Full Provisioning](#full-provisioning-new-machine) first
+— `just` and the rest of the toolchain land during that run.
 
 ## Authentication
 
@@ -149,6 +173,13 @@ ansible-playbook ... playbooks/dotfiles.yml
 ## Validation
 
 Run these before committing non-trivial Ansible or Chezmoi changes.
+
+The shortcut is `just check` (run from the repo root), which runs the whole
+block below — including the UTF-8 locale export — in one command. `just test`
+runs only the chezmoi-boundary guard. Run `just` to list all recipes (`apply`,
+`dotfiles`, `packages`, `diff`).
+
+The raw commands, for reference and for environments without `just`:
 
 ```sh
 # UTF-8 locale is required by Ansible on this machine.
