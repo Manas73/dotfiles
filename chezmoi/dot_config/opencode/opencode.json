@@ -11,6 +11,6 @@
   "plugin": [
     "opencode-zellij-namer",
     "opencode-beads@0.6.0",
-    "@khalilgharbaoui/opencode-claude-code-plugin"
+    "opencode-claude-auth@latest" 
   ]
 }
