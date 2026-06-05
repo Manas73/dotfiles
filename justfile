@@ -16,13 +16,14 @@ export LANG := "C.UTF-8"
 default:
     @just --list
 
-# Full pre-commit validation: syntax-check, inventory resolution, dry-run,
-# pending dotfile diff, and the chezmoi-boundary guard. Run before committing
-# non-trivial Ansible or Chezmoi changes.
-#
-# ansible.cfg pins `inventory = hosts.yml`, so the ansible steps run from the
-# ansible/ directory for inventory + collections paths to resolve.
+# Install required Ansible collections (run once on a fresh machine).
+deps:
+    cd ansible && ansible-galaxy install -r requirements.yml
+
+# Full pre-commit validation (syntax, inventory, dry-run, diff, boundary).
 check: test
+    # ansible.cfg pins `inventory = hosts.yml`, so the ansible steps run from
+    # the ansible/ directory for inventory + collections paths to resolve.
     cd ansible && ansible-playbook playbooks/site.yml --syntax-check
     cd ansible && ansible-playbook playbooks/dotfiles.yml --syntax-check
     cd ansible && ansible-inventory --graph
@@ -33,8 +34,7 @@ check: test
 # Alias for `check`.
 validate: check
 
-# Guard the chezmoi/repo boundary: nothing under ansible/, docs/, or
-# bootstrap/ may be chezmoi-managed, or repo-only files would land in $HOME.
+# Guard the chezmoi/repo boundary (no repo-only paths managed into $HOME).
 test:
     @if chezmoi managed | grep -E '^(ansible|docs|bootstrap)/'; then \
         echo "FAIL: repo-only paths are chezmoi-managed (.chezmoiroot/.chezmoiignore broken)"; \
@@ -47,8 +47,7 @@ test:
 diff:
     chezmoi diff
 
-# Full site playbook for this host (packages + dotfiles + system setup).
-# Prompts once for the sudo password.
+# Provision this host fully: packages + dotfiles + system setup (sudo).
 apply:
     cd ansible && ansible-playbook playbooks/site.yml --limit "$(hostname)" --ask-become-pass
 
@@ -56,7 +55,6 @@ apply:
 dotfiles:
     cd ansible && ansible-playbook playbooks/dotfiles.yml --limit "$(hostname)"
 
-# Install packages only (no dotfiles or system setup) for this host.
-# Prompts for sudo.
+# Install packages only for this host, no dotfiles/system setup (sudo).
 packages:
     cd ansible && ansible-playbook playbooks/site.yml --limit "$(hostname)" --tags packages --ask-become-pass

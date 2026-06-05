@@ -50,6 +50,7 @@ inventory resolves — no manual `export` or directory juggling.
 
 ```sh
 just            # list all recipes
+just deps       # install required Ansible collections (once, on a fresh machine)
 just check      # full pre-commit validation (run before committing)
 just test       # chezmoi-boundary guard only
 just diff       # pending dotfile changes (chezmoi diff)
@@ -89,13 +90,11 @@ New machine, full provisioning:
 ```sh
 # Clone into the Chezmoi source path.
 git clone git@github.com-personal:Manas73/dotfiles.git ~/.local/share/chezmoi
-
-# Install the required Ansible collection (from the repo root).
 cd ~/.local/share/chezmoi
-ansible-galaxy install -r ansible/requirements.yml
 
-# Provision this host.
-just apply        # == ansible-playbook playbooks/site.yml --limit "$(hostname)" --ask-become-pass
+# Install the required Ansible collection(s), then provision this host.
+just deps
+just apply
 ```
 
 `--ask-become-pass` prompts once for sudo; the first run also prompts once for
