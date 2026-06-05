@@ -27,7 +27,7 @@
     fail_msg: >-
       Missing required vars for the chezmoi role. host_vars/<hostname>.yml
       must define email, profile, osid, gpu, primary_user. The chezmoi_*
-      paths come from group_vars/all/main.yml. See docs/ONBOARDING.md.
+      paths come from group_vars/all/main.yml. See docs/ansible/02-onboarding.md.
     quiet: true
 
 - name: Locate chezmoi binary

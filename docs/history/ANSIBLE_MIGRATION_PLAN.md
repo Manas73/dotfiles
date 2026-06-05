@@ -14,9 +14,12 @@
 >   profile membership via host_vars `profiles:` list (not inventory
 >   groups), unprefixed chezmoi data keys, removal of dead vars.
 >
-> For the **current** architecture and how-to, see `ansible/README.md` and
-> `docs/ONBOARDING.md`. The sections below reflect the plan as written,
-> not necessarily the present-day layout.
+> For the **current** architecture and how-to, see
+> [`../ansible/01-architecture.md`](../ansible/01-architecture.md),
+> [`../ansible/02-onboarding.md`](../ansible/02-onboarding.md), and the
+> authoritative [`../../ansible/README.md`](../../ansible/README.md). The
+> sections below reflect the plan as written, not necessarily the
+> present-day layout.
 
 ## Goal
 
@@ -208,7 +211,7 @@ Ansible renders Chezmoi config from host vars and runs `chezmoi apply`. Chezmoi 
 - Initially added repo-only paths to `.chezmoiignore`.
 - Later superseded by moving the Chezmoi source state into the `chezmoi/` subdirectory and adding `.chezmoiroot` at the repo root (beads-iwd). Repo-only directories are now outside Chezmoi's view by construction; `.chezmoiignore` only handles in-source exceptions.
 - Verified `chezmoi managed` excludes `docs/`, `ansible/`, and other repo-only top-level paths.
-- Added this plan and `docs/ONBOARDING.md`.
+- Added this plan and the onboarding doc.
 
 ### Phase 2 — Ansible Skeleton ✓
 
@@ -256,7 +259,7 @@ Ansible renders Chezmoi config from host vars and runs `chezmoi apply`. Chezmoi 
 Tracked by `chezmoi-16a` (non-macOS, Linux bootstrap + validation) and `chezmoi-qxl` (macOS bootstrap, blocked on `chezmoi-7tw`).
 
 - README covers the two-layer split, full-provisioning vs dotfiles-only flows, tags, validation commands, and troubleshooting.
-- `docs/ONBOARDING.md` covers prerequisites, host_vars/inventory wiring for Linux hosts, validation, and run steps. macOS section is a placeholder pointing at `chezmoi-qxl`.
+- The onboarding doc covers prerequisites, host_vars/inventory wiring for Linux hosts, validation, and run steps. macOS section is a placeholder pointing at `chezmoi-qxl`.
 - Validation command set (see below) is authoritative.
 
 ### Phase 10 — Inventory Hierarchy Cleanup ✓

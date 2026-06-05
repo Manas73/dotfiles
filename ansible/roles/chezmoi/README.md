@@ -66,4 +66,4 @@ encryption = "age"
 
 - `chezmoi` binary missing → fails with instructions to install via the relevant package role.
 - Chezmoi source repo missing → fails with the clone command.
-- Required host vars missing → fails via `assert` with a pointer to `docs/ONBOARDING.md`.
+- Required host vars missing → fails via `assert` with a pointer to `docs/ansible/02-onboarding.md`.

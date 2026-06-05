@@ -2,7 +2,8 @@
 
 Provisioning layer for OS packages, services, groups, and Chezmoi configuration.
 
-See `docs/ANSIBLE_MIGRATION_PLAN.md` for the long-term plan and `docs/ONBOARDING.md` for adding a new machine.
+See `docs/ansible/02-onboarding.md` for adding a new machine and
+`docs/history/ANSIBLE_MIGRATION_PLAN.md` for the original migration plan.
 
 ## Scope
 
