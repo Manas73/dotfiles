@@ -101,7 +101,7 @@ Two sources of intent feed the orchestrator:
      cli:          [atuin, bat, fish, fzf, neovim, git, go, nodejs, python, ...]
      cloud:        [aws-cli, aws-session-manager-plugin, cloud-sql-proxy, google-cloud-cli]
      development:  [beads, datagrip, gitkraken, opencode, postman, pycharm, sublime-text, webstorm, zed, ...]
-     fonts:        [ttf-dejavu, ttf-fira-code, ttf-material-design-icons, ...]
+     fonts:        [ttf-dejavu, ttf-fira-code, ...]
      gaming:       [steam, lutris, umu-launcher]
      hyprland:     [waybar, hyprland, hyprlock, matugen, ...]
      i3:           [i3-wm, picom, polybar, sxhkd, xclip, ...]

@@ -147,12 +147,8 @@ package_catalog:
     arch:   { provider: aur, packages: [sublime-text-4] }
     darwin: { provider: cask, packages: [sublime-text] }
 
-  ttf-material-design-icons:
-    arch:   { provider: aur, packages: [ttf-material-design-icons-git] }
-    darwin: { provider: cask, packages: [font-material-design-icons-webfont] }
-
   ttf-material-icons:
-    arch:   { provider: aur, packages: [ttf-material-icons-git] }
+    arch:   { provider: pacman, packages: [ttf-material-icons] }
     darwin: { provider: cask, packages: [font-material-icons] }
 
   ttf-ms-fonts:
