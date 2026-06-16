@@ -147,6 +147,10 @@ package_catalog:
     arch:   { provider: aur, packages: [sublime-text-4] }
     darwin: { provider: cask, packages: [sublime-text] }
 
+  thunderbird:
+    arch:   { provider: pacman, packages: [thunderbird] }
+    darwin: { provider: cask, packages: [thunderbird] }
+
   ttf-material-icons:
     arch:   { provider: pacman, packages: [ttf-material-icons] }
     darwin: { provider: cask, packages: [font-material-icons] }
