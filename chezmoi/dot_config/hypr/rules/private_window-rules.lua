@@ -82,7 +82,7 @@ hl.window_rule({
 
 hl.window_rule({
 	name = "thunderbird-ws",
-	match = { class = "thunderbird" },
+	match = { class = "org.mozilla.Thunderbird" },
 	workspace = "5 silent",
 })
 
