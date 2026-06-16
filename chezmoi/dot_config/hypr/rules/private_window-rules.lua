@@ -81,6 +81,12 @@ hl.window_rule({
 })
 
 hl.window_rule({
+	name = "thunderbird-ws",
+	match = { class = "thunderbird" },
+	workspace = "5 silent",
+})
+
+hl.window_rule({
 	name = "spotify-ws",
 	match = { class = "Spotify" },
 	workspace = "8 silent",
