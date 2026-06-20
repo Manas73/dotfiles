@@ -37,16 +37,12 @@ hl.window_rule({
 -- Flameshot Window Rules
 hl.window_rule({
 	name = "proper-flameshot-handling",
-	match = { class = "flameshot" },
-	animation = "fade",
-	rounding = 0,
-	border_size = 0,
-	fullscreen_state = "0 0",
+	match = {
+		class = "flameshot",
+		title = "flameshot",
+	},
 	float = true,
-	pin = true,
-	monitor = "DP-1",
-	move = { "0", "0" },
-	size = { "monitor_w*2", "monitor_h" },
+	pin = false,
 })
 
 -- Workspace specific settings
