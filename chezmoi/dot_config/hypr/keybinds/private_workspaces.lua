@@ -18,6 +18,9 @@ for k, ws in pairs(altWs) do
           hl.dsp.window.move({ workspace = ws, follow = false }))
 end
 
+-- Jump to previous (last-focused) workspace via mainMod + Tab
+hl.bind(mainMod .. " + Tab", hl.dsp.focus({ workspace = "previous_per_monitor" }))
+
 -- Special workspace (scratchpad)
 hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic", follow = false }))
