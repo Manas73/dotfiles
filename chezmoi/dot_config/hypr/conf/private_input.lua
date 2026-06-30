@@ -20,13 +20,7 @@ hl.config({
     touchpad = {
       natural_scroll = false,
     },
-  },
-
-  -- See https://wiki.hypr.land/Configuring/Variables/#binds
-  binds = {
-    -- Re-pressing the workspace bind toggles back to the previous workspace.
-    workspace_back_and_forth = true,
-  },
+  }
 })
 
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Gestures/
