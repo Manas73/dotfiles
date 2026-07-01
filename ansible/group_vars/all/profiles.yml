@@ -64,6 +64,7 @@ profile_apps:
     - postman
     - pycharm
     - sublime-text
+    - tailscale
     - webstorm
     - zed
 
