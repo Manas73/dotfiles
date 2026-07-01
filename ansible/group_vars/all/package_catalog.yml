@@ -136,6 +136,10 @@ package_catalog:
   redshift:
     arch: { provider: aur, packages: [redshift] }
 
+  rustdesk:
+    arch:   { provider: aur, packages: [rustdesk] }
+    darwin: { provider: cask, packages: [rustdesk] }
+
   selectdefaultapplication:
     arch: { provider: aur, packages: [selectdefaultapplication-git] }
 
