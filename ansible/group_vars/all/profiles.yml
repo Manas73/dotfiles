@@ -59,6 +59,7 @@ profile_apps:
     - claude-code
     - datagrip
     - gitkraken
+    - mosh
     - mysql
     - opencode
     - postman

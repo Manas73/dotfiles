@@ -87,6 +87,10 @@ package_catalog:
   matugen:
     arch: { provider: aur, packages: [matugen-bin] }
 
+  mosh:
+    arch:   { provider: aur, packages: [mosh] }
+    darwin: { provider: brew, packages: [mosh] }
+
   mysql:
     arch: { provider: aur, packages: [mysql] }
 
