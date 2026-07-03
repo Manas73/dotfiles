@@ -188,6 +188,10 @@ package_catalog:
     arch:   { provider: pacman, packages: [vlc, vlc-plugins-all] }
     darwin: { provider: cask,   packages: [vlc] }
 
+  vuescan:
+    arch:   { provider: aur, packages: [vuescan-bin] }
+    darwin: { provider: cask, packages: [vuescan] }
+
   waybar:
     arch: { provider: aur, packages: [waybar-git] }
 

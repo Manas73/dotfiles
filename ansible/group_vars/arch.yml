@@ -34,6 +34,7 @@ arch_apps:
   - thunderbird
   - vivaldi
   - vlc
+  - vuescan
   - zoom
   # ----------------------------------------------------------------
   # Arch-only
