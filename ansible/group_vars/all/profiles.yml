@@ -62,7 +62,6 @@ profile_apps:
     - mosh
     - mysql
     - opencode
-    - nvm
     - postman
     - pycharm
     - rustdesk
