@@ -1,0 +1,51 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "vim_mode": false,
+  "agent": {
+    "default_profile": "ask",
+    "dock": "right",
+    "sidebar_side": "right",
+    "favorite_models": [],
+    "model_parameters": []
+  },
+  "restore_on_startup": "launchpad",
+  "ui_font_family": ".SystemUIFont",
+  "buffer_line_height": "comfortable",
+  "buffer_font_family": "JetBrainsMono Nerd Font",
+  "terminal": {
+    "font_family": "JetBrainsMono Nerd Font"
+  },
+  "minimap": {
+    "show": "always"
+  },
+  "project_panel": {
+    "bold_folder_labels": false,
+    "indent_size": 20.0,
+    "entry_spacing": "comfortable",
+    "default_width": 300.0,
+    "dock": "left"
+  },
+  "prettier": {
+    "parser": ""
+  },
+  "icon_theme": "Base Charmed Icons",
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "base_keymap": "JetBrains",
+  "ui_font_size": 16.0,
+  "buffer_font_size": 14.0,
+  "theme": {
+    "mode": "system",
+    "light": "One Dark",
+    "dark": "One Dark"
+  },
+}

@@ -1,0 +1,268 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      // "shift shift": "file_finder::Toggle"
+    },
+  },
+  {
+    "context": "Editor && vim_mode == insert",
+    "bindings": {
+      // "j k": "vim::NormalBefore"
+    },
+  },
+  {
+    "bindings": {
+      "alt-enter": "terminal_panel::Toggle"
+    }
+  },
+  {
+    "bindings": {
+      "left": "editor::MoveLeft"
+    }
+  },
+  {
+    "bindings": {
+      "right": "editor::MoveRight"
+    }
+  },
+  {
+    "bindings": {
+      "up": "editor::MoveUp"
+    }
+  },
+  {
+    "bindings": {
+      "down": "editor::MoveDown"
+    }
+  },
+  {
+    "bindings": {
+      "delete": "editor::Delete"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-x": "editor::Cut"
+    }
+  },
+  {
+    "bindings": {
+      "tab": "editor::Tab"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-c": "editor::Copy"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-z": "editor::Undo"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-shift-z": "editor::Redo"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-v": "editor::Paste"
+    }
+  },
+  {
+    "bindings": {
+      "shift-tab": "editor::Backtab"
+    }
+  },
+  {
+    "bindings": {
+      "backspace": "editor::Backspace"
+    }
+  },
+  {
+    "bindings": {
+      "enter": "editor::Newline"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-a": "editor::SelectAll"
+    }
+  },
+  {
+    "bindings": {
+      "end": "editor::MoveToEndOfLine"
+    }
+  },
+  {
+    "bindings": {
+      "home": "editor::MoveToBeginningOfLine"
+    }
+  },
+  {
+    "bindings": {
+      "shift-left": "editor::SelectLeft"
+    }
+  },
+  {
+    "bindings": {
+      "shift-right": "editor::SelectRight"
+    }
+  },
+  {
+    "bindings": {
+      "shift-end": "editor::SelectToEndOfLine"
+    }
+  },
+  {
+    "bindings": {
+      "shift-home": "editor::SelectToBeginningOfLine"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-shift-left": "editor::SelectToPreviousSubwordStart"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-shift-right": "editor::SelectToNextSubwordEnd"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-right": "editor::MoveToNextSubwordEnd"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-left": "editor::MoveToPreviousSubwordStart"
+    }
+  },
+  {
+    "bindings": {
+      "shift-down": "editor::SelectDown"
+    }
+  },
+  {
+    "bindings": {
+      "shift-up": "editor::SelectUp"
+    }
+  },
+  {
+    "bindings": {
+      "escape": "editor::Cancel"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-backspace": "editor::DeleteToPreviousSubwordStart"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-/": "editor::ToggleComments"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-s": "workspace::Save"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-shift-g": "editor::GoToDefinition"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-shift-f": "text_finder::Toggle"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-f": "buffer_search::Deploy"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-r": "buffer_search::DeployReplace"
+    }
+  },
+  {
+    "bindings": {
+      "enter": "search::SelectNextMatch"
+    }
+  },
+  {
+    "bindings": {
+      "alt-f": "pane::RevealInProjectPanel"
+    }
+  },
+  {
+    "context": "BufferSearchBar",
+    "bindings": {
+      "tab": "buffer_search::FocusEditor"
+    }
+  },
+  {
+    "context": "BufferSearchBar",
+    "unbind": {
+      "tab": "buffer_search::FocusEditor"
+    }
+  },
+  {
+    "bindings": {
+      "alt-d": "project_panel::Toggle"
+    }
+  },
+  {
+    "context": "Dock || Workspace || OutlinePanel || ProjectPanel || CollabPanel",
+    "bindings": {
+      "alt-c": "editor::ToggleFocus"
+    }
+  },
+  {
+    "context": "Dock || Workspace || OutlinePanel || ProjectPanel || CollabPanel",
+    "unbind": {
+      "escape": "editor::ToggleFocus"
+    }
+  },
+  {
+    "context": "Workspace",
+    "unbind": {
+      "ctrl-shift-a": "command_palette::Toggle"
+    }
+  },
+  {
+    "context": "Workspace",
+    "unbind": {
+      "f1": "command_palette::Toggle"
+    }
+  },
+  {
+    "bindings": {
+      "alt-e": "agent::Toggle"
+    }
+  },
+  {
+    "context": "Workspace",
+    "unbind": {
+      "ctrl-shift-g": "git_panel::ToggleFocus"
+    }
+  },
+  {
+    "bindings": {
+      "alt-g": "git_panel::Toggle"
+    }
+  }
+]

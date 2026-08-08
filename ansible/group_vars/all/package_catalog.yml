@@ -150,7 +150,7 @@ package_catalog:
   slack:
     arch:   { provider: aur,  packages: [slack-desktop] }
     darwin: { provider: cask, packages: [slack] }
-   
+
   spotify:
     arch:   { provider: pacman, packages: [spotify] }
     darwin: { provider: cask, packages: [spotify] }
