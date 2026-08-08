@@ -89,7 +89,8 @@
     }
   },
   {
-    "bindings": {
+    "context": "Editor",
+      "bindings": {
       "enter": "editor::Newline"
     }
   },
@@ -200,11 +201,6 @@
   },
   {
     "bindings": {
-      "enter": "search::SelectNextMatch"
-    }
-  },
-  {
-    "bindings": {
       "alt-f": "pane::RevealInProjectPanel"
     }
   },
@@ -263,6 +259,12 @@
   {
     "bindings": {
       "alt-g": "git_panel::Toggle"
+    }
+  },
+  {
+    "context": "ProjectPanel && not_editing",
+    "bindings": {
+      "enter": "project_panel::Open"
     }
   }
 ]
