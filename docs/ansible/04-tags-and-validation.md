@@ -6,11 +6,11 @@
 
 | Tag | What runs |
 |---|---|
-| `packages` | The four-layer package orchestrator (`roles/packages`) and every provider it dispatches to. |
-| `pacman` / `aur` / `brew` / `cask` | A single provider role only (`roles/provider_*`). |
+| `packages` | `roles/packages` (resolve + all provider task files). |
+| `pacman` / `aur` / `brew` / `cask` | A single provider task file under `roles/packages/tasks/`. |
 | `arch` / `darwin` | All package work for the matching OS. |
 | `dotfiles` / `chezmoi` | `chezmoi` role only (render `chezmoi.toml` + `chezmoi apply`). |
-| `system` | fish, docker, kanata, plasma_custom_wm (gated by host feature flags). Sub-tags: `sudoers`, `fish`, `docker`, `kanata`, `plasma`. |
+| `system` | sudoers, `roles/system` (fish/docker/libvirt), kanata, plasma_custom_wm (gated by flags). Sub-tags: `sudoers`, `fish`, `docker`, `libvirt`, `kanata`, `plasma`. |
 | `upgrade` | `pacman -Syu` (only when you explicitly want a full upgrade). |
 
 Examples:

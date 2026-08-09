@@ -1,31 +1,29 @@
 # Ansible 01 — Package Architecture
 
-The Ansible layer installs packages through a four-layer model with one
-direction of dependency. Each layer has a single responsibility and depends
-only on the schema of the layer below it.
+The Ansible layer installs packages through intent lists, a catalog, and one
+packages role with per-manager task files.
 
 > The authoritative, in-tree reference is
 > [`../../ansible/README.md`](../../ansible/README.md). This page is the
 > orientation; that file has the full schema, role contracts, and edge cases.
 
 ```text
-Layer 1: Intent       <group>_apps / profile_apps   (lists of logical names)
-Layer 2: Catalog      group_vars/all/package_catalog.yml
-Layer 3: Dispatcher   roles/packages (orchestrator + OCP dispatch loop)
-Layer 4: Providers    roles/provider_{pacman,aur,brew,cask}
+Intent       <group>_apps / profile_apps   (lists of logical names)
+Catalog      group_vars/all/package_catalog.yml
+packages     roles/packages (resolve + tasks/{pacman,aur,brew,cask}.yml)
 ```
 
-## Layer 1 — Intent
+## Intent
 
 Pure lists of *logical* app names. They know nothing about pacman, AUR, brew,
-or cask. Two sources feed the orchestrator:
+or cask. Two sources feed the packages role:
 
 1. **OS-family lists** — `arch_apps` (`group_vars/arch.yml`) and
    `darwin_apps` (`group_vars/darwin.yml`).
 2. **Profile bundles** — `profile_apps` in `group_vars/all/profiles.yml`. A
    host opts into a profile by listing it in `profiles:` in its host_vars;
-   the dispatcher unions the matching `profile_apps[<name>]` lists on top of
-   the OS-family list.
+   the packages role unions the matching `profile_apps[<name>]` lists on top
+   of the OS-family list.
 
 Profiles are **not** inventory groups — host_vars is the single source of
 truth per host. Available profiles:
@@ -41,7 +39,7 @@ truth per host. Available profiles:
 | `i3`          | Linux    | i3 + X11 ecosystem (xclip, xorg-xev, …).        |
 | `kde`         | Linux    | KDE Plasma desktop integration.                 |
 
-## Layer 2 — Catalog
+## Catalog
 
 `group_vars/all/package_catalog.yml` maps each logical name to concrete,
 per-OS install instructions (provider + package list). It handles three
@@ -62,37 +60,33 @@ same-name packages need no catalog entry.
 
 Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.md).
 
-## Layer 3 — Dispatcher
+## packages role
 
-`roles/packages` is the orchestrator. It:
+`roles/packages`:
 
 1. Computes the target OS (`arch`/`darwin`) and default provider.
 2. Aggregates logical names: OS-family list ∪ each opted-in profile's list.
 3. Resolves them through the catalog (`resolve_catalog` filter) into
    `{provider: [pkg, …]}`.
-4. Dispatches dynamically: for each provider bucket, `include_role:
-   provider_<name>`.
+4. Includes provider task files in fixed order for each non-empty bucket:
+   pacman → aur → brew → cask.
 
-Step 4 is the Open/Closed pivot — there is no hardcoded list of providers, so
-adding one requires zero edits here.
+### Provider task files
 
-## Layer 4 — Providers
+| File | OS | Bootstrap |
+|------|-----|-----------|
+| `tasks/pacman.yml` | Archlinux | Verifies pacman; folds in multilib. |
+| `tasks/aur.yml` | Archlinux | Builds `yay-bin` when yay is missing. |
+| `tasks/brew.yml` | Darwin | Official Homebrew installer (`NONINTERACTIVE=1`). |
+| `tasks/cask.yml` | Darwin | None; relies on brew. |
 
-One role per package manager, all obeying the same contract: accept
-`provider_packages`, no-op on empty input, assert the OS family, install
-idempotently (`state: present`), self-bootstrap where needed, and have no
-side effects beyond installation.
-
-| Role              | OS        | Bootstrap                                       |
-|-------------------|-----------|-------------------------------------------------|
-| `provider_pacman` | Archlinux | pacman is in the base system; verifies it. Folds in multilib. |
-| `provider_aur`    | Archlinux | Clones and builds `yay-bin` when yay is missing. |
-| `provider_brew`   | Darwin    | Runs the official Homebrew installer (`NONINTERACTIVE=1`). |
-| `provider_cask`   | Darwin    | None; relies on `provider_brew`.                |
+Each accepts `provider_packages`, no-ops on empty input, asserts the OS
+family, and installs idempotently.
 
 ## How it ties back to Chezmoi
 
 The site playbook runs packages first, then the `chezmoi` role renders
 `~/.config/chezmoi/chezmoi.toml` from inventory vars and runs `chezmoi
-apply`, then system roles (fish, docker, kanata, plasma). Packages and
-dotfiles never duplicate each other.
+apply`, then system wiring (`roles/system`: fish, docker, libvirt) and
+specialty roles (kanata, plasma). Packages and dotfiles never duplicate
+each other.

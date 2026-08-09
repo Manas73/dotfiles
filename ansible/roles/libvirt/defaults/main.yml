@@ -1,3 +1,0 @@
----
-# Defaults for the libvirt role.
-# Behavior flag lives in group_vars/all/main.yml as libvirt_enabled.

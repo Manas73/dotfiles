@@ -1,0 +1,51 @@
+---
+# Install Homebrew casks (GUI apps) on macOS hosts.
+#
+# Input: provider_packages (list[str]) — concrete cask names.
+# Assumes Homebrew is already installed (brew.yml bootstraps it when
+# formulae are present). If you only install casks, ensure brew is present
+# first or list at least one formula so brew.yml runs.
+
+- name: Assert provider_packages is defined and a list
+  ansible.builtin.assert:
+    that:
+      - provider_packages is defined
+      - provider_packages is sequence
+    fail_msg: "packages/cask: provider_packages must be a list."
+    quiet: true
+  tags: [packages, cask, darwin]
+
+- name: Assert the host is Darwin
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Darwin'
+    fail_msg: >-
+      packages/cask requires a macOS host.
+      Detected os_family={{ ansible_facts['os_family'] }}.
+    quiet: true
+  tags: [packages, cask, darwin]
+
+- name: Verify Homebrew is available (brew.yml should have run first)
+  ansible.builtin.stat:
+    path: "{{ packages_brew_path }}"
+  register: packages_cask_brew_stat
+  tags: [packages, cask, darwin]
+
+- name: Fail if Homebrew is missing
+  ansible.builtin.fail:
+    msg: >-
+      packages/cask requires Homebrew at {{ packages_brew_path }} but
+      it is missing. Either install brew manually, or list at least one
+      formula in darwin_apps so brew.yml bootstraps it first.
+  when:
+    - not packages_cask_brew_stat.stat.exists
+    - not ansible_check_mode
+    - provider_packages | length > 0
+  tags: [packages, cask, darwin]
+
+- name: Install Homebrew casks
+  community.general.homebrew_cask:
+    name: "{{ provider_packages | unique | sort }}"
+    state: present
+  when: provider_packages | length > 0
+  tags: [packages, cask, darwin]

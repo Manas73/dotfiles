@@ -1,0 +1,20 @@
+---
+# Defaults for the packages role (provider task files).
+
+# --- pacman ---
+# Refresh package databases before installing (pacman -Sy).
+packages_pacman_refresh_databases: true
+
+# Full system upgrade (pacman -Syu) before install. Off by default;
+# partial upgrades on Arch are unsafe. Pass -e packages_pacman_perform_upgrade=true
+# when a full upgrade is intentional.
+packages_pacman_perform_upgrade: false
+
+# --- AUR / yay ---
+packages_aur_bootstrap_dir: "/tmp/yay-bin-bootstrap"
+packages_aur_refresh_databases: true
+
+# --- Homebrew ---
+# Apple Silicon default; override to /usr/local/bin/brew on Intel Macs.
+packages_brew_path: "/opt/homebrew/bin/brew"
+packages_brew_update: true

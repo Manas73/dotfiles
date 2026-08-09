@@ -41,10 +41,8 @@
   ansible.builtin.fail:
     msg: >-
       chezmoi is not installed on this host. It should be installed by the
-      packages orchestrator (roles/packages) which dispatches to
-      provider_pacman on Arch (the `chezmoi` entry in arch_apps) and
-      provider_brew on macOS (the `chezmoi` entry in darwin_apps). Install
-      it and re-run this playbook.
+      packages role (the `chezmoi` entry in arch_apps / darwin_apps).
+      Install it and re-run this playbook.
   when: chezmoi_binary.rc != 0
 
 - name: Ensure ~/.config/chezmoi directory exists

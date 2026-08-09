@@ -182,8 +182,7 @@ docker_enabled: false   # Docker Desktop on Mac is a separate install
 kanata_enabled: false   # Kanata on macOS needs different setup; defer
 
 # Intel Mac only: uncomment.
-# provider_brew_path: /usr/local/bin/brew
-# provider_cask_brew_path: /usr/local/bin/brew
+# packages_brew_path: /usr/local/bin/brew
 ```
 
 Inventory wiring:

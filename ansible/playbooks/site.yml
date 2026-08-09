@@ -5,14 +5,13 @@
 #   1. Sudoers drop-in for passwordless pacman (linux only).
 #   2. Install OS packages so binaries exist.
 #   3. Apply Chezmoi dotfiles so configs exist for the services below.
-#   4. Configure system services (login shell, Docker, Kanata, Plasma WM).
-#   5. Apply desktop profile hooks (future non-package desktop work).
+#   4. System wiring (fish login shell, docker, libvirt).
+#   5. Specialty services (Kanata, Plasma custom WM).
 #
-# Packaging architecture (four layers; see ansible/README.md):
-#   Intent       <group>_apps lists in group_vars
+# Packaging (intent → catalog → provider task files):
+#   Intent       <group>_apps / profile_apps in group_vars
 #   Catalog      group_vars/all/package_catalog.yml
-#   Dispatcher   roles/packages (orchestrator)
-#   Providers    roles/provider_{pacman,aur,brew,cask}
+#   packages     roles/packages (resolve + tasks/{pacman,aur,brew,cask}.yml)
 #
 # Run examples:
 #   ansible-playbook -i hosts.yml playbooks/site.yml --limit alfred --ask-become-pass
@@ -21,11 +20,8 @@
 #   ansible-playbook ... --tags brew               # darwin brew only
 #   ansible-playbook ... --tags dotfiles
 #   ansible-playbook ... --tags system
-#   ansible-playbook ... --tags desktop
-#
-# Tracking:
-#   chezmoi-97d  SOLID four-layer package refactor (epic)
-#   chezmoi-ck1  sudoers role for passwordless pacman
+#   ansible-playbook ... --tags fish
+#   ansible-playbook ... --tags docker
 
 - name: Install sudoers drop-ins required by other roles
   hosts: linux
@@ -34,7 +30,7 @@
   roles:
     - role: sudoers
 
-- name: Install packages (cross-OS orchestrator)
+- name: Install packages (cross-OS)
   hosts: all
   gather_facts: true
   tags: [packages]
@@ -48,20 +44,12 @@
   roles:
     - role: chezmoi
 
-- name: Ensure Fish is the login shell
+- name: System wiring (shell, docker, libvirt)
   hosts: all
   gather_facts: true
-  tags: [system, fish]
+  tags: [system]
   roles:
-    - role: fish
-
-- name: Configure Docker for the primary user
-  hosts: all
-  gather_facts: true
-  tags: [system, docker]
-  roles:
-    - role: docker
-      when: docker_enabled | default(false) | bool
+    - role: system
 
 - name: Configure Kanata keyboard remapper
   hosts: linux
@@ -70,14 +58,6 @@
   roles:
     - role: kanata
       when: kanata_enabled | default(false) | bool
-
-- name: Configure libvirt for the primary user
-  hosts: linux
-  gather_facts: true
-  tags: [system, libvirt]
-  roles:
-    - role: libvirt
-      when: libvirt_enabled | default(false) | bool
 
 - name: Configure Plasma with custom window manager
   hosts: linux

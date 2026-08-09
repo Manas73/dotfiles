@@ -7,7 +7,7 @@ reference is [`../../ansible/README.md`](../../ansible/README.md).
 ## Add a new app
 
 1. Add the **logical name** to the right intent bucket
-   ([`01-architecture.md`](01-architecture.md), Layer 1):
+   ([`01-architecture.md`](01-architecture.md)):
    - OS-wide on every Arch host → `group_vars/arch.yml` (`arch_apps`).
    - OS-wide on every macOS host → `group_vars/darwin.yml` (`darwin_apps`).
    - Tied to a desktop/feature profile → the relevant key under
@@ -79,12 +79,10 @@ Rules:
 
 ## Add a new provider
 
-The dispatcher is Open/Closed — adding a provider touches no existing role or
-inventory. To add, e.g., a Flatpak provider:
+To add, e.g., a Flatpak provider:
 
-1. Create `roles/provider_flatpak/tasks/main.yml`. Accept `provider_packages`
-   as input; assert OS, install idempotently, self-bootstrap if needed.
-2. Add `"flatpak"` to `VALID_PROVIDERS` in `filter_plugins/catalog.py`.
-3. Add `provider: flatpak` entries to the catalog apps that should use it.
-
-No edits to `roles/packages`, existing provider roles, or inventory.
+1. Create `roles/packages/tasks/flatpak.yml`. Accept `provider_packages` as
+   input; assert OS, install idempotently, self-bootstrap if needed.
+2. Add an `include_tasks` block in `roles/packages/tasks/main.yml`.
+3. Add `"flatpak"` to `VALID_PROVIDERS` in `filter_plugins/catalog.py`.
+4. Add `provider: flatpak` entries to the catalog apps that should use it.

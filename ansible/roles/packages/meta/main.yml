@@ -3,16 +3,12 @@ galaxy_info:
   role_name: packages
   author: Manas Sambare
   description: >-
-    Cross-OS package orchestrator. Aggregates per-group <group>_apps lists,
-    resolves them through the package catalog, and dispatches to provider
-    roles dynamically.
+    Cross-OS package installer. Aggregates intent lists, resolves through
+    the package catalog, and installs via pacman/aur/brew/cask task files.
   license: MIT
   min_ansible_version: "2.15"
   platforms:
     - name: Archlinux
     - name: MacOSX
-  galaxy_tags:
-    - packages
-    - orchestrator
 
 dependencies: []

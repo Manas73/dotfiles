@@ -1,0 +1,32 @@
+---
+# system role: thin OS user / service wiring.
+#
+# Package install is owned by roles/packages. Dotfiles by roles/chezmoi.
+# Feature flags (docker_enabled, libvirt_enabled) live in group_vars / host_vars.
+
+- name: Ensure Fish is the login shell
+  ansible.builtin.include_tasks:
+    file: fish.yml
+    apply:
+      tags: [system, fish]
+  tags: [system, fish]
+
+- name: Configure Docker for the primary user
+  ansible.builtin.include_tasks:
+    file: docker.yml
+    apply:
+      tags: [system, docker]
+  when:
+    - docker_enabled | default(false) | bool
+    - ansible_facts['system'] | lower == 'linux'
+  tags: [system, docker]
+
+- name: Configure libvirt for the primary user
+  ansible.builtin.include_tasks:
+    file: libvirt.yml
+    apply:
+      tags: [system, libvirt]
+  when:
+    - libvirt_enabled | default(false) | bool
+    - ansible_facts['system'] | lower == 'linux'
+  tags: [system, libvirt]

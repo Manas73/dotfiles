@@ -1,15 +1,13 @@
 ---
 galaxy_info:
-  role_name: fish
+  role_name: system
   author: Manas Sambare
-  description: Ensure Fish is the login shell for the primary user.
+  description: >-
+    Thin system wiring: fish login shell, docker group/socket, libvirt groups.
   license: MIT
   min_ansible_version: "2.15"
   platforms:
     - name: Archlinux
     - name: MacOSX
-  galaxy_tags:
-    - shell
-    - fish
 
 dependencies: []

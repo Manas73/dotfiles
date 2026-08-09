@@ -1,20 +1,6 @@
 ---
-# docker role.
-#
-# Configures Docker for the primary user on Linux hosts: creates the
-# docker group, adds the user to it, and enables docker.socket.
-#
-# Gated by docker_enabled (default: false; set true in host_vars).
-# Docker itself is installed by the `packages` orchestrator: `docker` is
-# listed as intent in arch_apps, resolved through the catalog as a bundle
-# (docker-engine + buildx + compose), and dispatched to provider_pacman.
-#
-# macOS handling is intentionally a no-op for now; Docker Desktop or a
-# Homebrew cask will be wired in when the MacBook onboards.
-
-- name: Skip docker role on non-Linux hosts
-  ansible.builtin.meta: end_host
-  when: ansible_facts['system'] | lower != 'linux'
+# Configure Docker for the primary user on Linux: docker group + docker.socket.
+# Gated by docker_enabled. Docker packages are installed by roles/packages.
 
 - name: Verify docker binary is present
   ansible.builtin.shell: command -v docker
@@ -22,20 +8,22 @@
   changed_when: false
   failed_when: false
   check_mode: false
+  tags: [system, docker]
 
 - name: Fail fast if docker is not installed
   ansible.builtin.fail:
     msg: >-
-      docker is not installed. On Arch it is installed by the `packages`
-      role (intent `docker` in arch_apps, dispatched to provider_pacman
-      via the catalog). Run the `packages` role before the docker role.
+      docker is not installed. On Arch it is installed by the packages role
+      (intent `docker` in arch_apps). Run packages before the system role.
   when: docker_binary.rc != 0
+  tags: [system, docker]
 
 - name: Ensure the docker group exists
   ansible.builtin.group:
     name: docker
     state: present
   become: true
+  tags: [system, docker]
 
 - name: Ensure the primary user is in the docker group
   ansible.builtin.user:
@@ -44,12 +32,14 @@
     append: true
   become: true
   register: docker_group_change
+  tags: [system, docker]
 
 - name: Enable docker.socket (starts Docker on demand)
   ansible.builtin.systemd_service:
     name: docker.socket
     enabled: true
   become: true
+  tags: [system, docker]
 
 - name: Report when group membership was just granted
   ansible.builtin.debug:
@@ -57,3 +47,4 @@
       {{ primary_user }} added to the docker group. Log out and back in
       for the group membership to take effect.
   when: docker_group_change is changed
+  tags: [system, docker]

@@ -1,8 +1,8 @@
-"""Package catalog resolver for the ansible packages orchestrator.
+"""Package catalog resolver for the ansible packages role.
 
 Resolves a list of logical application names against the per-OS package
 catalog and returns a dict bucketed by provider name. Each bucket is the
-input to the matching ``provider_<name>`` role.
+input (``provider_packages``) to ``roles/packages/tasks/<name>.yml``.
 
 Catalog schema (in YAML)::
 
@@ -37,11 +37,11 @@ from typing import Any
 
 from ansible.errors import AnsibleFilterError
 
-# Providers must match the existing ``roles/provider_<name>/`` set. Add a
-# new entry here when you add a new provider role; nothing else changes.
+# Providers must match task files under ``roles/packages/tasks/<name>.yml``.
+# Add a new entry here when you add a provider task file + include in main.yml.
 # Multilib is intentionally absent: it is a pacman repo, not a separate
-# manager, so multilib packages route to ``pacman`` and provider_pacman
-# installs them via the same module.
+# manager, so multilib packages route to ``pacman`` and pacman.yml installs
+# them via the same module.
 VALID_PROVIDERS = {"pacman", "aur", "brew", "cask"}
 
 

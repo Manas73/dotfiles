@@ -1,3 +1,0 @@
----
-# Defaults for the docker role.
-# Behavior flag lives in group_vars/all.yml as docker_enabled.

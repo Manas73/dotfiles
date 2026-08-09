@@ -4,7 +4,7 @@
 #   ansible-galaxy install -r ansible/requirements.yml
 #
 # Needed for:
-#   community.general.pacman  (provider_pacman role)
+#   community.general.pacman / homebrew / homebrew_cask (packages role)
 
 collections:
   - name: community.general

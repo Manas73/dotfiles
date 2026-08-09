@@ -1,10 +1,10 @@
 ---
 # macOS package intent.
 #
-# Layer 1 of the four-layer package model. Single list of logical
+# Package intent (logical names). Single list of logical
 # application names. Resolved by roles/packages (orchestrator) against
-# group_vars/all/package_catalog.yml, then dispatched to provider_brew
-# or provider_cask. Names not in the catalog fall through to brew with
+# group_vars/all/package_catalog.yml, then dispatched to brew or cask
+# task files. Names not in the catalog fall through to brew with
 # the same name verbatim (good enough for most CLI tools whose logical
 # name equals the brew formula name).
 #

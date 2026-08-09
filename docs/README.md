@@ -22,7 +22,7 @@ Read top to bottom to build a mental model of the repo:
 ### Ansible (packages, services, system setup)
 
 4. [`ansible/01-architecture.md`](ansible/01-architecture.md) — the
-   four-layer package model (Intent → Catalog → Dispatcher → Providers).
+   package model (intent lists → catalog → packages role / provider tasks).
 5. [`ansible/02-onboarding.md`](ansible/02-onboarding.md) — add a new host:
    `host_vars`, inventory wiring, validation, and the run steps.
 6. [`ansible/03-adding-apps-providers.md`](ansible/03-adding-apps-providers.md)

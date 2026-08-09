@@ -1,10 +1,10 @@
 ---
 # Arch/Garuda package intent.
 #
-# Layer 1 of the four-layer package model. Single list of logical
+# Package intent (logical names). Single list of logical
 # application names. Resolved by roles/packages (orchestrator) against
-# group_vars/all/package_catalog.yml, then dispatched to provider_pacman
-# or provider_aur as the catalog dictates. Names not in the catalog fall
+# group_vars/all/package_catalog.yml, then dispatched to pacman or aur
+# task files as the catalog dictates. Names not in the catalog fall
 # through to the default provider for arch (pacman).
 #
 # Scope: Arch-specific packages only. Cross-platform CLI tools and

@@ -1,24 +1,16 @@
 ---
-# provider_brew: install Homebrew formulae on macOS hosts.
+# Install Homebrew formulae on macOS hosts.
 #
-# Layer 4 of the four-layer package model. Bootstraps Homebrew itself if
-# missing via the official install script.
-#
-# Liskov contract (shared by all provider_* roles):
-#   * Input: provider_packages (list[str]), empty list = no-op.
-#   * Asserts the host OS.
-#   * Idempotent. brew install (community.general.homebrew is idempotent).
-#   * Self-bootstraps brew if absent.
-#   * No side effects beyond installing packages.
-#
-# Cask installation is the separate provider_cask role.
+# Input: provider_packages (list[str]) — concrete brew formula names.
+# Bootstraps Homebrew via the official install script if missing.
+# Casks are handled by cask.yml.
 
 - name: Assert provider_packages is defined and a list
   ansible.builtin.assert:
     that:
       - provider_packages is defined
       - provider_packages is sequence
-    fail_msg: "provider_brew: provider_packages must be a list."
+    fail_msg: "packages/brew: provider_packages must be a list."
     quiet: true
   tags: [packages, brew, darwin]
 
@@ -27,15 +19,15 @@
     that:
       - ansible_facts['os_family'] == 'Darwin'
     fail_msg: >-
-      provider_brew requires a macOS host.
+      packages/brew requires a macOS host.
       Detected os_family={{ ansible_facts['os_family'] }}.
     quiet: true
   tags: [packages, brew, darwin]
 
 - name: Detect Homebrew
   ansible.builtin.stat:
-    path: "{{ provider_brew_path }}"
-  register: provider_brew_binary_stat
+    path: "{{ packages_brew_path }}"
+  register: packages_brew_binary_stat
   tags: [packages, brew, darwin]
 
 - name: Bootstrap Homebrew if missing
@@ -47,7 +39,7 @@
       NONINTERACTIVE=1 CI=1 /bin/bash -c \
         "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   when:
-    - not provider_brew_binary_stat.stat.exists
+    - not packages_brew_binary_stat.stat.exists
     - not ansible_check_mode
   changed_when: true
   tags: [packages, brew, darwin]
@@ -56,6 +48,6 @@
   community.general.homebrew:
     name: "{{ provider_packages | unique | sort }}"
     state: present
-    update_homebrew: "{{ provider_brew_update | bool }}"
+    update_homebrew: "{{ packages_brew_update | bool }}"
   when: provider_packages | length > 0
   tags: [packages, brew, darwin]

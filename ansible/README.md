@@ -43,15 +43,10 @@ ansible/
 │   ├── site.yml
 │   └── dotfiles.yml
 └── roles/
-    ├── chezmoi/
-    ├── packages/                # Layer 3: dispatcher
-    ├── provider_pacman/         # Layer 4: providers
-    ├── provider_aur/
-    ├── provider_brew/
-    ├── provider_cask/
+    ├── packages/                # intent → catalog → pacman/aur/brew/cask tasks
+    ├── system/                  # fish login shell, docker, libvirt
     ├── sudoers/
-    ├── fish/
-    ├── docker/
+    ├── chezmoi/
     ├── kanata/
     └── plasma_custom_wm/
 ```
@@ -67,20 +62,19 @@ Notes on the layout:
   `host_vars/<hostname>.yml` via the `profiles:` list and resolved against
   `profile_apps` in `group_vars/all/profiles.yml`. Single source of truth
   per host.
-- Legacy roles `arch_packages`, `aur_packages`, `darwin_packages`, and the
-  empty `hyprland`/`i3` profile-hook roles have been deleted. Their
-  behavior is fully replaced by the four-layer model below.
+- Provider install logic lives as task files under `roles/packages/tasks/`
+  (`pacman.yml`, `aur.yml`, `brew.yml`, `cask.yml`), not as separate roles.
+  Thin system wiring (fish, docker, libvirt) is under `roles/system/`.
 
 ## Package Architecture
 
-Four layers, one direction of dependency. Each layer has a single
-responsibility and depends only on the schema of the layer below it.
+Intent lists and a catalog feed one packages role; that role resolves names
+and installs via provider task files.
 
 ```text
-Layer 1: Intent           <group>_apps   (lists of logical names per group)
-Layer 2: Catalog          group_vars/all/package_catalog.yml
-Layer 3: Dispatcher       roles/packages (orchestrator + OCP dispatch loop)
-Layer 4: Providers        roles/provider_{pacman,aur,brew,cask}
+Intent       <group>_apps / profile_apps   (lists of logical names)
+Catalog      group_vars/all/package_catalog.yml
+packages     roles/packages (resolve + include tasks/{pacman,aur,brew,cask}.yml)
 ```
 
 ### Layer 1: Intent
@@ -206,10 +200,9 @@ webstorm), AUR routing for Arch-only packages (pacseek, redshift, ...),
 and miscellaneous Arch / darwin name-mapping (e.g. `aws-cli` ->
 `aws-cli-v2` on AUR, `awscli` on brew).
 
-### Layer 3: Dispatcher
+### packages role (resolve + install)
 
-`roles/packages` is the orchestrator. It does five things, in order
-(see `roles/packages/tasks/main.yml`):
+`roles/packages` does the following (see `roles/packages/tasks/main.yml`):
 
 1. Compute `packages_target_os` (`arch`|`darwin`) from
    `ansible_facts['os_family']`.
@@ -220,35 +213,25 @@ and miscellaneous Arch / darwin name-mapping (e.g. `aws-cli` ->
    Unknown profile names are silently ignored via `extract(..., default=[])`.
 4. Resolve the aggregated list through the catalog via the `resolve_catalog`
    filter, producing `packages_resolved = {provider: [pkg, ...]}`.
-5. Dispatch dynamically: iterate `dict2items(packages_resolved)` and
-   `include_role: provider_{{ item.key }}` with `provider_packages: {{ item.value }}`.
+5. Include provider task files in fixed order for each non-empty bucket:
+   `pacman.yml` → `aur.yml` → `brew.yml` → `cask.yml`.
 
-Step 5 is the Open/Closed pivot: the dispatcher has no hardcoded list of
-providers. Adding a provider requires zero edits to this role.
+### Provider task files
 
-### Layer 4: Providers
+Each file under `roles/packages/tasks/` installs for one package manager:
 
-One role per package manager. Every provider obeys the same Liskov
-contract:
+| File | OS | Bootstrap behavior |
+|------|-----|--------------------|
+| `pacman.yml` | Archlinux | Verifies pacman; optional `-Sy` / `-Syu`. |
+| `aur.yml` | Archlinux | Clones `yay-bin` and builds it when yay is missing. |
+| `brew.yml` | Darwin | Official Homebrew install script (`NONINTERACTIVE=1`). |
+| `cask.yml` | Darwin | None; relies on `brew.yml` / existing Homebrew. |
 
-- **Input**: `provider_packages` (list of concrete package names).
-- **Empty input**: no-op (`when: provider_packages | length > 0`).
-- **Asserts**: the host's `os_family` matches.
-- **Idempotent**: `state: present` semantics.
-- **Self-bootstraps** where needed.
-- **Side effects**: only package installation.
+Shared contract: input `provider_packages` (list), no-op when empty, assert
+OS family, idempotent install, side effects limited to packages.
 
-| Role             | OS       | Bootstrap behavior                                              |
-|------------------|----------|-----------------------------------------------------------------|
-| `provider_pacman`| Archlinux| pacman is in the base system; just verifies it.                 |
-| `provider_aur`   | Archlinux| Clones `yay-bin` and builds it via makepkg when yay is missing. |
-| `provider_brew`  | Darwin   | Runs the official Homebrew install script with `NONINTERACTIVE=1`. |
-| `provider_cask`  | Darwin   | None. Relies on `provider_brew` to install Homebrew.            |
-
-Multilib is folded into `provider_pacman`. Multilib is a pacman *repo*,
-not a separate manager, so `steam` and friends route to `provider: pacman`
-and install via the same module (with multilib enabled in
-`/etc/pacman.conf`).
+Multilib is a pacman *repo*, not a separate manager, so `steam` and friends
+route to `provider: pacman` (with multilib enabled in `/etc/pacman.conf`).
 
 ## Adding a New App
 
@@ -272,15 +255,13 @@ and install via the same module (with multilib enabled in
 
 ## Adding a New Provider
 
-Open/Closed in practice. To add, for example, a Flatpak provider:
+To add, for example, a Flatpak provider:
 
-1. Create `roles/provider_flatpak/tasks/main.yml`. Accept `provider_packages`
+1. Create `roles/packages/tasks/flatpak.yml`. Accept `provider_packages`
    as input. Assert OS, install idempotently, self-bootstrap if needed.
-2. Add `"flatpak"` to `VALID_PROVIDERS` in `filter_plugins/catalog.py`.
-3. Add `provider: flatpak` entries to catalog apps that should use it.
-
-No edits to `roles/packages`. No edits to existing provider roles. No edits
-to inventory.
+2. Add an `include_tasks` block for it in `roles/packages/tasks/main.yml`.
+3. Add `"flatpak"` to `VALID_PROVIDERS` in `filter_plugins/catalog.py`.
+4. Add `provider: flatpak` entries to catalog apps that should use it.
 
 ## Mac Onboarding
 
@@ -294,8 +275,8 @@ The Mac host slot is scaffolded but not activated. To bring a Mac online:
    to `[cli, cloud, development]` -- adjust to taste.
 3. In `hosts.yml`, uncomment the host entry under the `darwin` group and
    replace `mac-placeholder` with your hostname.
-4. If on an Intel Mac, set `provider_brew_path: /usr/local/bin/brew` and
-   `provider_cask_brew_path: /usr/local/bin/brew` in host_vars.
+4. If on an Intel Mac, set `packages_brew_path: /usr/local/bin/brew` in
+   host_vars.
 5. Optionally trim `darwin_apps` in `group_vars/darwin.yml` to taste.
 6. Dry-run first:
 
@@ -312,20 +293,21 @@ filled in when a real MacBook is onboarded.
 
 | Tag        | Scope                                                |
 |------------|------------------------------------------------------|
-| `packages` | Everything in the packages orchestrator.             |
-| `pacman`   | Pacman provider only.                                |
-| `aur`      | AUR provider only.                                   |
-| `brew`     | Homebrew formula provider only.                      |
-| `cask`     | Homebrew cask provider only.                         |
+| `packages` | Whole packages role (all providers).                 |
+| `pacman`   | Pacman task file only.                               |
+| `aur`      | AUR task file only.                                  |
+| `brew`     | Homebrew formulae only.                              |
+| `cask`     | Homebrew casks only.                                 |
 | `arch`     | All arch-OS package work.                            |
 | `darwin`   | All darwin-OS package work.                          |
-| `upgrade`  | `pacman -Syu` task in `provider_pacman`.             |
+| `upgrade`  | `pacman -Syu` task.                                  |
 | `dotfiles` | Chezmoi render + apply.                              |
 | `chezmoi`  | Alias for the chezmoi role play (same as `dotfiles`).|
-| `system`   | sudoers, fish, docker, kanata, plasma (umbrella).    |
+| `system`   | sudoers, system role, kanata, plasma (umbrella).     |
 | `sudoers`  | sudoers drop-in only.                                |
-| `fish`     | Fish login shell role only.                          |
-| `docker`   | Docker role only.                                    |
+| `fish`     | Fish login shell only.                               |
+| `docker`   | Docker group/socket only.                            |
+| `libvirt`  | libvirt groups/sockets only.                         |
 | `kanata`   | Kanata role only.                                    |
 | `plasma`   | plasma_custom_wm role only.                          |
 

@@ -9,7 +9,7 @@
 #      for a bootstrap-on-the-Mac flow.
 #   3. Replace primary_user with your macOS username.
 #   4. Fill in email / profile / osid for the chezmoi template.
-#   5. Override provider_brew_path if you're on Intel mac.
+#   5. Override packages_brew_path if you're on Intel mac.
 #   6. Optional: trim darwin_apps in group_vars/darwin.yml to taste.
 
 ansible_python_interpreter: /usr/bin/python3
@@ -37,5 +37,4 @@ kanata_enabled: false   # Kanata on macOS needs different setup; defer
 
 # Homebrew location. Apple Silicon default; override to /usr/local/bin/brew
 # on Intel.
-# provider_brew_path: /usr/local/bin/brew
-# provider_cask_brew_path: /usr/local/bin/brew
+# packages_brew_path: /usr/local/bin/brew

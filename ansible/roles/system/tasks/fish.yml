@@ -1,11 +1,6 @@
 ---
-# fish role.
-#
-# Ensures Fish is the login shell for the primary user. Fish itself is
-# installed by the `packages` orchestrator: intent `fish` in arch_apps /
-# darwin_apps is resolved through the catalog and dispatched to
-# provider_pacman on Arch or provider_brew on macOS. This role does not
-# own Fish configuration; ~/.config/fish stays with Chezmoi.
+# Ensure Fish is the login shell for the primary user.
+# Fish itself is installed by roles/packages. ~/.config/fish stays with Chezmoi.
 
 - name: Locate the fish binary
   ansible.builtin.shell: command -v fish
@@ -13,15 +8,15 @@
   changed_when: false
   failed_when: false
   check_mode: false
+  tags: [system, fish]
 
 - name: Fail fast if fish is not installed
   ansible.builtin.fail:
     msg: >-
-      fish is not installed on this host. Install it via the `packages`
-      role (intent `fish` in arch_apps / darwin_apps, dispatched through
-      the catalog to provider_pacman on Arch or provider_brew on macOS)
-      before running the fish role.
+      fish is not installed on this host. Install it via the packages role
+      (intent `fish` in arch_apps / darwin_apps) before running the system role.
   when: fish_binary.rc != 0
+  tags: [system, fish]
 
 - name: Ensure fish is a registered login shell
   ansible.builtin.lineinfile:
@@ -30,6 +25,7 @@
     state: present
     create: false
   become: true
+  tags: [system, fish]
 
 - name: Set fish as the primary user's login shell
   ansible.builtin.user:
@@ -37,6 +33,7 @@
     shell: "{{ fish_binary.stdout }}"
   become: true
   register: fish_shell_change
+  tags: [system, fish]
 
 - name: Report when the shell has just been switched
   ansible.builtin.debug:
@@ -44,3 +41,4 @@
       Login shell changed to {{ fish_binary.stdout }} for {{ primary_user }}.
       Log out and back in for the change to take effect.
   when: fish_shell_change is changed
+  tags: [system, fish]

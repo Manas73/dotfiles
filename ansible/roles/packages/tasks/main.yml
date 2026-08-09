@@ -1,26 +1,12 @@
 ---
-# packages role: cross-OS package installation orchestrator.
+# packages role: cross-OS package installation.
 #
-# Layer 3 of the four-layer package model:
-#   Intent     -> <group>_apps lists in group_vars
-#   Catalog    -> group_vars/all/package_catalog.yml
-#   Dispatcher -> THIS role (resolve + delegate)
-#   Providers  -> roles/provider_<name>/
+# Intent     -> <group>_apps lists + profile_apps in group_vars
+# Catalog    -> group_vars/all/package_catalog.yml
+# Resolve    -> this role (resolve_catalog filter)
+# Providers  -> tasks/{pacman,aur,brew,cask}.yml
 #
-# Responsibilities (Single Responsibility Principle):
-#   1. Aggregate <group>_apps from every inventory group the host belongs to
-#      (using explicit group_names membership checks, not just var presence).
-#   2. Compute target_os and default_provider from ansible facts.
-#   3. Resolve logical app names through the catalog into per-provider
-#      buckets using the resolve_catalog filter plugin.
-#   4. Dispatch dynamically (Open/Closed Principle): for each non-empty
-#      bucket, include the matching provider_<name> role with the bucket as
-#      its input. Adding a new provider requires no edits here.
-#
-# Does NOT:
-#   * Install packages directly (providers do that).
-#   * Manage configuration, services, or dotfiles.
-#   * Bootstrap package managers (each provider self-bootstraps).
+# Does NOT manage configuration, services, or dotfiles.
 
 - name: Compute target OS from ansible_facts
   ansible.builtin.set_fact:
@@ -59,8 +45,7 @@
     #
     # Profile apps are pulled from group_vars/all/profiles.yml via the
     # host_vars `profiles:` list. extract() with default [] silently skips
-    # unknown profile names. This replaces the prior per-profile inventory
-    # groups (hyprland, i3, gaming) and their group_names checks.
+    # unknown profile names.
     packages_logical_apps: >-
       {{
         (arch_apps   | default([]) if 'arch'   in group_names else [])
@@ -88,18 +73,45 @@
     verbosity: 1
   tags: [packages]
 
-- name: Dispatch to provider roles for each non-empty bucket
-  # OCP: this loop discovers providers from the catalog resolution, not from
-  # a hardcoded list. To wire up a new provider, create roles/provider_<name>/
-  # and add `provider: <name>` entries to the catalog; no edits here.
-  ansible.builtin.include_role:
-    name: "provider_{{ item.key }}"
+# Fixed order: pacman before aur (shared DB refresh), brew before cask
+# (Homebrew bootstrap). Only non-empty buckets are included.
+
+- name: Install pacman packages
+  ansible.builtin.include_tasks:
+    file: pacman.yml
     apply:
-      tags: [packages, "{{ item.key }}"]
+      tags: [packages, pacman, arch]
   vars:
-    provider_packages: "{{ item.value }}"
-  loop: "{{ packages_resolved | dict2items }}"
-  loop_control:
-    label: "provider_{{ item.key }} ({{ item.value | length }} pkg)"
-  when: item.value | length > 0
-  tags: [packages]
+    provider_packages: "{{ packages_resolved.pacman | default([]) }}"
+  when: (packages_resolved.pacman | default([])) | length > 0
+  tags: [packages, pacman, arch]
+
+- name: Install AUR packages
+  ansible.builtin.include_tasks:
+    file: aur.yml
+    apply:
+      tags: [packages, aur, arch]
+  vars:
+    provider_packages: "{{ packages_resolved.aur | default([]) }}"
+  when: (packages_resolved.aur | default([])) | length > 0
+  tags: [packages, aur, arch]
+
+- name: Install Homebrew formulae
+  ansible.builtin.include_tasks:
+    file: brew.yml
+    apply:
+      tags: [packages, brew, darwin]
+  vars:
+    provider_packages: "{{ packages_resolved.brew | default([]) }}"
+  when: (packages_resolved.brew | default([])) | length > 0
+  tags: [packages, brew, darwin]
+
+- name: Install Homebrew casks
+  ansible.builtin.include_tasks:
+    file: cask.yml
+    apply:
+      tags: [packages, cask, darwin]
+  vars:
+    provider_packages: "{{ packages_resolved.cask | default([]) }}"
+  when: (packages_resolved.cask | default([])) | length > 0
+  tags: [packages, cask, darwin]
