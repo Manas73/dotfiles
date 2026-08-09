@@ -20,7 +20,6 @@ hl.on("hyprland.start", function()
 	-- Launch apps (workspace rules will handle placement)
 	hl.exec_cmd("slack")
 	hl.exec_cmd("rambox --ozone-platform=wayland --enable-features=WaylandWindowDecorations")
-	h1.exec_cmd("thunderbird")
 
 	-- Focus on default workspaces (5 then 1)
 	hl.exec_cmd("sleep 1 && hyprctl dispatch workspace 5")
