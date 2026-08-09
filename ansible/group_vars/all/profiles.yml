@@ -32,6 +32,7 @@ profile_apps:
     - git-filter-repo
     - gnupg
     - go
+    - herdr
     - hugo
     - jq
     - just

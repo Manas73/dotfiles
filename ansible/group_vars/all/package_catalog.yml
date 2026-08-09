@@ -72,6 +72,10 @@ package_catalog:
     arch:   { provider: aur, packages: [grok-build] }
     darwin: { provider: cask, packages: [grok-build] }
 
+  herdr:
+    arch:    { provider: aur, packages: [herdr-bin] }
+    darwin:  { provider: brew, packages: [herdr] }
+
   just:
     arch:   { provider: pacman, packages: [just] }
     darwin: { provider: brew,   packages: [just] }
