@@ -1,1 +1,1 @@
-subl
+zeditor

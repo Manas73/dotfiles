@@ -43,10 +43,8 @@ end)
 hl.bind("SUPER + C", hl.dsp.submap("ide"))
 
 hl.define_submap("ide", "reset", function()
-  hl.bind("1", hl.dsp.exec_cmd(home .. "/.config/.settings/ide.sh"))
-  hl.bind("2", hl.dsp.exec_cmd(home .. "/.config/.settings/ide-alt.sh"))
-  hl.bind("3", hl.dsp.exec_cmd("cursor"))
-  hl.bind("4", hl.dsp.exec_cmd(home .. "/.config/.settings/editor.sh"))
+  hl.bind("1", hl.dsp.exec_cmd(home .. "/.config/.settings/editor.sh"))
+  hl.bind("2", hl.dsp.exec_cmd(home .. "/.config/.settings/ide.sh"))
   hl.bind("escape", hl.dsp.submap("reset"))
 end)
 
