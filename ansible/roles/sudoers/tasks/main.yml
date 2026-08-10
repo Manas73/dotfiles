@@ -25,7 +25,8 @@
       - primary_user is defined
       - primary_user | length > 0
     fail_msg: >-
-      sudoers role requires primary_user to be set (host_vars).
+      sudoers role requires primary_user (defaults to ansible_facts['user_id']
+      in group_vars/all; override in host_vars if needed).
     quiet: true
 
 - name: Ensure /etc/sudoers.d exists with correct permissions

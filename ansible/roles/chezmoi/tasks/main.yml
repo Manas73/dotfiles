@@ -25,9 +25,10 @@
       - chezmoi_source_path is defined
       - chezmoi_repo_path is defined
     fail_msg: >-
-      Missing required vars for the chezmoi role. host_vars/<hostname>.yml
-      must define email, profile, osid, gpu, primary_user. The chezmoi_*
-      paths come from group_vars/all/main.yml. See docs/ansible/02-onboarding.md.
+      Missing required vars for the chezmoi role. Need email, profile, osid,
+      gpu, primary_user (from machine-class / OS group_vars, host_vars for
+      gpu, and primary_user default in group_vars/all). chezmoi_* paths come
+      from group_vars/all/main.yml. See docs/ansible/02-onboarding.md.
     quiet: true
 
 - name: Locate chezmoi binary

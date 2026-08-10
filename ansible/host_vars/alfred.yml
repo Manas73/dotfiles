@@ -1,10 +1,6 @@
 ---
 # Current Linux workstation (Garuda/Arch).
-# Identity / hardware deltas only. Shared recipe lives in
-# group_vars/workstation_personal.yml (machine class).
+# Hardware delta only. Recipe: group_vars/workstation_personal.yml.
+# primary_user / email / osid come from all + class + arch group_vars.
 
-primary_user: ms-garuda
-
-# Chezmoi inventory data (host-specific).
-email: "manas.sambare@gmail.com"
 gpu: "nvidia"

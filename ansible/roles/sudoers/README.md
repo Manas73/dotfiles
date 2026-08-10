@@ -15,7 +15,7 @@ Installs narrowly scoped `/etc/sudoers.d/` drop-ins required by other roles. Kep
 
 ## Inputs
 
-- `primary_user` (from `host_vars`).
+- `primary_user` (defaults to `ansible_facts['user_id']` in `group_vars/all`; override in host_vars if needed).
 
 ## Prerequisites
 

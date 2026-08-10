@@ -31,16 +31,15 @@ ansible/
 │   └── catalog.py               # resolve_catalog jinja filter
 ├── group_vars/
 │   ├── all/                     # directory form
-│   │   ├── main.yml             # chezmoi paths, ansible_connection, feature defaults
+│   │   ├── main.yml             # connection, primary_user default, chezmoi paths, feature defaults
 │   │   ├── package_catalog.yml  # Layer 2: logical name -> per-OS install instructions
 │   │   └── profiles.yml         # Layer 1: profile_apps dict (cli/cloud/development/fonts/gaming/hyprland/i3/kde)
-│   ├── arch.yml                 # arch_apps (Layer 1) + OS defaults
-│   ├── darwin.yml               # darwin_apps (Layer 1) + OS defaults
+│   ├── arch.yml                 # arch_apps + osid + python
+│   ├── darwin.yml               # darwin_apps + osid + python
 │   ├── workstation_personal.yml # machine class: personal Linux workstation recipe
-│   └── mac_work.yml             # machine class: work Mac recipe
+│   └── mac_work.yml             # machine class: work Mac recipe (ready, unused until a Mac joins)
 ├── host_vars/
-│   ├── alfred.yml               # thin: primary_user, email, gpu
-│   └── mac-placeholder.yml      # thin template for Mac onboarding
+│   └── alfred.yml               # thin: gpu (+ rare overrides only)
 ├── playbooks/
 │   ├── site.yml
 │   └── dotfiles.yml
@@ -58,15 +57,14 @@ Notes on the layout:
 - The inventory is flat. There is no `inventories/personal/` wrapper layer.
   `ansible.cfg` points `inventory = hosts.yml`, so commands omit `-i` by
   default when run from the `ansible/` directory.
-- Inventory has two orthogonal axes:
-  - **OS family**: `all → linux → arch` and `all → darwin` (package intent,
-    OS-scoped plays).
-  - **Machine class**: `workstation_personal`, `mac_work`, … (shared host
-    recipe: `profiles:`, feature flags, plasma WM, class-level chezmoi
-    fields). A host is listed under both its OS group and its class.
+- Inventory nests **machine class under OS** so each host is listed once:
+  - **OS family**: `linux → arch`, `darwin` (package intent, `osid`, OS plays).
+  - **Machine class**: `workstation_personal` under `arch`, `mac_work` under
+    `darwin` when needed (shared recipe: `profiles:`, feature flags, plasma
+    WM, class-level chezmoi fields like `email` / `profile`).
 - Hostname is identity only (`--limit $(hostname)`). `host_vars/<hostname>.yml`
-  holds true per-machine deltas (user, GPU, email). Shared conf is not
-  duplicated per hostname.
+  holds true per-machine deltas — usually just `gpu`. `primary_user` defaults
+  to `ansible_facts['user_id']` in `group_vars/all`.
 - Desktop package bundles (hyprland, i3, gaming, …) are **not** inventory
   groups. Machine classes declare which bundles they use via `profiles:`,
   resolved against `profile_apps` in `group_vars/all/profiles.yml`.
@@ -275,16 +273,30 @@ To add, for example, a Flatpak provider:
 
 ## Mac Onboarding
 
-The Mac host slot is scaffolded but not activated. Shared Mac work recipe
-lives in `group_vars/mac_work.yml` (`profiles`, feature flags, `profile` /
-`osid`). To bring a Mac online:
+No Mac host is in inventory yet. Shared work-Mac recipe lives in
+`group_vars/mac_work.yml` (`profiles`, `profile`, `email`). `osid` comes
+from `group_vars/darwin.yml`. To bring a Mac online:
 
-1. Rename `host_vars/mac-placeholder.yml` to `host_vars/<your-hostname>.yml`.
-2. Fill identity fields: `primary_user`, `email`, `gpu`. If on Intel Mac,
-   set `packages_brew_path: /usr/local/bin/brew`.
-3. In `hosts.yml`, add the hostname under both `darwin` and `mac_work`.
-4. Optionally trim `darwin_apps` in `group_vars/darwin.yml` to taste.
-5. Dry-run first:
+1. Nest the host under `darwin → mac_work` in `hosts.yml`:
+
+   ```yaml
+   darwin:
+     children:
+       mac_work:
+         hosts:
+           <your-hostname>:
+   ```
+
+2. Create thin `host_vars/<your-hostname>.yml`:
+
+   ```yaml
+   gpu: "none"
+   # Intel Mac only:
+   # packages_brew_path: /usr/local/bin/brew
+   ```
+
+3. Optionally trim `darwin_apps` in `group_vars/darwin.yml` to taste.
+4. Dry-run first:
 
    ```sh
    ansible-playbook playbooks/site.yml \
@@ -300,18 +312,24 @@ filled in when a real MacBook is onboarded.
 To deploy another machine with the same conf as an existing class (e.g.
 another personal Arch workstation):
 
-1. Add the hostname under the OS group (`arch` or `darwin`) **and** the
-   machine class (`workstation_personal` or `mac_work`) in `hosts.yml`.
+1. Add the hostname under the machine class in `hosts.yml` (class is already
+   nested under the right OS — list the host only once):
+
+   ```yaml
+   workstation_personal:
+     hosts:
+       alfred:
+       desk2:
+   ```
+
 2. Create a thin `host_vars/<hostname>.yml` with only deltas:
 
    ```yaml
-   primary_user: ms-garuda
-   email: "manas.sambare@gmail.com"
-   gpu: "amd"   # whatever differs
+   gpu: "amd"
    ```
 
-3. Dry-run with `--limit <hostname>`. No need to copy profiles or feature
-   flags — those come from the class `group_vars`.
+3. Dry-run with `--limit <hostname>`. Profiles, feature flags, email, osid,
+   and primary_user come from group_vars.
 
 ## Tags
 

@@ -22,9 +22,10 @@ or cask. Two sources feed the packages role:
    `darwin_apps` (`group_vars/darwin.yml`).
 2. **Profile bundles** — `profile_apps` in `group_vars/all/profiles.yml`. A
    host opts into a profile via the `profiles:` list on its **machine class**
-   (`group_vars/workstation_personal.yml`, `group_vars/mac_work.yml`, …),
-   optionally overridden in host_vars; the packages role unions the matching
-   `profile_apps[<name>]` lists on top of the OS-family list.
+   (nested under OS in `hosts.yml`; vars in `group_vars/workstation_personal.yml`,
+   `group_vars/mac_work.yml`, …), optionally overridden in host_vars; the
+   packages role unions the matching `profile_apps[<name>]` lists on top of
+   the OS-family list.
 
 Profiles are **not** inventory groups — the machine-class (or host)
 `profiles:` list is the single source of truth for package-bundle

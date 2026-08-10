@@ -1,14 +1,15 @@
 ---
 # Machine class: personal Linux workstation (Arch/Garuda).
 #
-# Shared recipe for every host in the `workstation_personal` inventory group.
-# Per-machine deltas (primary_user, gpu, email) stay in host_vars/<hostname>.yml.
+# Nested under linux → arch in hosts.yml. Shared recipe for every member.
+# Per-machine deltas (gpu, rare overrides) stay in host_vars/<hostname>.yml.
 #
 # Package bundles resolve via profile_apps in group_vars/all/profiles.yml.
+# osid comes from group_vars/arch.yml; primary_user defaults in all/main.yml.
 
-# Chezmoi data fields (unprefixed; chezmoi.toml.j2 reads these directly).
+# Chezmoi data (unprefixed; chezmoi.toml.j2 reads these directly).
 profile: "personal"
-osid: "linux-arch"
+email: "manas.sambare@gmail.com"
 
 # Plasma custom window manager. Consumed by the plasma_custom_wm role.
 # Set to "kwin" or omit to disable masking and use stock KWin.
@@ -26,7 +27,7 @@ profiles:
   - kde
   - virtualization
 
-# Feature flags.
+# Feature flags (override all/main.yml defaults).
 docker_enabled: true
 kanata_enabled: true
 libvirt_enabled: true

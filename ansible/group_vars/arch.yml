@@ -19,6 +19,9 @@
 # Default interpreter for Arch hosts; override in host_vars if needed.
 ansible_python_interpreter: /usr/bin/python
 
+# Chezmoi osid for every Arch host.
+osid: "linux-arch"
+
 arch_apps:
   # ----------------------------------------------------------------
   # Cross-OS apps & bundles (catalog handles routing per OS).

@@ -9,7 +9,12 @@
 # host_vars when ansible runs over SSH against a remote.
 ansible_connection: local
 
-# Chezmoi defaults. Host vars override per machine.
+# Default for local connection: the user running ansible (after gather_facts).
+# Override in host_vars only when it differs (e.g. remote become target).
+# Use ansible_facts form — INJECT_FACTS_AS_VARS is deprecated in 2.24+.
+primary_user: "{{ ansible_facts['user_id'] }}"
+
+# Chezmoi defaults. Host / class vars override per machine.
 chezmoi_source_repo: "https://github.com/Manas73/dotfiles.git"
 # chezmoi_repo_path is the git-clone root (contains .chezmoiroot, ansible/, docs/, chezmoi/).
 # chezmoi_source_path is the resolved Chezmoi source directory, i.e., the chezmoi/ subdir
