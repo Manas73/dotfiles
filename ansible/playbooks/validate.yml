@@ -1,0 +1,41 @@
+---
+# Unprivileged validation for just check / CI.
+#
+# Loads the host recipe, asserts required vars, and runs packages resolve
+# (catalog → provider buckets) without become or installs.
+# Does not run sudoers, system, kanata, or plasma.
+#
+#   ansible-playbook playbooks/validate.yml --limit alfred
+
+- name: Validate recipe, inventory vars, and package resolution
+  hosts: all
+  gather_facts: true
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
+
+    - name: Assert required identity and recipe vars
+      ansible.builtin.assert:
+        that:
+          - recipe is defined and recipe | length > 0
+          - email is defined and email | length > 0
+          - profile is defined and profile | length > 0
+          - osid is defined and osid | length > 0
+          - gpu is defined and gpu | length > 0
+          - primary_user is defined and primary_user | length > 0
+          - os_apps is defined
+          - profiles is defined
+          - profile_apps is defined
+          - package_catalog is defined
+          - os_family_map is defined
+        fail_msg: >-
+          Missing required vars after recipe load. Need recipe + host gpu,
+          OS group_vars (osid, os_apps), recipe fields (email, profile,
+          profiles), and group_vars/all (catalog, profile_apps, os_providers).
+        quiet: true
+
+  roles:
+    - role: packages
+      vars:
+        packages_validate_only: true

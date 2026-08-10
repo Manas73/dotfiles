@@ -20,15 +20,21 @@ default:
 deps:
     cd ansible && ansible-galaxy install -r requirements.yml
 
-# Full pre-commit validation (syntax, inventory, dry-run, diff, boundary).
+# Full pre-commit validation (syntax, inventory, unprivileged dry-run, diff).
+# Does not require sudo: site.yml --check still needs become for sudoers/
+# packages and fails without a password. Use `just apply` for privileged runs.
 check: test
     # ansible.cfg pins `inventory = hosts.yml`, so the ansible steps run from
     # the ansible/ directory for inventory + collections paths to resolve.
     cd ansible && ansible-playbook playbooks/site.yml --syntax-check
     cd ansible && ansible-playbook playbooks/dotfiles.yml --syntax-check
+    cd ansible && ansible-playbook playbooks/validate.yml --syntax-check
     cd ansible && ansible-inventory --graph
     cd ansible && ansible-inventory --host "$(hostname)"
-    cd ansible && ansible-playbook playbooks/site.yml --limit "$(hostname)" --check --diff
+    # Recipe + package catalog resolution (no become / no installs).
+    cd ansible && ansible-playbook playbooks/validate.yml --limit "$(hostname)"
+    # Dotfiles dry-run (user-level; no sudo).
+    cd ansible && ansible-playbook playbooks/dotfiles.yml --limit "$(hostname)" --check --diff
     chezmoi diff
 
 # Alias for `check`.

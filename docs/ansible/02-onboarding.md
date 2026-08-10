@@ -79,10 +79,11 @@ export LC_ALL=C.UTF-8 LANG=C.UTF-8
 ansible-inventory --graph
 ansible-inventory --host <hostname>
 ansible-playbook playbooks/site.yml --syntax-check
-ansible-playbook playbooks/site.yml --limit <hostname> --check --diff
+ansible-playbook playbooks/validate.yml --limit <hostname>
 ```
 
-(From the repo root, `just check` runs the full validation block.)
+(From the repo root, `just check` runs the full validation block. It does
+**not** require sudo; full `site.yml --check` still needs become.)
 
 Expect:
 
@@ -91,7 +92,8 @@ Expect:
 - `--host` shows `recipe`, `gpu`, `os_apps`, `osid`. Recipe fields
   (`profiles`, `email`, …) appear after the play loads
   `recipes/<recipe>.yml` (not in raw inventory dump).
-- `--syntax-check` is silent.
+- `validate.yml` loads the recipe, asserts required vars, and resolves
+  packages without installing.
 
 ## Run
 

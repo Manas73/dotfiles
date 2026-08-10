@@ -1,6 +1,11 @@
 ---
 # Defaults for the packages role (provider task files).
 
+# When true, resolve intent through the catalog but skip all provider
+# installs (no become). Used by playbooks/validate.yml for passwordless
+# just check.
+packages_validate_only: false
+
 # --- pacman ---
 # Refresh package databases before installing (pacman -Sy).
 packages_pacman_refresh_databases: true

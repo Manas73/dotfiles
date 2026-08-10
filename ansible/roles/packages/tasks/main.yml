@@ -74,6 +74,7 @@
 
 # Fixed order: pacman before aur (shared DB refresh), brew before cask
 # (Homebrew bootstrap). Only non-empty buckets are included.
+# Skip installs when packages_validate_only (unprivileged just check).
 
 - name: Install pacman packages
   ansible.builtin.include_tasks:
@@ -82,7 +83,9 @@
       tags: [packages, pacman, arch]
   vars:
     provider_packages: "{{ packages_resolved.pacman | default([]) }}"
-  when: (packages_resolved.pacman | default([])) | length > 0
+  when:
+    - not (packages_validate_only | default(false) | bool)
+    - (packages_resolved.pacman | default([])) | length > 0
   tags: [packages, pacman, arch]
 
 - name: Install AUR packages
@@ -92,7 +95,9 @@
       tags: [packages, aur, arch]
   vars:
     provider_packages: "{{ packages_resolved.aur | default([]) }}"
-  when: (packages_resolved.aur | default([])) | length > 0
+  when:
+    - not (packages_validate_only | default(false) | bool)
+    - (packages_resolved.aur | default([])) | length > 0
   tags: [packages, aur, arch]
 
 - name: Install Homebrew formulae
@@ -102,7 +107,9 @@
       tags: [packages, brew, darwin]
   vars:
     provider_packages: "{{ packages_resolved.brew | default([]) }}"
-  when: (packages_resolved.brew | default([])) | length > 0
+  when:
+    - not (packages_validate_only | default(false) | bool)
+    - (packages_resolved.brew | default([])) | length > 0
   tags: [packages, brew, darwin]
 
 - name: Install Homebrew casks
@@ -112,5 +119,20 @@
       tags: [packages, cask, darwin]
   vars:
     provider_packages: "{{ packages_resolved.cask | default([]) }}"
-  when: (packages_resolved.cask | default([])) | length > 0
+  when:
+    - not (packages_validate_only | default(false) | bool)
+    - (packages_resolved.cask | default([])) | length > 0
   tags: [packages, cask, darwin]
+
+- name: Report resolved packages (validate-only)
+  ansible.builtin.debug:
+    msg: >-
+      packages_validate_only: resolved
+      {{ packages_logical_apps | length }} logical apps →
+      {{ packages_resolved | dict2items
+         | map(attribute='key')
+         | list
+         | join(', ') }}
+      (no installs)
+  when: packages_validate_only | default(false) | bool
+  tags: [packages]

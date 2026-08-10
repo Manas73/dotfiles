@@ -46,14 +46,22 @@ cd ~/.local/share/chezmoi/ansible
 # Playbook syntax.
 ansible-playbook playbooks/site.yml --syntax-check
 ansible-playbook playbooks/dotfiles.yml --syntax-check
+ansible-playbook playbooks/validate.yml --syntax-check
 
 # Inventory resolves as expected (hosts, groups, merged vars).
 ansible-inventory --graph
 ansible-inventory --host "$(hostname)"
 
-# Dry-run. Skips sudo-gated tasks if --ask-become-pass is omitted, which is
-# useful for quickly exercising the playbook structure.
-ansible-playbook playbooks/site.yml --limit "$(hostname)" --check --diff
+# Unprivileged validation: load recipe, assert vars, resolve packages
+# through the catalog (no become / no installs). This is what `just check`
+# uses — a full site.yml --check still needs sudo for packages/sudoers.
+ansible-playbook playbooks/validate.yml --limit "$(hostname)"
+
+# Dotfiles dry-run (user-level).
+ansible-playbook playbooks/dotfiles.yml --limit "$(hostname)" --check --diff
+
+# Privileged site dry-run (optional; needs a sudo password or NOPASSWD).
+# ansible-playbook playbooks/site.yml --limit "$(hostname)" --check --diff --ask-become-pass
 
 # Chezmoi side.
 chezmoi diff                                    # pending dotfile changes
