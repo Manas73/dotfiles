@@ -53,12 +53,10 @@ key.txt.age
 
 {{/* Personal SSH keys only on profile=personal. Any other profile (turing, …) skips these so work machines stay clean. */}}
 {{- if ne .profile "personal" }}
-.ssh/Manas73-GitHub
-.ssh/Manas73-GitHub.pub
-.ssh/Manas-GitLab
-.ssh/Manas-GitLab.pub
 .ssh/github-personal
 .ssh/github-personal.pub
+.ssh/gitlab-personal
+.ssh/gitlab-personal.pub
 .ssh/id_ed25519
 .ssh/id_ed25519.pub
 .ssh/mangesh
@@ -66,14 +64,14 @@ key.txt.age
 
 {{/* Sleepiz SSH keys only on profile=sleepiz or personal. */}}
 {{- if and (ne .profile "sleepiz") (ne .profile "personal") }}
-.ssh/Manas-Sleepiz-GitLab
-.ssh/Manas-Sleepiz-GitLab.pub
+.ssh/gitlab-sleepiz
+.ssh/gitlab-sleepiz.pub
 {{- end }}
 
 {{/* Turing SSH keys only on profile=turing or personal. */}}
 {{- if and (ne .profile "turing") (ne .profile "personal") }}
-.ssh/Manas-Turing
-.ssh/Manas-Turing.pub
 .ssh/github-turing
 .ssh/github-turing.pub
+.ssh/turing-vm
+.ssh/turing-vm.pub
 {{- end }}

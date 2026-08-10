@@ -1,0 +1,60 @@
+{{/* SSH host aliases scoped by chezmoi profile. personal → all hosts; turing / sleepiz → only that domain's hosts. */}}
+{{- if eq .profile "personal" -}}
+# Personal GitHub account
+Host github.com-personal
+	HostName github.com
+	User git
+	IdentitiesOnly yes
+	IdentityFile ~/.ssh/github-personal
+
+# Personal GitLab account
+Host gitlab.com
+	HostName gitlab.com
+	User bgit
+	IdentityFile ~/.ssh/gitlab-personal
+
+{{ end -}}
+{{- if or (eq .profile "turing") (eq .profile "personal") -}}
+# Turing GitHub account
+Host github.com-turing
+	HostName github.com
+	User git
+	IdentitiesOnly yes
+	IdentityFile ~/.ssh/github-turing
+
+# Turing VMs
+Host turing-vm-gcp
+	HostName 35.206.122.94
+	User me
+	IdentityFile ~/.ssh/turing-vm
+
+Host data-analytics.turing.com
+	HostName data-analytics.turing.com
+	User me
+	IdentityFile ~/.ssh/turing-vm
+
+Host turing-dev-vm-gcp
+	HostName 34.132.227.18
+	User me
+	IdentityFile ~/.ssh/turing-vm
+
+Host turing-vm-aws
+	HostName 13.52.60.93
+	User me
+	IdentityFile ~/.ssh/turing-vm
+
+Host turing-tswe-bench-vm-gcp
+	HostName 34.9.132.173
+	User manas
+	IdentityFile ~/.ssh/google_compute_engine
+
+{{ end -}}
+{{- if or (eq .profile "sleepiz") (eq .profile "personal") -}}
+# Sleepiz GitLab account
+Host Manas-Sleepiz-GitLab
+	HostName GitLab
+	User Manas-Sleepiz
+	PreferredAuthentications publickey
+	IdentityFile ~/.ssh/gitlab-sleepiz
+	AddKeysToAgent yes
+{{ end -}}
