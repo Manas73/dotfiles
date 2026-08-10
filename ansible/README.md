@@ -29,15 +29,22 @@ ansible/
 ├── hosts.yml                    # flat inventory at the ansible/ root
 ├── filter_plugins/
 │   └── catalog.py               # resolve_catalog jinja filter
-├── group_vars/
-│   ├── all/                     # directory form
-│   │   ├── main.yml             # connection, primary_user default, chezmoi paths, feature defaults
+├── group_vars/                  # one dir per inventory group (see group_vars/README.md)
+│   ├── README.md                # hosts.yml ↔ group_vars map
+│   ├── all/
+│   │   ├── main.yml             # connection, primary_user, chezmoi paths, feature defaults
 │   │   ├── package_catalog.yml  # Layer 2: logical name -> per-OS install instructions
-│   │   └── profiles.yml         # Layer 1: profile_apps dict (cli/cloud/development/fonts/gaming/hyprland/i3/kde)
-│   ├── arch.yml                 # arch_apps + osid + python
-│   ├── darwin.yml               # darwin_apps + osid + python
-│   ├── workstation_personal.yml # machine class: personal Linux workstation recipe
-│   └── mac_work.yml             # machine class: work Mac recipe (ready, unused until a Mac joins)
+│   │   └── profiles.yml         # Layer 1: profile_apps (cli/cloud/…/kde)
+│   ├── arch/
+│   │   ├── main.yml             # osid, python
+│   │   └── apps.yml             # arch_apps
+│   ├── darwin/
+│   │   ├── main.yml             # osid, python
+│   │   └── apps.yml             # darwin_apps
+│   ├── workstation_personal/    # machine class under arch
+│   │   └── main.yml             # profiles, flags, plasma, email, profile
+│   └── mac_work/                # machine class under darwin (recipe ready)
+│       └── main.yml
 ├── host_vars/
 │   └── alfred.yml               # thin: gpu (+ rare overrides only)
 ├── playbooks/
@@ -57,11 +64,13 @@ Notes on the layout:
 - The inventory is flat. There is no `inventories/personal/` wrapper layer.
   `ansible.cfg` points `inventory = hosts.yml`, so commands omit `-i` by
   default when run from the `ansible/` directory.
+- **group_vars mirrors inventory group names** (directory per group). Ansible
+  cannot nest `group_vars/linux/arch/`; the folder must be named `arch`.
+  See `group_vars/README.md` for the side-by-side map with `hosts.yml`.
 - Inventory nests **machine class under OS** so each host is listed once:
-  - **OS family**: `linux → arch`, `darwin` (package intent, `osid`, OS plays).
+  - **OS family**: `linux → arch`, `darwin` → `group_vars/arch/`, `darwin/`.
   - **Machine class**: `workstation_personal` under `arch`, `mac_work` under
-    `darwin` when needed (shared recipe: `profiles:`, feature flags, plasma
-    WM, class-level chezmoi fields like `email` / `profile`).
+    `darwin` when needed → `group_vars/<class>/`.
 - Hostname is identity only (`--limit $(hostname)`). `host_vars/<hostname>.yml`
   holds true per-machine deltas — usually just `gpu`. `primary_user` defaults
   to `ansible_facts['user_id']` in `group_vars/all`.
@@ -87,12 +96,12 @@ packages     roles/packages (resolve + include tasks/{pacman,aur,brew,cask}.yml)
 
 Two sources of intent feed the orchestrator:
 
-1. **OS-family lists** in `group_vars/<os>.yml`:
+1. **OS-family lists** in `group_vars/<os>/apps.yml`:
 
-   | Group    | Var           | File                  |
-   |----------|---------------|-----------------------|
-   | `arch`   | `arch_apps`   | `group_vars/arch.yml` |
-   | `darwin` | `darwin_apps` | `group_vars/darwin.yml` |
+   | Group    | Var           | File                       |
+   |----------|---------------|----------------------------|
+   | `arch`   | `arch_apps`   | `group_vars/arch/apps.yml` |
+   | `darwin` | `darwin_apps` | `group_vars/darwin/apps.yml` |
 
 2. **Profile bundles** in `group_vars/all/profiles.yml`:
 
@@ -120,10 +129,10 @@ Two sources of intent feed the orchestrator:
    | `kde`          | Linux     | KDE Plasma desktop integration.                      |
 
    A machine class opts into profiles via `profiles:` in
-   `group_vars/<class>.yml` (override per host in host_vars if needed):
+   `group_vars/<class>/main.yml` (override per host in host_vars if needed):
 
    ```yaml
-   # group_vars/workstation_personal.yml
+   # group_vars/workstation_personal/main.yml
    profiles:
      - cli
      - cloud
@@ -244,8 +253,8 @@ route to `provider: pacman` (with multilib enabled in `/etc/pacman.conf`).
 ## Adding a New App
 
 1. Pick the right intent bucket and add the logical name there:
-   - OS-wide on every Arch host: `group_vars/arch.yml` (`arch_apps`).
-   - OS-wide on every macOS host: `group_vars/darwin.yml` (`darwin_apps`).
+   - OS-wide on every Arch host: `group_vars/arch/apps.yml` (`arch_apps`).
+   - OS-wide on every macOS host: `group_vars/darwin/apps.yml` (`darwin_apps`).
    - Tied to a desktop or feature profile: the relevant key under
      `profile_apps` in `group_vars/all/profiles.yml`.
 2. If the app is cross-OS, or needs a non-default provider on Arch (AUR),
@@ -274,8 +283,8 @@ To add, for example, a Flatpak provider:
 ## Mac Onboarding
 
 No Mac host is in inventory yet. Shared work-Mac recipe lives in
-`group_vars/mac_work.yml` (`profiles`, `profile`, `email`). `osid` comes
-from `group_vars/darwin.yml`. To bring a Mac online:
+`group_vars/mac_work/` (`profiles`, `profile`, `email`). `osid` comes
+from `group_vars/darwin/main.yml`. To bring a Mac online:
 
 1. Nest the host under `darwin → mac_work` in `hosts.yml`:
 
@@ -295,7 +304,7 @@ from `group_vars/darwin.yml`. To bring a Mac online:
    # packages_brew_path: /usr/local/bin/brew
    ```
 
-3. Optionally trim `darwin_apps` in `group_vars/darwin.yml` to taste.
+3. Optionally trim `darwin_apps` in `group_vars/darwin/apps.yml` to taste.
 4. Dry-run first:
 
    ```sh

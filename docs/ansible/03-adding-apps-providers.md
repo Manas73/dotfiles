@@ -8,8 +8,8 @@ reference is [`../../ansible/README.md`](../../ansible/README.md).
 
 1. Add the **logical name** to the right intent bucket
    ([`01-architecture.md`](01-architecture.md)):
-   - OS-wide on every Arch host → `group_vars/arch.yml` (`arch_apps`).
-   - OS-wide on every macOS host → `group_vars/darwin.yml` (`darwin_apps`).
+   - OS-wide on every Arch host → `group_vars/arch/apps.yml` (`arch_apps`).
+   - OS-wide on every macOS host → `group_vars/darwin/apps.yml` (`darwin_apps`).
    - Tied to a desktop/feature profile → the relevant key under
      `profile_apps` in `group_vars/all/profiles.yml`.
 
@@ -74,8 +74,8 @@ Rules:
    list of logical app names.
 2. Add any per-OS routing those apps need to the catalog.
 3. Opt machines in by adding the profile name to the `profiles:` list on the
-   relevant machine class (`group_vars/workstation_personal.yml`,
-   `group_vars/mac_work.yml`, …), or override per host in host_vars.
+   relevant machine class (`group_vars/workstation_personal/`,
+   `group_vars/mac_work/`, …), or override per host in host_vars.
    Unknown profile names are silently ignored, so removing a profile from
    `profile_apps` won't break hosts that still reference it.
 

@@ -1,26 +1,13 @@
 ---
-# Arch/Garuda package intent.
+# Arch/Garuda package intent (logical names).
 #
-# Package intent (logical names). Single list of logical
-# application names. Resolved by roles/packages (orchestrator) against
-# group_vars/all/package_catalog.yml, then dispatched to pacman or aur
-# task files as the catalog dictates. Names not in the catalog fall
-# through to the default provider for arch (pacman).
+# Resolved by roles/packages against group_vars/all/package_catalog.yml,
+# then dispatched to pacman or aur. Names not in the catalog fall through
+# to the default provider for arch (pacman).
 #
 # Scope: Arch-specific packages only. Cross-platform CLI tools and
-# domain-grouped bundles live in profiles (group_vars/all/profiles.yml):
-#   cli    cross-platform CLI tools and runtimes
-#   cloud  AWS / GCP CLIs
-#   fonts  ttf-* font set
-#   kde    KDE Plasma desktop integration
-# Machine classes (e.g. workstation_personal) opt into profiles via the
-# `profiles:` list in group_vars/<class>.yml.
-
-# Default interpreter for Arch hosts; override in host_vars if needed.
-ansible_python_interpreter: /usr/bin/python
-
-# Chezmoi osid for every Arch host.
-osid: "linux-arch"
+# domain-grouped bundles live in group_vars/all/profiles.yml.
+# Machine classes opt into those bundles via `profiles:` in their main.yml.
 
 arch_apps:
   # ----------------------------------------------------------------

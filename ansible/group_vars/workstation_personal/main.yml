@@ -1,11 +1,10 @@
 ---
-# Machine class: personal Linux workstation (Arch/Garuda).
+# Machine class: personal Linux workstation.
+# Inventory: linux → arch → workstation_personal (hosts.yml).
 #
-# Nested under linux → arch in hosts.yml. Shared recipe for every member.
-# Per-machine deltas (gpu, rare overrides) stay in host_vars/<hostname>.yml.
-#
-# Package bundles resolve via profile_apps in group_vars/all/profiles.yml.
-# osid comes from group_vars/arch.yml; primary_user defaults in all/main.yml.
+# Per-machine deltas (gpu, rare overrides): host_vars/<hostname>.yml.
+# osid: arch/main.yml. primary_user default: all/main.yml.
+# Package bundles: all/profiles.yml via `profiles:` below.
 
 # Chezmoi data (unprefixed; chezmoi.toml.j2 reads these directly).
 profile: "personal"

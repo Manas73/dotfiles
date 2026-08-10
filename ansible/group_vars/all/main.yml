@@ -1,9 +1,6 @@
 ---
-# Universal defaults. Keep this minimal and cross-platform.
-#
-# Loaded for every host. Lives under group_vars/all/ as a directory so
-# package_catalog.yml and profiles.yml can sit beside it without
-# polluting this file.
+# Universal defaults for inventory group `all`.
+# Sibling files: package_catalog.yml, profiles.yml (see group_vars/README.md).
 
 # All personal hosts run ansible locally on themselves. Override in
 # host_vars when ansible runs over SSH against a remote.

@@ -18,12 +18,12 @@ packages     roles/packages (resolve + tasks/{pacman,aur,brew,cask}.yml)
 Pure lists of *logical* app names. They know nothing about pacman, AUR, brew,
 or cask. Two sources feed the packages role:
 
-1. **OS-family lists** — `arch_apps` (`group_vars/arch.yml`) and
-   `darwin_apps` (`group_vars/darwin.yml`).
+1. **OS-family lists** — `arch_apps` (`group_vars/arch/apps.yml`) and
+   `darwin_apps` (`group_vars/darwin/apps.yml`).
 2. **Profile bundles** — `profile_apps` in `group_vars/all/profiles.yml`. A
    host opts into a profile via the `profiles:` list on its **machine class**
-   (nested under OS in `hosts.yml`; vars in `group_vars/workstation_personal.yml`,
-   `group_vars/mac_work.yml`, …), optionally overridden in host_vars; the
+   (nested under OS in `hosts.yml`; vars in `group_vars/workstation_personal/`,
+   `group_vars/mac_work/`, …), optionally overridden in host_vars; the
    packages role unions the matching `profile_apps[<name>]` lists on top of
    the OS-family list.
 

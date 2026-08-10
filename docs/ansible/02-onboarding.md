@@ -4,6 +4,10 @@ Add the host once under its **machine class** in `ansible/hosts.yml` (classes
 nest under OS), create a thin `ansible/host_vars/<hostname>.yml` for hardware
 deltas, then run the site playbook.
 
+`group_vars/` uses one directory per inventory group name (same names as in
+`hosts.yml`). See [`ansible/group_vars/README.md`](../../ansible/group_vars/README.md)
+for the side-by-side map.
+
 ## 0. Prerequisites
 
 On the new machine, before running any Ansible:
@@ -36,8 +40,8 @@ On the new machine, before running any Ansible:
 
 | Layer | Where | What |
 |-------|--------|------|
-| OS family | `linux → arch` / `darwin`; `group_vars/{arch,darwin}.yml` | OS packages, `osid`, python interpreter, OS-scoped plays |
-| Machine class | nested under OS; `group_vars/<class>.yml` | Shared recipe: `profiles:`, feature flags, plasma WM, class-level chezmoi (`profile`, `email`) |
+| OS family | `linux → arch` / `darwin`; `group_vars/arch/`, `group_vars/darwin/` | OS packages (`apps.yml`), `osid` / python (`main.yml`), OS-scoped plays |
+| Machine class | nested under OS; `group_vars/<class>/` | Shared recipe: `profiles:`, feature flags, plasma WM, class-level chezmoi (`profile`, `email`) |
 | Host identity | inventory key = hostname; `host_vars/<hostname>.yml` | True deltas: usually `gpu` only |
 | Defaults | `group_vars/all/main.yml` | `ansible_connection: local`, `primary_user: "{{ ansible_facts['user_id'] }}"`, feature flags off |
 
@@ -50,7 +54,7 @@ class instead.
 - Prefer a **one-line** host_vars file: `gpu: nvidia` (or `amd` / `intel` /
   `none`).
 - Shared package lists live in `group_vars/` — OS-wide intent in
-  `group_vars/{arch,darwin}.yml`; profile bundles in
+  `group_vars/{arch,darwin}/apps.yml`; profile bundles in
   `group_vars/all/profiles.yml`.
 - Profile membership is a `profiles:` list on the **machine class**, not an
   inventory group and not host_vars (unless you need a one-off override).
@@ -70,7 +74,7 @@ Create `ansible/host_vars/<hostname>.yml`:
 
 ```yaml
 ---
-# Hardware delta only. Recipe: group_vars/workstation_personal.yml
+# Hardware delta only. Recipe: group_vars/workstation_personal/
 gpu: "nvidia"          # nvidia | amd | intel
 ```
 
@@ -94,15 +98,15 @@ all:
 
 `ansible_connection: local` and `primary_user` come from
 `group_vars/all/main.yml`. `osid` and `ansible_python_interpreter` come from
-`group_vars/arch.yml`. Email, profiles, and feature flags come from
-`group_vars/workstation_personal.yml`.
+`group_vars/arch/main.yml`. Email, profiles, and feature flags come from
+`group_vars/workstation_personal/main.yml`.
 
 ### New machine class
 
 If the host should *not* share an existing recipe, create
-`group_vars/<new_class>.yml` with `profiles:`, feature flags, and class-level
-chezmoi fields, nest an inventory group of the same name under the right OS,
-and list the host there only.
+`group_vars/<new_class>/main.yml` with `profiles:`, feature flags, and
+class-level chezmoi fields, nest an inventory group of the same name under
+the right OS, and list the host there only.
 
 ## Validate
 
@@ -163,7 +167,7 @@ ansible-playbook playbooks/dotfiles.yml --limit <hostname>
 > via brew, first-run checklist). Tracked by beads `chezmoi-qxl` and filled in
 > when a real MacBook is onboarded.
 
-Shared work-Mac recipe: `group_vars/mac_work.yml` (ready; unused until a host
+Shared work-Mac recipe: `group_vars/mac_work/` (ready; unused until a host
 joins the group). Day-one host_vars is hardware only:
 
 ```yaml

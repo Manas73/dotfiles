@@ -1,6 +1,6 @@
 ---
 # Current Linux workstation (Garuda/Arch).
-# Hardware delta only. Recipe: group_vars/workstation_personal.yml.
+# Hardware delta only. Recipe: group_vars/workstation_personal/.
 # primary_user / email / osid come from all + class + arch group_vars.
 
 gpu: "nvidia"
