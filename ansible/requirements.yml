@@ -5,6 +5,7 @@
 #
 # Needed for:
 #   community.general.pacman / homebrew / homebrew_cask (packages role)
+#   community.general.osx_defaults (macos_defaults role)
 
 collections:
   - name: community.general

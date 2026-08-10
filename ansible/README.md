@@ -43,14 +43,17 @@ ansible/
 │   │   └── apps.yml             # os_apps
 │   └── darwin/
 │       ├── main.yml
-│       └── apps.yml             # os_apps
+│       ├── apps.yml             # os_apps
+│       └── macos_defaults.yml   # osx_defaults prefs (https://macos-defaults.com)
 ├── playbooks/
 │   ├── site.yml
 │   ├── dotfiles.yml
+│   ├── validate.yml
 │   └── tasks/load_recipe.yml    # loads recipes/<recipe>.yml
 └── roles/
     ├── packages/
     ├── system/
+    ├── macos_defaults/          # Darwin user defaults
     ├── sudoers/
     ├── chezmoi/
     ├── kanata/
@@ -65,6 +68,7 @@ Mental model:
 | Change a kind of machine? | `recipes/<name>.yml` |
 | OS-wide packages? | `group_vars/<os>/apps.yml` (`os_apps`) |
 | Package bundles? | `group_vars/all/profiles.yml` + recipe `profiles:` |
+| macOS prefs (defaults)? | `group_vars/darwin/macos_defaults.yml` (+ recipe `macos_defaults_extra`) |
 | New OS family? | inventory group + `group_vars/<os>/` + `os_providers.yml` row |
 
 - Inventory groups are **OS only** (`linux → arch`, `darwin`). No machine-class groups.

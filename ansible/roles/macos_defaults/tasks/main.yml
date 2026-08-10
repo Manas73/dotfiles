@@ -1,0 +1,31 @@
+---
+# Apply macOS user defaults (defaults write / community.general.osx_defaults).
+# Data: macos_defaults + macos_defaults_extra (recipe can append).
+# See https://macos-defaults.com and group_vars/darwin/macos_defaults.yml.
+
+- name: Skip macos_defaults on non-Darwin hosts
+  ansible.builtin.meta: end_host
+  when: ansible_facts['os_family'] | default('') != 'Darwin'
+
+- name: Build effective defaults list
+  ansible.builtin.set_fact:
+    macos_defaults_effective: >-
+      {{ (macos_defaults | default([]))
+         + (macos_defaults_extra | default([])) }}
+
+- name: Apply macOS defaults
+  community.general.osx_defaults:
+    domain: "{{ item.domain | default('NSGlobalDomain') }}"
+    key: "{{ item.key }}"
+    type: "{{ item.type | default(omit) }}"
+    value: "{{ item.value }}"
+    state: "{{ item.state | default('present') }}"
+    host: "{{ item.host | default(omit) }}"
+    array_add: "{{ item.array_add | default(omit) }}"
+  loop: "{{ macos_defaults_effective }}"
+  loop_control:
+    label: "{{ item.domain | default('NSGlobalDomain') }}.{{ item.key }}"
+  notify: "{{ item.notify | default([]) }}"
+  when:
+    - item.key is defined
+    - item.value is defined or (item.state | default('present')) == 'absent'

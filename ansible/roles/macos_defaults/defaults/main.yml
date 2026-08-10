@@ -1,0 +1,11 @@
+---
+# Shared Darwin defaults live in group_vars/darwin/macos_defaults.yml.
+# Recipes may append with macos_defaults_extra.
+
+macos_defaults: []
+macos_defaults_extra: []
+
+# Restart UI agents when related keys change (Dock / Finder / menubar).
+macos_defaults_restart_dock: true
+macos_defaults_restart_finder: true
+macos_defaults_restart_systemuiserver: true

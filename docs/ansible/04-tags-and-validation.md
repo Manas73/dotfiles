@@ -10,7 +10,8 @@
 | `pacman` / `aur` / `brew` / `cask` | A single provider task file under `roles/packages/tasks/`. |
 | `arch` / `darwin` | All package work for the matching OS. |
 | `dotfiles` / `chezmoi` | `chezmoi` role only (render `chezmoi.toml` + `chezmoi apply`). |
-| `system` | sudoers, `roles/system` (fish/docker/libvirt), kanata, plasma_custom_wm (gated by flags). Sub-tags: `sudoers`, `fish`, `docker`, `libvirt`, `kanata`, `plasma`. |
+| `system` | sudoers, `roles/system` (fish/docker/libvirt), macos_defaults (darwin), kanata, plasma_custom_wm (gated by flags). Sub-tags: `sudoers`, `fish`, `docker`, `libvirt`, `macos` / `defaults`, `kanata`, `plasma`. |
+| `macos` / `defaults` | `roles/macos_defaults` only (Darwin user prefs via `osx_defaults`). |
 | `upgrade` | `pacman -Syu` (only when you explicitly want a full upgrade). |
 
 Examples:
@@ -26,6 +27,9 @@ ansible-playbook playbooks/site.yml --tags aur --ask-become-pass
 
 # Just re-apply dotfiles.
 ansible-playbook playbooks/dotfiles.yml
+
+# macOS defaults only (on a Darwin host).
+ansible-playbook playbooks/site.yml --limit <mac-hostname> --tags macos
 ```
 
 ## Validation

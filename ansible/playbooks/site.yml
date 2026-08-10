@@ -6,7 +6,8 @@
 #   2. Install OS packages so binaries exist.
 #   3. Apply Chezmoi dotfiles so configs exist for the services below.
 #   4. System wiring (fish login shell, docker, libvirt).
-#   5. Specialty services (Kanata, Plasma custom WM).
+#   5. macOS defaults (darwin only).
+#   6. Specialty services (Kanata, Plasma custom WM).
 #
 # Each play loads recipes/<recipe>.yml first (see tasks/load_recipe.yml).
 #
@@ -18,7 +19,7 @@
 # Run examples:
 #   ansible-playbook playbooks/site.yml --limit alfred --ask-become-pass
 #   ansible-playbook ... --tags packages
-#   ansible-playbook ... --tags dotfiles
+#   ansible-playbook ... --tags macos
 
 - name: Install sudoers drop-ins required by other roles
   hosts: linux
@@ -63,6 +64,17 @@
       tags: [always]
   roles:
     - role: system
+
+- name: Apply macOS user defaults
+  hosts: darwin
+  gather_facts: true
+  tags: [system, macos, defaults]
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
+  roles:
+    - role: macos_defaults
 
 - name: Configure Kanata keyboard remapper
   hosts: linux

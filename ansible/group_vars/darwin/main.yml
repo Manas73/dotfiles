@@ -1,6 +1,8 @@
 ---
 # OS group: darwin (hosts.yml → darwin).
-# Package intent: apps.yml (os_apps). Machine recipe: recipes/<recipe>.yml.
+# Package intent: apps.yml (os_apps).
+# macOS prefs: macos_defaults.yml (osx_defaults).
+# Machine recipe: recipes/<recipe>.yml.
 
 # Default interpreter for macOS hosts; override on the host if needed.
 ansible_python_interpreter: /usr/bin/python3

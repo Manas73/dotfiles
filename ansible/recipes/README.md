@@ -35,6 +35,7 @@ Playbooks load `recipes/<recipe>.yml` at the start of each play
 | `email` | Chezmoi / git identity |
 | `profiles` (plural) | Package *bundles* from `group_vars/all/profiles.yml` (`cli`, `cloud`, …) |
 | `apps` | Recipe-local logical app names (unioned after profile bundles) |
+| `macos_defaults_extra` | Extra Darwin prefs (appended to `group_vars/darwin/macos_defaults.yml`) |
 | Feature flags / plasma | As needed |
 
 ## Add a host (existing recipe)

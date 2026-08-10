@@ -21,7 +21,8 @@ all                               all/
 └── darwin                        darwin/
       hosts:                        main.yml
         mbp:                        apps.yml
-          recipe: mac_turing      ─────────────────────────► mac_turing.yml
+          recipe: mac_turing        macos_defaults.yml   # osx_defaults
+                                  ─────────────────────────► mac_turing.yml
 ```
 
 ## Add a host
