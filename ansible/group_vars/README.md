@@ -21,7 +21,7 @@ all                               all/
 └── darwin                        darwin/
       hosts:                        main.yml
         mbp:                        apps.yml
-          recipe: mac_work        ─────────────────────────► mac_work.yml
+          recipe: mac_turing      ─────────────────────────► mac_turing.yml
 ```
 
 ## Add a host

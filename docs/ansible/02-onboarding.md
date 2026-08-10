@@ -122,7 +122,7 @@ ansible-playbook playbooks/dotfiles.yml --limit <hostname>
 darwin:
   hosts:
     <hostname>:
-      recipe: mac_work
+      recipe: mac_turing
       gpu: none
       # packages_brew_path: /usr/local/bin/brew   # Intel only
 ```

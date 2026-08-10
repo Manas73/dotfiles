@@ -41,15 +41,17 @@
     quiet: true
   tags: [packages]
 
-- name: Aggregate logical app names from os_apps and recipe profiles
+- name: Aggregate logical app names from os_apps, recipe profiles, and recipe apps
   ansible.builtin.set_fact:
-    # os_apps comes from the host's OS group_vars (same var name on every OS).
-    # Profile apps come from the recipe's profiles: list + profile_apps.
+    # os_apps: OS group_vars (same var name on every OS).
+    # profiles → profile_apps: shared bundles from the recipe's profiles: list.
+    # apps: recipe-local extras (e.g. slack on mac_turing only).
     # extract() with default [] silently skips unknown profile names.
     packages_logical_apps: >-
       {{
         (os_apps | default([]))
         + ((profiles | default([])) | map('extract', profile_apps | default({}), []) | flatten)
+        + (apps | default([]))
       }}
   tags: [packages]
 

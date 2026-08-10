@@ -76,7 +76,7 @@ Rules:
 2. Add any per-OS routing those apps need to the catalog.
 3. Opt machines in by adding the profile name to the `profiles:` list on the
    relevant recipe (`recipes/personal_workstation.yml`,
-   `recipes/mac_work.yml`, …), or override on the host.
+   `recipes/mac_turing.yml`, …), or override on the host.
    Unknown profile names are silently ignored, so removing a profile from
    `profile_apps` won't break hosts that still reference it.
 

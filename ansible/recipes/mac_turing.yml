@@ -1,14 +1,17 @@
 ---
-# Recipe: work Mac.
+# Recipe: Turing work Mac.
 #
-# Applied when a host sets recipe: mac_work (hosts.yml).
+# Applied when a host sets recipe: mac_turing (hosts.yml).
 # OS packages come from group_vars/darwin/apps.yml; this file is the shared
 # "what kind of machine" recipe. Feature flags inherit false defaults from
 # group_vars/all. Linux-only profiles are omitted.
+#
+# profile (singular) is chezmoi data: non-personal values skip personal SSH
+# keys in .chezmoiignore. Use employer ids (turing, …) not a generic "work".
 
 # Chezmoi data (unprefixed; chezmoi.toml.j2 reads these directly).
-profile: "work"
-email: "manas.sambare@gmail.com"
+profile: "turing"
+email: "manas.s@turing.com"
 
 # Profile membership. Each name resolves against profile_apps
 # (group_vars/all/profiles.yml).
@@ -16,3 +19,7 @@ profiles:
   - cli
   - cloud
   - development
+
+apps:
+  - slack
+  - zoom

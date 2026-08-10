@@ -13,7 +13,8 @@
 {{- $email := promptStringOnce . "email" "Commit email address" -}}
 
 {{- /* Ask Profile Choices */ -}}
-{{- $profile_choices := list "personal" "work" -}}
+{{- /* personal = home keys/config; employer ids skip personal SSH keys via .chezmoiignore */ -}}
+{{- $profile_choices := list "personal" "turing" -}}
 {{- $profile := promptChoiceOnce . "profile" "Select the Profile: " $profile_choices "personal" -}}
 
 {{/* Detect OS Type */}}

@@ -30,7 +30,7 @@ ansible/
 ├── recipes/                     # machine recipes (NOT inventory groups)
 │   ├── README.md
 │   ├── personal_workstation.yml
-│   └── mac_work.yml
+│   └── mac_turing.yml
 ├── group_vars/                  # one dir per OS inventory group
 │   ├── README.md
 │   ├── all/
@@ -282,14 +282,14 @@ Dry-run: `ansible-playbook playbooks/site.yml --limit desk2 --check --diff`
 
 ## Mac Onboarding
 
-Recipe: `recipes/mac_work.yml`. `osid` from `group_vars/darwin/`. Add under
-`darwin` in `hosts.yml`:
+Recipe: `recipes/mac_turing.yml` (`profile: turing`). `osid` from
+`group_vars/darwin/`. Add under `darwin` in `hosts.yml`:
 
 ```yaml
 darwin:
   hosts:
     <your-hostname>:
-      recipe: mac_work
+      recipe: mac_turing
       gpu: none
       # packages_brew_path: /usr/local/bin/brew   # Intel only
 ```
@@ -309,8 +309,9 @@ Full Mac bootstrap (Homebrew, ansible-core) is tracked by `chezmoi-qxl`.
 
 ## Adding a Recipe
 
-Copy `recipes/personal_workstation.yml` (or `mac_work.yml`), edit
-`profiles:` / flags / email, point hosts at `recipe: <new-name>`.
+Copy `recipes/personal_workstation.yml` (or `mac_turing.yml`), edit
+`profiles:` / `apps` / flags / email / `profile`, point hosts at
+`recipe: <new-name>`.
 
 ## Tags
 

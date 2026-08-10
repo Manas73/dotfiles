@@ -1,7 +1,7 @@
 # Machine recipes
 
-A **recipe** is a shared “kind of machine” config: package profiles, feature
-flags, plasma WM, class-level chezmoi fields (`profile`, `email`).
+A **recipe** is a shared “kind of machine” config: package profile bundles,
+recipe-local apps, feature flags, plasma WM, and chezmoi data fields.
 
 Hosts pick a recipe in `hosts.yml`:
 
@@ -11,6 +11,12 @@ arch:
     alfred:
       recipe: personal_workstation
       gpu: nvidia
+
+darwin:
+  hosts:
+    mbp:
+      recipe: mac_turing
+      gpu: none
 ```
 
 Playbooks load `recipes/<recipe>.yml` at the start of each play
@@ -19,7 +25,17 @@ Playbooks load `recipes/<recipe>.yml` at the start of each play
 | File | Typical use |
 |------|-------------|
 | `personal_workstation.yml` | Personal Arch/Garuda desktops and laptops |
-| `mac_work.yml` | Work Mac |
+| `mac_turing.yml` | Turing work Mac |
+
+## Fields
+
+| Field | Purpose |
+|-------|---------|
+| `profile` (singular) | Chezmoi identity/context: `personal`, `turing`, … Written to `chezmoi.toml` data. Non-`personal` skips personal SSH keys in `.chezmoiignore`. |
+| `email` | Chezmoi / git identity |
+| `profiles` (plural) | Package *bundles* from `group_vars/all/profiles.yml` (`cli`, `cloud`, …) |
+| `apps` | Recipe-local logical app names (unioned after profile bundles) |
+| Feature flags / plasma | As needed |
 
 ## Add a host (existing recipe)
 
@@ -27,10 +43,14 @@ Playbooks load `recipes/<recipe>.yml` at the start of each play
    and any deltas (`gpu`, …).
 2. Dry-run: `ansible-playbook playbooks/site.yml --limit <host> --check`
 
-## Add a new recipe
+## Add a new recipe (e.g. another employer Mac)
 
-1. Copy an existing file in this directory; edit `profiles:`, flags, email.
-2. Point hosts at it via `recipe: <name>` (filename without `.yml`).
+1. Copy `mac_turing.yml` → `mac_<employer>.yml`.
+2. Set `profile: "<employer>"` (not a generic `"work"`), `email`, `apps`,
+   and `profiles:` as needed.
+3. Point the host at `recipe: mac_<employer>`.
+4. Bootstrap choices: add the new profile id to
+   `chezmoi/.chezmoi.toml.tmpl` if you use manual `chezmoi init`.
 
 ## Not here
 

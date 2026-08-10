@@ -6,6 +6,7 @@
 # "what kind of machine" recipe (profiles, flags, chezmoi data).
 
 # Chezmoi data (unprefixed; chezmoi.toml.j2 reads these directly).
+# profile=personal keeps personal SSH keys managed (.chezmoiignore).
 profile: "personal"
 email: "manas.sambare@gmail.com"
 

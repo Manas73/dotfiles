@@ -14,19 +14,12 @@ os_apps:
   # Cross-OS GUI apps via catalog (route to cask).
   # ----------------------------------------------------------------
   - "1password"
-  - dropbox
-  - firefox
+  - bazecor
+  - docker
   - google-chrome
-  - slack
+  - kanata
   - vivaldi
   - vlc
-  - vuescan
-  - zoom
-
-  # ----------------------------------------------------------------
-  # Cross-OS bundles via catalog.
-  # ----------------------------------------------------------------
-  - docker             # bundle -> docker-engine + buildx + compose (brew)
 
   # ----------------------------------------------------------------
   # macOS-only GUI apps via cask (add as Mac onboarding progresses).
