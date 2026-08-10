@@ -1,12 +1,14 @@
 key.txt.age
 
+{{/* Linux desktop / Plasma / X11-ish — skip on macOS and other non-Linux. */}}
 {{- if ne .chezmoi.os "linux" }}
 .config/.settings
 .config/fastfetch
 .config/Kvantum
 .config/matugen
-.config/qtile
 .config/rofi
+.config/wireplumber
+.config/mimeapps.list
 
 .config/greenclip.toml
 .config/gtkrc
@@ -24,29 +26,32 @@ key.txt.age
 .local/share/user-places.xbel.tmpl
 {{- end }}
 
+{{/* i3 + X11 companions (sxhkd, redshift, picom, polybar). */}}
 {{- if not (has "i3" .window_manager) }}
 .config/i3
 .config/picom
 .config/polybar
+.config/sxhkd
+.config/redshift
 {{- end }}
 
+{{/* Hyprland + Wayland companions. */}}
 {{- if not (has "hyprland" .window_manager) }}
-.config/dunst
 .config/hypr
 .config/swaync
+.config/swayosd
 .config/waybar
+.config/xdg-desktop-portal
 {{- end }}
 
 {{- if ne .osid "linux-manjaro" }}
 .config/fish/conf.d/pyenv.fish
 {{- end }}
 
-
 {{- if ne .chezmoi.os "darwin" }}
-.config/sketchybar
 {{- end }}
 
-{{/* Personal SSH keys only on profile=personal. Any other profile (turing, sleepiz, …) skips these so work machines stay clean. */}}
+{{/* Personal SSH keys only on profile=personal. Any other profile (turing, …) skips these so work machines stay clean. */}}
 {{- if ne .profile "personal" }}
 .ssh/Manas73-GitHub
 .ssh/Manas73-GitHub.pub
