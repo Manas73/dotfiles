@@ -29,7 +29,7 @@ From `group_vars/all/main.yml` (paths and age config, prefixed with `chezmoi_`):
 - `chezmoi_age_identity`
 - `chezmoi_age_recipient`
 
-From `host_vars/<hostname>.yml` (inventory data, unprefixed):
+From the host's recipe + inventory (unprefixed):
 
 - `primary_user`
 - `email`

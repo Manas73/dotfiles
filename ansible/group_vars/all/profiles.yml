@@ -2,17 +2,16 @@
 # Profile package intent.
 #
 # Consumed by the packages orchestrator. A host opts into a profile by
-# listing its name in `profiles:` — usually on a machine-class group
-# (group_vars/workstation_personal/, group_vars/mac_work/, …), or
-# overridden in host_vars for a one-off. The orchestrator looks up
+# listing its name in `profiles:` on its recipe (recipes/<name>.yml), or
+# overridden on the host for a one-off. The orchestrator looks up
 # `profile_apps[<name>]` for each entry and feeds the union (after catalog
 # resolution) to the matching provider roles.
 #
-# Profiles are NOT inventory groups in hosts.yml. Membership is declared
-# once on the machine class (or host), so removing a profile from a class
-# of machines is one edit. See group_vars/README.md for layout.
+# Profiles are NOT inventory groups. Membership is declared once on the
+# recipe, so removing a profile from a kind of machine is one edit.
+# See recipes/README.md and group_vars/README.md.
 #
-# Layer 1 (intent) data; complements arch_apps / darwin_apps.
+# Layer 1 (intent) data; complements os_apps on each OS group.
 
 profile_apps:
   cli:

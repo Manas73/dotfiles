@@ -1,12 +1,17 @@
 # Ansible 02 — Onboarding a New Machine
 
-Add the host once under its **machine class** in `ansible/hosts.yml` (classes
-nest under OS), create a thin `ansible/host_vars/<hostname>.yml` for hardware
-deltas, then run the site playbook.
+## Mental model
 
-`group_vars/` uses one directory per inventory group name (same names as in
-`hosts.yml`). See [`ansible/group_vars/README.md`](../../ansible/group_vars/README.md)
-for the side-by-side map.
+| Question | Where |
+|----------|--------|
+| Which OS? | Inventory group in `hosts.yml` (`arch`, `darwin`, …) |
+| What kind of machine? | `recipe:` → `ansible/recipes/<recipe>.yml` |
+| What differs on this box? | Host vars on the inventory entry (`gpu`, …) |
+| OS-wide packages? | `group_vars/<os>/apps.yml` (`os_apps`) |
+| Package bundles? | `group_vars/all/profiles.yml` + recipe `profiles:` |
+
+See also [`ansible/recipes/README.md`](../../ansible/recipes/README.md) and
+[`ansible/group_vars/README.md`](../../ansible/group_vars/README.md).
 
 ## 0. Prerequisites
 
@@ -36,83 +41,40 @@ On the new machine, before running any Ansible:
    ansible-galaxy install -r ansible/requirements.yml
    ```
 
-## Identity vs recipe
-
-| Layer | Where | What |
-|-------|--------|------|
-| OS family | `linux → arch` / `darwin`; `group_vars/arch/`, `group_vars/darwin/` | OS packages (`apps.yml`), `osid` / python (`main.yml`), OS-scoped plays |
-| Machine class | nested under OS; `group_vars/<class>/` | Shared recipe: `profiles:`, feature flags, plasma WM, class-level chezmoi (`profile`, `email`) |
-| Host identity | inventory key = hostname; `host_vars/<hostname>.yml` | True deltas: usually `gpu` only |
-| Defaults | `group_vars/all/main.yml` | `ansible_connection: local`, `primary_user: "{{ ansible_facts['user_id'] }}"`, feature flags off |
-
-Hostname is for targeting (`--limit $(hostname)`). Do **not** copy a full
-host recipe into a new host_vars file — put the host in the right machine
-class instead.
-
-## Rules for host_vars
-
-- Prefer a **one-line** host_vars file: `gpu: nvidia` (or `amd` / `intel` /
-  `none`).
-- Shared package lists live in `group_vars/` — OS-wide intent in
-  `group_vars/{arch,darwin}/apps.yml`; profile bundles in
-  `group_vars/all/profiles.yml`.
-- Profile membership is a `profiles:` list on the **machine class**, not an
-  inventory group and not host_vars (unless you need a one-off override).
-- Linux-only keys like `plasma_window_manager` live on the Linux machine
-  class; roles guard reads with `is defined` or default filters.
-- Chezmoi data keys (`email`, `profile`, `osid`, `gpu`) are **unprefixed**.
-  Class/OS group_vars supply most of them; host_vars supplies `gpu`. The
-  `chezmoi_*` prefix is reserved for paths / age recipient in
-  `group_vars/all/main.yml`.
-
-## Example: Arch / Garuda Linux host (same class as alfred)
-
-If the new machine should match the personal workstation recipe, only add
-identity — do not redeclare profiles or feature flags.
-
-Create `ansible/host_vars/<hostname>.yml`:
+## Example: second personal Arch workstation
 
 ```yaml
----
-# Hardware delta only. Recipe: group_vars/workstation_personal/
-gpu: "nvidia"          # nvidia | amd | intel
+# ansible/hosts.yml — under linux → arch
+arch:
+  hosts:
+    alfred:
+      recipe: personal_workstation
+      gpu: nvidia
+    <hostname>:
+      recipe: personal_workstation
+      gpu: nvidia   # or amd / intel
 ```
 
-Wire the host once under `linux → arch → workstation_personal`:
+No `host_vars` file required. No new recipe unless this machine should
+differ in profiles/flags/email.
 
-```yaml
-all:
-  children:
-    linux:
-      children:
-        arch:
-          children:
-            workstation_personal:
-              hosts:
-                alfred:
-                <hostname>:
+`primary_user` defaults to the user running ansible
+(`group_vars/all/main.yml`). `osid` comes from `group_vars/arch/main.yml`.
+Recipe supplies `email`, `profile`, `profiles:`, feature flags, plasma WM.
 
-    darwin:
-      hosts: {}
-```
+### New recipe
 
-`ansible_connection: local` and `primary_user` come from
-`group_vars/all/main.yml`. `osid` and `ansible_python_interpreter` come from
-`group_vars/arch/main.yml`. Email, profiles, and feature flags come from
-`group_vars/workstation_personal/main.yml`.
+If this machine should not match an existing recipe:
 
-### New machine class
-
-If the host should *not* share an existing recipe, create
-`group_vars/<new_class>/main.yml` with `profiles:`, feature flags, and
-class-level chezmoi fields, nest an inventory group of the same name under
-the right OS, and list the host there only.
+1. Copy `ansible/recipes/personal_workstation.yml` to `recipes/<new>.yml`.
+2. Edit `profiles:`, flags, email, etc.
+3. Set `recipe: <new>` on the host.
 
 ## Validate
 
 ```sh
 cd ~/.local/share/chezmoi/ansible
-export LC_ALL=C.UTF-8 LANG=C.UTF-8     # Ansible needs a UTF-8 locale
+export LC_ALL=C.UTF-8 LANG=C.UTF-8
 
 ansible-inventory --graph
 ansible-inventory --host <hostname>
@@ -120,30 +82,22 @@ ansible-playbook playbooks/site.yml --syntax-check
 ansible-playbook playbooks/site.yml --limit <hostname> --check --diff
 ```
 
-(From the repo root, `just check` runs the full validation block with the
-locale baked in.)
+(From the repo root, `just check` runs the full validation block.)
 
 Expect:
 
-- `--graph` shows `<hostname>` under `linux → arch → workstation_personal`
-  (or whichever class you used). Host listed once. No
-  `hyprland`/`i3`/`gaming` inventory groups — those are profile data on the
-  machine class.
-- `--host <hostname>` dumps merged vars including class-level `profiles`,
-  feature flags, `email`, OS-level `osid`, and host-level `gpu`.
-  `primary_user` may still show as a Jinja template until facts are gathered.
-- `--syntax-check` is silent (parses successfully).
-- `--check --diff` runs up to the first sudo-gated task without
-  `--ask-become-pass`; add it to exercise the full check flow.
+- `--graph` shows `<hostname>` under `linux → arch` (or `darwin`). No
+  recipe/class groups in the graph.
+- `--host` shows `recipe`, `gpu`, `os_apps`, `osid`. Recipe fields
+  (`profiles`, `email`, …) appear after the play loads
+  `recipes/<recipe>.yml` (not in raw inventory dump).
+- `--syntax-check` is silent.
 
 ## Run
 
 ```sh
 ansible-playbook playbooks/site.yml --limit <hostname> --ask-become-pass
 ```
-
-The first run additionally prompts once for the age passphrase (to decrypt
-`~/.config/chezmoi/key.txt`).
 
 ### Dotfiles only
 
@@ -153,40 +107,28 @@ ansible-playbook playbooks/dotfiles.yml --limit <hostname>
 
 ### Post-install
 
-- Log out and back in so group membership changes (`docker`, `input`,
-  `uinput`) take effect.
+- Log out and back in so group membership changes take effect.
 - If `kanata_enabled: true`, verify `systemctl --user status kanata.service`.
-- If `plasma_window_manager` is not `kwin`, log out and back in to pick up
-  the new Plasma WM session.
+- If `plasma_window_manager` is set, log out and back in for the new Plasma WM.
 
-## macOS (placeholder)
+## macOS
 
-> **Status: deferred.** Package dispatch and chezmoi rendering on darwin
-> already work end-to-end through the four-layer architecture; what's missing
-> is the bare-metal-to-ansible-ready bootstrap (Homebrew install, ansible-core
-> via brew, first-run checklist). Tracked by beads `chezmoi-qxl` and filled in
-> when a real MacBook is onboarded.
-
-Shared work-Mac recipe: `group_vars/mac_work/` (ready; unused until a host
-joins the group). Day-one host_vars is hardware only:
-
-```yaml
----
-gpu: "none"
-
-# Intel Mac only: uncomment.
-# packages_brew_path: /usr/local/bin/brew
-```
-
-Inventory wiring (host listed once under the class):
+> **Status: deferred** for bare-metal bootstrap (`chezmoi-qxl`). Package
+> dispatch and chezmoi rendering already work on darwin.
 
 ```yaml
 darwin:
-  children:
-    mac_work:
-      hosts:
-        <hostname>:
+  hosts:
+    <hostname>:
+      recipe: mac_work
+      gpu: none
+      # packages_brew_path: /usr/local/bin/brew   # Intel only
 ```
 
-`plasma_window_manager` and other Linux-only keys are simply omitted; roles
-guard reads with `is defined`.
+## Add an OS family
+
+1. Inventory group in `hosts.yml`.
+2. `group_vars/<os>/main.yml` + `apps.yml` (`os_apps`).
+3. Row in `group_vars/all/os_providers.yml`.
+4. Catalog / provider tasks if needed.
+5. Playbook host patterns for OS-scoped plays if needed.

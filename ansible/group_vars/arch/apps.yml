@@ -1,15 +1,16 @@
 ---
 # Arch/Garuda package intent (logical names).
 #
-# Resolved by roles/packages against group_vars/all/package_catalog.yml,
-# then dispatched to pacman or aur. Names not in the catalog fall through
-# to the default provider for arch (pacman).
+# Variable name is always `os_apps` (same on every OS group). Resolved by
+# roles/packages against group_vars/all/package_catalog.yml, then
+# dispatched to pacman or aur. Names not in the catalog fall through to
+# the default provider for arch (pacman).
 #
 # Scope: Arch-specific packages only. Cross-platform CLI tools and
-# domain-grouped bundles live in group_vars/all/profiles.yml.
-# Machine classes opt into those bundles via `profiles:` in their main.yml.
+# domain-grouped bundles live in group_vars/all/profiles.yml; recipes
+# opt into those via `profiles:`.
 
-arch_apps:
+os_apps:
   # ----------------------------------------------------------------
   # Cross-OS apps & bundles (catalog handles routing per OS).
   # ----------------------------------------------------------------

@@ -5,5 +5,9 @@
   hosts: all
   gather_facts: true
   tags: [dotfiles, chezmoi]
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
   roles:
     - role: chezmoi

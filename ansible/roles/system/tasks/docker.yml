@@ -14,7 +14,7 @@
   ansible.builtin.fail:
     msg: >-
       docker is not installed. On Arch it is installed by the packages role
-      (intent `docker` in arch_apps). Run packages before the system role.
+      (intent `docker` in os_apps). Run packages before the system role.
   when: docker_binary.rc != 0
   tags: [system, docker]
 

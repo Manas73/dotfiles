@@ -1,0 +1,12 @@
+---
+# Map ansible_facts.os_family → packages target key + default provider.
+# Adding an OS family: append a row here, add group_vars/<target_os>/,
+# inventory group, and provider tasks if the package manager is new.
+
+os_family_map:
+  Archlinux:
+    target_os: arch
+    default_provider: pacman
+  Darwin:
+    target_os: darwin
+    default_provider: brew

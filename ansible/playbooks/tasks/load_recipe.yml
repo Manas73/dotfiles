@@ -1,0 +1,19 @@
+---
+# Load recipes/<recipe>.yml for the current host.
+# Tagged always so --tags packages|dotfiles|… still get recipe vars.
+
+- name: Assert recipe is set for this host
+  ansible.builtin.assert:
+    that:
+      - recipe is defined
+      - recipe | length > 0
+    fail_msg: >-
+      Host {{ inventory_hostname }} has no recipe. Set recipe: under the
+      host in hosts.yml (e.g. personal_workstation). See ansible/recipes/.
+    quiet: true
+  tags: [always]
+
+- name: Load machine recipe
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../recipes/{{ recipe }}.yml"
+  tags: [always]

@@ -1,8 +1,8 @@
 ---
 # OS group: arch (hosts.yml → linux → arch).
-# Package intent: apps.yml. Machine-class recipe: workstation_personal/.
+# Package intent: apps.yml (os_apps). Machine recipe: recipes/<recipe>.yml.
 
-# Default interpreter for Arch hosts; override in host_vars if needed.
+# Default interpreter for Arch hosts; override on the host if needed.
 ansible_python_interpreter: /usr/bin/python
 
 # Chezmoi osid for every Arch host.

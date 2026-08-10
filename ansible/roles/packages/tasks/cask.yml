@@ -36,7 +36,7 @@
     msg: >-
       packages/cask requires Homebrew at {{ packages_brew_path }} but
       it is missing. Either install brew manually, or list at least one
-      formula in darwin_apps so brew.yml bootstraps it first.
+      formula in os_apps so brew.yml bootstraps it first.
   when:
     - not packages_cask_brew_stat.stat.exists
     - not ansible_check_mode

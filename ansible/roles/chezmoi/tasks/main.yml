@@ -26,9 +26,9 @@
       - chezmoi_repo_path is defined
     fail_msg: >-
       Missing required vars for the chezmoi role. Need email, profile, osid,
-      gpu, primary_user (from machine-class / OS group_vars, host_vars for
-      gpu, and primary_user default in group_vars/all). chezmoi_* paths come
-      from group_vars/all/main.yml. See docs/ansible/02-onboarding.md.
+      gpu, primary_user (recipe + OS group_vars + host vars; primary_user
+      defaults in group_vars/all). chezmoi_* paths come from
+      group_vars/all/main.yml. See docs/ansible/02-onboarding.md.
     quiet: true
 
 - name: Locate chezmoi binary
@@ -42,7 +42,7 @@
   ansible.builtin.fail:
     msg: >-
       chezmoi is not installed on this host. It should be installed by the
-      packages role (the `chezmoi` entry in arch_apps / darwin_apps).
+      packages role (the `chezmoi` entry in os_apps / profiles).
       Install it and re-run this playbook.
   when: chezmoi_binary.rc != 0
 

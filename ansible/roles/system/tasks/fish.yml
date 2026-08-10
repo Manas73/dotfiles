@@ -14,7 +14,7 @@
   ansible.builtin.fail:
     msg: >-
       fish is not installed on this host. Install it via the packages role
-      (intent `fish` in arch_apps / darwin_apps) before running the system role.
+      (intent `fish` in os_apps) before running the system role.
   when: fish_binary.rc != 0
   tags: [system, fish]
 

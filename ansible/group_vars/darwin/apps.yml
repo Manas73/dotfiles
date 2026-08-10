@@ -1,15 +1,15 @@
 ---
 # macOS package intent (logical names).
 #
-# Resolved by roles/packages against group_vars/all/package_catalog.yml,
-# then dispatched to brew or cask. Names not in the catalog fall through
-# to brew with the same name verbatim.
+# Variable name is always `os_apps` (same on every OS group). Resolved by
+# roles/packages against group_vars/all/package_catalog.yml, then
+# dispatched to brew or cask. Names not in the catalog fall through to
+# brew with the same name verbatim.
 #
 # Scope: macOS-specific apps only. Cross-platform CLI tools live in the
-# `cli` profile (group_vars/all/profiles.yml); machine classes opt in via
-# `profiles:` in their main.yml.
+# `cli` profile; recipes opt in via `profiles:`.
 
-darwin_apps:
+os_apps:
   # ----------------------------------------------------------------
   # Cross-OS GUI apps via catalog (route to cask).
   # ----------------------------------------------------------------

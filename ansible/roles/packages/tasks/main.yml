@@ -1,55 +1,54 @@
 ---
 # packages role: cross-OS package installation.
 #
-# Intent     -> <group>_apps lists + profile_apps in group_vars
+# Intent     -> os_apps (group_vars/<os>/apps.yml) + profile_apps via recipe
 # Catalog    -> group_vars/all/package_catalog.yml
 # Resolve    -> this role (resolve_catalog filter)
 # Providers  -> tasks/{pacman,aur,brew,cask}.yml
 #
 # Does NOT manage configuration, services, or dotfiles.
+# Recipe must be loaded first (playbooks/tasks/load_recipe.yml) so
+# `profiles` is available.
 
-- name: Compute target OS from ansible_facts
+- name: Resolve target OS and default provider from facts
   ansible.builtin.set_fact:
     packages_target_os: >-
-      {%- if ansible_facts['os_family'] == 'Archlinux' -%}arch
-      {%- elif ansible_facts['os_family'] == 'Darwin' -%}darwin
-      {%- else -%}unknown
-      {%- endif -%}
-  tags: [packages]
-
-- name: Compute default provider for target OS
-  ansible.builtin.set_fact:
+      {{
+        (os_family_map | default({}))
+          [ansible_facts['os_family']]
+          .target_os
+        | default('unknown')
+      }}
     packages_default_provider: >-
-      {%- if packages_target_os == 'arch' -%}pacman
-      {%- elif packages_target_os == 'darwin' -%}brew
-      {%- else -%}unknown
-      {%- endif -%}
+      {{
+        (os_family_map | default({}))
+          [ansible_facts['os_family']]
+          .default_provider
+        | default('unknown')
+      }}
   tags: [packages]
 
 - name: Assert target OS is supported
   ansible.builtin.assert:
     that:
-      - packages_target_os in ['arch', 'darwin']
-      - packages_default_provider in ['pacman', 'brew']
+      - packages_target_os != 'unknown'
+      - packages_default_provider != 'unknown'
     fail_msg: >-
       packages role does not support os_family
       {{ ansible_facts['os_family'] | default('<unknown>') }}.
-      Supported: Archlinux (provider pacman), Darwin (provider brew).
+      Add a row to group_vars/all/os_providers.yml and group_vars/<os>/.
+      Known: {{ os_family_map | default({}) | to_json }}.
     quiet: true
   tags: [packages]
 
-- name: Aggregate logical app names from this host's OS group and profiles
+- name: Aggregate logical app names from os_apps and recipe profiles
   ansible.builtin.set_fact:
-    # OS-family <group>_apps lists are included only when the host is
-    # actually in that inventory group (defensive guard).
-    #
-    # Profile apps are pulled from group_vars/all/profiles.yml via the
-    # host_vars `profiles:` list. extract() with default [] silently skips
-    # unknown profile names.
+    # os_apps comes from the host's OS group_vars (same var name on every OS).
+    # Profile apps come from the recipe's profiles: list + profile_apps.
+    # extract() with default [] silently skips unknown profile names.
     packages_logical_apps: >-
       {{
-        (arch_apps   | default([]) if 'arch'   in group_names else [])
-        + (darwin_apps | default([]) if 'darwin' in group_names else [])
+        (os_apps | default([]))
         + ((profiles | default([])) | map('extract', profile_apps | default({}), []) | flatten)
       }}
   tags: [packages]

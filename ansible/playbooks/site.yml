@@ -8,25 +8,26 @@
 #   4. System wiring (fish login shell, docker, libvirt).
 #   5. Specialty services (Kanata, Plasma custom WM).
 #
-# Packaging (intent → catalog → provider task files):
-#   Intent       <group>_apps / profile_apps in group_vars
+# Each play loads recipes/<recipe>.yml first (see tasks/load_recipe.yml).
+#
+# Packaging:
+#   Intent       os_apps + profile_apps (via recipe profiles:)
 #   Catalog      group_vars/all/package_catalog.yml
-#   packages     roles/packages (resolve + tasks/{pacman,aur,brew,cask}.yml)
+#   packages     roles/packages
 #
 # Run examples:
-#   ansible-playbook -i hosts.yml playbooks/site.yml --limit alfred --ask-become-pass
-#   ansible-playbook ... --tags packages           # all packages, any OS
-#   ansible-playbook ... --tags aur                # arch AUR only
-#   ansible-playbook ... --tags brew               # darwin brew only
+#   ansible-playbook playbooks/site.yml --limit alfred --ask-become-pass
+#   ansible-playbook ... --tags packages
 #   ansible-playbook ... --tags dotfiles
-#   ansible-playbook ... --tags system
-#   ansible-playbook ... --tags fish
-#   ansible-playbook ... --tags docker
 
 - name: Install sudoers drop-ins required by other roles
   hosts: linux
   gather_facts: true
   tags: [system, sudoers]
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
   roles:
     - role: sudoers
 
@@ -34,6 +35,10 @@
   hosts: all
   gather_facts: true
   tags: [packages]
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
   roles:
     - role: packages
 
@@ -41,6 +46,10 @@
   hosts: all
   gather_facts: true
   tags: [dotfiles, chezmoi]
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
   roles:
     - role: chezmoi
 
@@ -48,6 +57,10 @@
   hosts: all
   gather_facts: true
   tags: [system]
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
   roles:
     - role: system
 
@@ -55,6 +68,10 @@
   hosts: linux
   gather_facts: true
   tags: [system, kanata]
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
   roles:
     - role: kanata
       when: kanata_enabled | default(false) | bool
@@ -63,6 +80,10 @@
   hosts: linux
   gather_facts: true
   tags: [system, plasma]
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
   roles:
     - role: plasma_custom_wm
       when: plasma_window_manager is defined

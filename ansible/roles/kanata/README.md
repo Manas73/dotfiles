@@ -18,8 +18,8 @@ Sets up the Kanata keyboard remapper on Linux hosts.
 
 ## Inputs
 
-- `primary_user` (host_vars).
-- `kanata_enabled` (host_vars). Role runs only when true; gated at site.yml.
+- `primary_user` (defaults in group_vars/all).
+- `kanata_enabled` (recipe). Role runs only when true; gated at site.yml.
 - `kanata_config_path` (defaults to `~/.config/kanata/config.kbd`).
 
 ## Notes

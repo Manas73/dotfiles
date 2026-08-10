@@ -7,7 +7,7 @@
 #   - Loads the uinput kernel module and makes the load persistent.
 #   - Installs a systemd user service that launches kanata on session start.
 #
-# Gated by kanata_enabled (default: false; set true in host_vars).
+# Gated by kanata_enabled (default: false; set true in the recipe).
 # Kanata itself is installed by the packages role: `kanata-bin` is listed
 # as intent and routed through the catalog to the AUR provider task.
 

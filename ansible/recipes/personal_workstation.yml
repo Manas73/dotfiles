@@ -1,10 +1,9 @@
 ---
-# Machine class: personal Linux workstation.
-# Inventory: linux → arch → workstation_personal (hosts.yml).
+# Recipe: personal Linux workstation.
 #
-# Per-machine deltas (gpu, rare overrides): host_vars/<hostname>.yml.
-# osid: arch/main.yml. primary_user default: all/main.yml.
-# Package bundles: all/profiles.yml via `profiles:` below.
+# Applied when a host sets recipe: personal_workstation (hosts.yml).
+# OS packages come from group_vars/<os>/apps.yml; this file is the shared
+# "what kind of machine" recipe (profiles, flags, chezmoi data).
 
 # Chezmoi data (unprefixed; chezmoi.toml.j2 reads these directly).
 profile: "personal"
@@ -14,7 +13,8 @@ email: "manas.sambare@gmail.com"
 # Set to "kwin" or omit to disable masking and use stock KWin.
 plasma_window_manager: "i3"
 
-# Profile membership. Each name resolves against profile_apps.
+# Profile membership. Each name resolves against profile_apps
+# (group_vars/all/profiles.yml).
 profiles:
   - cli
   - cloud
@@ -26,7 +26,7 @@ profiles:
   - kde
   - virtualization
 
-# Feature flags (override all/main.yml defaults).
+# Feature flags (override group_vars/all defaults).
 docker_enabled: true
 kanata_enabled: true
 libvirt_enabled: true

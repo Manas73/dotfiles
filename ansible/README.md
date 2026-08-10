@@ -25,83 +25,69 @@ Ansible does not own:
 
 ```text
 ansible/
-├── ansible.cfg                  # inventory = hosts.yml; filter_plugins = filter_plugins
-├── hosts.yml                    # flat inventory at the ansible/ root
-├── filter_plugins/
-│   └── catalog.py               # resolve_catalog jinja filter
-├── group_vars/                  # one dir per inventory group (see group_vars/README.md)
-│   ├── README.md                # hosts.yml ↔ group_vars map
+├── ansible.cfg
+├── hosts.yml                    # OS groups + hosts (recipe + gpu on each host)
+├── recipes/                     # machine recipes (NOT inventory groups)
+│   ├── README.md
+│   ├── personal_workstation.yml
+│   └── mac_work.yml
+├── group_vars/                  # one dir per OS inventory group
+│   ├── README.md
 │   ├── all/
 │   │   ├── main.yml             # connection, primary_user, chezmoi paths, feature defaults
-│   │   ├── package_catalog.yml  # Layer 2: logical name -> per-OS install instructions
-│   │   └── profiles.yml         # Layer 1: profile_apps (cli/cloud/…/kde)
+│   │   ├── os_providers.yml     # facts.os_family → target_os + default provider
+│   │   ├── package_catalog.yml  # logical name → per-OS install instructions
+│   │   └── profiles.yml         # profile_apps (cli/cloud/…/kde)
 │   ├── arch/
 │   │   ├── main.yml             # osid, python
-│   │   └── apps.yml             # arch_apps
-│   ├── darwin/
-│   │   ├── main.yml             # osid, python
-│   │   └── apps.yml             # darwin_apps
-│   ├── workstation_personal/    # machine class under arch
-│   │   └── main.yml             # profiles, flags, plasma, email, profile
-│   └── mac_work/                # machine class under darwin (recipe ready)
-│       └── main.yml
-├── host_vars/
-│   └── alfred.yml               # thin: gpu (+ rare overrides only)
+│   │   └── apps.yml             # os_apps
+│   └── darwin/
+│       ├── main.yml
+│       └── apps.yml             # os_apps
 ├── playbooks/
 │   ├── site.yml
-│   └── dotfiles.yml
+│   ├── dotfiles.yml
+│   └── tasks/load_recipe.yml    # loads recipes/<recipe>.yml
 └── roles/
-    ├── packages/                # intent → catalog → pacman/aur/brew/cask tasks
-    ├── system/                  # fish login shell, docker, libvirt
+    ├── packages/
+    ├── system/
     ├── sudoers/
     ├── chezmoi/
     ├── kanata/
     └── plasma_custom_wm/
 ```
 
-Notes on the layout:
+Mental model:
 
-- The inventory is flat. There is no `inventories/personal/` wrapper layer.
-  `ansible.cfg` points `inventory = hosts.yml`, so commands omit `-i` by
-  default when run from the `ansible/` directory.
-- **group_vars mirrors inventory group names** (directory per group). Ansible
-  cannot nest `group_vars/linux/arch/`; the folder must be named `arch`.
-  See `group_vars/README.md` for the side-by-side map with `hosts.yml`.
-- Inventory nests **machine class under OS** so each host is listed once:
-  - **OS family**: `linux → arch`, `darwin` → `group_vars/arch/`, `darwin/`.
-  - **Machine class**: `workstation_personal` under `arch`, `mac_work` under
-    `darwin` when needed → `group_vars/<class>/`.
-- Hostname is identity only (`--limit $(hostname)`). `host_vars/<hostname>.yml`
-  holds true per-machine deltas — usually just `gpu`. `primary_user` defaults
-  to `ansible_facts['user_id']` in `group_vars/all`.
-- Desktop package bundles (hyprland, i3, gaming, …) are **not** inventory
-  groups. Machine classes declare which bundles they use via `profiles:`,
-  resolved against `profile_apps` in `group_vars/all/profiles.yml`.
-- Provider install logic lives as task files under `roles/packages/tasks/`
-  (`pacman.yml`, `aur.yml`, `brew.yml`, `cask.yml`), not as separate roles.
-  Thin system wiring (fish, docker, libvirt) is under `roles/system/`.
+| Question | Answer |
+|----------|--------|
+| Add a host? | `hosts.yml` under an OS group: `recipe:` + `gpu:` |
+| Change a kind of machine? | `recipes/<name>.yml` |
+| OS-wide packages? | `group_vars/<os>/apps.yml` (`os_apps`) |
+| Package bundles? | `group_vars/all/profiles.yml` + recipe `profiles:` |
+| New OS family? | inventory group + `group_vars/<os>/` + `os_providers.yml` row |
+
+- Inventory groups are **OS only** (`linux → arch`, `darwin`). No machine-class groups.
+- Each host sets `recipe:` (loads `recipes/<recipe>.yml`) and host deltas (`gpu`, …).
+- `primary_user` defaults to `ansible_facts['user_id']` in `group_vars/all`.
+- Provider install logic: `roles/packages/tasks/{pacman,aur,brew,cask}.yml`.
 
 ## Package Architecture
 
-Intent lists and a catalog feed one packages role; that role resolves names
-and installs via provider task files.
-
 ```text
-Intent       <group>_apps / profile_apps   (lists of logical names)
+Intent       os_apps + profile_apps (via recipe profiles:)
 Catalog      group_vars/all/package_catalog.yml
-packages     roles/packages (resolve + include tasks/{pacman,aur,brew,cask}.yml)
+packages     roles/packages
 ```
 
 ### Layer 1: Intent
 
-Two sources of intent feed the orchestrator:
+1. **OS-family list** — same variable name on every OS group:
 
-1. **OS-family lists** in `group_vars/<os>/apps.yml`:
-
-   | Group    | Var           | File                       |
-   |----------|---------------|----------------------------|
-   | `arch`   | `arch_apps`   | `group_vars/arch/apps.yml` |
-   | `darwin` | `darwin_apps` | `group_vars/darwin/apps.yml` |
+   | Group    | Var       | File                         |
+   |----------|-----------|------------------------------|
+   | `arch`   | `os_apps` | `group_vars/arch/apps.yml`   |
+   | `darwin` | `os_apps` | `group_vars/darwin/apps.yml` |
 
 2. **Profile bundles** in `group_vars/all/profiles.yml`:
 
@@ -128,11 +114,10 @@ Two sources of intent feed the orchestrator:
    | `i3`           | Linux     | i3 + X11 ecosystem (xclip, xorg-xev, ...).           |
    | `kde`          | Linux     | KDE Plasma desktop integration.                      |
 
-   A machine class opts into profiles via `profiles:` in
-   `group_vars/<class>/main.yml` (override per host in host_vars if needed):
+   A recipe opts into profiles via `profiles:`:
 
    ```yaml
-   # group_vars/workstation_personal/main.yml
+   # recipes/personal_workstation.yml
    profiles:
      - cli
      - cloud
@@ -141,15 +126,12 @@ Two sources of intent feed the orchestrator:
      - i3
    ```
 
-   Profiles are NOT inventory groups — the `profiles:` list on the machine
-   class (or host) is the single source of truth for package-bundle
-   membership. The dispatcher unions `arch_apps` (or `darwin_apps`) with
-   the lists pulled from `profile_apps` for every profile the host opts
-   into. Unknown profile names are silently ignored, so removing a profile
-   from `profile_apps` won't break hosts that still reference it.
+   Profiles are NOT inventory groups. The dispatcher unions `os_apps` with
+   `profile_apps` for every name in the recipe's `profiles:` list. Unknown
+   profile names are silently ignored.
 
-All four sources are pure lists of logical app names. They know nothing
-about pacman, AUR, brew, or cask.
+All sources are pure lists of logical app names. They know nothing about
+pacman, AUR, brew, or cask.
 
 ### Layer 2: Catalog
 
@@ -221,16 +203,15 @@ and miscellaneous Arch / darwin name-mapping (e.g. `aws-cli` ->
 
 `roles/packages` does the following (see `roles/packages/tasks/main.yml`):
 
-1. Compute `packages_target_os` (`arch`|`darwin`) from
-   `ansible_facts['os_family']`.
-2. Compute `packages_default_provider` (`pacman`|`brew`) from the OS.
-3. Aggregate logical app names: the OS-family list (`arch_apps` or
-   `darwin_apps`, gated by `group_names` membership) unioned with each
-   `profile_apps[<name>]` for every entry in the host's `profiles:` list.
+1. Map `ansible_facts['os_family']` → `packages_target_os` and
+   `packages_default_provider` via `os_family_map`
+   (`group_vars/all/os_providers.yml`).
+2. Aggregate logical app names: `os_apps` unioned with each
+   `profile_apps[<name>]` for every entry in the recipe's `profiles:` list.
    Unknown profile names are silently ignored via `extract(..., default=[])`.
-4. Resolve the aggregated list through the catalog via the `resolve_catalog`
+3. Resolve the aggregated list through the catalog via the `resolve_catalog`
    filter, producing `packages_resolved = {provider: [pkg, ...]}`.
-5. Include provider task files in fixed order for each non-empty bucket:
+4. Include provider task files in fixed order for each non-empty bucket:
    `pacman.yml` → `aur.yml` → `brew.yml` → `cask.yml`.
 
 ### Provider task files
@@ -253,10 +234,11 @@ route to `provider: pacman` (with multilib enabled in `/etc/pacman.conf`).
 ## Adding a New App
 
 1. Pick the right intent bucket and add the logical name there:
-   - OS-wide on every Arch host: `group_vars/arch/apps.yml` (`arch_apps`).
-   - OS-wide on every macOS host: `group_vars/darwin/apps.yml` (`darwin_apps`).
+   - OS-wide on every Arch host: `group_vars/arch/apps.yml` (`os_apps`).
+   - OS-wide on every macOS host: `group_vars/darwin/apps.yml` (`os_apps`).
    - Tied to a desktop or feature profile: the relevant key under
-     `profile_apps` in `group_vars/all/profiles.yml`.
+     `profile_apps` in `group_vars/all/profiles.yml` (and the recipe's
+     `profiles:` list).
 2. If the app is cross-OS, or needs a non-default provider on Arch (AUR),
    add a catalog entry. Otherwise it falls through to the default provider
    for the OS and needs no catalog entry.
@@ -280,65 +262,55 @@ To add, for example, a Flatpak provider:
 3. Add `"flatpak"` to `VALID_PROVIDERS` in `filter_plugins/catalog.py`.
 4. Add `provider: flatpak` entries to catalog apps that should use it.
 
+## Adding a Host
+
+Same recipe as an existing machine (e.g. second personal Arch box):
+
+```yaml
+# hosts.yml under linux → arch
+arch:
+  hosts:
+    alfred:
+      recipe: personal_workstation
+      gpu: nvidia
+    desk2:
+      recipe: personal_workstation
+      gpu: amd
+```
+
+Dry-run: `ansible-playbook playbooks/site.yml --limit desk2 --check --diff`
+
 ## Mac Onboarding
 
-No Mac host is in inventory yet. Shared work-Mac recipe lives in
-`group_vars/mac_work/` (`profiles`, `profile`, `email`). `osid` comes
-from `group_vars/darwin/main.yml`. To bring a Mac online:
+Recipe: `recipes/mac_work.yml`. `osid` from `group_vars/darwin/`. Add under
+`darwin` in `hosts.yml`:
 
-1. Nest the host under `darwin → mac_work` in `hosts.yml`:
+```yaml
+darwin:
+  hosts:
+    <your-hostname>:
+      recipe: mac_work
+      gpu: none
+      # packages_brew_path: /usr/local/bin/brew   # Intel only
+```
 
-   ```yaml
-   darwin:
-     children:
-       mac_work:
-         hosts:
-           <your-hostname>:
-   ```
+Optionally trim `os_apps` in `group_vars/darwin/apps.yml`. Dry-run with
+`--limit <your-hostname> --check --diff --tags packages`.
 
-2. Create thin `host_vars/<your-hostname>.yml`:
+Full Mac bootstrap (Homebrew, ansible-core) is tracked by `chezmoi-qxl`.
 
-   ```yaml
-   gpu: "none"
-   # Intel Mac only:
-   # packages_brew_path: /usr/local/bin/brew
-   ```
+## Adding an OS Family
 
-3. Optionally trim `darwin_apps` in `group_vars/darwin/apps.yml` to taste.
-4. Dry-run first:
+1. Inventory group (under `linux` or top-level).
+2. `group_vars/<os>/main.yml` + `apps.yml` with `os_apps:`.
+3. Row in `group_vars/all/os_providers.yml`.
+4. Catalog / provider tasks if the package manager is new.
+5. Playbook `hosts:` patterns if needed for OS-scoped plays.
 
-   ```sh
-   ansible-playbook playbooks/site.yml \
-     --limit <your-hostname> --check --diff --tags packages
-   ```
+## Adding a Recipe
 
-The full Mac bootstrap flow (Homebrew install, ansible-core via brew,
-first-run checklist) is tracked separately by `chezmoi-qxl` and will be
-filled in when a real MacBook is onboarded.
-
-## Adding a Same-Class Host
-
-To deploy another machine with the same conf as an existing class (e.g.
-another personal Arch workstation):
-
-1. Add the hostname under the machine class in `hosts.yml` (class is already
-   nested under the right OS — list the host only once):
-
-   ```yaml
-   workstation_personal:
-     hosts:
-       alfred:
-       desk2:
-   ```
-
-2. Create a thin `host_vars/<hostname>.yml` with only deltas:
-
-   ```yaml
-   gpu: "amd"
-   ```
-
-3. Dry-run with `--limit <hostname>`. Profiles, feature flags, email, osid,
-   and primary_user come from group_vars.
+Copy `recipes/personal_workstation.yml` (or `mac_work.yml`), edit
+`profiles:` / flags / email, point hosts at `recipe: <new-name>`.
 
 ## Tags
 

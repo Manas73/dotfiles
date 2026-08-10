@@ -1,42 +1,44 @@
 # group_vars layout
 
-Ansible loads vars by **group name**, not by inventory tree path. Each
-inventory group that has shared vars gets a directory here with the **same
-name**. Nested folders like `linux/arch/` would *not* map to the `arch`
-group — only `group_vars/arch/` does.
-
-## hosts.yml → group_vars
+One directory per **inventory group name** (Ansible requirement). Inventory
+groups are **OS only** (`arch`, `darwin`, …). Machine recipes live in
+`../recipes/`, not here.
 
 ```text
-hosts.yml                              group_vars/
-─────────────────────────────────────  ────────────────────────────────
-all                                    all/
-│                                        main.yml              # connection, primary_user, chezmoi paths, feature defaults
-│                                        package_catalog.yml   # logical name → provider (unchanged)
-│                                        profiles.yml          # profile_apps bundles (unchanged)
-├── linux                              (no group_vars — play target only)
-│   └── arch                           arch/
-│       │                                main.yml              # osid, python
-│       │                                apps.yml              # arch_apps
-│       └── workstation_personal       workstation_personal/
-│                                        main.yml              # profiles, flags, plasma, email, profile
-└── darwin                             darwin/
-    │                                    main.yml              # osid, python
-    │                                    apps.yml              # darwin_apps
-    └── mac_work  (when onboarded)     mac_work/
-                                         main.yml              # profiles, email, profile
+hosts.yml                         group_vars/              recipes/
+───────────────────────────────   ──────────────────────   ────────────────────
+all                               all/
+│                                   main.yml
+│                                   package_catalog.yml
+│                                   profiles.yml
+│                                   os_providers.yml
+├── linux                         (play target; no vars)
+│   └── arch                      arch/
+│         hosts:                    main.yml   # osid, python
+│           alfred:                 apps.yml   # os_apps
+│             recipe: personal_…  ─────────────────────────► personal_workstation.yml
+│             gpu: nvidia
+└── darwin                        darwin/
+      hosts:                        main.yml
+        mbp:                        apps.yml
+          recipe: mac_work        ─────────────────────────► mac_work.yml
 ```
 
-## Rules of thumb
+## Add a host
 
-| Change this… | Edit… |
-|--------------|--------|
-| Packages every Arch box gets | `arch/apps.yml` |
-| Packages every Mac gets | `darwin/apps.yml` |
-| Package *bundles* (cli, hyprland, …) | `all/profiles.yml` + catalog |
-| Which bundles a *kind* of machine uses | `workstation_personal/main.yml` or `mac_work/main.yml` (`profiles:`) |
-| Feature flags / plasma / class email | machine-class `main.yml` |
-| One machine’s GPU (etc.) | `host_vars/<hostname>.yml` |
+1. Under `arch` or `darwin` in `hosts.yml`, set `recipe:` + `gpu:` (and any
+   other host deltas).
+2. Done — no new group_vars, no host_vars file unless you prefer one.
 
-Add a new machine class: create `group_vars/<class>/main.yml` and nest
-`<class>` under the right OS in `hosts.yml`.
+## Add an OS family
+
+1. Inventory group under `linux` or as a top-level sibling (see `hosts.yml`).
+2. `group_vars/<os>/main.yml` — `osid`, `ansible_python_interpreter`.
+3. `group_vars/<os>/apps.yml` — `os_apps: […]` (same variable name always).
+4. Row in `all/os_providers.yml` (`os_family` → `target_os` + default provider).
+5. Catalog keys / provider task files if the package manager is new.
+6. Playbook `hosts:` patterns if you need OS-scoped plays.
+
+## Add a recipe
+
+See `../recipes/README.md`.

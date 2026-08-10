@@ -1,0 +1,18 @@
+---
+# Recipe: work Mac.
+#
+# Applied when a host sets recipe: mac_work (hosts.yml).
+# OS packages come from group_vars/darwin/apps.yml; this file is the shared
+# "what kind of machine" recipe. Feature flags inherit false defaults from
+# group_vars/all. Linux-only profiles are omitted.
+
+# Chezmoi data (unprefixed; chezmoi.toml.j2 reads these directly).
+profile: "work"
+email: "manas.sambare@gmail.com"
+
+# Profile membership. Each name resolves against profile_apps
+# (group_vars/all/profiles.yml).
+profiles:
+  - cli
+  - cloud
+  - development

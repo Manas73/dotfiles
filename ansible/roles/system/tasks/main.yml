@@ -2,7 +2,7 @@
 # system role: thin OS user / service wiring.
 #
 # Package install is owned by roles/packages. Dotfiles by roles/chezmoi.
-# Feature flags (docker_enabled, libvirt_enabled) live in group_vars / host_vars.
+# Feature flags (docker_enabled, libvirt_enabled) live in the recipe / group_vars/all.
 
 - name: Ensure Fish is the login shell
   ansible.builtin.include_tasks:

@@ -8,7 +8,7 @@ packages role with per-manager task files.
 > orientation; that file has the full schema, role contracts, and edge cases.
 
 ```text
-Intent       <group>_apps / profile_apps   (lists of logical names)
+Intent       os_apps + profile_apps (via recipe profiles:)
 Catalog      group_vars/all/package_catalog.yml
 packages     roles/packages (resolve + tasks/{pacman,aur,brew,cask}.yml)
 ```
@@ -18,18 +18,13 @@ packages     roles/packages (resolve + tasks/{pacman,aur,brew,cask}.yml)
 Pure lists of *logical* app names. They know nothing about pacman, AUR, brew,
 or cask. Two sources feed the packages role:
 
-1. **OS-family lists** — `arch_apps` (`group_vars/arch/apps.yml`) and
-   `darwin_apps` (`group_vars/darwin/apps.yml`).
+1. **OS-family list** — `os_apps` in `group_vars/<os>/apps.yml` (same variable
+   name on every OS group: `arch`, `darwin`, …).
 2. **Profile bundles** — `profile_apps` in `group_vars/all/profiles.yml`. A
-   host opts into a profile via the `profiles:` list on its **machine class**
-   (nested under OS in `hosts.yml`; vars in `group_vars/workstation_personal/`,
-   `group_vars/mac_work/`, …), optionally overridden in host_vars; the
-   packages role unions the matching `profile_apps[<name>]` lists on top of
-   the OS-family list.
+   host opts into profiles via `profiles:` on its **recipe**
+   (`recipes/<name>.yml`), loaded by the playbook at the start of each play.
 
-Profiles are **not** inventory groups — the machine-class (or host)
-`profiles:` list is the single source of truth for package-bundle
-membership. Available profiles:
+Profiles are **not** inventory groups. Available profiles:
 
 | Profile       | Scope    | What it brings                                  |
 |---------------|----------|-------------------------------------------------|
@@ -61,14 +56,16 @@ A logical name **not** in the catalog falls through to the default provider
 for the OS (`pacman` on Arch, `brew` on Darwin). That's why everyday
 same-name packages need no catalog entry.
 
+OS detection uses `group_vars/all/os_providers.yml` (`os_family_map`).
+
 Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.md).
 
 ## packages role
 
 `roles/packages`:
 
-1. Computes the target OS (`arch`/`darwin`) and default provider.
-2. Aggregates logical names: OS-family list ∪ each opted-in profile's list.
+1. Maps `ansible_facts.os_family` → `packages_target_os` / default provider.
+2. Aggregates `os_apps` ∪ each opted-in profile's list.
 3. Resolves them through the catalog (`resolve_catalog` filter) into
    `{provider: [pkg, …]}`.
 4. Includes provider task files in fixed order for each non-empty bucket:
@@ -88,8 +85,7 @@ family, and installs idempotently.
 
 ## How it ties back to Chezmoi
 
-The site playbook runs packages first, then the `chezmoi` role renders
-`~/.config/chezmoi/chezmoi.toml` from inventory vars and runs `chezmoi
-apply`, then system wiring (`roles/system`: fish, docker, libvirt) and
-specialty roles (kanata, plasma). Packages and dotfiles never duplicate
-each other.
+The site playbook loads the host's recipe, runs packages, then the `chezmoi`
+role renders `~/.config/chezmoi/chezmoi.toml` from inventory + recipe vars
+and runs `chezmoi apply`, then system wiring and specialty roles. Packages
+and dotfiles never duplicate each other.

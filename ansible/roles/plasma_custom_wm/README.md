@@ -23,7 +23,7 @@ When `plasma_window_manager` is `kwin` or empty:
 
 ## Inputs
 
-- `plasma_window_manager` (host_vars). Values: `kwin`, `i3`, `qtile`, `hyprland`, or empty.
+- `plasma_window_manager` (recipe). Values: `kwin`, `i3`, `qtile`, `hyprland`, or empty.
 
 ## Notes
 
