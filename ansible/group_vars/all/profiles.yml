@@ -140,6 +140,9 @@ profile_apps:
     - plasma-x11-session
     - plasma5-integration
 
+  omniwm:
+    - omniwm
+
   virtualization:
     - dnsmasq
     - edk2-ovmf
