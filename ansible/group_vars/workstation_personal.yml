@@ -1,0 +1,32 @@
+---
+# Machine class: personal Linux workstation (Arch/Garuda).
+#
+# Shared recipe for every host in the `workstation_personal` inventory group.
+# Per-machine deltas (primary_user, gpu, email) stay in host_vars/<hostname>.yml.
+#
+# Package bundles resolve via profile_apps in group_vars/all/profiles.yml.
+
+# Chezmoi data fields (unprefixed; chezmoi.toml.j2 reads these directly).
+profile: "personal"
+osid: "linux-arch"
+
+# Plasma custom window manager. Consumed by the plasma_custom_wm role.
+# Set to "kwin" or omit to disable masking and use stock KWin.
+plasma_window_manager: "i3"
+
+# Profile membership. Each name resolves against profile_apps.
+profiles:
+  - cli
+  - cloud
+  - development
+  - fonts
+  - gaming
+  - hyprland
+  - i3
+  - kde
+  - virtualization
+
+# Feature flags.
+docker_enabled: true
+kanata_enabled: true
+libvirt_enabled: true

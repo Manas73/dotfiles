@@ -1,7 +1,8 @@
 # Ansible 02 — Onboarding a New Machine
 
-Add the host to `ansible/hosts.yml` under its OS group, create
-`ansible/host_vars/<hostname>.yml`, then run the site playbook.
+Add the host to `ansible/hosts.yml` under its **OS group** and **machine
+class**, create a thin `ansible/host_vars/<hostname>.yml` for identity /
+hardware deltas, then run the site playbook.
 
 ## 0. Prerequisites
 
@@ -31,59 +32,56 @@ On the new machine, before running any Ansible:
    ansible-galaxy install -r ansible/requirements.yml
    ```
 
+## Identity vs recipe
+
+| Layer | Where | What |
+|-------|--------|------|
+| OS family | `hosts.yml` → `arch` / `darwin`; `group_vars/{arch,darwin}.yml` | OS packages, OS-scoped plays, python interpreter |
+| Machine class | `hosts.yml` → `workstation_personal` / `mac_work`; `group_vars/<class>.yml` | Shared recipe: `profiles:`, feature flags, plasma WM, class-level chezmoi fields (`profile`, `osid`) |
+| Host identity | inventory key = hostname; `host_vars/<hostname>.yml` | True deltas: `primary_user`, `email`, `gpu`, one-off overrides |
+
+Hostname is for targeting (`--limit $(hostname)`). Do **not** copy a full
+host recipe into a new host_vars file — put the host in the right machine
+class instead.
+
 ## Rules for host_vars
 
 - `host_vars/<hostname>.yml` contains only true machine-specific values:
-  primary user, chezmoi data fields, profile membership, feature flags.
-- Shared package lists and role behavior live in `group_vars/` — OS-wide
-  intent in `group_vars/{arch,darwin}.yml`; profile bundles in
+  primary user, email, GPU, and rare overrides.
+- Shared package lists live in `group_vars/` — OS-wide intent in
+  `group_vars/{arch,darwin}.yml`; profile bundles in
   `group_vars/all/profiles.yml`.
-- Profile membership (hyprland, i3, gaming, …) is a `profiles:` list in
-  host_vars, **not** inventory group membership. Single source of truth:
-  removing a profile is one edit, not two.
-- Linux-only keys like `plasma_window_manager` are simply omitted on macOS
-  hosts; roles guard reads with `is defined` or default filters.
-- Chezmoi data keys (`email`, `profile`, `osid`, `gpu`) live **unprefixed**
-  in host_vars. The chezmoi role and `chezmoi.toml.j2` read them directly.
-  The `chezmoi_*` prefix is reserved for shared paths / the age recipient in
-  `group_vars/all/main.yml`.
+- Profile membership (hyprland, i3, gaming, …) is a `profiles:` list on the
+  **machine class** (e.g. `group_vars/workstation_personal.yml`), **not** an
+  inventory group and usually **not** host_vars. Single source of truth for
+  a class of machines: one edit updates every member.
+- Linux-only keys like `plasma_window_manager` live on the Linux machine
+  class; roles guard reads with `is defined` or default filters.
+- Chezmoi data keys (`email`, `profile`, `osid`, `gpu`) are **unprefixed**.
+  Class-level fields (`profile`, `osid`) sit on the machine class; identity
+  fields (`email`, `gpu`) sit in host_vars. The `chezmoi_*` prefix is
+  reserved for shared paths / the age recipient in `group_vars/all/main.yml`.
 
-## Example: Arch / Garuda Linux host
+## Example: Arch / Garuda Linux host (same class as alfred)
+
+If the new machine should match the personal workstation recipe, only add
+identity — do not redeclare profiles or feature flags.
 
 Create `ansible/host_vars/<hostname>.yml`:
 
 ```yaml
 ---
-# Host-specific values only. Shared behavior lives in group_vars/.
-
-ansible_python_interpreter: /usr/bin/python
+# Identity / hardware deltas only.
+# Shared recipe: group_vars/workstation_personal.yml
 
 primary_user: <linux-username>
 
-# Chezmoi inventory data. Rendered into ~/.config/chezmoi/chezmoi.toml.
 email: "you@example.com"
-profile: "personal"
-osid: "linux-arch"
 gpu: "nvidia"          # nvidia | amd | intel
-
-# Plasma custom window manager. Consumed by the plasma_custom_wm role.
-# Set to "kwin" or omit to keep stock KWin.
-plasma_window_manager: "i3"
-
-# Profile membership. Single source of truth for the package profiles this
-# host opts into. Each entry resolves against profile_apps in
-# group_vars/all/profiles.yml.
-profiles:
-  - hyprland
-  - i3
-  - gaming
-
-# Feature flags.
-docker_enabled: true
-kanata_enabled: true
 ```
 
-Wire the host into `ansible/hosts.yml` under `linux → arch`:
+Wire the host into `ansible/hosts.yml` under **both** `linux → arch` and
+`workstation_personal`:
 
 ```yaml
 all:
@@ -97,11 +95,25 @@ all:
 
     darwin:
       hosts: {}
+
+    workstation_personal:
+      hosts:
+        alfred:
+        <hostname>:
+
+    mac_work:
+      hosts: {}
 ```
 
-That's the only edit `hosts.yml` needs. Profiles are not inventory groups;
-they come in via the `profiles:` list. `ansible_connection: local` is set
-globally in `group_vars/all/main.yml`, so personal hosts don't repeat it.
+`ansible_connection: local` is set globally in `group_vars/all/main.yml`.
+`ansible_python_interpreter` comes from `group_vars/arch.yml`.
+
+### New machine class
+
+If the host should *not* share an existing recipe, create
+`group_vars/<new_class>.yml` with `profiles:`, feature flags, and class-level
+chezmoi fields, add an inventory group of the same name, and list the host
+there (plus its OS group).
 
 ## Validate
 
@@ -120,11 +132,13 @@ locale baked in.)
 
 Expect:
 
-- `--graph` shows `<hostname>` under `linux → arch`. No
-  `hyprland`/`i3`/`gaming` groups — those are profile data, not inventory
-  groups.
-- `--host <hostname>` dumps merged vars including `email`, `profile`,
-  `osid`, `gpu`, `profiles`, `arch_apps`, `darwin_apps`, and `profile_apps`.
+- `--graph` shows `<hostname>` under `linux → arch` **and** under
+  `workstation_personal` (or whichever class you used). No
+  `hyprland`/`i3`/`gaming` inventory groups — those are profile data on the
+  machine class.
+- `--host <hostname>` dumps merged vars including class-level `profiles`,
+  feature flags, and host-level `email` / `gpu` / `primary_user`, plus
+  `arch_apps` / `darwin_apps` and `profile_apps`.
 - `--syntax-check` is silent (parses successfully).
 - `--check --diff` runs up to the first sudo-gated task without
   `--ask-become-pass`; add it to exercise the full check flow.
@@ -160,37 +174,30 @@ ansible-playbook playbooks/dotfiles.yml --limit <hostname>
 > via brew, first-run checklist). Tracked by beads `chezmoi-qxl` and filled in
 > when a real MacBook is onboarded.
 
-Day-one host_vars schema:
+Shared work-Mac recipe: `group_vars/mac_work.yml`. Day-one host_vars is
+identity only:
 
 ```yaml
 ---
-ansible_python_interpreter: /usr/bin/python3
-
 primary_user: <mac-username>
 
-# Chezmoi inventory data (unprefixed; chezmoi role reads directly).
 email: "you@example.com"
-profile: "personal"
-osid: "darwin"
 gpu: "none"
-
-# macOS hosts typically have no desktop/gaming profiles.
-profiles: []
-
-# Feature flags.
-docker_enabled: false   # Docker Desktop on Mac is a separate install
-kanata_enabled: false   # Kanata on macOS needs different setup; defer
 
 # Intel Mac only: uncomment.
 # packages_brew_path: /usr/local/bin/brew
 ```
 
-Inventory wiring:
+Inventory wiring (both groups):
 
 ```yaml
 all:
   children:
     darwin:
+      hosts:
+        <hostname>:
+
+    mac_work:
       hosts:
         <hostname>:
 ```

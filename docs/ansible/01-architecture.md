@@ -21,12 +21,14 @@ or cask. Two sources feed the packages role:
 1. **OS-family lists** — `arch_apps` (`group_vars/arch.yml`) and
    `darwin_apps` (`group_vars/darwin.yml`).
 2. **Profile bundles** — `profile_apps` in `group_vars/all/profiles.yml`. A
-   host opts into a profile by listing it in `profiles:` in its host_vars;
-   the packages role unions the matching `profile_apps[<name>]` lists on top
-   of the OS-family list.
+   host opts into a profile via the `profiles:` list on its **machine class**
+   (`group_vars/workstation_personal.yml`, `group_vars/mac_work.yml`, …),
+   optionally overridden in host_vars; the packages role unions the matching
+   `profile_apps[<name>]` lists on top of the OS-family list.
 
-Profiles are **not** inventory groups — host_vars is the single source of
-truth per host. Available profiles:
+Profiles are **not** inventory groups — the machine-class (or host)
+`profiles:` list is the single source of truth for package-bundle
+membership. Available profiles:
 
 | Profile       | Scope    | What it brings                                  |
 |---------------|----------|-------------------------------------------------|

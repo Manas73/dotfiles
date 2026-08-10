@@ -10,7 +10,11 @@
 #
 # Scope: macOS-specific apps only. Cross-platform CLI tools and
 # runtimes live in the `cli` profile (group_vars/all/profiles.yml);
-# Mac hosts opt in via `profiles: [..., cli]` in host_vars.
+# machine classes (e.g. mac_work) opt in via `profiles:` in
+# group_vars/<class>.yml.
+
+# Default interpreter for macOS hosts; override in host_vars if needed.
+ansible_python_interpreter: /usr/bin/python3
 
 darwin_apps:
   # ----------------------------------------------------------------

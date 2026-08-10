@@ -73,9 +73,11 @@ Rules:
 1. Add a key under `profile_apps` in `group_vars/all/profiles.yml` with its
    list of logical app names.
 2. Add any per-OS routing those apps need to the catalog.
-3. Opt hosts in by adding the profile name to their `profiles:` list in
-   host_vars. Unknown profile names are silently ignored, so removing a
-   profile from `profile_apps` won't break hosts that still reference it.
+3. Opt machines in by adding the profile name to the `profiles:` list on the
+   relevant machine class (`group_vars/workstation_personal.yml`,
+   `group_vars/mac_work.yml`, …), or override per host in host_vars.
+   Unknown profile names are silently ignored, so removing a profile from
+   `profile_apps` won't break hosts that still reference it.
 
 ## Add a new provider
 

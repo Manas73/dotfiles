@@ -34,11 +34,13 @@ ansible/
 │   │   ├── main.yml             # chezmoi paths, ansible_connection, feature defaults
 │   │   ├── package_catalog.yml  # Layer 2: logical name -> per-OS install instructions
 │   │   └── profiles.yml         # Layer 1: profile_apps dict (cli/cloud/development/fonts/gaming/hyprland/i3/kde)
-│   ├── arch.yml                 # arch_apps (Layer 1)
-│   └── darwin.yml               # darwin_apps (Layer 1)
+│   ├── arch.yml                 # arch_apps (Layer 1) + OS defaults
+│   ├── darwin.yml               # darwin_apps (Layer 1) + OS defaults
+│   ├── workstation_personal.yml # machine class: personal Linux workstation recipe
+│   └── mac_work.yml             # machine class: work Mac recipe
 ├── host_vars/
-│   ├── alfred.yml
-│   └── mac-placeholder.yml
+│   ├── alfred.yml               # thin: primary_user, email, gpu
+│   └── mac-placeholder.yml      # thin template for Mac onboarding
 ├── playbooks/
 │   ├── site.yml
 │   └── dotfiles.yml
@@ -56,12 +58,18 @@ Notes on the layout:
 - The inventory is flat. There is no `inventories/personal/` wrapper layer.
   `ansible.cfg` points `inventory = hosts.yml`, so commands omit `-i` by
   default when run from the `ansible/` directory.
-- Inventory hierarchy is just `all → linux → arch` and `all → darwin`.
-  Desktop profiles (hyprland, i3) and feature buckets (gaming) are **not**
-  inventory groups; they are declared per-host in
-  `host_vars/<hostname>.yml` via the `profiles:` list and resolved against
-  `profile_apps` in `group_vars/all/profiles.yml`. Single source of truth
-  per host.
+- Inventory has two orthogonal axes:
+  - **OS family**: `all → linux → arch` and `all → darwin` (package intent,
+    OS-scoped plays).
+  - **Machine class**: `workstation_personal`, `mac_work`, … (shared host
+    recipe: `profiles:`, feature flags, plasma WM, class-level chezmoi
+    fields). A host is listed under both its OS group and its class.
+- Hostname is identity only (`--limit $(hostname)`). `host_vars/<hostname>.yml`
+  holds true per-machine deltas (user, GPU, email). Shared conf is not
+  duplicated per hostname.
+- Desktop package bundles (hyprland, i3, gaming, …) are **not** inventory
+  groups. Machine classes declare which bundles they use via `profiles:`,
+  resolved against `profile_apps` in `group_vars/all/profiles.yml`.
 - Provider install logic lives as task files under `roles/packages/tasks/`
   (`pacman.yml`, `aur.yml`, `brew.yml`, `cask.yml`), not as separate roles.
   Thin system wiring (fish, docker, libvirt) is under `roles/system/`.
@@ -113,9 +121,11 @@ Two sources of intent feed the orchestrator:
    | `i3`           | Linux     | i3 + X11 ecosystem (xclip, xorg-xev, ...).           |
    | `kde`          | Linux     | KDE Plasma desktop integration.                      |
 
-   A host opts into profiles by listing them in `host_vars/<hostname>.yml`:
+   A machine class opts into profiles via `profiles:` in
+   `group_vars/<class>.yml` (override per host in host_vars if needed):
 
    ```yaml
+   # group_vars/workstation_personal.yml
    profiles:
      - cli
      - cloud
@@ -124,12 +134,12 @@ Two sources of intent feed the orchestrator:
      - i3
    ```
 
-   Profiles are NOT inventory groups; declaring them in host_vars is the
-   single source of truth. The dispatcher unions `arch_apps` (or
-   `darwin_apps`) with the lists pulled from `profile_apps` for every
-   profile the host opts into. Unknown profile names are silently
-   ignored, so removing a profile from `profile_apps` won't break hosts
-   that still reference it.
+   Profiles are NOT inventory groups — the `profiles:` list on the machine
+   class (or host) is the single source of truth for package-bundle
+   membership. The dispatcher unions `arch_apps` (or `darwin_apps`) with
+   the lists pulled from `profile_apps` for every profile the host opts
+   into. Unknown profile names are silently ignored, so removing a profile
+   from `profile_apps` won't break hosts that still reference it.
 
 All four sources are pure lists of logical app names. They know nothing
 about pacman, AUR, brew, or cask.
@@ -265,20 +275,16 @@ To add, for example, a Flatpak provider:
 
 ## Mac Onboarding
 
-The Mac host slot is scaffolded but not activated. To bring a Mac online:
+The Mac host slot is scaffolded but not activated. Shared Mac work recipe
+lives in `group_vars/mac_work.yml` (`profiles`, feature flags, `profile` /
+`osid`). To bring a Mac online:
 
 1. Rename `host_vars/mac-placeholder.yml` to `host_vars/<your-hostname>.yml`.
-2. Fill in the TODO fields in that file (`primary_user`, etc.). See the
-   comments in the file for the full checklist. The expected schema is the
-   same unprefixed data keys (`email`, `profile`, `osid`, `gpu`) the chezmoi
-   role reads directly, plus a `profiles:` list. mac-placeholder defaults
-   to `[cli, cloud, development]` -- adjust to taste.
-3. In `hosts.yml`, uncomment the host entry under the `darwin` group and
-   replace `mac-placeholder` with your hostname.
-4. If on an Intel Mac, set `packages_brew_path: /usr/local/bin/brew` in
-   host_vars.
-5. Optionally trim `darwin_apps` in `group_vars/darwin.yml` to taste.
-6. Dry-run first:
+2. Fill identity fields: `primary_user`, `email`, `gpu`. If on Intel Mac,
+   set `packages_brew_path: /usr/local/bin/brew`.
+3. In `hosts.yml`, add the hostname under both `darwin` and `mac_work`.
+4. Optionally trim `darwin_apps` in `group_vars/darwin.yml` to taste.
+5. Dry-run first:
 
    ```sh
    ansible-playbook playbooks/site.yml \
@@ -288,6 +294,24 @@ The Mac host slot is scaffolded but not activated. To bring a Mac online:
 The full Mac bootstrap flow (Homebrew install, ansible-core via brew,
 first-run checklist) is tracked separately by `chezmoi-qxl` and will be
 filled in when a real MacBook is onboarded.
+
+## Adding a Same-Class Host
+
+To deploy another machine with the same conf as an existing class (e.g.
+another personal Arch workstation):
+
+1. Add the hostname under the OS group (`arch` or `darwin`) **and** the
+   machine class (`workstation_personal` or `mac_work`) in `hosts.yml`.
+2. Create a thin `host_vars/<hostname>.yml` with only deltas:
+
+   ```yaml
+   primary_user: ms-garuda
+   email: "manas.sambare@gmail.com"
+   gpu: "amd"   # whatever differs
+   ```
+
+3. Dry-run with `--limit <hostname>`. No need to copy profiles or feature
+   flags — those come from the class `group_vars`.
 
 ## Tags
 

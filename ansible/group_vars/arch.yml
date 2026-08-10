@@ -13,7 +13,11 @@
 #   cloud  AWS / GCP CLIs
 #   fonts  ttf-* font set
 #   kde    KDE Plasma desktop integration
-# alfred opts into the relevant profiles via host_vars.
+# Machine classes (e.g. workstation_personal) opt into profiles via the
+# `profiles:` list in group_vars/<class>.yml.
+
+# Default interpreter for Arch hosts; override in host_vars if needed.
+ansible_python_interpreter: /usr/bin/python
 
 arch_apps:
   # ----------------------------------------------------------------
