@@ -13,7 +13,6 @@ os_apps:
   # ----------------------------------------------------------------
   # Cross-OS GUI apps via catalog (route to cask).
   # ----------------------------------------------------------------
-  - "1password"
   - bazecor
   - docker
   - google-chrome
