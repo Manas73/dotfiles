@@ -89,12 +89,6 @@
     }
   },
   {
-    "context": "Editor",
-      "bindings": {
-      "enter": "editor::Newline"
-    }
-  },
-  {
     "bindings": {
       "ctrl-a": "editor::SelectAll"
     }
@@ -264,6 +258,12 @@
   {
     "context": "ProjectPanel && not_editing",
     "bindings": {
+      "enter": "project_panel::Open"
+    }
+  },
+  {
+    "context": "ProjectPanel",
+    "unbind": {
       "enter": "project_panel::Open"
     }
   }
