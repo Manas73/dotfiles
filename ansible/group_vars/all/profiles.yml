@@ -47,6 +47,7 @@ profile_apps:
     - starship
     - television
     - yazi
+    - yubikey
     - zellij
     - zoxide
 
