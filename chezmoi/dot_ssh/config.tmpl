@@ -7,11 +7,29 @@ Host github.com-personal
 	IdentitiesOnly yes
 	IdentityFile ~/.ssh/github-personal-sk
 
+	# Multiplexing – the convenience part
+    ControlMaster auto
+    ControlPath ~/.ssh/cm-%r@%h:%p
+    ControlPersist 15m          # good balance
+
+    # Optional but recommended
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+
 # Personal GitLab account
 Host gitlab.com
 	HostName gitlab.com
 	User bgit
 	IdentityFile ~/.ssh/gitlab-personal-sk
+
+	# Multiplexing – the convenience part
+    ControlMaster auto
+    ControlPath ~/.ssh/cm-%r@%h:%p
+    ControlPersist 15m          # good balance
+
+    # Optional but recommended
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
 
 {{ end -}}
 {{- if or (eq .profile "turing") (eq .profile "personal") -}}
@@ -21,6 +39,15 @@ Host github.com-turing
 	User git
 	IdentitiesOnly yes
 	IdentityFile ~/.ssh/github-turing-sk
+
+	# Multiplexing – the convenience part
+    ControlMaster auto
+    ControlPath ~/.ssh/cm-%r@%h:%p
+    ControlPersist 15m          # good balance
+
+    # Optional but recommended
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
 
 # Turing VMs
 Host turing-vm-gcp
