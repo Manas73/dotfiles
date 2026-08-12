@@ -2,8 +2,16 @@
 # Install Homebrew formulae on macOS hosts.
 #
 # Input: provider_packages (list[str]) — concrete brew formula names.
-# Bootstraps Homebrew via the official install script if missing.
+# Bootstraps Homebrew if no executable `brew` is found:
+#   - `sudo -n true` works → official installer (system prefix)
+#   - otherwise → clone into a user prefix (no sudo; work laptops)
+# Being in the macOS `admin` group is not enough: NONINTERACTIVE sudo
+# still fails without a TTY/timestamp, which is how the Turing Mac dies.
 # Casks are handled by cask.yml.
+#
+# community.general.homebrew looks up `brew` via get_bin_path. After a
+# fresh install (and when this playbook is launched via mise) /opt/homebrew
+# is often not on PATH, so we always pass `path:` and export PATH.
 
 - name: Assert provider_packages is defined and a list
   ansible.builtin.assert:
@@ -24,30 +32,201 @@
     quiet: true
   tags: [packages, brew, darwin]
 
-- name: Detect Homebrew
+- name: Resolve Homebrew prefixes
+  ansible.builtin.set_fact:
+    packages_brew_system: >-
+      {{
+        '/opt/homebrew/bin/brew'
+        if ansible_facts['architecture'] == 'arm64'
+        else '/usr/local/bin/brew'
+      }}
+    packages_brew_user_home: >-
+      {{
+        packages_brew_user_prefix
+        if packages_brew_user_prefix | default('') | length > 0
+        else (ansible_facts['user_dir'] ~ '/.local/homebrew')
+      }}
+  tags: [packages, brew, darwin]
+
+- name: Candidate Homebrew binaries
+  ansible.builtin.set_fact:
+    packages_brew_candidates: >-
+      {{
+        (
+          (
+            [packages_brew_path]
+            if packages_brew_path | default('') | length > 0
+            else []
+          )
+          + [
+            packages_brew_system,
+            packages_brew_user_home ~ '/bin/brew',
+          ]
+        ) | unique
+      }}
+  tags: [packages, brew, darwin]
+
+- name: Stat candidate Homebrew binaries
   ansible.builtin.stat:
-    path: "{{ packages_brew_path }}"
-  register: packages_brew_binary_stat
+    path: "{{ item }}"
+  loop: "{{ packages_brew_candidates }}"
+  register: packages_brew_candidate_stats
+  tags: [packages, brew, darwin]
+
+- name: Detect brew on PATH
+  ansible.builtin.shell: command -v brew
+  register: packages_brew_which
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  tags: [packages, brew, darwin]
+
+- name: Start with no resolved brew
+  ansible.builtin.set_fact:
+    packages_brew_resolved: ""
+  tags: [packages, brew, darwin]
+
+- name: Prefer a candidate brew that is executable
+  ansible.builtin.set_fact:
+    packages_brew_resolved: "{{ item.item }}"
+  when:
+    - packages_brew_resolved | length == 0
+    - item.stat.exists | default(false) | bool
+    - item.stat.executable | default(false) | bool
+  loop: "{{ packages_brew_candidate_stats.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  tags: [packages, brew, darwin]
+
+- name: Fall back to brew on PATH
+  ansible.builtin.set_fact:
+    packages_brew_resolved: "{{ packages_brew_which.stdout }}"
+  when:
+    - packages_brew_resolved | length == 0
+    - packages_brew_which.rc == 0
+    - packages_brew_which.stdout | length > 0
   tags: [packages, brew, darwin]
 
 - name: Bootstrap Homebrew if missing
-  # The official installer is interactive by default; NONINTERACTIVE=1 makes
-  # it scriptable. CI=1 silences further prompts.
-  ansible.builtin.shell:
-    cmd: |
-      set -euo pipefail
-      NONINTERACTIVE=1 CI=1 /bin/bash -c \
-        "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   when:
-    - not packages_brew_binary_stat.stat.exists
+    - packages_brew_resolved | length == 0
     - not ansible_check_mode
-  changed_when: true
+  tags: [packages, brew, darwin]
+  block:
+    - name: Probe passwordless sudo (official installer needs this)
+      ansible.builtin.command: sudo -n true
+      register: packages_brew_sudo_n
+      changed_when: false
+      failed_when: false
+
+    - name: Remember whether the official installer can run
+      ansible.builtin.set_fact:
+        packages_brew_can_sudo: "{{ packages_brew_sudo_n.rc == 0 }}"
+        packages_brew_use_user_prefix: "{{ packages_brew_sudo_n.rc != 0 }}"
+
+    - name: Check for Xcode Command Line Tools
+      ansible.builtin.command: xcode-select -p
+      register: packages_brew_clt
+      changed_when: false
+      failed_when: false
+
+    - name: Warn if Command Line Tools are missing
+      ansible.builtin.debug:
+        msg: >-
+          Xcode Command Line Tools are not installed (xcode-select -p
+          failed). Homebrew needs them. Run `xcode-select --install`
+          in Terminal (GUI prompt; may require Administrator) and re-run.
+          Ansible will not launch that GUI.
+      when: packages_brew_clt.rc != 0
+
+    - name: Install Homebrew with the official script
+      when: packages_brew_can_sudo | bool
+      block:
+        - name: Run the official Homebrew installer
+          ansible.builtin.shell:
+            cmd: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          environment:
+            NONINTERACTIVE: "1"
+            CI: "1"
+      rescue:
+        - name: Fall back to a user prefix if the official installer fails
+          ansible.builtin.set_fact:
+            packages_brew_use_user_prefix: true
+
+        - name: Explain the official-installer fallback
+          ansible.builtin.debug:
+            msg: >-
+              Official Homebrew installer failed (usually sudo/admin).
+              Cloning into {{ packages_brew_user_home }} instead.
+
+    - name: Clone Homebrew into the user prefix
+      ansible.builtin.git:
+        repo: https://github.com/Homebrew/brew
+        dest: "{{ packages_brew_user_home }}"
+        depth: 1
+      when: packages_brew_use_user_prefix | bool
+
+    - name: Prime user-prefix Homebrew
+      ansible.builtin.command:
+        argv:
+          - "{{ packages_brew_user_home }}/bin/brew"
+          - update
+          - --force
+          - --quiet
+      environment:
+        PATH: "{{ packages_brew_user_home }}/bin:{{ ansible_env.PATH }}"
+      when: packages_brew_use_user_prefix | bool
+
+- name: Re-stat candidate Homebrew binaries after bootstrap
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop: "{{ packages_brew_candidates }}"
+  register: packages_brew_candidate_stats_after
+  when: packages_brew_resolved | length == 0
+  tags: [packages, brew, darwin]
+
+- name: Resolve brew after bootstrap
+  ansible.builtin.set_fact:
+    packages_brew_resolved: "{{ item.item }}"
+  when:
+    - packages_brew_resolved | length == 0
+    - item.stat.exists | default(false) | bool
+    - item.stat.executable | default(false) | bool
+  loop: "{{ packages_brew_candidate_stats_after.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item }}"
+  tags: [packages, brew, darwin]
+
+- name: Fail if Homebrew is still missing
+  ansible.builtin.fail:
+    msg: >-
+      Homebrew is not installed (no executable brew at
+      {{ packages_brew_candidates | join(', ') }}, and none on PATH).
+      Neither the official installer (admin) nor the user-prefix clone
+      ({{ packages_brew_user_home }}) produced a brew binary.
+      Install from https://brew.sh or clone Homebrew into
+      {{ packages_brew_user_home }} and re-run.
+  when:
+    - packages_brew_resolved | length == 0
+    - not ansible_check_mode
+    - provider_packages | length > 0
+  tags: [packages, brew, darwin]
+
+- name: Remember brew's bin directory for later tasks
+  ansible.builtin.set_fact:
+    packages_brew_bin_dir: "{{ packages_brew_resolved | dirname }}"
+  when: packages_brew_resolved | length > 0
   tags: [packages, brew, darwin]
 
 - name: Install Homebrew formulae
   community.general.homebrew:
     name: "{{ provider_packages | unique | sort }}"
     state: present
+    path: "{{ packages_brew_bin_dir }}"
     update_homebrew: "{{ packages_brew_update | bool }}"
-  when: provider_packages | length > 0
+  when:
+    - provider_packages | length > 0
+    - packages_brew_resolved | length > 0
+  environment:
+    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_env.PATH }}"
   tags: [packages, brew, darwin]

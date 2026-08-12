@@ -25,20 +25,14 @@
     quiet: true
   tags: [packages, cask, darwin]
 
-- name: Verify Homebrew is available (brew.yml should have run first)
-  ansible.builtin.stat:
-    path: "{{ packages_brew_path }}"
-  register: packages_cask_brew_stat
-  tags: [packages, cask, darwin]
-
 - name: Fail if Homebrew is missing
   ansible.builtin.fail:
     msg: >-
-      packages/cask requires Homebrew at {{ packages_brew_path }} but
-      it is missing. Either install brew manually, or list at least one
-      formula in os_apps so brew.yml bootstraps it first.
+      packages/cask requires Homebrew (packages_brew_resolved) but it is
+      unset. List at least one formula so brew.yml bootstraps first, or
+      install brew from https://brew.sh.
   when:
-    - not packages_cask_brew_stat.stat.exists
+    - (packages_brew_resolved | default('')) | length == 0
     - not ansible_check_mode
     - provider_packages | length > 0
   tags: [packages, cask, darwin]
@@ -47,5 +41,10 @@
   community.general.homebrew_cask:
     name: "{{ provider_packages | unique | sort }}"
     state: present
-  when: provider_packages | length > 0
+    path: "{{ packages_brew_bin_dir }}"
+  when:
+    - provider_packages | length > 0
+    - (packages_brew_resolved | default('')) | length > 0
+  environment:
+    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_env.PATH }}"
   tags: [packages, cask, darwin]

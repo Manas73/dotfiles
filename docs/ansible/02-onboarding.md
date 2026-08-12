@@ -117,8 +117,14 @@ ansible-playbook playbooks/dotfiles.yml --limit <hostname>
 
 ## macOS
 
-> **Status: deferred** for bare-metal bootstrap (`chezmoi-qxl`). Package
-> dispatch and chezmoi rendering already work on darwin.
+Package dispatch and chezmoi rendering work on darwin. Homebrew
+bootstrap:
+
+- **`sudo -n true` works** — official installer to `/opt/homebrew`.
+  Being in the `admin` group is not enough; the installer cannot prompt
+  for a password under `NONINTERACTIVE`.
+- **Otherwise** (typical work laptop) — clone into `~/.local/homebrew`
+  (no sudo). Some casks that write to `/Applications` may still fail.
 
 ```yaml
 darwin:
@@ -126,7 +132,8 @@ darwin:
     <hostname>:
       recipe: mac_turing
       gpu: none
-      # packages_brew_path: /usr/local/bin/brew   # Intel only
+      # packages_brew_path: /opt/custom/bin/brew  # override system brew
+      # packages_brew_user_prefix: ~/homebrew     # override user prefix
 ```
 
 ## Add an OS family

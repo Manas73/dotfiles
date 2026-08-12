@@ -20,6 +20,12 @@ packages_aur_bootstrap_dir: "/tmp/yay-bin-bootstrap"
 packages_aur_refresh_databases: true
 
 # --- Homebrew ---
-# Apple Silicon default; override to /usr/local/bin/brew on Intel Macs.
-packages_brew_path: "/opt/homebrew/bin/brew"
+# Preferred brew binary. Empty = arch default (/opt/homebrew/bin/brew
+# on arm64, /usr/local/bin/brew on Intel). brew.yml also probes the
+# user prefix and PATH.
+packages_brew_path: ""
 packages_brew_update: true
+# Used when the login user is not a macOS Administrator (typical work
+# laptop). Official /opt/homebrew install requires sudo. Empty =
+# {{ ansible_facts.user_dir }}/.local/homebrew.
+packages_brew_user_prefix: ""
