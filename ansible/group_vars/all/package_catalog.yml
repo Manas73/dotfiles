@@ -88,6 +88,10 @@ package_catalog:
     arch:   { provider: aur,  packages: [lazydocker] }
     darwin: { provider: brew, packages: [lazydocker] }
 
+  libfido2:
+    arch:   { provider: pacman, packages: [libfido2] }
+    darwin: { provider: brew, packages: [libfido2] }
+
   masterpdfeditor:
     arch:   { provider: aur, packages: [masterpdfeditor] }
     darwin: { provider: cask, packages: [master-pdf-editor] }
