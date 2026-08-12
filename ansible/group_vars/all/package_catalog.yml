@@ -216,7 +216,7 @@ package_catalog:
 
   yubikey:
     arch:
-      - { provider: pacman, packages: [yubikey-manager] }
+      - { provider: pacman, packages: [yubikey-manager, pcsclite] }
       - { provider: aur, packages: [yubico-authenticator] }
     darwin: { provider: cask, packages: [yubico-authenticator] }
 
