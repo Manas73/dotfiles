@@ -215,7 +215,30 @@
 - name: Remember brew's bin directory for later tasks
   ansible.builtin.set_fact:
     packages_brew_bin_dir: "{{ packages_brew_resolved | dirname }}"
+    packages_brew_stream_env:
+      PATH: "{{ packages_brew_resolved | dirname }}:{{ ansible_facts['env']['PATH'] }}"
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_ANALYTICS: "1"
+      HOMEBREW_NO_ENV_HINTS: "1"
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
+      HOMEBREW_NO_EMOJI: "1"
+      NONINTERACTIVE: "1"
+      CI: "1"
+      GIT_TERMINAL_PROMPT: "0"
   when: packages_brew_resolved | length > 0
+  tags: [packages, brew, darwin]
+
+- name: Warn that a user-prefix Homebrew build can take a long time
+  ansible.builtin.debug:
+    msg: >-
+      brew is {{ packages_brew_resolved }} (user prefix). Bottles often
+      cannot be used, so formulae compile from source and the log can
+      sit quiet for many minutes. It is not waiting for input
+      (stdin is closed). Full log: {{ packages_live_log }}
+  when:
+    - packages_brew_resolved | length > 0
+    - packages_brew_user_home is defined
+    - packages_brew_resolved is search(packages_brew_user_home)
   tags: [packages, brew, darwin]
 
 - name: Tap required Homebrew repositories
@@ -226,8 +249,23 @@
   when:
     - (provider_taps | default([])) | length > 0
     - packages_brew_resolved | length > 0
-  environment:
-    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
+  environment: "{{ packages_brew_stream_env }}"
+  tags: [packages, brew, darwin]
+
+- name: Update Homebrew
+  ansible.builtin.include_tasks:
+    file: stream_cmd.yml
+    apply:
+      tags: [packages, brew, darwin]
+  vars:
+    stream_title: Update Homebrew
+    stream_shell: brew update --verbose
+    stream_environment: "{{ packages_brew_stream_env }}"
+    stream_changed_regex: "(?i)already up-to-date|Updated|Fetching|Cloning|Checking"
+  when:
+    - not ansible_check_mode
+    - packages_brew_update | bool
+    - packages_brew_resolved | length > 0
   tags: [packages, brew, darwin]
 
 - name: Install Homebrew formulae
@@ -239,15 +277,11 @@
     stream_title: >-
       Install Homebrew formulae
       ({{ (provider_packages | unique | sort) | length }})
-    stream_shell: |
-      {% if packages_brew_update | bool %}
-      brew update
-      {% endif %}
-      brew install --formula {{ (provider_packages | unique | sort) | map('quote') | join(' ') }}
-    stream_environment:
-      PATH: "{{ packages_brew_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
-      HOMEBREW_NO_AUTO_UPDATE: "1"
-    stream_changed_regex: "Pouring|==> Installing|==> Fetching|==> Downloading|==> Upgrading"
+    stream_shell: >-
+      brew install --verbose --formula
+      {{ (provider_packages | unique | sort) | map('quote') | join(' ') }}
+    stream_environment: "{{ packages_brew_stream_env }}"
+    stream_changed_regex: "Pouring|==> Installing|==> Fetching|==> Downloading|==> Upgrading|==> make"
   when:
     - not ansible_check_mode
     - provider_packages | length > 0

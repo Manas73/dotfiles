@@ -41,7 +41,7 @@
         set -e
         echo "===== {{ stream_title }} $(date -Iseconds) ====="
         {{ stream_shell }}
-      } >> "{{ packages_live_log }}" 2>&1
+      } >> "{{ packages_live_log }}" 2>&1 < /dev/null
       rc=$?
       if [ "$rc" -ne 0 ]; then
         echo "----- last {{ packages_install_log_lines | default(20) }} lines of {{ packages_live_log }} -----"

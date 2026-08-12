@@ -59,11 +59,9 @@
       Install Homebrew casks
       ({{ (provider_packages | unique | sort) | length }})
     stream_shell: >-
-      brew install --cask
+      brew install --verbose --cask
       {{ (provider_packages | unique | sort) | map('quote') | join(' ') }}
-    stream_environment:
-      PATH: "{{ packages_brew_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
-      HOMEBREW_NO_AUTO_UPDATE: "1"
+    stream_environment: "{{ packages_brew_stream_env }}"
     stream_changed_regex: "Pouring|==> Installing|==> Fetching|==> Downloading|==> Upgrading"
   when:
     - not ansible_check_mode
