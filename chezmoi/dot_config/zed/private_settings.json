@@ -48,4 +48,8 @@
     "light": "One Dark",
     "dark": "One Dark"
   },
+  "feature_flags": {
+     "tabular-data-preview": "on",
+     "notebooks": "on",
+  }
 }
