@@ -11,7 +11,7 @@ packages_validate_only: false
 # Override with ANSIBLE_PACKAGES_LIVE_LOG.
 packages_live_log: "{{ ansible_facts['user_dir'] }}/.cache/dotfiles/ansible-packages.log"
 packages_install_async_timeout: 7200
-packages_install_poll: 5
+packages_install_poll: 30
 packages_install_log_lines: 20
 
 # --- pacman ---
