@@ -174,7 +174,7 @@
           - --force
           - --quiet
       environment:
-        PATH: "{{ packages_brew_user_home }}/bin:{{ ansible_env.PATH }}"
+        PATH: "{{ packages_brew_user_home }}/bin:{{ ansible_facts['env']['PATH'] }}"
       when: packages_brew_use_user_prefix | bool
 
 - name: Re-stat candidate Homebrew binaries after bootstrap
@@ -227,7 +227,7 @@
     - (provider_taps | default([])) | length > 0
     - packages_brew_resolved | length > 0
   environment:
-    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_env.PATH }}"
+    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
   tags: [packages, brew, darwin]
 
 - name: Install Homebrew formulae
@@ -240,5 +240,5 @@
     - provider_packages | length > 0
     - packages_brew_resolved | length > 0
   environment:
-    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_env.PATH }}"
+    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
   tags: [packages, brew, darwin]

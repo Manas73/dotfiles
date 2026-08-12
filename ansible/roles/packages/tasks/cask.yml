@@ -46,7 +46,7 @@
     - (provider_taps | default([])) | length > 0
     - (packages_brew_resolved | default('')) | length > 0
   environment:
-    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_env.PATH }}"
+    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
   tags: [packages, cask, darwin]
 
 - name: Install Homebrew casks
@@ -58,5 +58,5 @@
     - provider_packages | length > 0
     - (packages_brew_resolved | default('')) | length > 0
   environment:
-    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_env.PATH }}"
+    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
   tags: [packages, cask, darwin]
