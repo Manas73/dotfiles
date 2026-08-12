@@ -10,10 +10,10 @@ Host github.com-personal
 	# Multiplexing – the convenience part
     ControlMaster auto
     ControlPath ~/.ssh/cm-github-personal-%r@%h:%p
-    ControlPersist 15m          # good balance
+    ControlPersist 5m          # good balance
 
     # Optional but recommended
-    ServerAliveInterval 60
+    ServerAliveInterval 30
     ServerAliveCountMax 3
 
 # Personal GitLab account
@@ -25,10 +25,10 @@ Host gitlab.com
 	# Multiplexing – the convenience part
     ControlMaster auto
     ControlPath ~/.ssh/cm-gitlab-personal-%r@%h:%p
-    ControlPersist 15m          # good balance
+    ControlPersist 5m          # good balance
 
     # Optional but recommended
-    ServerAliveInterval 60
+    ServerAliveInterval 30
     ServerAliveCountMax 3
 
 {{ end -}}
@@ -43,10 +43,10 @@ Host github.com-turing
 	# Multiplexing – the convenience part
     ControlMaster auto
     ControlPath ~/.ssh/cm-github-turing-%r@%h:%p
-    ControlPersist 15m          # good balance
+    ControlPersist 5m          # good balance
 
     # Optional but recommended
-    ServerAliveInterval 60
+    ServerAliveInterval 30
     ServerAliveCountMax 3
 
 # Turing VMs
