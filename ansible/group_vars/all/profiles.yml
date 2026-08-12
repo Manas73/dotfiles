@@ -39,6 +39,7 @@ profile_apps:
     - lazydocker
     - lazygit
     - libfido2
+    - mise
     - moreutils
     - neovim
     - nodejs

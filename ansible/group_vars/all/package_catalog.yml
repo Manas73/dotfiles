@@ -99,6 +99,10 @@ package_catalog:
   matugen:
     arch: { provider: aur, packages: [matugen-bin] }
 
+  mise:
+    arch:   { provider: pacman, packages: [mise] }
+    darwin: { provider: brew, packages: [mise] }
+
   mosh:
     arch:   { provider: aur, packages: [mosh] }
     darwin: { provider: brew, packages: [mosh] }
