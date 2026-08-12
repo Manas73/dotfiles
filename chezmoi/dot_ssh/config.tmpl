@@ -9,7 +9,7 @@ Host github.com-personal
 
 	# Multiplexing – the convenience part
     ControlMaster auto
-    ControlPath ~/.ssh/cm-%r@%h:%p
+    ControlPath ~/.ssh/cm-github-personal-%r@%h:%p
     ControlPersist 15m          # good balance
 
     # Optional but recommended
@@ -24,7 +24,7 @@ Host gitlab.com
 
 	# Multiplexing – the convenience part
     ControlMaster auto
-    ControlPath ~/.ssh/cm-%r@%h:%p
+    ControlPath ~/.ssh/cm-gitlab-personal-%r@%h:%p
     ControlPersist 15m          # good balance
 
     # Optional but recommended
@@ -42,7 +42,7 @@ Host github.com-turing
 
 	# Multiplexing – the convenience part
     ControlMaster auto
-    ControlPath ~/.ssh/cm-%r@%h:%p
+    ControlPath ~/.ssh/cm-github-turing-%r@%h:%p
     ControlPersist 15m          # good balance
 
     # Optional but recommended
