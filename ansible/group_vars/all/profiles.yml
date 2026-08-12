@@ -35,7 +35,6 @@ profile_apps:
     - herdr
     - hugo
     - jq
-    - just
     - lazydocker
     - lazygit
     - libfido2

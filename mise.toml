@@ -1,0 +1,87 @@
+# Repo toolchain + task runner. Lives at the repo root, OUTSIDE
+# .chezmoiroot (chezmoi/), so `chezmoi apply` never deploys it into $HOME.
+# The `test` task verifies that invariant (along with ansible/ and docs/).
+#
+# Bootstrap: install mise (https://mise.run), clone this repo, then
+# `mise trust && mise run apply`. Tools below are installed into the
+# mise data dir and injected onto PATH for tasks / this directory.
+#
+# Run `mise tasks` (or `mise run`) to see available tasks.
+
+min_version = "2025.0.0"
+
+[env]
+LC_ALL = "C.UTF-8"
+LANG = "C.UTF-8"
+
+[tools]
+uv = "latest"
+chezmoi = "latest"
+age = "latest"
+# pipx backend; uv (above) makes the install a `uv tool install`.
+# ansible-core only — community.general is vendored in ansible/collections/.
+"pipx:ansible-core" = { version = "2.21", depends = ["uv"] }
+
+[tasks.default]
+description = "List available tasks"
+hide = true
+run = "mise tasks"
+
+[tasks.deps]
+description = "Install required Ansible collections (once, or to refresh)"
+dir = "{{config_root}}/ansible"
+run = "ansible-galaxy install -r requirements.yml"
+
+[tasks.test]
+description = "Guard the chezmoi/repo boundary"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+if chezmoi managed | grep -E '^(ansible|docs|bootstrap)/'; then
+  echo "FAIL: repo-only paths are chezmoi-managed (.chezmoiroot/.chezmoiignore broken)"
+  exit 1
+fi
+echo "chezmoi boundary ok"
+'''
+
+[tasks.check]
+description = "Full pre-commit validation (syntax, inventory, dry-run, diff)"
+alias = "validate"
+depends = ["test"]
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cd "{{config_root}}/ansible"
+# ansible.cfg pins `inventory = hosts.yml`, so the ansible steps run from
+# the ansible/ directory for inventory + collections paths to resolve.
+ansible-playbook playbooks/site.yml --syntax-check
+ansible-playbook playbooks/dotfiles.yml --syntax-check
+ansible-playbook playbooks/validate.yml --syntax-check
+ansible-inventory --graph
+ansible-inventory --host "$(hostname)"
+# Recipe + package catalog resolution (no become / no installs).
+ansible-playbook playbooks/validate.yml --limit "$(hostname)"
+# Dotfiles dry-run (user-level; no sudo).
+ansible-playbook playbooks/dotfiles.yml --limit "$(hostname)" --check --diff
+cd "{{config_root}}"
+chezmoi diff
+'''
+
+[tasks.diff]
+description = "Show pending dotfile changes"
+run = "chezmoi diff"
+
+[tasks.apply]
+description = "Provision this host fully (packages + dotfiles + system; sudo)"
+dir = "{{config_root}}/ansible"
+run = 'ansible-playbook playbooks/site.yml --limit "$(hostname)" --ask-become-pass'
+
+[tasks.dotfiles]
+description = "Re-apply dotfiles only (render chezmoi.toml + chezmoi apply)"
+dir = "{{config_root}}/ansible"
+run = 'ansible-playbook playbooks/dotfiles.yml --limit "$(hostname)"'
+
+[tasks.packages]
+description = "Install packages only (sudo)"
+dir = "{{config_root}}/ansible"
+run = 'ansible-playbook playbooks/site.yml --limit "$(hostname)" --tags packages --ask-become-pass'

@@ -18,7 +18,7 @@ ansible-playbook playbooks/dotfiles.yml --limit "$(hostname)"
 Or, with the task runner:
 
 ```sh
-just dotfiles
+mise run dotfiles
 ```
 
 This runs the `chezmoi` role only (render `chezmoi.toml` + `chezmoi apply`).

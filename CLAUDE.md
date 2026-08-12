@@ -52,23 +52,25 @@ bd close <id>         # Complete work
 
 ## Build & Test
 
-Task running is handled by `just` (recipes live in `./justfile` at the repo
+Task running is handled by `mise` (tasks live in `./mise.toml` at the repo
 root). Run from the repo root:
 
 ```bash
-just            # list all recipes
-just check      # full pre-commit validation (syntax-check, inventory,
+mise tasks      # list all tasks
+mise run check  # full pre-commit validation (syntax-check, inventory,
                 # --check --diff dry-run, chezmoi diff, boundary guard)
-just test       # chezmoi-boundary guard only (no repo-only paths in $HOME)
-just apply      # full site playbook for this host (prompts for sudo)
-just dotfiles   # re-apply dotfiles only
-just packages   # install packages only
-just diff       # pending dotfile changes
+mise run test   # chezmoi-boundary guard only (no repo-only paths in $HOME)
+mise run apply  # full site playbook for this host (prompts for sudo)
+mise run dotfiles  # re-apply dotfiles only
+mise run packages  # install packages only
+mise run diff   # pending dotfile changes
 ```
 
-The justfile sets `LC_ALL=C.UTF-8 LANG=C.UTF-8` for every recipe (Ansible
+`mise.toml` sets `LC_ALL=C.UTF-8 LANG=C.UTF-8` for every task (Ansible
 requires a UTF-8 locale on this machine) and runs ansible steps from the
 `ansible/` directory so `ansible.cfg`'s inventory/collections paths resolve.
+It also pins the repo toolchain (`ansible-core`, `chezmoi`, `age`) so those
+binaries do not have to be preinstalled.
 
 ## Architecture Overview
 
@@ -79,12 +81,12 @@ Two layers in one repo (see README.md for detail):
 - **Ansible** manages OS packages, services, and system setup, and renders
   the Chezmoi config. Lives in `ansible/`.
 
-The justfile, `ansible/`, and `docs/` are OUTSIDE `.chezmoiroot`, so
-`chezmoi apply` never deploys them into `$HOME`. `just test` enforces this.
+`mise.toml`, `ansible/`, and `docs/` are OUTSIDE `.chezmoiroot`, so
+`chezmoi apply` never deploys them into `$HOME`. `mise run test` enforces this.
 
 ## Conventions & Patterns
 
-- Run `just check` before committing non-trivial Ansible/Chezmoi changes.
+- Run `mise run check` before committing non-trivial Ansible/Chezmoi changes.
 - Packages: add to a profile in `ansible/group_vars/all/profiles.yml`; if the
   package name differs per-OS, add a `package_catalog.yml` entry. Names that
   match on both Arch (pacman) and macOS (brew) fall through without a catalog

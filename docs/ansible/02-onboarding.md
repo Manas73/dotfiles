@@ -17,8 +17,9 @@ See also [`ansible/recipes/README.md`](../../ansible/recipes/README.md) and
 
 On the new machine, before running any Ansible:
 
-1. Install `git`, `age` (1.2.0+), `chezmoi` (2.52.2+), `just`, and
-   `ansible-core` (2.15+).
+1. Install [`mise`](https://mise.run) (`curl https://mise.run | sh`) and
+   `git` (skip if already present; otherwise `mise use -g git`). The
+   repo's `mise.toml` supplies `ansible-core`, `chezmoi`, and `age`.
 2. Generate an SSH key (ed25519 recommended) and add the public key to the
    matching GitHub account. For SSO-enforced orgs, also authorize the key
    per-org at `https://github.com/settings/keys`.
@@ -34,11 +35,12 @@ On the new machine, before running any Ansible:
    git clone git@github.com-personal:Manas73/dotfiles.git ~/.local/share/chezmoi
    ```
 
-5. Install the Ansible collection(s):
+5. Trust the repo config and install the Ansible collection(s):
 
    ```sh
    cd ~/.local/share/chezmoi
-   ansible-galaxy install -r ansible/requirements.yml
+   mise trust
+   mise run deps
    ```
 
 ## Example: second personal Arch workstation
@@ -82,7 +84,7 @@ ansible-playbook playbooks/site.yml --syntax-check
 ansible-playbook playbooks/validate.yml --limit <hostname>
 ```
 
-(From the repo root, `just check` runs the full validation block. It does
+(From the repo root, `mise run check` runs the full validation block. It does
 **not** require sudo; full `site.yml --check` still needs become.)
 
 Expect:

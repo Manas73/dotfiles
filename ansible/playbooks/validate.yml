@@ -1,5 +1,5 @@
 ---
-# Unprivileged validation for just check / CI.
+# Unprivileged validation for mise run check / CI.
 #
 # Loads the host recipe, asserts required vars, and runs packages resolve
 # (catalog → provider buckets) without become or installs.

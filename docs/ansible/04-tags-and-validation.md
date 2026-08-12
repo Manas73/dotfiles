@@ -35,11 +35,11 @@ ansible-playbook playbooks/site.yml --limit <mac-hostname> --tags macos
 ## Validation
 
 Run before committing non-trivial Ansible or Chezmoi changes. From the repo
-root the one-liner is **`just check`** (it bakes in the UTF-8 locale and runs
-everything below); **`just test`** runs only the chezmoi-boundary guard. Run
-`just` to list all recipes.
+root the one-liner is **`mise run check`** (it bakes in the UTF-8 locale and
+runs everything below); **`mise run test`** runs only the chezmoi-boundary
+guard. Run `mise tasks` to list all tasks.
 
-The raw commands, for reference and for environments without `just`:
+The raw commands, for reference and for environments without `mise`:
 
 ```sh
 # UTF-8 locale is required by Ansible on this machine.
@@ -57,7 +57,7 @@ ansible-inventory --graph
 ansible-inventory --host "$(hostname)"
 
 # Unprivileged validation: load recipe, assert vars, resolve packages
-# through the catalog (no become / no installs). This is what `just check`
+# through the catalog (no become / no installs). This is what `mise run check`
 # uses — a full site.yml --check still needs sudo for packages/sudoers.
 ansible-playbook playbooks/validate.yml --limit "$(hostname)"
 
@@ -88,7 +88,7 @@ If `ansible --version` complains about `ISO-8859-1`, set a UTF-8 locale:
 export LC_ALL=C.UTF-8 LANG=C.UTF-8
 ```
 
-(The `just` recipes set this automatically.)
+(The `mise` tasks set this automatically.)
 
 ### Chezmoi cannot find the age identity
 

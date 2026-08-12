@@ -10,6 +10,15 @@ set --export PYENV_ROOT $HOME/.pyenv
 set VIRSH_DEFAULT_CONNECT_URI qemu:///system
 export VIRSH_DEFAULT_CONNECT_URI=qemu:///system
 
+# mise: project toolchains + tasks (curl-bootstrap at ~/.local/bin,
+# OS package on PATH after first apply). Prefer PATH so pacman/brew
+# wins over a leftover curl install.
+if command -q mise
+    mise activate fish | source
+else if test -x ~/.local/bin/mise
+    ~/.local/bin/mise activate fish | source
+end
+
 # AUTOCOMPLETE AND HIGHLIGHT COLORS
 set fish_color_normal brcyan
 set fish_color_autosuggestion '#7d7d7d'

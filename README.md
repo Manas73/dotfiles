@@ -1,118 +1,96 @@
 # My Dotfiles
 
-This repository holds the dotfiles and machine-provisioning setup for my
-personal systems.
+Chezmoi owns `$HOME`. Ansible owns packages, services, and
+`~/.config/chezmoi/chezmoi.toml`. mise installs the repo toolchain and
+replaces `just` — it does not provision the machine or write dotfiles.
 
-Two layers, one repo:
+> macOS package dispatch already works; bare-metal bootstrap is still
+> pending (`chezmoi-qxl`).
 
-- **Chezmoi** manages user dotfiles under `$HOME`.
-- **Ansible** manages OS packages, services, groups, udev rules, and renders
-  `~/.config/chezmoi/chezmoi.toml`.
+## 1. New machine
 
-`chezmoi apply` never installs packages, switches your shell, or writes to
-`/etc`. Provisioning happens through Ansible.
-
-> macOS bootstrap is pending (beads `chezmoi-qxl`): package dispatch and
-> chezmoi rendering on darwin already work; the bare-metal bootstrap is
-> filled in when a MacBook is actually onboarded.
-
-## Documentation
-
-Full docs live in [`docs/`](docs/) — start at
-[`docs/README.md`](docs/README.md) for the guided reading order:
-
-- [Overview](docs/00-overview.md) — the two-layer model and the Chezmoi/repo
-  boundary.
-- Chezmoi: [dotfiles model](docs/chezmoi/01-dotfiles-model.md) ·
-  [bootstrap fallback](docs/chezmoi/02-bootstrap-fallback.md)
-- Ansible: [architecture](docs/ansible/01-architecture.md) ·
-  [onboarding](docs/ansible/02-onboarding.md) ·
-  [adding apps/providers](docs/ansible/03-adding-apps-providers.md) ·
-  [tags & validation](docs/ansible/04-tags-and-validation.md)
-- In-tree reference: [`ansible/README.md`](ansible/README.md)
-
-## Requirements
-
-- `git`
-- `age` (1.2.0+)
-- `chezmoi` (2.52.2+)
-- `just` (task runner; see Quickstart)
-- `ansible-core` (2.15+) for full machine provisioning
-- `community.general` Ansible collection (installed in the bootstrap step below)
-- SSH access to `github.com` (HTTPS is no longer wired up; see Authentication)
-
-## Quickstart
-
-Day-to-day work goes through [`just`](https://just.systems) recipes in the
-repo-root `justfile`. Run them from the repo root (`~/.local/share/chezmoi`).
-Each bakes in the UTF-8 locale Ansible needs and `cd`s into `ansible/` so the
-inventory resolves — no manual `export` or directory juggling.
+You need **mise** and **git**. Everything else (`ansible-core`, `chezmoi`,
+`age`) comes from `mise.toml` when you run a task.
 
 ```sh
-just            # list all recipes
-just deps       # install required Ansible collections (once, on a fresh machine)
-just check      # full pre-commit validation (run before committing)
-just test       # chezmoi-boundary guard only
-just diff       # pending dotfile changes (chezmoi diff)
-just apply      # full site playbook for this host (prompts for sudo)
-just dotfiles   # re-apply dotfiles only
-just packages   # install packages only (prompts for sudo)
+curl https://mise.run | sh
+export PATH="$HOME/.local/bin:$PATH"
+# If git is missing: mise use -g git
 ```
 
-All host-acting recipes (`apply`, `dotfiles`, `packages`) scope to the current
-host via `--limit "$(hostname)"`. See
-[tags & validation](docs/ansible/04-tags-and-validation.md) for the
-underlying commands and tag-based slicing.
+Clone over SSH. Add an ed25519 key to the matching GitHub account (and
+authorize it per-org if SSO is required). Origins use the host aliases
+in `~/.ssh/config`:
 
-## Authentication
-
-Clones and pushes go through SSH. `~/.ssh/config` defines two host aliases:
-
-- `github.com-personal` → `~/.ssh/github-personal` (personal account)
-- `github.com-turing` → `~/.ssh/github-turing` (work account, if relevant)
-
-Repo origins use those aliases, e.g.:
-
-```text
-git@github.com-personal:Manas73/dotfiles.git
-```
-
-You need the matching SSH keys on the machine and their public keys
-registered on the correct GitHub account. If an org enforces SAML SSO (Turing
-orgs do), authorize the key per-org at `https://github.com/settings/keys`
-after adding it. Troubleshooting for SSO and other gotchas is in
-[tags & validation](docs/ansible/04-tags-and-validation.md#troubleshooting).
-
-## First run
-
-New machine, full provisioning:
+- `github.com-personal` → `~/.ssh/github-personal`
+- `github.com-turing` → `~/.ssh/github-turing`
 
 ```sh
-# Clone into the Chezmoi source path.
+ssh -T git@github.com-personal   # expect: Hi <user>! ...
 git clone git@github.com-personal:Manas73/dotfiles.git ~/.local/share/chezmoi
 cd ~/.local/share/chezmoi
 
-# Install the required Ansible collection(s), then provision this host.
-just deps
-just apply
+mise trust          # no-op with a warning if already trusted
+mise run deps       # galaxy collections (already vendored; run to refresh)
+mise run apply      # sudo + age passphrase, once each
 ```
 
-`--ask-become-pass` prompts once for sudo; the first run also prompts once for
-the age passphrase. Log out and back in afterward so new group memberships
-(`docker`, `input`, `uinput`) take effect.
+Log out and back in so new groups (`docker`, `input`, `uinput`) apply.
 
-Already-provisioned machine, dotfiles only:
+The host must be in `ansible/hosts.yml` with a `recipe:`. Wiring a new
+box: [onboarding](docs/ansible/02-onboarding.md).
+
+## 2. Day to day
+
+From the repo root (`~/.local/share/chezmoi`):
+
+| Command | What it does |
+|---|---|
+| `mise tasks` | list tasks |
+| `mise run check` | pre-commit validation |
+| `mise run test` | chezmoi/repo boundary guard |
+| `mise run diff` | pending dotfile changes |
+| `mise run apply` | full provision (sudo) |
+| `mise run packages` | packages only (sudo) |
+| `mise run dotfiles` | re-apply dotfiles only |
+| `mise run deps` | refresh Ansible collections |
+
+Host-acting tasks (`apply`, `dotfiles`, `packages`) use
+`--limit "$(hostname)"`. Tags and raw playbook commands:
+[tags & validation](docs/ansible/04-tags-and-validation.md).
+
+## 3. Other paths
+
+Already provisioned, refresh dotfiles only:
 
 ```sh
-just dotfiles
+mise run dotfiles
 ```
 
-Machine not yet in Ansible inventory (Chezmoi-only fallback):
+Host not in Ansible inventory (dotfiles only, no packages/system):
 
 ```sh
 chezmoi init --apply git@github.com-personal:Manas73/dotfiles.git
 ```
 
-Full step-by-step (host_vars, inventory wiring, validation) is in
-[onboarding](docs/ansible/02-onboarding.md); the fallback path is detailed in
-[bootstrap fallback](docs/chezmoi/02-bootstrap-fallback.md).
+Details: [bootstrap fallback](docs/chezmoi/02-bootstrap-fallback.md).
+
+## How it works
+
+`chezmoi apply` never installs packages, switches the login shell, or
+writes to `/etc`. Ansible never owns dotfile contents. mise never
+replaces either — it only puts their CLIs on PATH and runs the tasks
+above.
+
+## Docs
+
+Start at [`docs/README.md`](docs/README.md).
+
+- [Overview](docs/00-overview.md)
+- Chezmoi: [model](docs/chezmoi/01-dotfiles-model.md) ·
+  [fallback](docs/chezmoi/02-bootstrap-fallback.md)
+- Ansible: [architecture](docs/ansible/01-architecture.md) ·
+  [onboarding](docs/ansible/02-onboarding.md) ·
+  [adding apps](docs/ansible/03-adding-apps-providers.md) ·
+  [tags](docs/ansible/04-tags-and-validation.md)
+- [ansible/README.md](ansible/README.md)

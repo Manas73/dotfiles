@@ -3,7 +3,7 @@
 
 # When true, resolve intent through the catalog but skip all provider
 # installs (no become). Used by playbooks/validate.yml for passwordless
-# just check.
+# mise run check.
 packages_validate_only: false
 
 # --- pacman ---

@@ -31,7 +31,7 @@ dotfile-only change never risks touching system state.
 ```text
 .
 ├── .chezmoiroot             pins Chezmoi's source dir to chezmoi/
-├── justfile                 task runner (validation + ops recipes)
+├── mise.toml                toolchain + task runner (validation + ops)
 ├── README.md                quick orientation
 ├── chezmoi/                 Chezmoi source state (the ONLY dir Chezmoi sees)
 │   ├── dot_*/               source files deployed into $HOME
@@ -47,7 +47,7 @@ dotfile-only change never risks touching system state.
 
 The single most important invariant: **Chezmoi must only manage files
 intended for `$HOME`.** Repo-only directories (`ansible/`, `docs/`) and
-top-level files (`README.md`, `AGENTS.md`, `CLAUDE.md`, `justfile`) must
+top-level files (`README.md`, `AGENTS.md`, `CLAUDE.md`, `mise.toml`) must
 never be deployed into a user's home directory.
 
 This is enforced structurally, not by listing exceptions:
@@ -59,7 +59,7 @@ This is enforced structurally, not by listing exceptions:
   `chezmoi/` but should not be applied into `$HOME` (e.g. `key.txt.age`).
   Repo-only top-level directories need no ignore entries.
 
-Verify the invariant at any time (the `just test` recipe does exactly this):
+Verify the invariant at any time (the `mise run test` task does exactly this):
 
 ```sh
 chezmoi managed | grep -E '^(ansible|docs|bootstrap)/' \

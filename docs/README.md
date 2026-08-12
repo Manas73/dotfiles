@@ -1,8 +1,8 @@
 # Documentation
 
 Deep-dive docs for this dotfiles + provisioning repo. The top-level
-[`../README.md`](../README.md) is the quick orientation (requirements,
-quickstart, authentication); everything else lives here.
+[`../README.md`](../README.md) is the onboarding path (new machine,
+day-to-day tasks, other paths); everything else lives here.
 
 ## Reading order
 
