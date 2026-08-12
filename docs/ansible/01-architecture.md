@@ -67,7 +67,7 @@ Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.
 1. Maps `ansible_facts.os_family` → `packages_target_os` / default provider.
 2. Aggregates `os_apps` ∪ each opted-in profile's list.
 3. Resolves them through the catalog (`resolve_catalog` filter) into
-   `{provider: [pkg, …]}`.
+   `{packages: {provider: [pkg, …]}, taps: {provider: [tap, …]}}`.
 4. Includes provider task files in fixed order for each non-empty bucket:
    pacman → aur → brew → cask.
 

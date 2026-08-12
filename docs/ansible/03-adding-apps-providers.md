@@ -51,6 +51,10 @@ package_catalog:
       - { provider: aur,    packages: [pyrefly] }
     darwin: { provider: brew, packages: [black, python, uv] }
 
+  # Third-party Homebrew tap. Formula name stays unqualified.
+  fresh-editor:
+    darwin: { provider: brew, packages: [fresh-editor], taps: [sinelaw/fresh] }
+
   # Arch-only routing (AUR). Darwin hosts skip it silently.
   pacseek:
     arch: { provider: aur, packages: [pacseek] }
@@ -65,6 +69,9 @@ Rules:
   `packages:` lists. The resolver fails fast on duplicates.
 - A logical name **not** in the catalog falls through to the default provider
   for the OS.
+- Optional `taps: [user/repo, …]` on a `brew` or `cask` block is collected
+  by the resolver and tapped before install. Formula/cask names stay
+  unqualified (`fresh-editor`, not `sinelaw/fresh/fresh-editor`).
 - An entry without a key for the current target OS is silently dropped
   (arch-only entries don't fail on darwin and vice versa).
 - Output buckets are deduped and sorted per provider for stable diffs.

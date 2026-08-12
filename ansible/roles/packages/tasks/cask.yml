@@ -37,6 +37,18 @@
     - provider_packages | length > 0
   tags: [packages, cask, darwin]
 
+- name: Tap required Homebrew repositories
+  community.general.homebrew_tap:
+    name: "{{ provider_taps }}"
+    state: present
+    path: "{{ packages_brew_bin_dir }}"
+  when:
+    - (provider_taps | default([])) | length > 0
+    - (packages_brew_resolved | default('')) | length > 0
+  environment:
+    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_env.PATH }}"
+  tags: [packages, cask, darwin]
+
 - name: Install Homebrew casks
   community.general.homebrew_cask:
     name: "{{ provider_packages | unique | sort }}"

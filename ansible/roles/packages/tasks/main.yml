@@ -84,10 +84,10 @@
     apply:
       tags: [packages, pacman, arch]
   vars:
-    provider_packages: "{{ packages_resolved.pacman | default([]) }}"
+    provider_packages: "{{ packages_resolved.packages.pacman | default([]) }}"
   when:
     - not (packages_validate_only | default(false) | bool)
-    - (packages_resolved.pacman | default([])) | length > 0
+    - (packages_resolved.packages.pacman | default([])) | length > 0
   tags: [packages, pacman, arch]
 
 - name: Install AUR packages
@@ -96,10 +96,10 @@
     apply:
       tags: [packages, aur, arch]
   vars:
-    provider_packages: "{{ packages_resolved.aur | default([]) }}"
+    provider_packages: "{{ packages_resolved.packages.aur | default([]) }}"
   when:
     - not (packages_validate_only | default(false) | bool)
-    - (packages_resolved.aur | default([])) | length > 0
+    - (packages_resolved.packages.aur | default([])) | length > 0
   tags: [packages, aur, arch]
 
 - name: Install Homebrew formulae
@@ -108,10 +108,11 @@
     apply:
       tags: [packages, brew, darwin]
   vars:
-    provider_packages: "{{ packages_resolved.brew | default([]) }}"
+    provider_packages: "{{ packages_resolved.packages.brew | default([]) }}"
+    provider_taps: "{{ packages_resolved.taps.brew | default([]) }}"
   when:
     - not (packages_validate_only | default(false) | bool)
-    - (packages_resolved.brew | default([])) | length > 0
+    - (packages_resolved.packages.brew | default([])) | length > 0
   tags: [packages, brew, darwin]
 
 - name: Install Homebrew casks
@@ -120,10 +121,11 @@
     apply:
       tags: [packages, cask, darwin]
   vars:
-    provider_packages: "{{ packages_resolved.cask | default([]) }}"
+    provider_packages: "{{ packages_resolved.packages.cask | default([]) }}"
+    provider_taps: "{{ packages_resolved.taps.cask | default([]) }}"
   when:
     - not (packages_validate_only | default(false) | bool)
-    - (packages_resolved.cask | default([])) | length > 0
+    - (packages_resolved.packages.cask | default([])) | length > 0
   tags: [packages, cask, darwin]
 
 - name: Report resolved packages (validate-only)
@@ -131,7 +133,7 @@
     msg: >-
       packages_validate_only: resolved
       {{ packages_logical_apps | length }} logical apps →
-      {{ packages_resolved | dict2items
+      {{ (packages_resolved.packages | default({})) | dict2items
          | map(attribute='key')
          | list
          | join(', ') }}

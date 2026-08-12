@@ -1,8 +1,10 @@
 """Package catalog resolver for the ansible packages role.
 
 Resolves a list of logical application names against the per-OS package
-catalog and returns a dict bucketed by provider name. Each bucket is the
-input (``provider_packages``) to ``roles/packages/tasks/<name>.yml``.
+catalog. Returns ``{"packages": {provider: [pkg, ...]},
+"taps": {provider: [tap, ...]}}``. Package buckets feed
+``roles/packages/tasks/<name>.yml`` as ``provider_packages``; tap buckets
+feed brew/cask as ``provider_taps``.
 
 Catalog schema (in YAML)::
 
@@ -10,6 +12,11 @@ Catalog schema (in YAML)::
     vivaldi:
       arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs] }
       darwin: { provider: cask,   packages: [vivaldi] }
+
+    # Third-party Homebrew tap — declare taps explicitly; packages stay
+    # unqualified formula/cask names:
+    fresh-editor:
+      darwin: { provider: brew, packages: [fresh-editor], taps: [sinelaw/fresh] }
 
     # Multi-provider per OS — the per-OS value is a list of {provider, packages}.
     # Use when one logical name needs packages from different providers on the
@@ -24,6 +31,8 @@ Rules:
 
 * Each per-OS value is either a single ``{provider, packages}`` mapping or
   a list of such mappings. The list form is for mixed providers on one OS.
+* Optional ``taps:`` (list of ``user/repo`` strings) is valid only on
+  ``brew`` / ``cask`` blocks. brew.yml / cask.yml tap them before install.
 * An app whose logical name is not in the catalog is routed verbatim to
   ``default_provider`` (e.g. ``pacman`` on arch, ``brew`` on darwin).
 * An app whose catalog entry has no key for ``target_os`` is silently
@@ -49,11 +58,44 @@ class CatalogError(AnsibleFilterError):
     """Raised for any catalog-schema or resolution error."""
 
 
+# Homebrew taps are only meaningful for brew/cask.
+TAP_PROVIDERS = {"brew", "cask"}
+
+
+def _ingest_taps(
+    name: str,
+    target_os: str,
+    provider: str,
+    block: dict[str, Any],
+    tap_buckets: dict[str, list[str]],
+) -> None:
+    taps = block.get("taps")
+    if taps is None:
+        return
+    if provider not in TAP_PROVIDERS:
+        raise CatalogError(
+            f"Catalog entry '{name}'.{target_os} has 'taps' but provider "
+            f"{provider!r} does not support taps (only {sorted(TAP_PROVIDERS)})."
+        )
+    if not isinstance(taps, list) or not taps:
+        raise CatalogError(
+            f"Catalog entry '{name}'.{target_os}.taps must be a non-empty list."
+        )
+    for tap in taps:
+        if not isinstance(tap, str) or not tap or "/" not in tap:
+            raise CatalogError(
+                f"Catalog entry '{name}'.{target_os}.taps must contain "
+                f"'user/repo' strings; got {tap!r}."
+            )
+    tap_buckets.setdefault(provider, []).extend(taps)
+
+
 def _ingest_provider_block(
     name: str,
     target_os: str,
     block: Any,
     buckets: dict[str, list[str]],
+    tap_buckets: dict[str, list[str]],
 ) -> None:
     if not isinstance(block, dict):
         raise CatalogError(
@@ -85,6 +127,7 @@ def _ingest_provider_block(
             )
 
     buckets.setdefault(provider, []).extend(packages)
+    _ingest_taps(name, target_os, provider, block, tap_buckets)
 
 
 def _resolve_one(
@@ -93,6 +136,7 @@ def _resolve_one(
     target_os: str,
     default_provider: str,
     buckets: dict[str, list[str]],
+    tap_buckets: dict[str, list[str]],
 ) -> None:
     entry = catalog.get(name)
     if entry is None:
@@ -128,7 +172,7 @@ def _resolve_one(
                 )
             if isinstance(provider, str):
                 seen_providers.add(provider)
-        _ingest_provider_block(name, target_os, block, buckets)
+        _ingest_provider_block(name, target_os, block, buckets, tap_buckets)
 
 
 def resolve_catalog(
@@ -136,7 +180,7 @@ def resolve_catalog(
     catalog: dict[str, Any] | None,
     target_os: str,
     default_provider: str,
-) -> dict[str, list[str]]:
+) -> dict[str, dict[str, list[str]]]:
     """Resolve logical app names through the catalog.
 
     Args:
@@ -146,8 +190,8 @@ def resolve_catalog(
         default_provider: fallback provider for names absent from the catalog.
 
     Returns:
-        ``{provider_name: [concrete_package_names, ...]}`` with each list
-        deduped and sorted.
+        ``{"packages": {provider: [pkg, ...]}, "taps": {provider: [tap, ...]}}``
+        with each list deduped and sorted.
     """
     if apps is None:
         apps = []
@@ -171,14 +215,18 @@ def resolve_catalog(
         )
 
     buckets: dict[str, list[str]] = {}
+    tap_buckets: dict[str, list[str]] = {}
     for app in apps:
         if not isinstance(app, str) or not app:
             raise CatalogError(
                 f"resolve_catalog: app names must be non-empty strings; got {app!r}."
             )
-        _resolve_one(app, catalog, target_os, default_provider, buckets)
+        _resolve_one(app, catalog, target_os, default_provider, buckets, tap_buckets)
 
-    return {provider: sorted(set(pkgs)) for provider, pkgs in buckets.items()}
+    return {
+        "packages": {provider: sorted(set(pkgs)) for provider, pkgs in buckets.items()},
+        "taps": {provider: sorted(set(taps)) for provider, taps in tap_buckets.items()},
+    }
 
 
 class FilterModule:

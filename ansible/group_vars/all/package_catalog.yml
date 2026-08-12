@@ -54,7 +54,7 @@ package_catalog:
 
   fresh-editor:
     arch:   { provider: aur, packages: [fresh-editor-bin] }
-    darwin: { provider: brew, packages: [sinelaw/fresh/fresh-editor] }
+    darwin: { provider: brew, packages: [fresh-editor], taps: [sinelaw/fresh] }
 
   gitkraken:
     arch:   { provider: aur, packages: [gitkraken] }
@@ -115,7 +115,7 @@ package_catalog:
     darwin: { provider: brew,   packages: [node, nvm] }
 
   omniwm:
-    darwin: { provider: brew, packages: [BarutSRB/tap/omniwm] }
+    darwin: { provider: brew, packages: [omniwm], taps: [BarutSRB/tap] }
 
   onlyoffice-bin:
     arch: { provider: aur, packages: [onlyoffice-bin] }

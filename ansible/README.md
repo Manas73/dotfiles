@@ -165,6 +165,11 @@ package_catalog:
     arch:   { provider: pacman, packages: [nodejs, npm, nvm] }
     darwin: { provider: brew,   packages: [node, nvm] }
 
+  # Third-party tap: declare taps next to the provider. Formula names
+  # stay unqualified; brew.yml / cask.yml tap first.
+  fresh-editor:
+    darwin: { provider: brew, packages: [fresh-editor], taps: [sinelaw/fresh] }
+
   # Multi-provider per OS: the per-OS value is a LIST of {provider, packages}
   # blocks. Use this when one logical name installs packages from different
   # providers on the same OS (e.g. most of python from pacman, plus pyrefly
@@ -214,7 +219,8 @@ and miscellaneous Arch / darwin name-mapping (e.g. `aws-cli` ->
    `profile_apps[<name>]` for every entry in the recipe's `profiles:` list.
    Unknown profile names are silently ignored via `extract(..., default=[])`.
 3. Resolve the aggregated list through the catalog via the `resolve_catalog`
-   filter, producing `packages_resolved = {provider: [pkg, ...]}`.
+   filter, producing
+   `packages_resolved = {packages: {provider: [pkg, ...]}, taps: {provider: [tap, ...]}}`.
 4. Include provider task files in fixed order for each non-empty bucket:
    `pacman.yml` → `aur.yml` → `brew.yml` → `cask.yml`.
 
