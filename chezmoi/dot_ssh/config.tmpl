@@ -5,13 +5,13 @@ Host github.com-personal
 	HostName github.com
 	User git
 	IdentitiesOnly yes
-	IdentityFile ~/.ssh/github-personal
+	IdentityFile ~/.ssh/github-personal-sk
 
 # Personal GitLab account
 Host gitlab.com
 	HostName gitlab.com
 	User bgit
-	IdentityFile ~/.ssh/gitlab-personal
+	IdentityFile ~/.ssh/gitlab-personal-sk
 
 {{ end -}}
 {{- if or (eq .profile "turing") (eq .profile "personal") -}}
@@ -20,7 +20,7 @@ Host github.com-turing
 	HostName github.com
 	User git
 	IdentitiesOnly yes
-	IdentityFile ~/.ssh/github-turing
+	IdentityFile ~/.ssh/github-turing-sk
 
 # Turing VMs
 Host turing-vm-gcp
@@ -48,13 +48,4 @@ Host turing-tswe-bench-vm-gcp
 	User manas
 	IdentityFile ~/.ssh/google_compute_engine
 
-{{ end -}}
-{{- if or (eq .profile "sleepiz") (eq .profile "personal") -}}
-# Sleepiz GitLab account
-Host Manas-Sleepiz-GitLab
-	HostName GitLab
-	User Manas-Sleepiz
-	PreferredAuthentications publickey
-	IdentityFile ~/.ssh/gitlab-sleepiz
-	AddKeysToAgent yes
 {{ end -}}

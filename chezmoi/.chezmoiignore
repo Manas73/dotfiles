@@ -62,12 +62,6 @@ key.txt.age
 .ssh/mangesh
 {{- end }}
 
-{{/* Sleepiz SSH keys only on profile=sleepiz or personal. */}}
-{{- if and (ne .profile "sleepiz") (ne .profile "personal") }}
-.ssh/gitlab-sleepiz
-.ssh/gitlab-sleepiz.pub
-{{- end }}
-
 {{/* Turing SSH keys only on profile=turing or personal. */}}
 {{- if and (ne .profile "turing") (ne .profile "personal") }}
 .ssh/github-turing
