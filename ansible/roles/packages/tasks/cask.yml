@@ -50,13 +50,23 @@
   tags: [packages, cask, darwin]
 
 - name: Install Homebrew casks
-  community.general.homebrew_cask:
-    name: "{{ provider_packages | unique | sort }}"
-    state: present
-    path: "{{ packages_brew_bin_dir }}"
+  ansible.builtin.include_tasks:
+    file: stream_cmd.yml
+    apply:
+      tags: [packages, cask, darwin]
+  vars:
+    stream_title: >-
+      Install Homebrew casks
+      ({{ (provider_packages | unique | sort) | length }})
+    stream_shell: >-
+      brew install --cask
+      {{ (provider_packages | unique | sort) | map('quote') | join(' ') }}
+    stream_environment:
+      PATH: "{{ packages_brew_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+    stream_changed_regex: "Pouring|==> Installing|==> Fetching|==> Downloading|==> Upgrading"
   when:
+    - not ansible_check_mode
     - provider_packages | length > 0
     - (packages_brew_resolved | default('')) | length > 0
-  environment:
-    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
   tags: [packages, cask, darwin]

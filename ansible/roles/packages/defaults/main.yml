@@ -6,6 +6,14 @@
 # mise run check.
 packages_validate_only: false
 
+# Long brew/yay/cask installs write here. The live_log callback tails
+# this file on each async poll so the play output is not frozen.
+# Override with ANSIBLE_PACKAGES_LIVE_LOG.
+packages_live_log: "{{ ansible_facts['user_dir'] }}/.cache/dotfiles/ansible-packages.log"
+packages_install_async_timeout: 7200
+packages_install_poll: 5
+packages_install_log_lines: 20
+
 # --- pacman ---
 # Refresh package databases before installing (pacman -Sy).
 packages_pacman_refresh_databases: true

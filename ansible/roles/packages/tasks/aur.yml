@@ -102,16 +102,19 @@
   tags: [packages, aur, arch]
 
 - name: Install AUR packages via yay
-  ansible.builtin.command:
-    cmd: >-
+  ansible.builtin.include_tasks:
+    file: stream_cmd.yml
+    apply:
+      tags: [packages, aur, arch]
+  vars:
+    stream_title: >-
+      Install AUR packages via yay
+      ({{ (provider_packages | unique | sort) | length }})
+    stream_shell: >-
       yay -S --needed --noconfirm --removemake
-      {{ (provider_packages | unique | sort) | join(' ') }}
-  register: packages_aur_install
+      {{ (provider_packages | unique | sort) | map('quote') | join(' ') }}
+    stream_changed_regex: "(?i)installing|building|downloading"
   when:
     - not ansible_check_mode
     - provider_packages | length > 0
-  changed_when: >-
-    'installing' in (packages_aur_install.stdout | default('') | lower)
-    or 'building' in (packages_aur_install.stdout | default('') | lower)
-    or 'downloading' in (packages_aur_install.stdout | default('') | lower)
   tags: [packages, aur, arch]

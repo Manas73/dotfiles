@@ -17,3 +17,5 @@ ansible/collections/
 ansible/filter_plugins/__pycache__/
 
 chezmoi/dot_config/hypr/colors/
+
+__pycache__/

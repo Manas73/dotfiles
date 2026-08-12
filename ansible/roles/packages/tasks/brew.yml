@@ -231,14 +231,25 @@
   tags: [packages, brew, darwin]
 
 - name: Install Homebrew formulae
-  community.general.homebrew:
-    name: "{{ provider_packages | unique | sort }}"
-    state: present
-    path: "{{ packages_brew_bin_dir }}"
-    update_homebrew: "{{ packages_brew_update | bool }}"
+  ansible.builtin.include_tasks:
+    file: stream_cmd.yml
+    apply:
+      tags: [packages, brew, darwin]
+  vars:
+    stream_title: >-
+      Install Homebrew formulae
+      ({{ (provider_packages | unique | sort) | length }})
+    stream_shell: |
+      {% if packages_brew_update | bool %}
+      brew update
+      {% endif %}
+      brew install --formula {{ (provider_packages | unique | sort) | map('quote') | join(' ') }}
+    stream_environment:
+      PATH: "{{ packages_brew_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+    stream_changed_regex: "Pouring|==> Installing|==> Fetching|==> Downloading|==> Upgrading"
   when:
+    - not ansible_check_mode
     - provider_packages | length > 0
     - packages_brew_resolved | length > 0
-  environment:
-    PATH: "{{ packages_brew_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
   tags: [packages, brew, darwin]

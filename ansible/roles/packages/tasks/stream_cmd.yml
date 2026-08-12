@@ -1,0 +1,60 @@
+---
+# Run a long install command without looking stuck.
+#
+# Redirects stdout/stderr to packages_live_log. The live_log callback
+# tails that file on each async poll so the play output moves.
+#
+# Required vars:
+#   stream_title  — task name / banner
+#   stream_shell  — bash command (runs with set -euo pipefail)
+# Optional:
+#   stream_environment — extra env (PATH, HOMEBREW_*, …)
+#   stream_changed_regex — if the last N log lines match, mark changed
+#   stream_become — run the command with become (pacman)
+
+- name: "Announce {{ stream_title }}"
+  ansible.builtin.debug:
+    msg: >-
+      {{ stream_title }}.
+      Live log: {{ packages_live_log }}
+      (new lines print every {{ packages_install_poll }}s).
+
+- name: Ensure the live log directory exists
+  ansible.builtin.file:
+    path: "{{ packages_live_log | dirname }}"
+    state: directory
+    mode: "0700"
+
+- name: Ensure the live log is user-writable (root and user both append)
+  ansible.builtin.file:
+    path: "{{ packages_live_log }}"
+    state: touch
+    mode: "0644"
+    modification_time: preserve
+    access_time: preserve
+
+- name: "{{ stream_title }}"
+  ansible.builtin.shell:
+    cmd: |
+      set -uo pipefail
+      {
+        set -e
+        echo "===== {{ stream_title }} $(date -Iseconds) ====="
+        {{ stream_shell }}
+      } >> "{{ packages_live_log }}" 2>&1
+      rc=$?
+      if [ "$rc" -ne 0 ]; then
+        echo "----- last {{ packages_install_log_lines | default(20) }} lines of {{ packages_live_log }} -----"
+        tail -n "{{ packages_install_log_lines | default(20) }}" "{{ packages_live_log }}"
+      fi
+      exit "$rc"
+    executable: /bin/bash
+  become: "{{ stream_become | default(false) | bool }}"
+  async: "{{ packages_install_async_timeout }}"
+  poll: "{{ packages_install_poll }}"
+  register: stream_result
+  environment: "{{ stream_environment | default(omit) }}"
+  changed_when: >-
+    stream_result.rc | default(1) | int == 0
+    and lookup('pipe', 'tail -n ' ~ (packages_install_log_lines | default(20) | string) ~ ' ' ~ packages_live_log)
+    is search(stream_changed_regex | default('(?i)install|pouring|fetch|download|build|upgrad'))
