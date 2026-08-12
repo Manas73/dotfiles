@@ -166,7 +166,7 @@ package_catalog:
     darwin: { provider: brew,   packages: [node, nvm] }
 
   # Third-party tap: declare taps next to the provider. Formula names
-  # stay unqualified; brew.yml / cask.yml tap first.
+  # stay unqualified; brew.yml writes them into the Brewfile.
   fresh-editor:
     darwin: { provider: brew, packages: [fresh-editor], taps: [sinelaw/fresh] }
 
@@ -222,7 +222,7 @@ and miscellaneous Arch / darwin name-mapping (e.g. `aws-cli` ->
    filter, producing
    `packages_resolved = {packages: {provider: [pkg, ...]}, taps: {provider: [tap, ...]}}`.
 4. Include provider task files in fixed order for each non-empty bucket:
-   `pacman.yml` → `aur.yml` → `brew.yml` → `cask.yml`.
+   `pacman.yml` → `aur.yml` → `brew.yml` (formulae + casks).
 
 ### Provider task files
 
@@ -232,8 +232,7 @@ Each file under `roles/packages/tasks/` installs for one package manager:
 |------|-----|--------------------|
 | `pacman.yml` | Archlinux | Verifies pacman; optional `-Sy` / `-Syu`. |
 | `aur.yml` | Archlinux | Clones `yay-bin` and builds it when yay is missing. |
-| `brew.yml` | Darwin | Official Homebrew install script (`NONINTERACTIVE=1`). |
-| `cask.yml` | Darwin | None; relies on `brew.yml` / existing Homebrew. |
+| `brew.yml` | Darwin | Official or user-prefix Homebrew; one Brewfile / `brew bundle`. |
 
 Shared contract: input `provider_packages` (list), no-op when empty, assert
 OS family, idempotent install, side effects limited to packages.
@@ -330,8 +329,8 @@ Copy `recipes/personal_workstation.yml` (or `mac_turing.yml`), edit
 | `packages` | Whole packages role (all providers).                 |
 | `pacman`   | Pacman task file only.                               |
 | `aur`      | AUR task file only.                                  |
-| `brew`     | Homebrew formulae only.                              |
-| `cask`     | Homebrew casks only.                                 |
+| `brew`     | Homebrew formulae + casks (one Brewfile).            |
+| `cask`     | Same as `brew` (merged job).                         |
 | `arch`     | All arch-OS package work.                            |
 | `darwin`   | All darwin-OS package work.                          |
 | `upgrade`  | `pacman -Syu` task.                                  |

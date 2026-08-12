@@ -33,6 +33,9 @@ packages_aur_refresh_databases: true
 # user prefix and PATH.
 packages_brew_path: ""
 packages_brew_update: true
+# brew bundle --jobs. `auto` = CPU cores, max 4. Override with 1/4/8.
+packages_brew_jobs: auto
+packages_brewfile: "{{ ansible_facts['user_dir'] }}/.cache/dotfiles/Brewfile"
 # Used when the login user is not a macOS Administrator (typical work
 # laptop). Official /opt/homebrew install requires sudo. Empty =
 # {{ ansible_facts.user_dir }}/.local/homebrew.

@@ -4,7 +4,8 @@
 # Intent     -> os_apps (group_vars/<os>/apps.yml) + profile_apps via recipe
 # Catalog    -> group_vars/all/package_catalog.yml
 # Resolve    -> this role (resolve_catalog filter)
-# Providers  -> tasks/{pacman,aur,brew,cask}.yml
+# Providers  -> tasks/{pacman,aur,brew}.yml
+# Homebrew formulae and casks share brew.yml (one Brewfile / brew bundle).
 #
 # Does NOT manage configuration, services, or dotfiles.
 # Recipe must be loaded first (playbooks/tasks/load_recipe.yml) so
@@ -74,8 +75,8 @@
     verbosity: 1
   tags: [packages]
 
-# Fixed order: pacman before aur (shared DB refresh), brew before cask
-# (Homebrew bootstrap). Only non-empty buckets are included.
+# Fixed order: pacman before aur (shared DB refresh), then Homebrew
+# (formulae + casks in one Brewfile). Only non-empty buckets are included.
 # Skip installs when packages_validate_only (unprivileged mise run check).
 
 - name: Install pacman packages
@@ -102,31 +103,28 @@
     - (packages_resolved.packages.aur | default([])) | length > 0
   tags: [packages, aur, arch]
 
-- name: Install Homebrew formulae
+- name: Install Homebrew formulae and casks
   ansible.builtin.include_tasks:
     file: brew.yml
     apply:
-      tags: [packages, brew, darwin]
+      tags: [packages, brew, cask, darwin]
   vars:
     provider_packages: "{{ packages_resolved.packages.brew | default([]) }}"
-    provider_taps: "{{ packages_resolved.taps.brew | default([]) }}"
+    provider_casks: "{{ packages_resolved.packages.cask | default([]) }}"
+    provider_taps: >-
+      {{
+        (
+          (packages_resolved.taps.brew | default([]))
+          + (packages_resolved.taps.cask | default([]))
+        ) | unique | sort
+      }}
   when:
     - not (packages_validate_only | default(false) | bool)
-    - (packages_resolved.packages.brew | default([])) | length > 0
-  tags: [packages, brew, darwin]
-
-- name: Install Homebrew casks
-  ansible.builtin.include_tasks:
-    file: cask.yml
-    apply:
-      tags: [packages, cask, darwin]
-  vars:
-    provider_packages: "{{ packages_resolved.packages.cask | default([]) }}"
-    provider_taps: "{{ packages_resolved.taps.cask | default([]) }}"
-  when:
-    - not (packages_validate_only | default(false) | bool)
-    - (packages_resolved.packages.cask | default([])) | length > 0
-  tags: [packages, cask, darwin]
+    - (
+        (packages_resolved.packages.brew | default([])) | length > 0
+        or (packages_resolved.packages.cask | default([])) | length > 0
+      )
+  tags: [packages, brew, cask, darwin]
 
 - name: Report resolved packages (validate-only)
   ansible.builtin.debug:

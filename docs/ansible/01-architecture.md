@@ -69,7 +69,7 @@ Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.
 3. Resolves them through the catalog (`resolve_catalog` filter) into
    `{packages: {provider: [pkg, …]}, taps: {provider: [tap, …]}}`.
 4. Includes provider task files in fixed order for each non-empty bucket:
-   pacman → aur → brew → cask.
+   pacman → aur → brew (formulae + casks).
 
 ### Provider task files
 
@@ -77,8 +77,7 @@ Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.
 |------|-----|-----------|
 | `tasks/pacman.yml` | Archlinux | Verifies pacman; folds in multilib. |
 | `tasks/aur.yml` | Archlinux | Builds `yay-bin` when yay is missing. |
-| `tasks/brew.yml` | Darwin | Official Homebrew installer (`NONINTERACTIVE=1`). |
-| `tasks/cask.yml` | Darwin | None; relies on brew. |
+| `tasks/brew.yml` | Darwin | Official or user-prefix Homebrew; one Brewfile for formulae and casks. |
 
 Each accepts `provider_packages`, no-ops on empty input, asserts the OS
 family, and installs idempotently.

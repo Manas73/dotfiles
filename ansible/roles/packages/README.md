@@ -9,7 +9,7 @@ and installs via provider task files.
 Intent       os_apps + profile_apps (via recipe profiles:)
 Catalog      group_vars/all/package_catalog.yml
 Resolve      THIS ROLE (resolve_catalog filter)
-Providers    tasks/{pacman,aur,brew,cask}.yml
+Providers    tasks/{pacman,aur,brew}.yml  # brew = formulae + casks
 ```
 
 ## Responsibilities
@@ -19,7 +19,8 @@ Providers    tasks/{pacman,aur,brew,cask}.yml
 2. Aggregate `os_apps` + recipe `profiles` → `profile_apps`.
 3. Resolve through the catalog into per-provider buckets.
 4. Include the matching provider task file for each non-empty bucket
-   (fixed order: pacman → aur → brew → cask).
+   (fixed order: pacman → aur → brew). Homebrew formulae and casks
+   share one Brewfile.
 
 ## Does not
 

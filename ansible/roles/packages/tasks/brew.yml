@@ -1,26 +1,26 @@
 ---
-# Install Homebrew formulae on macOS hosts.
+# Install Homebrew formulae and casks on macOS hosts (one Brewfile).
 #
-# Input: provider_packages (list[str]) — concrete brew formula names.
+# Input:
+#   provider_packages (list[str]) — formulae
+#   provider_casks    (list[str]) — casks
+#   provider_taps     (list[str]) — user/repo taps for either
 # Bootstraps Homebrew if no executable `brew` is found:
 #   - `sudo -n true` works → official installer (system prefix)
 #   - otherwise → clone into a user prefix (no sudo; work laptops)
 # Being in the macOS `admin` group is not enough: NONINTERACTIVE sudo
-# still fails without a TTY/timestamp, which is how the Turing Mac dies.
-# Casks are handled by cask.yml.
-#
-# community.general.homebrew looks up `brew` via get_bin_path. After a
-# fresh install (and when this playbook is launched via mise) /opt/homebrew
-# is often not on PATH, so we always pass `path:` and export PATH.
+# still fails without a TTY/timestamp.
 
-- name: Assert provider_packages is defined and a list
+- name: Assert Homebrew package lists are lists
   ansible.builtin.assert:
     that:
       - provider_packages is defined
       - provider_packages is sequence
-    fail_msg: "packages/brew: provider_packages must be a list."
+      - provider_casks is defined
+      - provider_casks is sequence
+    fail_msg: "packages/brew: provider_packages and provider_casks must be lists."
     quiet: true
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Assert the host is Darwin
   ansible.builtin.assert:
@@ -30,7 +30,7 @@
       packages/brew requires a macOS host.
       Detected os_family={{ ansible_facts['os_family'] }}.
     quiet: true
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Resolve Homebrew prefixes
   ansible.builtin.set_fact:
@@ -46,7 +46,7 @@
         if packages_brew_user_prefix | default('') | length > 0
         else (ansible_facts['user_dir'] ~ '/.local/homebrew')
       }}
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Candidate Homebrew binaries
   ansible.builtin.set_fact:
@@ -64,14 +64,14 @@
           ]
         ) | unique
       }}
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Stat candidate Homebrew binaries
   ansible.builtin.stat:
     path: "{{ item }}"
   loop: "{{ packages_brew_candidates }}"
   register: packages_brew_candidate_stats
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Detect brew on PATH
   ansible.builtin.shell: command -v brew
@@ -79,12 +79,12 @@
   changed_when: false
   failed_when: false
   check_mode: false
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Start with no resolved brew
   ansible.builtin.set_fact:
     packages_brew_resolved: ""
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Prefer a candidate brew that is executable
   ansible.builtin.set_fact:
@@ -96,7 +96,7 @@
   loop: "{{ packages_brew_candidate_stats.results }}"
   loop_control:
     label: "{{ item.item }}"
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Fall back to brew on PATH
   ansible.builtin.set_fact:
@@ -105,13 +105,13 @@
     - packages_brew_resolved | length == 0
     - packages_brew_which.rc == 0
     - packages_brew_which.stdout | length > 0
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Bootstrap Homebrew if missing
   when:
     - packages_brew_resolved | length == 0
     - not ansible_check_mode
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
   block:
     - name: Probe passwordless sudo (official installer needs this)
       ansible.builtin.command: sudo -n true
@@ -183,7 +183,7 @@
   loop: "{{ packages_brew_candidates }}"
   register: packages_brew_candidate_stats_after
   when: packages_brew_resolved | length == 0
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Resolve brew after bootstrap
   ansible.builtin.set_fact:
@@ -195,7 +195,7 @@
   loop: "{{ packages_brew_candidate_stats_after.results | default([]) }}"
   loop_control:
     label: "{{ item.item }}"
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Fail if Homebrew is still missing
   ansible.builtin.fail:
@@ -209,8 +209,8 @@
   when:
     - packages_brew_resolved | length == 0
     - not ansible_check_mode
-    - provider_packages | length > 0
-  tags: [packages, brew, darwin]
+    - (provider_packages | length > 0) or (provider_casks | length > 0)
+  tags: [packages, brew, cask, darwin]
 
 - name: Remember brew's bin directory for later tasks
   ansible.builtin.set_fact:
@@ -226,7 +226,7 @@
       CI: "1"
       GIT_TERMINAL_PROMPT: "0"
   when: packages_brew_resolved | length > 0
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
 - name: Warn that a user-prefix Homebrew build can take a long time
   ansible.builtin.debug:
@@ -239,24 +239,55 @@
     - packages_brew_resolved | length > 0
     - packages_brew_user_home is defined
     - packages_brew_resolved is search(packages_brew_user_home)
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
-- name: Tap required Homebrew repositories
-  community.general.homebrew_tap:
-    name: "{{ provider_taps }}"
-    state: present
-    path: "{{ packages_brew_bin_dir }}"
+- name: Put user-prefix brew on ~/.local/bin (interactive shells)
+  # site.yml applies fish shellenv later via Chezmoi. A Ctrl-C during
+  # formulae leaves brew installed but off PATH. ~/.local/bin is already
+  # used by the mise curl installer.
+  ansible.builtin.file:
+    src: "{{ packages_brew_resolved }}"
+    dest: "{{ ansible_facts['user_dir'] }}/.local/bin/brew"
+    state: link
+    force: true
   when:
-    - (provider_taps | default([])) | length > 0
     - packages_brew_resolved | length > 0
-  environment: "{{ packages_brew_stream_env }}"
-  tags: [packages, brew, darwin]
+    - packages_brew_user_home is defined
+    - packages_brew_resolved is search(packages_brew_user_home)
+  tags: [packages, brew, cask, darwin]
+
+- name: Ensure Brewfile directory exists
+  ansible.builtin.file:
+    path: "{{ packages_brewfile | dirname }}"
+    state: directory
+    mode: "0700"
+  when: packages_brew_resolved | length > 0
+  tags: [packages, brew, cask, darwin]
+
+- name: Write Brewfile
+  ansible.builtin.copy:
+    dest: "{{ packages_brewfile }}"
+    mode: "0644"
+    content: |
+      {% for tap in provider_taps | default([]) | unique | sort %}
+      tap {{ tap | to_json }}
+      {% endfor %}
+      {% for pkg in provider_packages | unique | sort %}
+      brew {{ pkg | to_json }}
+      {% endfor %}
+      {% for pkg in provider_casks | unique | sort %}
+      cask {{ pkg | to_json }}
+      {% endfor %}
+  when:
+    - (provider_packages | length > 0) or (provider_casks | length > 0)
+    - packages_brew_resolved | length > 0
+  tags: [packages, brew, cask, darwin]
 
 - name: Update Homebrew
   ansible.builtin.include_tasks:
     file: stream_cmd.yml
     apply:
-      tags: [packages, brew, darwin]
+      tags: [packages, brew, cask, darwin]
   vars:
     stream_title: Update Homebrew
     stream_shell: brew update --verbose
@@ -266,24 +297,28 @@
     - not ansible_check_mode
     - packages_brew_update | bool
     - packages_brew_resolved | length > 0
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
 
-- name: Install Homebrew formulae
+- name: Install Homebrew formulae and casks
   ansible.builtin.include_tasks:
     file: stream_cmd.yml
     apply:
-      tags: [packages, brew, darwin]
+      tags: [packages, brew, cask, darwin]
   vars:
     stream_title: >-
-      Install Homebrew formulae
-      ({{ (provider_packages | unique | sort) | length }})
+      Install Homebrew
+      ({{ (provider_packages | unique | sort) | length }} formulae,
+      {{ (provider_casks | unique | sort) | length }} casks,
+      jobs={{ packages_brew_jobs }})
     stream_shell: >-
-      brew install --verbose --formula
-      {{ (provider_packages | unique | sort) | map('quote') | join(' ') }}
+      brew bundle install
+      --file={{ packages_brewfile | quote }}
+      --no-upgrade --verbose
+      --jobs={{ packages_brew_jobs }}
     stream_environment: "{{ packages_brew_stream_env }}"
-    stream_changed_regex: "Pouring|==> Installing|==> Fetching|==> Downloading|==> Upgrading|==> make"
+    stream_changed_regex: "Pouring|Installing |==> Fetching|==> Downloading|==> Upgrading|==> make|brew bundle"
   when:
     - not ansible_check_mode
-    - provider_packages | length > 0
+    - (provider_packages | length > 0) or (provider_casks | length > 0)
     - packages_brew_resolved | length > 0
-  tags: [packages, brew, darwin]
+  tags: [packages, brew, cask, darwin]
