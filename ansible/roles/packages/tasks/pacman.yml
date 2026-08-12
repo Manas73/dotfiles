@@ -49,21 +49,10 @@
     - not (packages_pacman_perform_upgrade | bool)
   tags: [packages, pacman, arch]
 
-- name: Install pacman packages
-  ansible.builtin.include_tasks:
-    file: stream_cmd.yml
-    apply:
-      tags: [packages, pacman, arch]
-  vars:
-    stream_title: >-
-      Install pacman packages
-      ({{ (provider_packages | unique | sort) | length }})
-    stream_shell: >-
-      pacman -S --needed --noconfirm
-      {{ (provider_packages | unique | sort) | map('quote') | join(' ') }}
-    stream_become: true
-    stream_changed_regex: "(?i)installing|upgrading|reinstalling"
-  when:
-    - not ansible_check_mode
-    - provider_packages | length > 0
+- name: Install pacman packages (-S --needed)
+  community.general.pacman:
+    name: "{{ provider_packages | unique | sort }}"
+    state: present
+  become: true
+  when: provider_packages | length > 0
   tags: [packages, pacman, arch]

@@ -234,7 +234,7 @@
       brew is {{ packages_brew_resolved }} (user prefix). Bottles often
       cannot be used, so formulae compile from source and the log can
       sit quiet for many minutes. It is not waiting for input
-      (stdin is closed). Full log: {{ packages_live_log }}
+      (stdin is closed).
   when:
     - packages_brew_resolved | length > 0
     - packages_brew_user_home is defined
@@ -284,15 +284,11 @@
   tags: [packages, brew, cask, darwin]
 
 - name: Update Homebrew
-  ansible.builtin.include_tasks:
-    file: stream_cmd.yml
-    apply:
-      tags: [packages, brew, cask, darwin]
-  vars:
-    stream_title: Update Homebrew
-    stream_shell: brew update --verbose
-    stream_environment: "{{ packages_brew_stream_env }}"
-    stream_changed_regex: "(?i)already up-to-date|Updated|Fetching|Cloning|Checking"
+  ansible.builtin.command:
+    argv:
+      - brew
+      - update
+  environment: "{{ packages_brew_stream_env }}"
   when:
     - not ansible_check_mode
     - packages_brew_update | bool
@@ -300,23 +296,21 @@
   tags: [packages, brew, cask, darwin]
 
 - name: Install Homebrew formulae and casks
-  ansible.builtin.include_tasks:
-    file: stream_cmd.yml
-    apply:
-      tags: [packages, brew, cask, darwin]
-  vars:
-    stream_title: >-
-      Install Homebrew
-      ({{ (provider_packages | unique | sort) | length }} formulae,
-      {{ (provider_casks | unique | sort) | length }} casks,
-      jobs={{ packages_brew_jobs }})
-    stream_shell: >-
-      brew bundle install
-      --file={{ packages_brewfile | quote }}
-      --no-upgrade --verbose
-      --jobs={{ packages_brew_jobs }}
-    stream_environment: "{{ packages_brew_stream_env }}"
-    stream_changed_regex: "Pouring|Installing |==> Fetching|==> Downloading|==> Upgrading|==> make|brew bundle"
+  ansible.builtin.command:
+    argv:
+      - brew
+      - bundle
+      - install
+      - --file
+      - "{{ packages_brewfile }}"
+      - --no-upgrade
+      - --jobs
+      - "{{ packages_brew_jobs }}"
+  environment: "{{ packages_brew_stream_env }}"
+  register: packages_brew_bundle
+  changed_when: >-
+    'Installing ' in (packages_brew_bundle.stdout | default(''))
+    or '==> ' in (packages_brew_bundle.stdout | default(''))
   when:
     - not ansible_check_mode
     - (provider_packages | length > 0) or (provider_casks | length > 0)
