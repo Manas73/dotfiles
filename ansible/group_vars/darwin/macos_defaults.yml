@@ -55,7 +55,7 @@ macos_defaults:
   - domain: com.apple.spaces
     key: spans-displays
     type: bool
-    value: false
+    value: true
 
   # --- Dock -----------------------------------------------------------
   - domain: com.apple.dock
