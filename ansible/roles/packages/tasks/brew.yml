@@ -40,11 +40,11 @@
   register: homebrew_check
   tags: [packages, brew, cask, darwin]
 
-- name: Install Homebrew
-  ansible.builtin.shell:
-    cmd: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  environment:
-    NONINTERACTIVE: "1"
+- name: Install Homebrew if missing
+  ansible.builtin.shell: |
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  args:
+    stdin: /dev/null
   when:
     - homebrew_check.results | selectattr('stat.exists') | list | length == 0
     - not ansible_check_mode
