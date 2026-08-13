@@ -1,0 +1,106 @@
+---
+# services role: cross-OS daemon enablement.
+#
+# Intent    -> os_services + profiles_catalog[].services (via profiles:) + recipe services:
+# Catalog   -> group_vars/all/service_catalog.yml
+# Resolve   -> resolve_services filter
+# Managers  -> tasks/{systemd,brew_services}.yml
+#
+# Runs after packages + chezmoi. Does not install packages or render units.
+# Recipe must be loaded first so `profiles` / `services` are available.
+
+- name: Resolve target OS from facts
+  ansible.builtin.set_fact:
+    services_target_os: >-
+      {{
+        (os_family_map | default({}))
+          [ansible_facts['os_family']]
+          .target_os
+        | default('unknown')
+      }}
+  tags: [services]
+
+- name: Assert target OS is supported
+  ansible.builtin.assert:
+    that:
+      - services_target_os != 'unknown'
+    fail_msg: >-
+      services role does not support os_family
+      {{ ansible_facts['os_family'] | default('<unknown>') }}.
+      Add a row to group_vars/all/os_providers.yml.
+    quiet: true
+  tags: [services]
+
+- name: Aggregate logical service names
+  ansible.builtin.set_fact:
+    services_logical: >-
+      {{
+        (os_services | default([]))
+        + ((profiles | default([]))
+            | map('extract', profiles_catalog | default({}))
+            | select('defined')
+            | map(attribute='services', default=[]) | flatten)
+        + (services | default([]))
+      }}
+  tags: [services]
+
+- name: Resolve logical names through the service catalog
+  ansible.builtin.set_fact:
+    services_resolved: >-
+      {{
+        services_logical
+        | resolve_services(service_catalog | default({}), services_target_os)
+      }}
+  tags: [services]
+
+- name: Show resolved per-manager service buckets
+  ansible.builtin.debug:
+    msg: "{{ services_resolved }}"
+    verbosity: 1
+  tags: [services]
+
+- name: Manage system-scope systemd services
+  ansible.builtin.include_tasks:
+    file: systemd.yml
+    apply:
+      tags: [services, systemd, arch]
+  vars:
+    services_entries: "{{ services_resolved.systemd_system | default([]) }}"
+    services_scope: system
+  when:
+    - not (services_validate_only | default(false) | bool)
+    - (services_resolved.systemd_system | default([])) | length > 0
+  tags: [services, systemd, arch]
+
+- name: Manage user-scope systemd services
+  ansible.builtin.include_tasks:
+    file: systemd.yml
+    apply:
+      tags: [services, systemd, arch]
+  vars:
+    services_entries: "{{ services_resolved.systemd_user | default([]) }}"
+    services_scope: user
+  when:
+    - not (services_validate_only | default(false) | bool)
+    - (services_resolved.systemd_user | default([])) | length > 0
+  tags: [services, systemd, arch]
+
+- name: Manage Homebrew services
+  ansible.builtin.include_tasks:
+    file: brew_services.yml
+    apply:
+      tags: [services, brew, darwin]
+  vars:
+    services_entries: "{{ services_resolved.brew | default([]) }}"
+  when:
+    - not (services_validate_only | default(false) | bool)
+    - (services_resolved.brew | default([])) | length > 0
+  tags: [services, brew, darwin]
+
+- name: Report resolved services (validate-only)
+  ansible.builtin.debug:
+    msg: >-
+      services_validate_only: resolved {{ services_logical | length }}
+      logical services (no actions)
+  when: services_validate_only | default(false) | bool
+  tags: [services]

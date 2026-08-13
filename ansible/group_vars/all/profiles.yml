@@ -1,157 +1,173 @@
 ---
-# Profile package intent.
+# Profile intent catalog.
 #
-# Consumed by the packages orchestrator. A host opts into a profile by
-# listing its name in `profiles:` on its recipe (recipes/<name>.yml), or
-# overridden on the host for a one-off. The orchestrator looks up
-# `profile_apps[<name>]` for each entry and feeds the union (after catalog
-# resolution) to the matching provider roles.
+# Each profile groups its `apps` (packages) and optional `services` in one
+# place. A host opts into a profile by listing its name in `profiles:` on
+# its recipe (recipes/<name>.yml). The packages orchestrator unions
+# `profiles_catalog[<name>].apps`; the services orchestrator unions
+# `profiles_catalog[<name>].services`. Both resolve through their catalogs.
 #
 # Profiles are NOT inventory groups. Membership is declared once on the
 # recipe, so removing a profile from a kind of machine is one edit.
 # See recipes/README.md and group_vars/README.md.
 #
-# Layer 1 (intent) data; complements os_apps on each OS group.
+# Layer 1 (intent) data; complements os_apps / os_services on each OS group.
 
-profile_apps:
+profiles_catalog:
   cli:
-    - atuin
-    - bat
-    - btop
-    - bun
-    - chezmoi
-    - eza
-    - fastfetch
-    - fd
-    - fish
-    - fresh-editor
-    - fzf
-    - gcc
-    - ghq
-    - git
-    - git-filter-repo
-    - gnupg
-    - go
-    - herdr
-    - hugo
-    - jq
-    - lazydocker
-    - lazygit
-    - libfido2
-    - mise
-    - moreutils
-    - neovim
-    - nodejs
-    - pre-commit
-    - python
-    - starship
-    - television
-    - yazi
-    - yubikey
-    - zellij
-    - zoxide
+    apps:
+      - atuin
+      - bat
+      - btop
+      - bun
+      - chezmoi
+      - eza
+      - fastfetch
+      - fd
+      - fish
+      - fresh-editor
+      - fzf
+      - gcc
+      - ghq
+      - git
+      - git-filter-repo
+      - gnupg
+      - go
+      - herdr
+      - hugo
+      - jq
+      - lazydocker
+      - lazygit
+      - libfido2
+      - mise
+      - moreutils
+      - neovim
+      - nodejs
+      - pre-commit
+      - python
+      - starship
+      - television
+      - yazi
+      - yubikey
+      - zellij
+      - zoxide
 
   cloud:
-    - aws-cli
-    - aws-session-manager-plugin
-    - cloud-sql-proxy
-    - google-cloud-cli
+    apps:
+      - aws-cli
+      - aws-session-manager-plugin
+      - cloud-sql-proxy
+      - google-cloud-cli
 
   development:
-    - beads
-    - claude-code
-    - datagrip
-    - gitkraken
-    - grok-build
-    - mosh
-    - mysql
-    - opencode
-    - postman
-    - pycharm
-    - rustdesk
-    - sublime-text
-    - tailscale
-    - webstorm
-    - zed
+    apps:
+      - beads
+      - claude-code
+      - datagrip
+      - gitkraken
+      - grok-build
+      - mosh
+      - mysql
+      - opencode
+      - postman
+      - pycharm
+      - rustdesk
+      - sublime-text
+      - tailscale
+      - webstorm
+      - zed
+    services:
+      - docker
 
   fonts:
-    - ttf-dejavu
-    - ttf-droid
-    - ttf-fira-code
-    - ttf-fira-sans
-    - ttf-firacode-nerd
-    - ttf-jetbrains-mono-nerd
-    - ttf-material-icons
-    - ttf-ms-fonts
-    - ttf-nerd-fonts-symbols
-    - ttf-nerd-fonts-symbols-common
-    - ttf-noto-nerd
-    - ttf-vista-fonts
+    apps:
+      - ttf-dejavu
+      - ttf-droid
+      - ttf-fira-code
+      - ttf-fira-sans
+      - ttf-firacode-nerd
+      - ttf-jetbrains-mono-nerd
+      - ttf-material-icons
+      - ttf-ms-fonts
+      - ttf-nerd-fonts-symbols
+      - ttf-nerd-fonts-symbols-common
+      - ttf-noto-nerd
+      - ttf-vista-fonts
 
   gaming:
-    - lutris
-    - steam
-    - umu-launcher
+    apps:
+      - lutris
+      - steam
+      - umu-launcher
 
   hyprland:
-    - awww
-    - copyq
-    - hypridle
-    - hyprland
-    - hyprlock
-    - hyprsunset
-    - matugen
-    - nwg-look
-    - pipewire
-    - polkit-gnome
-    - qt5-wayland
-    - qt6-wayland
-    - rofi-wayland
-    - swaync
-    - swayosd
-    - udiskie
-    - uwsm
-    - waybar
-    - wl-clip-persist
-    - wl-clipboard
-    - wtype
-    - xdg-desktop-portal-hyprland
+    apps:
+      - awww
+      - copyq
+      - hypridle
+      - hyprland
+      - hyprlock
+      - hyprsunset
+      - matugen
+      - nwg-look
+      - pipewire
+      - polkit-gnome
+      - qt5-wayland
+      - qt6-wayland
+      - rofi-wayland
+      - swaync
+      - swayosd
+      - udiskie
+      - uwsm
+      - waybar
+      - wl-clip-persist
+      - wl-clipboard
+      - wtype
+      - xdg-desktop-portal-hyprland
 
   i3:
-    - feh
-    - i3-wm
-    - libxcb
-    - picom
-    - polybar
-    - python-i3ipc
-    - rofi-calc
-    - rofi-emoji
-    - rofi-greenclip
-    - sxhkd
-    - xcb-util-cursor
-    - xclip
-    - xorg-xev
-    - xorg-xkill
+    apps:
+      - feh
+      - i3-wm
+      - libxcb
+      - picom
+      - polybar
+      - python-i3ipc
+      - rofi-calc
+      - rofi-emoji
+      - rofi-greenclip
+      - sxhkd
+      - xcb-util-cursor
+      - xclip
+      - xorg-xev
+      - xorg-xkill
 
   kde:
-    - dolphin
-    - gwenview
-    - kcharselect
-    - plasma-x11-session
-    - plasma5-integration
+    apps:
+      - dolphin
+      - gwenview
+      - kcharselect
+      - plasma-x11-session
+      - plasma5-integration
 
   omniwm:
-    - alfred
-    - karabiner-elements
-    - sketchybar
-    - omniwm
+    apps:
+      - alfred
+      - karabiner-elements
+      - sketchybar
+      - omniwm
+    services:
+      - sketchybar
 
   virtualization:
-    - dnsmasq
-    - edk2-ovmf
-    - iptables-nft
-    - libvirt
-    - qemu-desktop
-    - swtpm
-    - virt-manager
-    - virt-viewer
+    apps:
+      - dnsmasq
+      - edk2-ovmf
+      - iptables-nft
+      - libvirt
+      - qemu-desktop
+      - swtpm
+      - virt-manager
+      - virt-viewer
+    services:
+      - libvirt

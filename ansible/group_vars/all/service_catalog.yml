@@ -1,0 +1,27 @@
+---
+# Service catalog: logical service name -> per-OS manager routing.
+# Sibling to package_catalog.yml. Consumed by roles/services (runs after
+# packages + dotfiles).
+#
+# managers:
+#   systemd (Linux) - name, scope (system|user, default system),
+#                      enabled (bool, default true), state (optional).
+#   brew    (macOS) - name, state (default started). No scope/enabled.
+# Per-OS value is one block or a list of blocks. Exhaustive catalog;
+# missing OS key = silent skip.
+
+service_catalog:
+  sketchybar:
+    darwin: { manager: brew, name: sketchybar, state: started }
+
+  docker:
+    arch: { manager: systemd, name: docker.socket, scope: system, enabled: true }
+
+  libvirt:
+    arch:
+      - { manager: systemd, name: libvirtd.socket, scope: system, enabled: true }
+      - { manager: systemd, name: virtlogd.socket, scope: system, enabled: true }
+
+  # postgresql:
+  #   arch:   { manager: systemd, name: postgresql.service, scope: system, enabled: true, state: started }
+  #   darwin: { manager: brew,   name: postgresql@16, state: started }

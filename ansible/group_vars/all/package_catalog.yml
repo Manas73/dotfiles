@@ -1,6 +1,6 @@
 ---
 # Logical app name -> per-OS install routing for the packages orchestrator.
-# Every app referenced by os_apps / profile_apps MUST have an entry here:
+# Every app referenced by os_apps / profiles_catalog[].apps MUST have an entry:
 # the catalog is exhaustive, so there is no implicit fall-through to a default
 # provider. An app that is intentionally Linux-only omits the `darwin:` key
 # (and vice versa); the resolver silently skips it on the other OS.

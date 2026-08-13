@@ -37,7 +37,8 @@ ansible/
 │   │   ├── main.yml             # connection, primary_user, chezmoi paths, feature defaults
 │   │   ├── os_providers.yml     # facts.os_family → target_os + default provider
 │   │   ├── package_catalog.yml  # logical name → per-OS install instructions
-│   │   └── profiles.yml         # profile_apps (cli/cloud/…/kde)
+│   │   ├── service_catalog.yml  # logical name → per-OS service manager
+│   │   └── profiles.yml         # profiles_catalog[].{apps,services}
 │   ├── arch/
 │   │   ├── main.yml             # osid, python
 │   │   └── apps.yml             # os_apps
@@ -79,7 +80,7 @@ Mental model:
 ## Package Architecture
 
 ```text
-Intent       os_apps + profile_apps (via recipe profiles:)
+Intent       os_apps + profiles_catalog[].apps (via recipe profiles:)
 Catalog      group_vars/all/package_catalog.yml
 packages     roles/packages
 ```
@@ -93,18 +94,24 @@ packages     roles/packages
    | `arch`   | `os_apps` | `group_vars/arch/apps.yml`   |
    | `darwin` | `os_apps` | `group_vars/darwin/apps.yml` |
 
-2. **Profile bundles** in `group_vars/all/profiles.yml`:
+2. **Profile bundles** in `group_vars/all/profiles.yml`. Each profile groups
+   its `apps` (packages) and optional `services` (daemons):
 
    ```yaml
-   profile_apps:
-     cli:          [atuin, bat, fish, fzf, neovim, git, go, nodejs, python, ...]
-     cloud:        [aws-cli, aws-session-manager-plugin, cloud-sql-proxy, google-cloud-cli]
-     development:  [beads, datagrip, gitkraken, opencode, postman, pycharm, sublime-text, webstorm, zed, ...]
-     fonts:        [ttf-dejavu, ttf-fira-code, ...]
-     gaming:       [steam, lutris, umu-launcher]
-     hyprland:     [waybar, hyprland, hyprlock, matugen, ...]
-     i3:           [i3-wm, picom, polybar, sxhkd, xclip, ...]
-     kde:          [dolphin, gwenview, plasma-x11-session, ...]
+   profiles_catalog:
+     cli:
+       apps:     [atuin, bat, fish, fzf, neovim, git, go, nodejs, python, ...]
+     cloud:
+       apps:     [aws-cli, aws-session-manager-plugin, cloud-sql-proxy, google-cloud-cli]
+     development:
+       apps:     [beads, datagrip, gitkraken, opencode, postman, pycharm, ...]
+       services: [docker]
+     fonts:
+       apps:     [ttf-dejavu, ttf-fira-code, ...]
+     hyprland:
+       apps:     [waybar, hyprland, hyprlock, matugen, ...]
+     kde:
+       apps:     [dolphin, gwenview, plasma-x11-session, ...]
    ```
 
    | Profile        | Scope     | Purpose                                              |
@@ -131,8 +138,9 @@ packages     roles/packages
    ```
 
    Profiles are NOT inventory groups. The dispatcher unions `os_apps` with
-   `profile_apps` for every name in the recipe's `profiles:` list. Unknown
-   profile names are silently ignored.
+   `profiles_catalog[<name>].apps` for every name in the recipe's `profiles:`
+   list (and `.services` for the services role). Unknown profile names are
+   silently ignored.
 
 All sources are pure lists of logical app names. They know nothing about
 pacman, AUR, brew, or cask.
@@ -216,8 +224,8 @@ and miscellaneous Arch / darwin name-mapping (e.g. `aws-cli` ->
    `packages_default_provider` via `os_family_map`
    (`group_vars/all/os_providers.yml`).
 2. Aggregate logical app names: `os_apps` unioned with each
-   `profile_apps[<name>]` for every entry in the recipe's `profiles:` list.
-   Unknown profile names are silently ignored via `extract(..., default=[])`.
+   `profiles_catalog[<name>].apps` for every entry in the recipe's `profiles:`
+   list. Unknown profile names are silently ignored.
 3. Resolve the aggregated list through the catalog via the `resolve_catalog`
    filter, producing
    `packages_resolved = {packages: {provider: [pkg, ...]}, taps: {provider: [tap, ...]}}`.
@@ -245,9 +253,9 @@ route to `provider: pacman` (with multilib enabled in `/etc/pacman.conf`).
 1. Pick the right intent bucket and add the logical name there:
    - OS-wide on every Arch host: `group_vars/arch/apps.yml` (`os_apps`).
    - OS-wide on every macOS host: `group_vars/darwin/apps.yml` (`os_apps`).
-   - Tied to a desktop or feature profile: the relevant key under
-     `profile_apps` in `group_vars/all/profiles.yml` (and the recipe's
-     `profiles:` list).
+   - Tied to a desktop or feature profile: the `apps:` list of the relevant
+     profile under `profiles_catalog` in `group_vars/all/profiles.yml` (and
+     the recipe's `profiles:` list).
 2. If the app is cross-OS, or needs a non-default provider on Arch (AUR),
    add a catalog entry. Otherwise it falls through to the default provider
    for the OS and needs no catalog entry.

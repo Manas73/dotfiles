@@ -35,7 +35,7 @@ Rules:
   ``brew`` / ``cask`` blocks. brew.yml / cask.yml tap them before install.
 * The catalog is exhaustive: an app whose logical name is not in the
   catalog raises ``CatalogError``. There is no default-provider
-  fall-through — every app in os_apps / profile_apps must be listed.
+  fall-through — every app in os_apps / profiles_catalog[].apps must be listed.
 * An app whose catalog entry has no key for ``target_os`` is silently
   dropped: the user explicitly chose not to install it on this OS
   (this is how Linux-only / macOS-only apps are expressed).
@@ -143,7 +143,7 @@ def _resolve_one(
     entry = catalog.get(name)
     if entry is None:
         # The catalog is exhaustive: every logical app referenced by os_apps
-        # or profile_apps must have an explicit entry. There is no implicit
+        # or profiles_catalog[].apps must have an explicit entry. No implicit
         # fall-through to a default provider. A missing entry is a bug in the
         # catalog (or a typo in the intent lists), so fail loudly.
         raise CatalogError(

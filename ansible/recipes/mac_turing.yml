@@ -13,7 +13,7 @@
 profile: "turing"
 email: "manas.s@turing.com"
 
-# Profile membership. Each name resolves against profile_apps
+# Profile membership. Each name resolves against profiles_catalog
 # (group_vars/all/profiles.yml).
 profiles:
   - cli

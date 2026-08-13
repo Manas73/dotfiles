@@ -1,0 +1,31 @@
+---
+# Manage systemd units. Included per scope by main.yml; services_entries is
+# the resolved bucket (list of {name, enabled, [state]}), services_scope is
+# system or user.
+
+- name: Assert this host runs systemd (Linux)
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['system'] | lower == 'linux'
+    fail_msg: systemd service management requested on a non-Linux host.
+    quiet: true
+  tags: [services, systemd]
+
+- name: "Reload systemd daemon ({{ services_scope }} scope)"
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    scope: "{{ services_scope }}"
+  become: "{{ services_scope == 'system' }}"
+  tags: [services, systemd]
+
+- name: "Manage systemd unit ({{ services_scope }} scope)"
+  ansible.builtin.systemd_service:
+    name: "{{ item.name }}"
+    scope: "{{ services_scope }}"
+    enabled: "{{ item.enabled }}"
+    state: "{{ item.state | default(omit) }}"
+  become: "{{ services_scope == 'system' }}"
+  loop: "{{ services_entries }}"
+  loop_control:
+    label: "{{ item.name }}"
+  tags: [services, systemd]

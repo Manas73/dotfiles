@@ -5,14 +5,15 @@
 #   1. Sudoers drop-in for passwordless pacman (linux only).
 #   2. Install OS packages so binaries exist.
 #   3. Apply Chezmoi dotfiles so configs exist for the services below.
-#   4. System wiring (fish login shell, docker, libvirt).
-#   5. macOS defaults (darwin only).
-#   6. Specialty services (Kanata, Plasma custom WM).
+#   4. System wiring (fish login shell, docker/libvirt groups).
+#   5. Enable services (systemd units / brew services) via service_catalog.
+#   6. macOS defaults (darwin only).
+#   7. Specialty services (Kanata, Plasma custom WM).
 #
 # Each play loads recipes/<recipe>.yml first (see tasks/load_recipe.yml).
 #
 # Packaging:
-#   Intent       os_apps + profile_apps (via recipe profiles:)
+#   Intent       os_apps + profiles_catalog[].apps (via recipe profiles:)
 #   Catalog      group_vars/all/package_catalog.yml
 #   packages     roles/packages
 #
@@ -74,6 +75,17 @@
       tags: [always]
   roles:
     - role: system
+
+- name: Enable services (cross-OS)
+  hosts: all
+  gather_facts: true
+  tags: [services]
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
+  roles:
+    - role: services
 
 - name: Apply macOS user defaults
   hosts: darwin

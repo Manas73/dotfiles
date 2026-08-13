@@ -1,6 +1,7 @@
 ---
-# Configure Docker for the primary user on Linux: docker group + docker.socket.
-# Gated by docker_enabled. Docker packages are installed by roles/packages.
+# Configure Docker for the primary user on Linux: docker group membership.
+# Gated by docker_enabled. Packages come from roles/packages; docker.socket
+# enablement is owned by roles/services (service_catalog).
 
 - name: Verify docker binary is present
   ansible.builtin.shell: command -v docker
@@ -32,13 +33,6 @@
     append: true
   become: true
   register: docker_group_change
-  tags: [system, docker]
-
-- name: Enable docker.socket (starts Docker on demand)
-  ansible.builtin.systemd_service:
-    name: docker.socket
-    enabled: true
-  become: true
   tags: [system, docker]
 
 - name: Report when group membership was just granted

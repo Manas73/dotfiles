@@ -14,7 +14,7 @@ email: "manas.sambare@gmail.com"
 # Set to "kwin" or omit to disable masking and use stock KWin.
 plasma_window_manager: "i3"
 
-# Profile membership. Each name resolves against profile_apps
+# Profile membership. Each name resolves against profiles_catalog
 # (group_vars/all/profiles.yml).
 profiles:
   - cli

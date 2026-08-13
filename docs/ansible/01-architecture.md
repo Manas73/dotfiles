@@ -8,7 +8,7 @@ packages role with per-manager task files.
 > orientation; that file has the full schema, role contracts, and edge cases.
 
 ```text
-Intent       os_apps + profile_apps (via recipe profiles:)
+Intent       os_apps + profiles_catalog[].apps (via recipe profiles:)
 Catalog      group_vars/all/package_catalog.yml
 packages     roles/packages (resolve + tasks/{pacman,aur,brew,cask}.yml)
 ```
@@ -20,7 +20,8 @@ or cask. Two sources feed the packages role:
 
 1. **OS-family list** — `os_apps` in `group_vars/<os>/apps.yml` (same variable
    name on every OS group: `arch`, `darwin`, …).
-2. **Profile bundles** — `profile_apps` in `group_vars/all/profiles.yml`. A
+2. **Profile bundles** — `profiles_catalog[<name>].apps` (and optional
+   `.services`) in `group_vars/all/profiles.yml`. A
    host opts into profiles via `profiles:` on its **recipe**
    (`recipes/<name>.yml`), loaded by the playbook at the start of each play.
 

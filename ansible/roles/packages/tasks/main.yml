@@ -1,7 +1,7 @@
 ---
 # packages role: cross-OS package installation.
 #
-# Intent     -> os_apps (group_vars/<os>/apps.yml) + profile_apps via recipe
+# Intent     -> os_apps (group_vars/<os>/apps.yml) + profiles_catalog[].apps via recipe
 # Catalog    -> group_vars/all/package_catalog.yml
 # Resolve    -> this role (resolve_catalog filter)
 # Providers  -> tasks/{pacman,aur,brew}.yml
@@ -45,13 +45,15 @@
 - name: Aggregate logical app names from os_apps, recipe profiles, and recipe apps
   ansible.builtin.set_fact:
     # os_apps: OS group_vars (same var name on every OS).
-    # profiles → profile_apps: shared bundles from the recipe's profiles: list.
+    # profiles → profiles_catalog[<name>].apps: shared bundles from the recipe.
     # apps: recipe-local extras (e.g. slack on mac_turing only).
-    # extract() with default [] silently skips unknown profile names.
     packages_logical_apps: >-
       {{
         (os_apps | default([]))
-        + ((profiles | default([])) | map('extract', profile_apps | default({}), []) | flatten)
+        + ((profiles | default([]))
+            | map('extract', profiles_catalog | default({}))
+            | select('defined')
+            | map(attribute='apps', default=[]) | flatten)
         + (apps | default([]))
       }}
   tags: [packages]

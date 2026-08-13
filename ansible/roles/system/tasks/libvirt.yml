@@ -1,7 +1,8 @@
 ---
 # Configure libvirt / qemu for the primary user on Linux: kvm + libvirt
-# groups and on-demand sockets. Gated by libvirt_enabled.
-# Packages come from the virtualization profile via roles/packages.
+# group membership. Gated by libvirt_enabled. Packages come from the
+# virtualization profile via roles/packages; libvirtd/virtlogd socket
+# enablement is owned by roles/services (service_catalog).
 
 - name: Verify libvirtd binary is present
   ansible.builtin.shell: command -v libvirtd
@@ -43,20 +44,6 @@
     append: true
   become: true
   register: libvirt_group_change
-  tags: [system, libvirt]
-
-- name: Enable libvirtd.socket (starts libvirtd on demand)
-  ansible.builtin.systemd_service:
-    name: libvirtd.socket
-    enabled: true
-  become: true
-  tags: [system, libvirt]
-
-- name: Enable virtlogd.socket (libvirt logging daemon)
-  ansible.builtin.systemd_service:
-    name: virtlogd.socket
-    enabled: true
-  become: true
   tags: [system, libvirt]
 
 - name: Report when group membership was just granted

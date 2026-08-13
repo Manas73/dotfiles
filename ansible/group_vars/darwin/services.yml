@@ -1,0 +1,6 @@
+---
+# macOS service intent (logical names). Resolved by roles/services against
+# group_vars/all/service_catalog.yml. Same var name (os_services) on every
+# OS group. Cross-platform bundles live in profiles_catalog[].services.
+
+os_services: []

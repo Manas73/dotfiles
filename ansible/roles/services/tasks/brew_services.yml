@@ -1,0 +1,22 @@
+---
+# Manage Homebrew services (macOS). services_entries is the resolved brew
+# bucket (list of {name, state}). Catalog states map to homebrew_services
+# present/absent/restarted. No become: runs as the primary user.
+
+- name: Assert this host is macOS (Darwin)
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Darwin'
+    fail_msg: Homebrew service management requested on a non-macOS host.
+    quiet: true
+  tags: [services, brew]
+
+- name: Manage Homebrew service
+  community.general.homebrew_services:
+    name: "{{ item.name }}"
+    state: "{{ {'started': 'present', 'stopped': 'absent', 'restarted': 'restarted'}[item.state] }}"
+    path: "{{ services_brew_path | default(omit, true) }}"
+  loop: "{{ services_entries }}"
+  loop_control:
+    label: "{{ item.name }} ({{ item.state }})"
+  tags: [services, brew]

@@ -10,9 +10,9 @@ reference is [`../../ansible/README.md`](../../ansible/README.md).
    ([`01-architecture.md`](01-architecture.md)):
    - OS-wide on every Arch host → `group_vars/arch/apps.yml` (`os_apps`).
    - OS-wide on every macOS host → `group_vars/darwin/apps.yml` (`os_apps`).
-   - Tied to a desktop/feature profile → the relevant key under
-     `profile_apps` in `group_vars/all/profiles.yml` (and the recipe's
-     `profiles:` list).
+   - Tied to a desktop/feature profile → the `apps:` list of the relevant
+     profile under `profiles_catalog` in `group_vars/all/profiles.yml` (and
+     the recipe's `profiles:` list).
 
 2. Decide whether it needs a **catalog entry**
    (`group_vars/all/package_catalog.yml`):
@@ -78,14 +78,14 @@ Rules:
 
 ## Add a new profile
 
-1. Add a key under `profile_apps` in `group_vars/all/profiles.yml` with its
-   list of logical app names.
-2. Add any per-OS routing those apps need to the catalog.
+1. Add a key under `profiles_catalog` in `group_vars/all/profiles.yml` with an
+   `apps:` list of logical app names (and an optional `services:` list).
+2. Add any per-OS routing those apps/services need to the catalogs.
 3. Opt machines in by adding the profile name to the `profiles:` list on the
    relevant recipe (`recipes/personal_workstation.yml`,
    `recipes/mac_turing.yml`, …), or override on the host.
    Unknown profile names are silently ignored, so removing a profile from
-   `profile_apps` won't break hosts that still reference it.
+   `profiles_catalog` won't break hosts that still reference it.
 
 ## Add a new provider
 

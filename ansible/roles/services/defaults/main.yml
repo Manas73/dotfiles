@@ -1,0 +1,8 @@
+---
+# Defaults for the services role.
+
+# Resolve intent but skip all manager actions (used by validate.yml).
+services_validate_only: false
+
+# brew binary for homebrew_services. Empty = module default.
+services_brew_path: ""
