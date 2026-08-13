@@ -20,7 +20,7 @@ Providers    tasks/{pacman,aur,brew}.yml  # brew = formulae + casks
 3. Resolve through the catalog into per-provider buckets.
 4. Include the matching provider task file for each non-empty bucket
    (fixed order: pacman → aur → brew). Homebrew formulae and casks
-   share one Brewfile.
+   use community.general.homebrew / homebrew_cask.
 
 ## Does not
 

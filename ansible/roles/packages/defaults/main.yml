@@ -24,6 +24,3 @@ packages_aur_refresh_databases: true
 # Missing brew is installed with the official NONINTERACTIVE script.
 packages_brew_path: ""
 packages_brew_update: true
-# brew bundle --jobs. `auto` = CPU cores, max 4. Override with 1/4/8.
-packages_brew_jobs: auto
-packages_brewfile: "{{ ansible_facts['user_dir'] }}/.cache/dotfiles/Brewfile"

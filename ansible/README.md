@@ -166,7 +166,7 @@ package_catalog:
     darwin: { provider: brew,   packages: [node, nvm] }
 
   # Third-party tap: declare taps next to the provider. Formula names
-  # stay unqualified; brew.yml writes them into the Brewfile.
+  # stay unqualified; brew.yml taps them via community.general.homebrew_tap.
   fresh-editor:
     darwin: { provider: brew, packages: [fresh-editor], taps: [sinelaw/fresh] }
 
@@ -232,7 +232,7 @@ Each file under `roles/packages/tasks/` installs for one package manager:
 |------|-----|--------------------|
 | `pacman.yml` | Archlinux | Verifies pacman; optional `-Sy` / `-Syu`. |
 | `aur.yml` | Archlinux | Clones `yay-bin` and builds it when yay is missing. |
-| `brew.yml` | Darwin | Official installer to `/opt/homebrew` (or `/usr/local`); one Brewfile / `brew bundle`. |
+| `brew.yml` | Darwin | Official installer; `community.general.homebrew` / `homebrew_tap` / `homebrew_cask`. |
 
 Shared contract: input `provider_packages` (list), no-op when empty, assert
 OS family, idempotent install, side effects limited to packages.
@@ -329,7 +329,7 @@ Copy `recipes/personal_workstation.yml` (or `mac_turing.yml`), edit
 | `packages` | Whole packages role (all providers).                 |
 | `pacman`   | Pacman task file only.                               |
 | `aur`      | AUR task file only.                                  |
-| `brew`     | Homebrew formulae + casks (one Brewfile).            |
+| `brew`     | Homebrew formulae + casks.                           |
 | `cask`     | Same as `brew` (merged job).                         |
 | `arch`     | All arch-OS package work.                            |
 | `darwin`   | All darwin-OS package work.                          |
