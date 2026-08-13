@@ -7,9 +7,8 @@
 -- (Control+Option+Command) to stay consistent and avoid clashing with native
 -- Command shortcuts.
 
--- Global modifier tables, analogous to Hyprland's mainMod / altMod.
-_G.mainMod = { "cmd", "alt", "ctrl" }         -- Hyprland SUPER
-_G.altMod  = { "cmd", "alt", "ctrl" }  -- Hyprland SUPER + ALT
+-- Global modifier table, analogous to Hyprland's mainMod.
+_G.mainMod = { "cmd", "ctrl" }         -- Hyprland SUPER
 
 -- exec_cmd(cmd): run a shell command detached, like hl.dsp.exec_cmd.
 -- Runs through the login shell so PATH/`open` resolve as in a terminal.
@@ -36,8 +35,13 @@ end
 --
 -- define_submap(name, entryMods, entryKey, builder)
 --   builder(m) receives the modal; call m:entry(key, label, fn) to add actions.
+--
+-- The entry chord is bound straight into the modal via
+-- hs.hotkey.modal.new(entryMods, entryKey), so pressing the chord enters the
+-- submap. Each action fires then exits (auto-reset); escape exits without
+-- acting.
 local function define_submap(name, entryMods, entryKey, builder)
-  local modal = hs.hotkey.modal.new()
+  local modal = hs.hotkey.modal.new(entryMods, entryKey)
   local hints = {}
 
   -- m:entry(key, label, fn) — add an auto-exiting action to the submap.
@@ -61,8 +65,6 @@ local function define_submap(name, entryMods, entryKey, builder)
     hs.alert.closeAll()
   end
 
-  -- Entry hotkey opens the submap.
-  bind(entryMods, entryKey, function() modal:enter() end)
   return modal
 end
 

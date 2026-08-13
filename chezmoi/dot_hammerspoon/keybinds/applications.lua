@@ -4,18 +4,12 @@
 
 local bind     = hs_helper.bind
 local exec_cmd = hs_helper.exec_cmd
+local s        = settingsDir
 
 -- Application launchers (Hyprland: mainMod + Return/D/B/M/G).
-bind(mainMod, "return", exec_cmd(terminal))
-bind(mainMod, "d",      exec_cmd(fileManager))
-bind(mainMod, "b",      exec_cmd(browser))
-bind(mainMod, "m",      exec_cmd(workMessenger))
-bind(mainMod, "g",      exec_cmd(gitClient))
-
--- Hyprland mainMod + Space is `rofi -show drun`. macOS has no rofi; the native
--- app launcher is Spotlight (Cmd+Space) or Alfred (omniwm). Left unbound to
--- avoid shadowing those.
-
--- Power menu (Hyprland: mainMod + Delete). Uses the .settings powermenu.sh
--- stub on macOS; wire a real one there if desired.
-bind(mainMod, "delete", exec_cmd(powerMenu))
+bind(mainMod, "return", exec_cmd(s .. "/terminal.sh"))
+bind(mainMod, "d",      exec_cmd(s .. "/file_manager.sh"))
+bind(mainMod, "b",      exec_cmd(s .. "/browser.sh"))
+bind(mainMod, "m",      exec_cmd(s .. "/work_messenger.sh"))
+bind(mainMod, "g",      exec_cmd(s .. "/git_client.sh"))
+bind(mainMod, "delete", exec_cmd(s .. "/powermenu.sh"))

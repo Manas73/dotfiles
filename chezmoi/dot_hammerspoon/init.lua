@@ -9,9 +9,11 @@
 --   * submap menus          (keybinds/submaps.lua)
 -- both of which shell out to ~/.config/.settings/*.sh, exactly like Hyprland.
 
--- Shared helpers and program paths first (exposed as globals for the modules).
+-- Settings-script dir, exposed as a global for the keybinding modules.
+_G.settingsDir = os.getenv("HOME") .. "/.config/.settings"
+
+-- Shared helpers first (defines hs_helper + mainMod).
 require("keybinds.helper")
-require("keybinds.programs")
 
 -- Keybinding modules.
 require("keybinds.applications")
