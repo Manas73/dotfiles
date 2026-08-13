@@ -15,6 +15,7 @@ os_apps:
   # ----------------------------------------------------------------
   - bazecor
   - docker
+  - ghostty
   - google-chrome
   - kanata
   - vivaldi
