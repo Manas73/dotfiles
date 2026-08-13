@@ -99,6 +99,23 @@
   when: (provider_taps | default([])) | length > 0
   tags: [packages, brew, cask, darwin]
 
+# Homebrew's tap-trust feature ignores formulae/casks/commands from
+# third-party taps until the tap is explicitly trusted. Trust only the
+# taps we declare (not a global opt-out) so their packages install.
+- name: Trust declared third-party Homebrew taps
+  ansible.builtin.command:
+    cmd: "{{ homebrew_prefix }}/bin/brew trust {{ item }}"
+  loop: "{{ provider_taps | unique | sort }}"
+  register: brew_trust
+  changed_when: "'Trusted' in (brew_trust.stdout | default(''))"
+  failed_when:
+    - brew_trust.rc != 0
+    - "'already trusted' not in (brew_trust.stderr | default('') | lower)"
+  when:
+    - (provider_taps | default([])) | length > 0
+    - not ansible_check_mode
+  tags: [packages, brew, cask, darwin]
+
 - name: Install Homebrew formulae
   community.general.homebrew:
     name: "{{ provider_packages | unique | sort }}"
@@ -110,6 +127,10 @@
   community.general.homebrew_cask:
     name: "{{ provider_casks | unique | sort }}"
     state: present
+    # Adopt apps already present in /Applications (e.g. Chrome installed
+    # manually) instead of failing on the existing-app conflict.
+    accept_external_apps: true
+    install_options: adopt
   when: provider_casks | length > 0
   tags: [packages, brew, cask, darwin]
 
