@@ -1,1 +1,1 @@
-zed
+open -a Zed

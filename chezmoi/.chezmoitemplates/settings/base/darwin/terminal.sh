@@ -1,1 +1,1 @@
-ghostty
+ open -a Ghostty
