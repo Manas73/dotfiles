@@ -46,7 +46,6 @@ key.txt.age
 
 {{- if ne .chezmoi.os "darwin" }}
 .config/omniwm
-.config/sketchybar
 {{- end }}
 
 {{/* Personal SSH keys only on profile=personal. Any other profile (turing, …) skips these so work machines stay clean. */}}

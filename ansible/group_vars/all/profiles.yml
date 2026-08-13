@@ -154,10 +154,7 @@ profiles_catalog:
     apps:
       - alfred
       - karabiner-elements
-      - sketchybar
       - omniwm
-    services:
-      - sketchybar
 
   virtualization:
     apps:

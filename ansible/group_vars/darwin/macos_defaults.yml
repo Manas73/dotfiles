@@ -14,7 +14,7 @@ macos_defaults:
   - domain: NSGlobalDomain
     key: _HIHideMenuBar
     type: bool
-    value: true
+    value: false
 
   - domain: NSGlobalDomain
     key: AppleInterfaceStyle
