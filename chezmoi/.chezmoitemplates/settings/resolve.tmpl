@@ -2,12 +2,17 @@
   settings/resolve — pick a settings partial for the current host/OS.
 
   Layout under .chezmoitemplates/settings/:
-    base/<osid>/<file>        os-keyed defaults (required)
+    base/<osid>/<file>        os-keyed defaults
     hosts/<hostname>/<file>   optional per-host override (whole-file)
 
   Resolution (whole-file override):
     1. hosts/<hostname>/<file>   if it exists  -> use it
-    2. base/<osid>/<file>        otherwise     -> use it
+    2. base/<osid>/<file>        if it exists  -> use it
+    3. neither exists            -> safe no-op stub
+
+  Case 3 covers "host-only" settings (e.g. work_messenger, which lives only
+  under a host override): the target file still exists on every host so
+  consumers can always call it, but it does nothing where undefined.
 
   Usage from a dispatcher .tmpl:
     {{ includeTemplate "settings/resolve.tmpl" (dict "file" "terminal.sh" "ctx" .) }}
@@ -22,8 +27,13 @@
 {{- $hostTmpl := printf "settings/hosts/%s/%s" $host $file -}}
 {{- $baseTmpl := printf "settings/base/%s/%s" $osid $file -}}
 {{- $hostFile := printf "%s/.chezmoitemplates/%s" $src $hostTmpl -}}
+{{- $baseFile := printf "%s/.chezmoitemplates/%s" $src $baseTmpl -}}
 {{- if stat $hostFile -}}
 {{- includeTemplate $hostTmpl $ctx -}}
-{{- else -}}
+{{- else if stat $baseFile -}}
 {{- includeTemplate $baseTmpl $ctx -}}
-{{- end -}}
+{{- else -}}
+#!/usr/bin/env bash
+# No {{ $file }} defined for host {{ $host }} (osid {{ $osid }}). No-op.
+exit 0
+{{ end -}}
