@@ -400,7 +400,9 @@ package_catalog:
     arch: { provider: aur, packages: [selectdefaultapplication-git] }
 
   sketchybar:
-    darwin: { provider: brew, packages: [sketchybar], taps: [FelixKratz/formulae] }
+    darwin:
+      - { provider: brew, packages: [sketchybar], taps: [FelixKratz/formulae] }
+      - { provider: cask, packages: [font-hack-nerd-font] }
 
   slack:
     arch:   { provider: aur,  packages: [slack-desktop] }
