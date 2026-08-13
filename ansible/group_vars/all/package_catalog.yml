@@ -16,6 +16,9 @@ package_catalog:
     arch:   { provider: pacman, packages: [alacritty] }
     darwin: { provider: cask,   packages: [alacritty] }
 
+  alfred:
+    darwin: { provider: cask, packages: [alfred] }
+
   atuin:
     arch:   { provider: pacman, packages: [atuin] }
     darwin: { provider: brew,   packages: [atuin] }
@@ -211,6 +214,9 @@ package_catalog:
     arch:   { provider: aur, packages: [kanata-bin] }
     darwin: { provider: brew, packages: [kanata] }
 
+  karabiner-elements:
+    darwin: { provider: cask, packages: [karabiner-elements] }
+
   kcharselect:
     arch: { provider: pacman, packages: [kcharselect] }
 
@@ -392,6 +398,9 @@ package_catalog:
 
   selectdefaultapplication:
     arch: { provider: aur, packages: [selectdefaultapplication-git] }
+
+  sketchybar:
+    darwin: { provider: brew, packages: [sketchybar], taps: [FelixKratz/formulae] }
 
   slack:
     arch:   { provider: aur,  packages: [slack-desktop] }

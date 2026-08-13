@@ -127,7 +127,6 @@ profile_apps:
     - rofi-calc
     - rofi-emoji
     - rofi-greenclip
-    - rofi-wayland
     - sxhkd
     - xcb-util-cursor
     - xclip
@@ -142,6 +141,9 @@ profile_apps:
     - plasma5-integration
 
   omniwm:
+    - alfred
+    - karabiner-elements
+    - sketchybar
     - omniwm
 
   virtualization:
