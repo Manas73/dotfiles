@@ -1,0 +1,46 @@
+---
+# Manage self-servicing tools that own their daemon lifecycle via CLI
+# subcommands (e.g. skhd/yabai `--install-service` + `--start-service`), rather
+# than systemd or `brew services`. services_entries is the resolved `command`
+# bucket: list of {name, state, start, [install], [creates], [stop], [restart]}.
+#
+# No become: these register per-user launchd agents and must run as the primary
+# user. Runs on macOS only.
+
+- name: Assert this host is macOS (Darwin)
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Darwin'
+    fail_msg: command-manager service requested on a non-macOS host.
+    quiet: true
+  tags: [services, command]
+
+# Install step (optional). Idempotent when `creates` is given: skipped once the
+# launchd plist exists.
+- name: "Install service via command ({{ item.name }})"
+  ansible.builtin.command:
+    cmd: "{{ item.install }}"
+    creates: "{{ item.creates | default(omit) }}"
+  loop: "{{ services_entries | selectattr('install', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+  tags: [services, command]
+
+# Lifecycle step. `changed_when: false` because these CLIs are already
+# idempotent (starting a running service is a no-op) and expose no reliable
+# change signal; re-running is safe.
+- name: "Apply service state via command ({{ item.name }})"
+  ansible.builtin.command:
+    cmd: >-
+      {{
+        {
+          'started': item.start,
+          'stopped': item.stop | default(''),
+          'restarted': item.restart | default(''),
+        }[item.state]
+      }}
+  loop: "{{ services_entries }}"
+  loop_control:
+    label: "{{ item.name }} ({{ item.state }})"
+  changed_when: false
+  tags: [services, command]

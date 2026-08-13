@@ -2,7 +2,7 @@
 
 Resolves logical service names against group_vars/all/service_catalog.yml
 into per-manager buckets:
-    {"systemd_user": [...], "systemd_system": [...], "brew": [...]}
+    {"systemd_user": [...], "systemd_system": [...], "brew": [...], "command": [...]}
 Each entry is a fully-specified dict consumed by roles/services/tasks/.
 See service_catalog.yml for the schema. Exhaustive catalog; missing OS key
 is a silent skip.
@@ -14,10 +14,11 @@ from typing import Any
 
 from ansible.errors import AnsibleFilterError
 
-VALID_MANAGERS = {"systemd", "brew"}
+VALID_MANAGERS = {"systemd", "brew", "command"}
 VALID_SCOPES = {"system", "user"}
 SYSTEMD_STATES = {"started", "stopped", "restarted", "reloaded"}
 BREW_STATES = {"started", "stopped", "restarted"}
+COMMAND_STATES = {"started", "stopped", "restarted"}
 
 
 class ServiceCatalogError(AnsibleFilterError):
@@ -95,6 +96,70 @@ def _ingest_brew(
     buckets.setdefault("brew", []).append({"name": unit, "state": state})
 
 
+def _ingest_command(
+    name: str,
+    target_os: str,
+    block: dict[str, Any],
+    buckets: dict[str, list[dict[str, Any]]],
+) -> None:
+    """Self-servicing tools that manage their own daemon (e.g. skhd, yabai).
+
+    Schema:
+      manager: command
+      name:    logical unit name (for logging)
+      start:   command run to start the service        (required)
+      install: command run once before start           (optional)
+      creates: path that, if it exists, skips `install` (optional; idempotency)
+      restart: command for state=restarted             (optional)
+      stop:    command for state=stopped               (optional)
+      state:   started | stopped | restarted           (default started)
+    Commands are strings executed by the command.yml task via the shell.
+    """
+    unit = _require_name(name, target_os, block)
+
+    for forbidden in ("scope", "enabled"):
+        if forbidden in block:
+            raise ServiceCatalogError(
+                f"Service '{name}'.{target_os} manager 'command' does not "
+                f"support {forbidden!r}."
+            )
+
+    state = block.get("state", "started")
+    if state not in COMMAND_STATES:
+        raise ServiceCatalogError(
+            f"Service '{name}'.{target_os} has invalid command state "
+            f"{state!r}. Valid: {sorted(COMMAND_STATES)}."
+        )
+
+    def _opt_str(key: str) -> str | None:
+        val = block.get(key)
+        if val is None:
+            return None
+        if not isinstance(val, str) or not val:
+            raise ServiceCatalogError(
+                f"Service '{name}'.{target_os}.{key} must be a non-empty "
+                f"string when set."
+            )
+        return val
+
+    entry: dict[str, Any] = {"name": unit, "state": state}
+    for key in ("start", "stop", "restart", "install", "creates"):
+        val = _opt_str(key)
+        if val is not None:
+            entry[key] = val
+
+    # Each state needs a command to run; fail early if the catalog can't honour
+    # the requested state.
+    required = {"started": "start", "stopped": "stop", "restarted": "restart"}[state]
+    if required not in entry:
+        raise ServiceCatalogError(
+            f"Service '{name}'.{target_os} manager 'command' with state "
+            f"{state!r} requires a {required!r} command."
+        )
+
+    buckets.setdefault("command", []).append(entry)
+
+
 def _ingest_block(
     name: str,
     target_os: str,
@@ -120,8 +185,10 @@ def _ingest_block(
 
     if manager == "systemd":
         _ingest_systemd(name, target_os, block, buckets)
-    else:
+    elif manager == "brew":
         _ingest_brew(name, target_os, block, buckets)
+    else:
+        _ingest_command(name, target_os, block, buckets)
 
 
 def _resolve_one(

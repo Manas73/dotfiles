@@ -23,8 +23,3 @@ os_apps:
   - kanata
   - vivaldi
   - vlc
-
-  # ----------------------------------------------------------------
-  # macOS-only GUI apps via cask (add as Mac onboarding progresses).
-  # Examples: iterm2, rectangle, karabiner-elements, alt-tab
-  # ----------------------------------------------------------------

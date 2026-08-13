@@ -97,6 +97,18 @@
     - (services_resolved.brew | default([])) | length > 0
   tags: [services, brew, darwin]
 
+- name: Manage command-managed services (self-servicing tools)
+  ansible.builtin.include_tasks:
+    file: command.yml
+    apply:
+      tags: [services, command, darwin]
+  vars:
+    services_entries: "{{ services_resolved.command | default([]) }}"
+  when:
+    - not (services_validate_only | default(false) | bool)
+    - (services_resolved.command | default([])) | length > 0
+  tags: [services, command, darwin]
+
 - name: Report resolved services (validate-only)
   ansible.builtin.debug:
     msg: >-

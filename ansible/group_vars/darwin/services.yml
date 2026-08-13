@@ -3,4 +3,5 @@
 # group_vars/all/service_catalog.yml. Same var name (os_services) on every
 # OS group. Cross-platform bundles live in profiles_catalog[].services.
 
-os_services: []
+os_services:
+  - skhd   # hotkey daemon (config: ~/.config/skhd/skhdrc)

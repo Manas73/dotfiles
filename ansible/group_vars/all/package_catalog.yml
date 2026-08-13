@@ -183,9 +183,6 @@ package_catalog:
   gwenview:
     arch: { provider: pacman, packages: [gwenview] }
 
-  hammerspoon:
-    darwin: { provider: cask,   packages: [hammerspoon] }
-
   headsetcontrol:
     arch: { provider: pacman, packages: [headsetcontrol] }
 
@@ -407,6 +404,9 @@ package_catalog:
 
   selectdefaultapplication:
     arch: { provider: aur, packages: [selectdefaultapplication-git] }
+
+  skhd:
+    darwin: { provider: brew, packages: [skhd-zig], taps: [jackielii/tap] }
 
   slack:
     arch:   { provider: aur,  packages: [slack-desktop] }

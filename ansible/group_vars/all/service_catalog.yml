@@ -7,12 +7,26 @@
 #   systemd (Linux) - name, scope (system|user, default system),
 #                      enabled (bool, default true), state (optional).
 #   brew    (macOS) - name, state (default started). No scope/enabled.
+#   command (macOS) - self-servicing tools that own their daemon via CLI
+#                      subcommands (skhd/yabai --install-service etc). Keys:
+#                      name, start (req), install + creates (optional,
+#                      idempotent), restart, stop, state (default started).
+#                      No scope/enabled.
 # Per-OS value is one block or a list of blocks. Exhaustive catalog;
 # missing OS key = silent skip.
 
 service_catalog:
-  sketchybar:
-    darwin: { manager: brew, name: sketchybar, state: started }
+  # skhd manages its own launchd agent via CLI subcommands, not `brew services`.
+  skhd:
+    darwin:
+      manager: command
+      name: skhd
+      install: skhd --install-service
+      creates: "{{ ansible_facts['user_dir'] }}/Library/LaunchAgents/com.koekeishiya.skhd.plist"
+      start: skhd --start-service
+      restart: skhd --restart-service
+      stop: skhd --stop-service
+      state: started
 
   docker:
     arch: { manager: systemd, name: docker.socket, scope: system, enabled: true }

@@ -153,8 +153,8 @@ profiles_catalog:
   omniwm:
     apps:
       - alfred
-      - hammerspoon
       - karabiner-elements
+      - skhd
       - omniwm
 
   virtualization:
