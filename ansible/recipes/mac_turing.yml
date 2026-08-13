@@ -20,9 +20,5 @@ profiles:
   - cloud
   - development
 
-apps:
-  - slack
-  - zoom
-
 # Optional per-recipe defaults (appended to group_vars/darwin/macos_defaults.yml).
 # macos_defaults_extra: []
