@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+
+# sketchybar config replicating my waybar layout for macOS (omniwm).
+#
+# waybar layout:
+#   left:   launcher, workspaces (1-5), submap/mode
+#   center: clock
+#   right:  tray, notification, pulseaudio, vpn, network, memory, cpu
+#
+# NOTE: omniwm does not expose per-workspace state to sketchybar the way
+# yabai/aerospace do, so the workspace items are static clickable buttons that
+# switch workspaces via omniwm's Hyper+<n> hotkeys (Ctrl+Option+Cmd+<n>).
+
+# ---------------------------------------------------------------------------
+# Colors (dark, purple/pink accent to match omniwm)
+# ---------------------------------------------------------------------------
+export SURFACE=0xff1e1e2a       # module background
+export PRIMARY=0xffb0589c       # workspaces / accent (omniwm accentColor)
+export SECONDARY=0xffcdd6f4     # default foreground text
+export ON_SECONDARY=0xff313244  # inactive workspace bg
+export ERROR=0xffe25563         # mode / urgent
+export TRANSPARENT=0x00000000
+
+FONT="JetBrainsMono Nerd Font Propo"
+ICON_FONT="JetBrainsMono Nerd Font Propo"
+
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+
+# ---------------------------------------------------------------------------
+# Bar
+# ---------------------------------------------------------------------------
+sketchybar --bar \
+  height=32 \
+  margin=7 \
+  y_offset=7 \
+  corner_radius=16 \
+  blur_radius=0 \
+  position=top \
+  color=$TRANSPARENT \
+  padding_left=10 \
+  padding_right=10 \
+  sticky=on
+
+# ---------------------------------------------------------------------------
+# Defaults (pill-shaped modules matching waybar style)
+# ---------------------------------------------------------------------------
+sketchybar --default \
+  updates=when_shown \
+  icon.font="$ICON_FONT:Bold:16.0" \
+  icon.color=$SECONDARY \
+  label.font="$FONT:Semibold:14.0" \
+  label.color=$SECONDARY \
+  background.color=$SURFACE \
+  background.corner_radius=50 \
+  background.height=26 \
+  background.padding_left=5 \
+  background.padding_right=5 \
+  padding_left=6 \
+  padding_right=6
+
+# ===========================================================================
+# LEFT: launcher
+# ===========================================================================
+sketchybar --add item launcher left \
+  --set launcher \
+  icon="󰣇" \
+  icon.font="$ICON_FONT:Bold:18.0" \
+  icon.color=$PRIMARY \
+  label.drawing=off \
+  padding_left=10 \
+  padding_right=10 \
+  click_script="open -a Raycast 2>/dev/null || open -a Spotlight 2>/dev/null"
+
+# ===========================================================================
+# LEFT: workspaces (1-5), switch via omniwm Hyper+<n> hotkeys
+# ===========================================================================
+WS_ICONS=("" "" "" "" "")
+for i in "${!WS_ICONS[@]}"; do
+  wsnum=$((i + 1))
+  sketchybar --add item "space.$wsnum" left \
+    --set "space.$wsnum" \
+    icon="${WS_ICONS[$i]}" \
+    icon.font="$ICON_FONT:Bold:18.0" \
+    icon.color=$SECONDARY \
+    label.drawing=off \
+    background.color=$ON_SECONDARY \
+    background.corner_radius=5 \
+    background.padding_left=3 \
+    background.padding_right=3 \
+    padding_left=2 \
+    padding_right=2 \
+    click_script="\"$PLUGIN_DIR/space.sh\" $wsnum"
+done
+
+# ===========================================================================
+# LEFT: mode / layout indicator (waybar submap analog)
+# ===========================================================================
+sketchybar --add item mode left \
+  --set mode \
+  icon.drawing=off \
+  label="dwindle" \
+  label.color=$SURFACE \
+  background.color=$ERROR \
+  background.corner_radius=10 \
+  update_freq=2 \
+  script="$PLUGIN_DIR/mode.sh" \
+  --subscribe mode front_app_switched
+
+# ===========================================================================
+# CENTER: clock
+# ===========================================================================
+sketchybar --add item clock center \
+  --set clock \
+  icon="" \
+  update_freq=1 \
+  script="$PLUGIN_DIR/clock.sh" \
+  click_script="$PLUGIN_DIR/clock.sh toggle"
+
+# ===========================================================================
+# RIGHT: cpu, memory, network, vpn, volume, notification
+# (added right-to-left so visual order matches waybar's right cluster)
+# ===========================================================================
+sketchybar --add item cpu right \
+  --set cpu \
+  icon="" \
+  icon.color=$SECONDARY \
+  update_freq=5 \
+  script="$PLUGIN_DIR/cpu.sh"
+
+sketchybar --add item memory right \
+  --set memory \
+  icon="" \
+  icon.color=$SECONDARY \
+  update_freq=15 \
+  script="$PLUGIN_DIR/memory.sh"
+
+sketchybar --add item network right \
+  --set network \
+  icon="" \
+  update_freq=5 \
+  script="$PLUGIN_DIR/network.sh"
+
+sketchybar --add item vpn right \
+  --set vpn \
+  icon="" \
+  drawing=off \
+  update_freq=3 \
+  script="$PLUGIN_DIR/vpn.sh"
+
+sketchybar --add item volume right \
+  --set volume \
+  icon="󰓃" \
+  update_freq=2 \
+  script="$PLUGIN_DIR/volume.sh" \
+  click_script="osascript -e 'set volume output muted (not (output muted of (get volume settings)))'" \
+  --subscribe volume volume_change
+
+sketchybar --add item notification right \
+  --set notification \
+  icon="󰂜" \
+  icon.font="$ICON_FONT:Bold:15.0" \
+  label.drawing=off \
+  click_script="open -b com.apple.notificationcenterui 2>/dev/null || osascript -e 'tell application \"System Events\" to key code 0 using {control down, option down}'"
+
+# ---------------------------------------------------------------------------
+sketchybar --update
