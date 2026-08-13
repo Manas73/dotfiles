@@ -35,6 +35,7 @@ return to the default mode. */ -}}
 # ------------------------------------------------------------------------------
 # Application launchers (Hyprland: mainMod + Return/D/B/M/G, + Delete).
 # ------------------------------------------------------------------------------
+{{ $mainMod }} - space : {{ $s }}/launcher.sh
 {{ $mainMod }} - return : {{ $s }}/terminal.sh
 {{ $mainMod }} - d      : {{ $s }}/file_manager.sh
 {{ $mainMod }} - b      : {{ $s }}/browser.sh
@@ -50,7 +51,7 @@ return to the default mode. */ -}}
 # Entry switches into `menus`; each key runs a script then `skhd -k "escape"`
 # fires the `escape ; default` binding below to leave the mode.
 # ------------------------------------------------------------------------------
-{{ $mainMod }} - space ; menus
+{{ $mainMod }} + ralt - space ; menus
 
 menus < a : {{ $s }}/audio_menu.sh        ; skhd -k "escape"
 menus < m : {{ $s }}/microphone_menu.sh   ; skhd -k "escape"
