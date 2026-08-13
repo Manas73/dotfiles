@@ -183,6 +183,9 @@ package_catalog:
   gwenview:
     arch: { provider: pacman, packages: [gwenview] }
 
+  hammerspoon:
+    darwin: { provider: cask,   packages: [hammerspoon] }
+
   headsetcontrol:
     arch: { provider: pacman, packages: [headsetcontrol] }
 
