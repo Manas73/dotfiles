@@ -44,10 +44,6 @@ key.txt.age
 .config/xdg-desktop-portal
 {{- end }}
 
-{{- if ne .osid "linux-manjaro" }}
-.config/fish/conf.d/pyenv.fish
-{{- end }}
-
 {{- if ne .chezmoi.os "darwin" }}
 {{- end }}
 

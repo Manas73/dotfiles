@@ -51,10 +51,6 @@ set ZELLIJ_AUTO_ATTACH true
 # set ZELLIJ_AUTO_EXIT false
 
 if status is-interactive
-    # Commands to run in interactive sessions can go here
-    set -Ux PYENV_ROOT $HOME/.pyenv
-    set -U fish_user_paths $PYENV_ROOT/bin $fish_user_paths
-
     # Read the content of terminal.sh into a variable
     set terminal_name (cat ~/.config/.settings/terminal.sh | string trim)
 
