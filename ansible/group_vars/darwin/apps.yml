@@ -3,8 +3,9 @@
 #
 # Variable name is always `os_apps` (same on every OS group). Resolved by
 # roles/packages against group_vars/all/package_catalog.yml, then
-# dispatched to brew or cask. Names not in the catalog fall through to
-# brew with the same name verbatim.
+# dispatched to brew or cask. The catalog is exhaustive: every name here
+# must have an entry in package_catalog.yml, or resolution fails. There is
+# no implicit fall-through to a default provider.
 #
 # Scope: macOS-specific apps only. Cross-platform CLI tools live in the
 # `cli` profile; recipes opt in via `profiles:`.

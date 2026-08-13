@@ -33,10 +33,12 @@ Rules:
   a list of such mappings. The list form is for mixed providers on one OS.
 * Optional ``taps:`` (list of ``user/repo`` strings) is valid only on
   ``brew`` / ``cask`` blocks. brew.yml / cask.yml tap them before install.
-* An app whose logical name is not in the catalog is routed verbatim to
-  ``default_provider`` (e.g. ``pacman`` on arch, ``brew`` on darwin).
+* The catalog is exhaustive: an app whose logical name is not in the
+  catalog raises ``CatalogError``. There is no default-provider
+  fall-through — every app in os_apps / profile_apps must be listed.
 * An app whose catalog entry has no key for ``target_os`` is silently
-  dropped: the user explicitly chose not to install it on this OS.
+  dropped: the user explicitly chose not to install it on this OS
+  (this is how Linux-only / macOS-only apps are expressed).
 * Output buckets are deduplicated and sorted for stable diffs.
 """
 
@@ -140,9 +142,16 @@ def _resolve_one(
 ) -> None:
     entry = catalog.get(name)
     if entry is None:
-        # Not in catalog: route verbatim to the default provider for this OS.
-        buckets.setdefault(default_provider, []).append(name)
-        return
+        # The catalog is exhaustive: every logical app referenced by os_apps
+        # or profile_apps must have an explicit entry. There is no implicit
+        # fall-through to a default provider. A missing entry is a bug in the
+        # catalog (or a typo in the intent lists), so fail loudly.
+        raise CatalogError(
+            f"resolve_catalog: app {name!r} has no entry in package_catalog. "
+            f"Add it to group_vars/all/package_catalog.yml (arch and/or darwin "
+            f"blocks). The catalog is exhaustive; there is no default-provider "
+            f"fall-through."
+        )
 
     if not isinstance(entry, dict):
         raise CatalogError(
@@ -187,7 +196,9 @@ def resolve_catalog(
         apps: list of logical app names contributed by the host's groups.
         catalog: the ``package_catalog`` mapping.
         target_os: ``"arch"``, ``"darwin"``, ... matches catalog per-OS keys.
-        default_provider: fallback provider for names absent from the catalog.
+        default_provider: retained for signature/wiring compatibility and
+            still validated, but no longer used for fall-through — the
+            catalog is exhaustive and uncatalogued apps raise CatalogError.
 
     Returns:
         ``{"packages": {provider: [pkg, ...]}, "taps": {provider: [tap, ...]}}``

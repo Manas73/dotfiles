@@ -136,7 +136,6 @@ profile_apps:
 
   kde:
     - dolphin
-    - dolphin-plugins
     - gwenview
     - kcharselect
     - plasma-x11-session
