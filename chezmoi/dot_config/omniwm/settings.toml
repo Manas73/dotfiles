@@ -136,20 +136,20 @@ mode = "macOS"
 
 [statusBar]
 showAppNames = false
-showWorkspaceName = true
+showWorkspaceName = false
 useWorkspaceId = false
 
 [workspaceBar]
 backgroundOpacity = 0.05
 deduplicateAppIcons = false
-enabled = false
+enabled = true
 excludedBundleIDs = []
 height = 30.0
 hideEmptyWorkspaces = false
 notchActiveZoneWidth = 100.0
 notchMode = "splitActiveRight"
 position = "overlappingMenuBar"
-reserveLayoutSpace = false
+reserveLayoutSpace = true
 revealHoldMilliseconds = 200.0
 revealModifier = "off"
 showFloatingWindows = false
