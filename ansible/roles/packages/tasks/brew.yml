@@ -75,7 +75,7 @@
 
 - name: Set Homebrew prefix
   ansible.builtin.set_fact:
-    homebrew_prefix: "{{ '/opt/homebrew' if ansible_architecture == 'arm64' else '/usr/local' }}"
+    homebrew_prefix: "{{ '/opt/homebrew' if ansible_facts['architecture'] == 'arm64' else '/usr/local' }}"
   tags: [packages, brew, cask, darwin]
 
 - name: Ensure Homebrew is in PATH
