@@ -1,0 +1,7 @@
+---
+# Passphrase used to decrypt the age identity (chezmoi/key.txt.age).
+#
+# Empty by default. The dotfiles/site playbooks collect it once via
+# vars_prompt and pass it in only when the age identity is missing and
+# the encrypted key exists. When empty, the decrypt task is skipped.
+chezmoi_age_passphrase: ""

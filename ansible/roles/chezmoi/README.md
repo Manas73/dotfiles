@@ -42,7 +42,11 @@ From the host's recipe + inventory (unprefixed):
 
 ## Interactive Prompts
 
-The role is non-interactive except for one case: if `~/.config/chezmoi/key.txt` is missing and the encrypted `key.txt.age` is present in the source repo, the role runs `chezmoi age decrypt --passphrase`, which prompts once for the passphrase. Subsequent runs skip this task.
+The role is non-interactive except for one case: if `~/.config/chezmoi/key.txt` is missing and the encrypted `key.txt.age` is present in the source repo, the age identity must be decrypted with a passphrase.
+
+The playbooks (`dotfiles.yml`, `site.yml`) collect this once via `vars_prompt` (`chezmoi_age_passphrase`). Leave the prompt blank if the key already exists — the role skips decryption when the passphrase is empty. Because Ansible has no controlling TTY, the role invokes `chezmoi --no-tty age decrypt --passphrase` and feeds the passphrase on stdin rather than letting chezmoi open `/dev/tty` (which fails with "could not open a new TTY"). The decrypt task is `no_log: true`. Subsequent runs skip this task since `key.txt` already exists.
+
+For non-interactive runs, pass `-e chezmoi_age_passphrase=...` (mind shell history) or supply it via an Ansible Vault-encrypted variable.
 
 ## Rendered Output
 

@@ -62,17 +62,40 @@
     path: "{{ chezmoi_source_path }}/key.txt.age"
   register: chezmoi_age_identity_encrypted_stat
 
-- name: Decrypt the age identity (interactive passphrase prompt)
-  ansible.builtin.command: >-
-    chezmoi age decrypt
-    --output {{ chezmoi_age_identity | quote }}
-    --passphrase
-    {{ (chezmoi_source_path ~ '/key.txt.age') | quote }}
-  args:
-    creates: "{{ chezmoi_age_identity }}"
+- name: Fail fast if the age identity is missing but no passphrase was provided
+  ansible.builtin.fail:
+    msg: >-
+      The age identity ({{ chezmoi_age_identity }}) is missing and the
+      encrypted key.txt.age is present, but no passphrase was supplied.
+      Re-run the playbook and enter the passphrase at the prompt, or pass
+      -e chezmoi_age_passphrase=... (avoid leaving it in shell history).
   when:
     - not chezmoi_age_identity_stat.stat.exists
     - chezmoi_age_identity_encrypted_stat.stat.exists
+    - chezmoi_age_passphrase | length == 0
+
+# chezmoi's --passphrase prompt reads from /dev/tty, which does not exist
+# under Ansible ("could not open a new TTY"). --no-tty makes chezmoi read
+# the passphrase from stdin instead, which we feed from the vars_prompt var.
+- name: Decrypt the age identity (passphrase via stdin, no TTY)
+  ansible.builtin.command:
+    argv:
+      - chezmoi
+      - --no-tty
+      - age
+      - decrypt
+      - --output
+      - "{{ chezmoi_age_identity }}"
+      - --passphrase
+      - "{{ chezmoi_source_path }}/key.txt.age"
+    stdin: "{{ chezmoi_age_passphrase }}"
+    stdin_add_newline: true
+    creates: "{{ chezmoi_age_identity }}"
+  no_log: true
+  when:
+    - not chezmoi_age_identity_stat.stat.exists
+    - chezmoi_age_identity_encrypted_stat.stat.exists
+    - chezmoi_age_passphrase | length > 0
 
 - name: Enforce age identity permissions
   ansible.builtin.file:
