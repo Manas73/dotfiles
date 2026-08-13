@@ -232,7 +232,7 @@ Each file under `roles/packages/tasks/` installs for one package manager:
 |------|-----|--------------------|
 | `pacman.yml` | Archlinux | Verifies pacman; optional `-Sy` / `-Syu`. |
 | `aur.yml` | Archlinux | Clones `yay-bin` and builds it when yay is missing. |
-| `brew.yml` | Darwin | Official or user-prefix Homebrew; one Brewfile / `brew bundle`. |
+| `brew.yml` | Darwin | Official installer to `/opt/homebrew` (or `/usr/local`); one Brewfile / `brew bundle`. |
 
 Shared contract: input `provider_packages` (list), no-op when empty, assert
 OS family, idempotent install, side effects limited to packages.

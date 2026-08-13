@@ -11,7 +11,8 @@ set VIRSH_DEFAULT_CONNECT_URI qemu:///system
 export VIRSH_DEFAULT_CONNECT_URI=qemu:///system
 
 {{- if eq .osid "darwin" }}
-# Homebrew: system prefix (admin install) or user prefix (work laptop).
+# Homebrew: official prefix first. Leftover ~/.local/homebrew is only
+# used if /opt/homebrew and /usr/local are absent.
 # Ansible never writes shell rc; this is the Chezmoi equivalent of
 # `eval "$(brew shellenv)"`.
 if test -x /opt/homebrew/bin/brew

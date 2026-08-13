@@ -77,7 +77,7 @@ Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.
 |------|-----|-----------|
 | `tasks/pacman.yml` | Archlinux | Verifies pacman; folds in multilib. |
 | `tasks/aur.yml` | Archlinux | Builds `yay-bin` when yay is missing. |
-| `tasks/brew.yml` | Darwin | Official or user-prefix Homebrew; one Brewfile for formulae and casks. |
+| `tasks/brew.yml` | Darwin | Official Homebrew installer (`/opt/homebrew` or `/usr/local`); one Brewfile for formulae and casks. |
 
 Each accepts `provider_packages`, no-ops on empty input, asserts the OS
 family, and installs idempotently.

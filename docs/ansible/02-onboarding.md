@@ -118,13 +118,16 @@ ansible-playbook playbooks/dotfiles.yml --limit <hostname>
 ## macOS
 
 Package dispatch and chezmoi rendering work on darwin. Homebrew
-bootstrap:
+is installed with the official script to `/opt/homebrew` (arm64)
+or `/usr/local` (Intel) so bottles work:
 
-- **`sudo -n true` works** — official installer to `/opt/homebrew`.
-  Being in the `admin` group is not enough; the installer cannot prompt
-  for a password under `NONINTERACTIVE`.
-- **Otherwise** (typical work laptop) — clone into `~/.local/homebrew`
-  (no sudo). Some casks that write to `/Applications` may still fail.
+```sh
+NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+The installer cannot prompt for sudo (Ansible closes stdin). Re-run
+with `--ask-become-pass` as a macOS Administrator; the role forwards
+that password via `SUDO_ASKPASS`.
 
 ```yaml
 darwin:
@@ -132,8 +135,7 @@ darwin:
     <hostname>:
       recipe: mac_turing
       gpu: none
-      # packages_brew_path: /opt/custom/bin/brew  # override system brew
-      # packages_brew_user_prefix: ~/homebrew     # override user prefix
+      # packages_brew_path: /opt/custom/bin/brew  # override official brew
 ```
 
 ## Add an OS family
