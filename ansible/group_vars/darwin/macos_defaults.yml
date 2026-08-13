@@ -12,6 +12,11 @@ macos_defaults:
 
   # --- NSGlobalDomain -------------------------------------------------
   - domain: NSGlobalDomain
+    key: _HIHideMenuBar
+    type: bool
+    value: true
+
+  - domain: NSGlobalDomain
     key: AppleInterfaceStyle
     type: string
     value: Dark
