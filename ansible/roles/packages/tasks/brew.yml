@@ -41,13 +41,36 @@
   tags: [packages, brew, cask, darwin]
 
 - name: Install Homebrew if missing
-  ansible.builtin.shell: |
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  args:
-    stdin: /dev/null
   when:
     - homebrew_check.results | selectattr('stat.exists') | list | length == 0
     - not ansible_check_mode
+  block:
+    # The NONINTERACTIVE installer never prompts for a password; it requires
+    # that its internal `sudo` calls (to create/chown the prefix) succeed
+    # without a TTY. Grant temporary passwordless sudo for the install user
+    # so the installer can chown /opt/homebrew (or /usr/local), then remove
+    # it. The installer itself must NOT run under become (it refuses root).
+    - name: Grant temporary passwordless sudo for the Homebrew install user
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/homebrew-install
+        content: "{{ ansible_facts['user_id'] }} ALL=(ALL) NOPASSWD: ALL\n"
+        mode: "0440"
+        validate: "visudo -cf %s"
+      become: true
+
+    - name: Run the official Homebrew installer (NONINTERACTIVE)
+      ansible.builtin.shell: |
+        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      args:
+        stdin: /dev/null
+      register: homebrew_install
+      changed_when: true
+  always:
+    - name: Remove the temporary passwordless sudo drop-in
+      ansible.builtin.file:
+        path: /etc/sudoers.d/homebrew-install
+        state: absent
+      become: true
   tags: [packages, brew, cask, darwin]
 
 - name: Set Homebrew prefix
