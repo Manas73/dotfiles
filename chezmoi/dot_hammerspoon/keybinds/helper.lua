@@ -7,8 +7,9 @@
 -- (Control+Option+Command) to stay consistent and avoid clashing with native
 -- Command shortcuts.
 
--- Global modifier tables, analogous to Hyprland's mainMod.
-_G.mainMod = { "ctrl", "alt", "cmd" }        -- Hyper  == Hyprland SUPER
+-- Global modifier tables, analogous to Hyprland's mainMod / altMod.
+_G.mainMod = { "cmd", "ctrl" }         -- Hyprland SUPER
+_G.altMod  = { "cmd", "ctrl", "alt" }  -- Hyprland SUPER + ALT
 
 -- exec_cmd(cmd): run a shell command detached, like hl.dsp.exec_cmd.
 -- Runs through the login shell so PATH/`open` resolve as in a terminal.

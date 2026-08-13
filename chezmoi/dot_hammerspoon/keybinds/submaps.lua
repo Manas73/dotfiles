@@ -16,9 +16,9 @@ local define_submap = hs_helper.define_submap
 local s            = settingsDir
 
 --------------------------------------------------------------------------------
--- "Rofi" menus submap — Hyprland: mainMod + altMod + Space  (=> Hyper+Space)
+-- "Rofi" menus submap — Hyprland: mainMod + altMod + Space
 --------------------------------------------------------------------------------
-define_submap("menus", mainMod, "space", function(m)
+define_submap("menus", altMod, "space", function(m)
   m:entry("a", "audio",      exec_cmd(s .. "/audio_menu.sh"))
   m:entry("m", "microphone", exec_cmd(s .. "/microphone_menu.sh"))
   m:entry("b", "bluetooth",  exec_cmd(s .. "/bluetooth_menu.sh"))
