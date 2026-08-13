@@ -20,9 +20,8 @@ packages_aur_bootstrap_dir: "/tmp/yay-bin-bootstrap"
 packages_aur_refresh_databases: true
 
 # --- Homebrew ---
-# Preferred brew binary. Empty = official prefix (/opt/homebrew/bin/brew
-# on arm64, /usr/local/bin/brew on Intel). Missing brew is installed with
-# the official script (NONINTERACTIVE; needs `sudo -n`).
+# Preferred brew binary. Empty = probe /opt/homebrew then /usr/local.
+# Missing brew is installed with the official NONINTERACTIVE script.
 packages_brew_path: ""
 packages_brew_update: true
 # brew bundle --jobs. `auto` = CPU cores, max 4. Override with 1/4/8.

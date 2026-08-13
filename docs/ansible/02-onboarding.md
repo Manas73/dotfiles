@@ -117,17 +117,14 @@ ansible-playbook playbooks/dotfiles.yml --limit <hostname>
 
 ## macOS
 
-Package dispatch and chezmoi rendering work on darwin. Homebrew
-is installed with the official script to `/opt/homebrew` (arm64)
-or `/usr/local` (Intel) so bottles work:
+Package dispatch and chezmoi rendering work on darwin. Missing
+Homebrew is installed with the official script (`NONINTERACTIVE=1`)
+to `/opt/homebrew` (arm64) or `/usr/local` (Intel). Fish PATH comes
+from Chezmoi (`brew shellenv` in `config.fish`), not Ansible.
 
 ```sh
-NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
-
-The installer cannot prompt for sudo (Ansible closes stdin). It needs
-`sudo -n`, or run the same command in Terminal as an Administrator
-before the playbook.
 
 ```yaml
 darwin:

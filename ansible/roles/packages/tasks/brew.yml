@@ -6,8 +6,8 @@
 #   provider_casks    (list[str]) — casks
 #   provider_taps     (list[str]) — user/repo taps for either
 #
-# Missing brew is installed with the official script (arm64 → /opt/homebrew,
-# Intel → /usr/local). The installer uses NONINTERACTIVE sudo (sudo -n).
+# Missing brew: official install.sh (NONINTERACTIVE). Interactive PATH
+# is Chezmoi fish `brew shellenv`, not Ansible writing shell rc.
 
 - name: Assert Homebrew package lists are lists
   ansible.builtin.assert:
@@ -30,69 +30,88 @@
     quiet: true
   tags: [packages, brew, cask, darwin]
 
-- name: Resolve brew binary
+- name: Check if Homebrew is installed
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - /opt/homebrew/bin/brew
+    - /usr/local/bin/brew
+  register: homebrew_check
+  tags: [packages, brew, cask, darwin]
+
+- name: Install Homebrew
+  ansible.builtin.shell:
+    cmd: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  environment:
+    NONINTERACTIVE: "1"
+  when:
+    - homebrew_check.results | selectattr('stat.exists') | list | length == 0
+    - not ansible_check_mode
+  tags: [packages, brew, cask, darwin]
+
+- name: Re-check Homebrew after install
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - /opt/homebrew/bin/brew
+    - /usr/local/bin/brew
+  register: homebrew_check
+  tags: [packages, brew, cask, darwin]
+
+- name: Set Homebrew prefix
   ansible.builtin.set_fact:
-    packages_brew_bin: >-
+    packages_brew_present: "{{ homebrew_check.results | selectattr('stat.exists') | list | length > 0 }}"
+    homebrew_prefix: >-
       {{
-        packages_brew_path
-        if packages_brew_path | default('') | length > 0
-        else (
-          '/opt/homebrew/bin/brew'
-          if ansible_facts['architecture'] in ['arm64', 'aarch64']
-          else '/usr/local/bin/brew'
-        )
+        (
+          homebrew_check.results
+          | selectattr('stat.exists')
+          | map(attribute='item')
+          | map('dirname')
+          | map('dirname')
+          | list
+          + [
+            '/opt/homebrew'
+            if ansible_facts['architecture'] in ['arm64', 'aarch64']
+            else '/usr/local'
+          ]
+        ) | first
       }}
   tags: [packages, brew, cask, darwin]
 
-- name: Stat brew
-  ansible.builtin.stat:
-    path: "{{ packages_brew_bin }}"
-  register: packages_brew_stat
-  tags: [packages, brew, cask, darwin]
-
-- name: Run the official Homebrew installer
-  ansible.builtin.shell:
-    cmd: NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  environment:
-    NONINTERACTIVE: "1"
-    CI: "1"
-  when:
-    - not packages_brew_stat.stat.exists | default(false)
-    - not ansible_check_mode
-  tags: [packages, brew, cask, darwin]
-
-- name: Re-stat brew after bootstrap
-  ansible.builtin.stat:
-    path: "{{ packages_brew_bin }}"
-  register: packages_brew_stat
-  when: not packages_brew_stat.stat.exists | default(false)
-  tags: [packages, brew, cask, darwin]
-
-- name: Fail if Homebrew is still missing
-  ansible.builtin.fail:
-    msg: >-
-      Homebrew is not installed at {{ packages_brew_bin }}.
-      The official installer needs passwordless sudo (`sudo -n`).
-      Or run it in Terminal as an Administrator:
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  when:
-    - not packages_brew_stat.stat.exists | default(false)
-    - not ansible_check_mode
-    - (provider_packages | length > 0) or (provider_casks | length > 0)
+- name: Ensure Homebrew is in PATH
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_facts['user_dir'] }}/.zprofile"
+    line: 'eval "$({{ homebrew_prefix }}/bin/brew shellenv)"'
+    create: true
+    mode: "0644"
+  when: packages_brew_present | bool
   tags: [packages, brew, cask, darwin]
 
 - name: Remember brew environment for later tasks
   ansible.builtin.set_fact:
+    packages_brew_prefix: "{{ homebrew_prefix }}"
     packages_brew_stream_env:
-      PATH: "{{ packages_brew_bin | dirname }}:{{ ansible_facts['env']['PATH'] }}"
+      PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['PATH'] }}"
       HOMEBREW_NO_AUTO_UPDATE: "1"
       HOMEBREW_NO_ANALYTICS: "1"
       HOMEBREW_NO_ENV_HINTS: "1"
       HOMEBREW_NO_EMOJI: "1"
       NONINTERACTIVE: "1"
-      CI: "1"
       GIT_TERMINAL_PROMPT: "0"
-  when: packages_brew_stat.stat.exists | default(false)
+  when: packages_brew_present | bool
+  tags: [packages, brew, cask, darwin]
+
+- name: Fail if Homebrew is still missing
+  ansible.builtin.fail:
+    msg: >-
+      Homebrew is not installed at /opt/homebrew/bin/brew or
+      /usr/local/bin/brew. install.sh needs `sudo -n`. Run it once
+      in Terminal, then re-run.
+  when:
+    - not (packages_brew_present | bool)
+    - not ansible_check_mode
+    - (provider_packages | length > 0) or (provider_casks | length > 0)
   tags: [packages, brew, cask, darwin]
 
 - name: Ensure Brewfile directory exists
@@ -100,7 +119,7 @@
     path: "{{ packages_brewfile | dirname }}"
     state: directory
     mode: "0700"
-  when: packages_brew_stat.stat.exists | default(false)
+  when: packages_brew_present | bool
   tags: [packages, brew, cask, darwin]
 
 - name: Write Brewfile
@@ -119,7 +138,7 @@
       {% endfor %}
   when:
     - (provider_packages | length > 0) or (provider_casks | length > 0)
-    - packages_brew_stat.stat.exists | default(false)
+    - packages_brew_present | bool
   tags: [packages, brew, cask, darwin]
 
 - name: Update Homebrew
@@ -131,7 +150,7 @@
   when:
     - not ansible_check_mode
     - packages_brew_update | bool
-    - packages_brew_stat.stat.exists | default(false)
+    - packages_brew_present | bool
   tags: [packages, brew, cask, darwin]
 
 - name: Install Homebrew formulae and casks
@@ -153,5 +172,32 @@
   when:
     - not ansible_check_mode
     - (provider_packages | length > 0) or (provider_casks | length > 0)
-    - packages_brew_stat.stat.exists | default(false)
+    - packages_brew_present | bool
+  tags: [packages, brew, cask, darwin]
+
+- name: Clean up Homebrew cache
+  ansible.builtin.command:
+    argv:
+      - brew
+      - cleanup
+      - --prune=7
+  environment: "{{ packages_brew_stream_env }}"
+  register: brew_cleanup
+  changed_when: (brew_cleanup.stdout | default('')) | length > 0
+  when:
+    - not ansible_check_mode
+    - packages_brew_present | bool
+  tags: [packages, brew, cask, darwin]
+
+- name: Scrub Homebrew cache, including downloads for installed formulae
+  ansible.builtin.command:
+    argv:
+      - brew
+      - cleanup
+      - -s
+  environment: "{{ packages_brew_stream_env }}"
+  changed_when: true
+  when:
+    - not ansible_check_mode
+    - packages_brew_present | bool
   tags: [packages, brew, cask, darwin]
