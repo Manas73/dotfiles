@@ -14,8 +14,10 @@ os_apps:
   # ----------------------------------------------------------------
   # Cross-OS GUI apps via catalog (route to cask).
   # ----------------------------------------------------------------
+  - bartender
   - bazecor
   - docker
+  - dot
   - ghostty
   - google-chrome
   - kanata

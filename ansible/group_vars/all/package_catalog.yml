@@ -34,6 +34,9 @@ package_catalog:
     arch:   { provider: aur, packages: [aws-session-manager-plugin] }
     darwin: { provider: cask, packages: [session-manager-plugin] }
 
+  bartender:
+    darwin: { provider: cask, packages: [bartender] }
+
   bat:
     arch:   { provider: pacman, packages: [bat] }
     darwin: { provider: brew,   packages: [bat] }
@@ -82,6 +85,9 @@ package_catalog:
 
   dolphin:
     arch: { provider: pacman, packages: [dolphin, dolphin-plugins] }
+
+  dot:
+    darwin: { provider: cask, packages: [dot] }
 
   dropbox:
     arch:   { provider: aur,  packages: [dropbox] }
