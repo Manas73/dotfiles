@@ -22,8 +22,7 @@ packages_aur_refresh_databases: true
 # --- Homebrew ---
 # Preferred brew binary. Empty = official prefix (/opt/homebrew/bin/brew
 # on arm64, /usr/local/bin/brew on Intel). Missing brew is installed with
-# the official script; --ask-become-pass is required when sudo needs a
-# password.
+# the official script (NONINTERACTIVE; needs `sudo -n`).
 packages_brew_path: ""
 packages_brew_update: true
 # brew bundle --jobs. `auto` = CPU cores, max 4. Override with 1/4/8.

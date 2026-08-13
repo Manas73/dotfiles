@@ -125,9 +125,9 @@ or `/usr/local` (Intel) so bottles work:
 NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-The installer cannot prompt for sudo (Ansible closes stdin). Re-run
-with `--ask-become-pass` as a macOS Administrator; the role forwards
-that password via `SUDO_ASKPASS`.
+The installer cannot prompt for sudo (Ansible closes stdin). It needs
+`sudo -n`, or run the same command in Terminal as an Administrator
+before the playbook.
 
 ```yaml
 darwin:

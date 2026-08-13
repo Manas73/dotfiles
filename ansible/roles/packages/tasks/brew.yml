@@ -7,8 +7,7 @@
 #   provider_taps     (list[str]) — user/repo taps for either
 #
 # Missing brew is installed with the official script (arm64 → /opt/homebrew,
-# Intel → /usr/local). The installer cannot prompt for sudo; --ask-become-pass
-# is forwarded via SUDO_ASKPASS.
+# Intel → /usr/local). The installer uses NONINTERACTIVE sudo (sudo -n).
 
 - name: Assert Homebrew package lists are lists
   ansible.builtin.assert:
@@ -43,7 +42,6 @@
           else '/usr/local/bin/brew'
         )
       }}
-    packages_brew_askpass: "{{ packages_brewfile | dirname }}/sudo-askpass"
   tags: [packages, brew, cask, darwin]
 
 - name: Stat brew
@@ -52,50 +50,16 @@
   register: packages_brew_stat
   tags: [packages, brew, cask, darwin]
 
-- name: Bootstrap Homebrew
+- name: Run the official Homebrew installer
+  ansible.builtin.shell:
+    cmd: NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  environment:
+    NONINTERACTIVE: "1"
+    CI: "1"
   when:
     - not packages_brew_stat.stat.exists | default(false)
     - not ansible_check_mode
   tags: [packages, brew, cask, darwin]
-  block:
-    - name: Ensure sudo askpass directory exists
-      ansible.builtin.file:
-        path: "{{ packages_brew_askpass | dirname }}"
-        state: directory
-        mode: "0700"
-      when: ansible_become_pass is defined and ansible_become_pass | length > 0
-
-    - name: Write sudo askpass for the official installer
-      ansible.builtin.copy:
-        dest: "{{ packages_brew_askpass }}"
-        mode: "0700"
-        content: |
-          #!/bin/sh
-          printf '%s\n' {{ ansible_become_pass | quote }}
-      no_log: true
-      when: ansible_become_pass is defined and ansible_become_pass | length > 0
-
-    - name: Run the official Homebrew installer
-      ansible.builtin.shell:
-        cmd: NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      environment: >-
-        {{
-          {
-            'NONINTERACTIVE': '1',
-            'CI': '1'
-          } | combine(
-            {'SUDO_ASKPASS': packages_brew_askpass}
-            if (ansible_become_pass is defined and ansible_become_pass | length > 0)
-            else {}
-          )
-        }}
-  always:
-    - name: Remove sudo askpass
-      ansible.builtin.file:
-        path: "{{ packages_brew_askpass }}"
-        state: absent
-      when: packages_brew_askpass is defined
-      tags: [packages, brew, cask, darwin]
 
 - name: Re-stat brew after bootstrap
   ansible.builtin.stat:
@@ -108,8 +72,9 @@
   ansible.builtin.fail:
     msg: >-
       Homebrew is not installed at {{ packages_brew_bin }}.
-      The official installer needs a macOS Administrator and
-      --ask-become-pass (mise run packages).
+      The official installer needs passwordless sudo (`sudo -n`).
+      Or run it in Terminal as an Administrator:
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   when:
     - not packages_brew_stat.stat.exists | default(false)
     - not ansible_check_mode
@@ -123,7 +88,6 @@
       HOMEBREW_NO_AUTO_UPDATE: "1"
       HOMEBREW_NO_ANALYTICS: "1"
       HOMEBREW_NO_ENV_HINTS: "1"
-      HOMEBREW_NO_INSTALL_CLEANUP: "1"
       HOMEBREW_NO_EMOJI: "1"
       NONINTERACTIVE: "1"
       CI: "1"
