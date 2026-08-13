@@ -1,0 +1,29 @@
+{{- /*
+  settings/resolve — pick a settings partial for the current host/OS.
+
+  Layout under .chezmoitemplates/settings/:
+    base/<osid>/<file>        os-keyed defaults (required)
+    hosts/<hostname>/<file>   optional per-host override (whole-file)
+
+  Resolution (whole-file override):
+    1. hosts/<hostname>/<file>   if it exists  -> use it
+    2. base/<osid>/<file>        otherwise     -> use it
+
+  Usage from a dispatcher .tmpl:
+    {{ includeTemplate "settings/resolve.tmpl" (dict "file" "terminal.sh" "ctx" .) }}
+
+  "ctx" must be the caller's "." so we can read .chezmoi.hostname/.sourceDir/.osid.
+*/ -}}
+{{- $file := .file -}}
+{{- $ctx  := .ctx -}}
+{{- $host := $ctx.chezmoi.hostname -}}
+{{- $osid := $ctx.osid -}}
+{{- $src  := $ctx.chezmoi.sourceDir -}}
+{{- $hostTmpl := printf "settings/hosts/%s/%s" $host $file -}}
+{{- $baseTmpl := printf "settings/base/%s/%s" $osid $file -}}
+{{- $hostFile := printf "%s/.chezmoitemplates/%s" $src $hostTmpl -}}
+{{- if stat $hostFile -}}
+{{- includeTemplate $hostTmpl $ctx -}}
+{{- else -}}
+{{- includeTemplate $baseTmpl $ctx -}}
+{{- end -}}

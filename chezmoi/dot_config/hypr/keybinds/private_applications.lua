@@ -14,7 +14,3 @@ hl.bind(mainMod .. " + G",      hl.dsp.exec_cmd(home .. "/.config/.settings/git_
 -- Rofi - Simple binds
 hl.bind(mainMod .. " + Space",  hl.dsp.exec_cmd("rofi -show drun -show-icons"))
 hl.bind(mainMod .. " + Delete", hl.dsp.exec_cmd(home .. "/.config/.settings/powermenu.sh"))
-
--- Push-to-talk: hold Super+I to record, release to transcribe
-hl.bind("SUPER + I", hl.dsp.exec_cmd("voxtype record start"))
-hl.bind("SUPER + I", hl.dsp.exec_cmd("voxtype record stop"), { release = true })
