@@ -124,14 +124,34 @@
   tags: [packages, brew, cask, darwin]
 
 - name: Install Homebrew casks
-  community.general.homebrew_cask:
-    name: "{{ provider_casks | unique | sort }}"
-    state: present
-    # Adopt apps already present in /Applications (e.g. Chrome installed
-    # manually) instead of failing on the existing-app conflict.
-    accept_external_apps: true
-    install_options: adopt
   when: provider_casks | length > 0
+  block:
+    # Adopting an externally-installed app (e.g. Chrome installed manually)
+    # runs `sudo chmod` to fix its permissions. That sudo has no TTY under
+    # Ansible, so grant temporary passwordless sudo for the install user,
+    # install the casks, then always remove the grant.
+    - name: Grant temporary passwordless sudo for cask installs
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/homebrew-cask
+        content: "{{ ansible_facts['user_id'] }} ALL=(ALL) NOPASSWD: ALL\n"
+        mode: "0440"
+        validate: "visudo -cf %s"
+      become: true
+
+    - name: Install casks (adopting any externally-installed apps)
+      community.general.homebrew_cask:
+        name: "{{ provider_casks | unique | sort }}"
+        state: present
+        # Adopt apps already present in /Applications instead of failing
+        # on the existing-app conflict.
+        accept_external_apps: true
+        install_options: adopt
+  always:
+    - name: Remove the temporary passwordless sudo drop-in for casks
+      ansible.builtin.file:
+        path: /etc/sudoers.d/homebrew-cask
+        state: absent
+      become: true
   tags: [packages, brew, cask, darwin]
 
 - name: Clean up Homebrew cache
