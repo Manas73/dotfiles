@@ -7,15 +7,17 @@ Hyper key; this only mirrors the NON-window-management Hyprland binds:
 Every bind shells out to ~/.config/.settings/*.sh, exactly like Hyprland. Those
 scripts are chezmoi-rendered per OS/host, so the actual mac app lives there.
 
-mainMod: Hyprland SUPER -> cmd + ctrl on macOS (kept distinct from omniwm's
-Hyper = ctrl + alt + cmd so the two don't collide).
+mainMod: Hyprland SUPER -> Hyper (cmd + alt + ctrl) on macOS, the same chord
+omniwm uses. omniwm binds Hyper + letters/numbers for window management; these
+launcher/menu binds use Hyper + keys omniwm leaves free (return, d, b, m, g,
+delete, space, c), so they do not collide.
 
 Submaps use skhd modes (`@` captures every key while active). An skhd action is
 EITHER a command (`: cmd`) OR a mode switch (`; mode`), never both. To emulate
 Hyprland's "run then auto-reset", each action runs its script and then chains
 `skhd -k "escape"`, which triggers the mode's `escape ; default` binding to
 return to the default mode. */ -}}
-{{- $mainMod := "cmd + ctrl" -}}
+{{- $mainMod := "cmd + alt + ctrl" -}}
 {{- $s := "$HOME/.config/.settings" -}}
 {{- $notify := "osascript -e" -}}
 # ==============================================================================
