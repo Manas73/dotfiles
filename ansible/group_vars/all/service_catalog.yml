@@ -16,18 +16,6 @@
 # missing OS key = silent skip.
 
 service_catalog:
-  # skhd manages its own launchd agent via CLI subcommands, not `brew services`.
-  skhd:
-    darwin:
-      manager: command
-      name: skhd
-      install: skhd --install-service
-      creates: "{{ ansible_facts['user_dir'] }}/Library/LaunchAgents/com.koekeishiya.skhd.plist"
-      start: skhd --start-service
-      restart: skhd --restart-service
-      stop: skhd --stop-service
-      state: started
-
   docker:
     arch: { manager: systemd, name: docker.socket, scope: system, enabled: true }
 

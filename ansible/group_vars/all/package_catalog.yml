@@ -405,9 +405,6 @@ package_catalog:
   selectdefaultapplication:
     arch: { provider: aur, packages: [selectdefaultapplication-git] }
 
-  skhd:
-    darwin: { provider: brew, packages: [skhd-zig], taps: [jackielii/tap] }
-
   slack:
     arch:   { provider: aur,  packages: [slack-desktop] }
     darwin: { provider: cask, packages: [slack] }

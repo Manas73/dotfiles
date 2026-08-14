@@ -154,7 +154,6 @@ profiles_catalog:
     apps:
       - alfred
       - karabiner-elements
-      - skhd
       - omniwm
 
   virtualization:
