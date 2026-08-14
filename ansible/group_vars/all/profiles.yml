@@ -154,6 +154,7 @@ profiles_catalog:
     apps:
       - alfred
       - karabiner-elements
+      - leader-key
       - omniwm
 
   virtualization:

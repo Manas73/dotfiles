@@ -238,6 +238,9 @@ package_catalog:
     arch:   { provider: pacman, packages: [lazygit] }
     darwin: { provider: brew,   packages: [lazygit] }
 
+  leader-key:
+    darwin: { provider: cask, packages: [leader-key] }
+
   libadwaita:
     arch: { provider: pacman, packages: [libadwaita] }
 
