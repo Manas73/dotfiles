@@ -1,0 +1,54 @@
+{
+  "actions" : [
+    {
+      "key" : "enter",
+      "label" : "Terminal",
+      "type" : "command",
+      "value" : "~/.config/.settings/terminal.sh"
+    },
+    {
+      "actions" : [
+        {
+          "key" : "1",
+          "label" : "Editor",
+          "type" : "command",
+          "value" : "~/.config/.settings/editor.sh"
+        },
+        {
+          "key" : "2",
+          "label" : "IDE",
+          "type" : "command",
+          "value" : "~/.config/.settings/ide.sh"
+        }
+      ],
+      "key" : "c",
+      "label" : "IDE",
+      "type" : "group"
+    },
+    {
+      "key" : "b",
+      "label" : "Browser",
+      "type" : "command",
+      "value" : "~/.config/.settings/browser.sh"
+    },
+    {
+      "key" : "d",
+      "label" : "File Manager",
+      "type" : "command",
+      "value" : "~/.config/.settings/file_manager.sh"
+    },
+    {
+      "key" : "m",
+      "label" : "Work Messenger",
+      "type" : "command",
+      "value" : "~/.config/.settings/work_messenger.sh"
+    },
+    {
+      "key" : "g",
+      "label" : "Git Client",
+      "type" : "command",
+      "value" : "~/.config/.settings/git_client.sh"
+    }
+  ],
+  "type" : "group"
+}
