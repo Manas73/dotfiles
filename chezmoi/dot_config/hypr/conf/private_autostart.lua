@@ -18,7 +18,7 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("solaar --window=hide")
 
 	-- Launch apps (workspace rules will handle placement)
-	hl.exec_cmd("slack")
+-- 	hl.exec_cmd("slack")
 	hl.exec_cmd("rambox --ozone-platform=wayland --enable-features=WaylandWindowDecorations")
 
 	-- Focus on default workspaces (5 then 1)
