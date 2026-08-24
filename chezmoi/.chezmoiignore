@@ -36,6 +36,7 @@ key.txt.age
 
 {{/* Hyprland + Wayland companions. */}}
 {{- if not (has "hyprland" .window_manager) }}
+.config/ai-usagebar
 .config/hypr
 .config/swaync
 .config/swayosd

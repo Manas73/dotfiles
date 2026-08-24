@@ -1,0 +1,83 @@
+---
+# Install pinned CLI tools via mise (user-level, cross-OS).
+#
+# Input: provider_packages (list[str]) — mise specs, each `tool@version`
+# (e.g. bat@0.26.1, github:sinelaw/fresh@0.4.10).
+#
+# mise itself is an OS package (pacman/brew) and is installed by the
+# earlier provider tasks. This file only pins and installs tools into
+# ~/.local/share/mise and writes ~/.config/mise/config.toml via
+# `mise use --global`. Additive: tools the user added with `mise use -g`
+# are not removed.
+#
+# No become. Check mode is `mise use --dry-run`.
+
+- name: Assert provider_packages is defined and a list
+  ansible.builtin.assert:
+    that:
+      - provider_packages is defined
+      - provider_packages is sequence
+    fail_msg: "packages/mise: provider_packages must be a list."
+    quiet: true
+  tags: [packages, mise]
+
+- name: Locate the mise binary
+  ansible.builtin.shell: |
+    set -euo pipefail
+    if command -v mise >/dev/null 2>&1; then
+      command -v mise
+    elif test -x "{{ ansible_facts['user_dir'] }}/.local/bin/mise"; then
+      printf '%s\n' "{{ ansible_facts['user_dir'] }}/.local/bin/mise"
+    else
+      exit 1
+    fi
+  register: packages_mise_binary
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  tags: [packages, mise]
+
+- name: Fail fast if mise is not installed
+  ansible.builtin.fail:
+    msg: >-
+      mise is not installed on this host. Install it via the packages role
+      (logical app `mise` in the cli profile: pacman on Arch, brew on macOS)
+      or curl https://mise.run, then re-run.
+  when: packages_mise_binary.rc != 0
+  tags: [packages, mise]
+
+- name: Pin and install mise tools globally
+  ansible.builtin.command:
+    argv: "{{ packages_mise_use_argv }}"
+  vars:
+    packages_mise_use_argv: "{{ [packages_mise_binary.stdout, 'use', '--global', '--pin', '--yes'] + (['--dry-run'] if ansible_check_mode else []) + provider_packages }}"
+  environment:
+    MISE_YES: "1"
+  args:
+    chdir: "{{ ansible_facts['user_dir'] }}"
+  register: packages_mise_use
+  changed_when: >-
+    not ansible_check_mode
+    and (
+      (packages_mise_use.stdout | default('') | lower) is search('install')
+      or (packages_mise_use.stderr | default('') | lower) is search('install')
+    )
+  check_mode: false
+  tags: [packages, mise]
+
+- name: Refresh the global mise lockfile
+  ansible.builtin.command:
+    argv:
+      - "{{ packages_mise_binary.stdout }}"
+      - lock
+      - --global
+  environment:
+    MISE_YES: "1"
+  args:
+    chdir: "{{ ansible_facts['user_dir'] }}"
+  when:
+    - not ansible_check_mode
+    - packages_mise_use is succeeded
+  changed_when: false
+  failed_when: false
+  tags: [packages, mise]

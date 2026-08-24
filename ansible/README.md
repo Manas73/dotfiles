@@ -9,7 +9,7 @@ See `docs/ansible/02-onboarding.md` for adding a new machine and
 
 Ansible owns:
 
-- OS/package installation (pacman, AUR via yay, Homebrew formulae, Homebrew casks).
+- OS/package installation (pacman, AUR via yay, Homebrew formulae, Homebrew casks) and user-level CLI tools via mise.
 - User groups, udev rules, and systemd user services.
 - Fish login shell switching.
 - Docker, Kanata, and Plasma custom-WM setup.
@@ -75,7 +75,7 @@ Mental model:
 - Inventory groups are **OS only** (`linux → arch`, `darwin`). No machine-class groups.
 - Each host sets `recipe:` (loads `recipes/<recipe>.yml`) and host deltas (`gpu`, …).
 - `primary_user` defaults to `ansible_facts['user_id']` in `group_vars/all`.
-- Provider install logic: `roles/packages/tasks/{pacman,aur,brew,cask}.yml`.
+- Provider install logic: `roles/packages/tasks/{pacman,aur,brew,mise}.yml`.
 
 ## Package Architecture
 
@@ -143,17 +143,22 @@ packages     roles/packages
    silently ignored.
 
 All sources are pure lists of logical app names. They know nothing about
-pacman, AUR, brew, or cask.
+pacman, AUR, brew, cask, or mise.
 
 ### Layer 2: Catalog
 
 `group_vars/all/package_catalog.yml` maps logical app names to concrete
-per-OS install instructions.
+install instructions.
 
 Schema:
 
 ```yaml
 package_catalog:
+
+  # Cross-OS CLI tool via mise. `all:` applies on every OS. Packages are
+  # pinned `tool@version` specs; `@latest` is rejected.
+  bat:
+    all: { provider: mise, packages: ["bat@0.26.1"] }
 
   # Cross-OS GUI app: per-OS keys, each holding a provider and a list of
   # concrete packages. Both keys are independent and can contain multiple
@@ -163,30 +168,16 @@ package_catalog:
     darwin: { provider: cask,   packages: [vivaldi] }
 
   # Roll-up: one logical name expands to N concrete packages per OS.
-  # Differences between OSes are encoded inline. Used for docker, nodejs,
-  # the JetBrains IDEs (with their -jre companion on Arch), etc.
   docker:
     arch:   { provider: pacman, packages: [docker, docker-buildx, docker-compose] }
     darwin: { provider: brew,   packages: [docker, docker-buildx, docker-compose] }
 
-  nodejs:
-    arch:   { provider: pacman, packages: [nodejs, npm, nvm] }
-    darwin: { provider: brew,   packages: [node, nvm] }
-
-  # Third-party tap: declare taps next to the provider. Formula names
-  # stay unqualified; brew.yml taps them via community.general.homebrew_tap.
-  fresh-editor:
-    darwin: { provider: brew, packages: [fresh-editor], taps: [sinelaw/fresh] }
-
-  # Multi-provider per OS: the per-OS value is a LIST of {provider, packages}
-  # blocks. Use this when one logical name installs packages from different
-  # providers on the same OS (e.g. most of python from pacman, plus pyrefly
-  # from AUR on Arch).
+  # `all:` unioned with a per-OS block: user python via mise, system
+  # python stays on the OS package manager (Ansible's interpreter).
   python:
-    arch:
-      - { provider: pacman, packages: [python, python-pip, python-poetry] }
-      - { provider: aur,    packages: [pyrefly] }
-    darwin: { provider: brew, packages: [black, python, uv] }
+    all:  { provider: mise, packages: ["python@3.14.7", "uv@0.12.3"] }
+    arch: { provider: pacman, packages: [python, python-gpgme] }
+    darwin: { provider: brew, packages: [python] }
 
   # Arch-only routing: AUR package that wouldn't be reachable via plain
   # `pacman -S`. Has only an `arch:` key; darwin hosts skip it silently.
@@ -196,25 +187,21 @@ package_catalog:
 
 Rules:
 
-- Each entry has per-OS keys (`arch`, `darwin`, ...). A per-OS value is
-  either a single `{provider, packages}` mapping or a list of such mappings
-  (one per provider) when multiple providers are needed on the same OS.
-- The same provider must not appear twice in one per-OS list — merge the
-  `packages:` lists instead. The resolver fails fast on duplicates.
-- A logical name **not** in the catalog falls through to the default
-  provider for the target OS (`pacman` on arch, `brew` on darwin). This is
-  why everyday Arch packages like `alacritty`, `networkmanager`, and most
-  pacman fonts do not need catalog entries.
-- An entry without a key for the current `target_os` is silently dropped, so
-  arch-only entries (like `pacseek`) don't fail on darwin and vice versa.
+- Each entry has `all:` and/or per-OS keys (`arch`, `darwin`, ...). A value
+  is either a single `{provider, packages}` mapping or a list of such
+  mappings (one per provider) when multiple providers are needed.
+- `all:` is applied on every OS, then unioned with the matching per-OS
+  block. The same provider must not appear twice after that union — merge
+  the `packages:` lists instead. The resolver fails fast on duplicates.
+- `provider: mise` packages must be pinned `tool@version` (bare names and
+  `@latest` fail). Use a backend prefix when the short name is missing
+  (`github:sinelaw/fresh@0.4.10`).
+- The catalog is exhaustive: a logical name **not** in the catalog is an
+  error. There is no default-provider fall-through.
+- An entry without `all:` and without a key for the current `target_os` is
+  silently dropped, so arch-only entries (like `pacseek`) don't fail on
+  darwin and vice versa.
 - Output buckets are deduped and sorted per provider for stable diffs.
-
-The catalog currently has ~45 entries: cross-OS GUI apps (vivaldi,
-1password, firefox, vlc, slack, zoom, google-chrome, dropbox), cross-OS
-runtime/dev bundles (docker, nodejs, python, datagrip, pycharm,
-webstorm), AUR routing for Arch-only packages (pacseek, redshift, ...),
-and miscellaneous Arch / darwin name-mapping (e.g. `aws-cli` ->
-`aws-cli-v2` on AUR, `awscli` on brew).
 
 ### packages role (resolve + install)
 
@@ -230,7 +217,7 @@ and miscellaneous Arch / darwin name-mapping (e.g. `aws-cli` ->
    filter, producing
    `packages_resolved = {packages: {provider: [pkg, ...]}, taps: {provider: [tap, ...]}}`.
 4. Include provider task files in fixed order for each non-empty bucket:
-   `pacman.yml` → `aur.yml` → `brew.yml` (formulae + casks).
+   `pacman.yml` → `aur.yml` → `brew.yml` (formulae + casks) → `mise.yml`.
 
 ### Provider task files
 
@@ -241,9 +228,10 @@ Each file under `roles/packages/tasks/` installs for one package manager:
 | `pacman.yml` | Archlinux | Verifies pacman; optional `-Sy` / `-Syu`. |
 | `aur.yml` | Archlinux | Clones `yay-bin` and builds it when yay is missing. |
 | `brew.yml` | Darwin | Official installer; `community.general.homebrew` / `homebrew_tap` / `homebrew_cask`. |
+| `mise.yml` | all | Requires `mise` on PATH (OS package or curl bootstrap). `mise use --global --pin`. |
 
 Shared contract: input `provider_packages` (list), no-op when empty, assert
-OS family, idempotent install, side effects limited to packages.
+OS family (except mise), idempotent install, side effects limited to packages.
 
 Multilib is a pacman *repo*, not a separate manager, so `steam` and friends
 route to `provider: pacman` (with multilib enabled in `/etc/pacman.conf`).
@@ -256,9 +244,10 @@ route to `provider: pacman` (with multilib enabled in `/etc/pacman.conf`).
    - Tied to a desktop or feature profile: the `apps:` list of the relevant
      profile under `profiles_catalog` in `group_vars/all/profiles.yml` (and
      the recipe's `profiles:` list).
-2. If the app is cross-OS, or needs a non-default provider on Arch (AUR),
-   add a catalog entry. Otherwise it falls through to the default provider
-   for the OS and needs no catalog entry.
+2. Add a catalog entry. Cross-OS CLI tools use `all: { provider: mise,
+   packages: ["tool@version"] }`. GUI / OS packages use per-OS
+   `arch:` / `darwin:` blocks. The catalog is exhaustive: a missing entry
+   fails resolution.
 3. Verify the resolution:
 
    ```sh
@@ -339,6 +328,7 @@ Copy `recipes/personal_workstation.yml` (or `mac_turing.yml`), edit
 | `aur`      | AUR task file only.                                  |
 | `brew`     | Homebrew formulae + casks.                           |
 | `cask`     | Same as `brew` (merged job).                         |
+| `mise`     | mise CLI tools (`mise use --global --pin`).          |
 | `arch`     | All arch-OS package work.                            |
 | `darwin`   | All darwin-OS package work.                          |
 | `upgrade`  | `pacman -Syu` task.                                  |

@@ -13,6 +13,17 @@ Catalog schema (in YAML)::
       arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs] }
       darwin: { provider: cask,   packages: [vivaldi] }
 
+    # Cross-OS CLI tool via mise. ``all:`` applies on every target OS;
+    # an optional arch:/darwin: block is unioned with it (for mixed
+    # mise + system packages). mise packages must be ``tool@version``.
+    bat:
+      all: { provider: mise, packages: ["bat@0.26.1"] }
+
+    python:
+      all: { provider: mise, packages: ["python@3.14.7", "uv@0.12.3"] }
+      arch:   { provider: pacman, packages: [python, python-gpgme] }
+      darwin: { provider: brew,   packages: [python] }
+
     # Third-party Homebrew tap — declare taps explicitly; packages stay
     # unqualified formula/cask names:
     fresh-editor:
@@ -21,24 +32,27 @@ Catalog schema (in YAML)::
     # Multi-provider per OS — the per-OS value is a list of {provider, packages}.
     # Use when one logical name needs packages from different providers on the
     # same OS (e.g. most of python from pacman, but pyrefly from AUR on Arch):
-    python:
-      arch:
-        - { provider: pacman, packages: [python, python-pip, python-poetry] }
-        - { provider: aur,    packages: [pyrefly] }
-      darwin: { provider: brew, packages: [black, python, uv] }
+    python-screeninfo:
+      arch: { provider: aur, packages: [python-screeninfo] }
 
 Rules:
 
-* Each per-OS value is either a single ``{provider, packages}`` mapping or
-  a list of such mappings. The list form is for mixed providers on one OS.
+* Each per-OS value (and ``all:``) is either a single ``{provider, packages}``
+  mapping or a list of such mappings. The list form is for mixed providers.
+* ``all:`` is applied on every OS, then unioned with the matching
+  ``arch:`` / ``darwin:`` / … block. Duplicate providers after that union
+  are an error — merge the ``packages:`` lists.
 * Optional ``taps:`` (list of ``user/repo`` strings) is valid only on
-  ``brew`` / ``cask`` blocks. brew.yml / cask.yml tap them before install.
+  ``brew`` / ``cask`` blocks. brew.yml taps them before install.
+* ``provider: mise`` packages must be pinned ``tool@version`` specs
+  (``bat@0.26.1``, ``ubi:owner/repo[exe=bd]@1.2.3``). Bare names and
+  ``@latest`` are rejected.
 * The catalog is exhaustive: an app whose logical name is not in the
   catalog raises ``CatalogError``. There is no default-provider
   fall-through — every app in os_apps / profiles_catalog[].apps must be listed.
-* An app whose catalog entry has no key for ``target_os`` is silently
-  dropped: the user explicitly chose not to install it on this OS
-  (this is how Linux-only / macOS-only apps are expressed).
+* An app whose catalog entry has neither ``all:`` nor a key for
+  ``target_os`` is silently dropped: the user explicitly chose not to
+  install it on this OS (Linux-only / macOS-only apps).
 * Output buckets are deduplicated and sorted for stable diffs.
 """
 
@@ -53,7 +67,13 @@ from ansible.errors import AnsibleFilterError
 # Multilib is intentionally absent: it is a pacman repo, not a separate
 # manager, so multilib packages route to ``pacman`` and pacman.yml installs
 # them via the same module.
-VALID_PROVIDERS = {"pacman", "aur", "brew", "cask"}
+VALID_PROVIDERS = {"pacman", "aur", "brew", "cask", "mise"}
+
+# Cross-OS key unioned with the per-OS block. Not a target_os value.
+ALL_OS_KEY = "all"
+
+# mise CLI treats these as unpinned; the catalog requires a concrete version.
+UNPINNED_MISE_VERSIONS = {""}
 
 
 class CatalogError(AnsibleFilterError):
@@ -127,9 +147,41 @@ def _ingest_provider_block(
                 f"Catalog entry '{name}'.{target_os}.packages must contain "
                 f"non-empty strings; got {pkg!r}."
             )
+        if provider == "mise":
+            _validate_mise_spec(name, target_os, pkg)
 
     buckets.setdefault(provider, []).extend(packages)
     _ingest_taps(name, target_os, provider, block, tap_buckets)
+
+
+def _validate_mise_spec(name: str, target_os: str, spec: str) -> None:
+    """Require a pinned ``tool@version`` spec for the mise provider."""
+    if "@" not in spec:
+        raise CatalogError(
+            f"Catalog entry '{name}'.{target_os} mise package {spec!r} must "
+            f"be pinned as 'tool@version' (e.g. 'bat@0.26.1')."
+        )
+    tool, version = spec.rsplit("@", 1)
+    if not tool or not version:
+        raise CatalogError(
+            f"Catalog entry '{name}'.{target_os} mise package {spec!r} must "
+            f"be pinned as 'tool@version'; tool and version must be non-empty."
+        )
+    if version.lower() in UNPINNED_MISE_VERSIONS:
+        raise CatalogError(
+            f"Catalog entry '{name}'.{target_os} mise package {spec!r} must "
+            f"pin a concrete version, not {version!r}."
+        )
+
+
+def _blocks_from_entry(name: str, key: str, value: Any) -> list[Any]:
+    """Normalize a catalog value (``all`` or per-OS) into a non-empty block list."""
+    blocks = value if isinstance(value, list) else [value]
+    if not blocks:
+        raise CatalogError(
+            f"Catalog entry '{name}'.{key} must not be an empty list."
+        )
+    return blocks
 
 
 def _resolve_one(
@@ -148,9 +200,9 @@ def _resolve_one(
         # catalog (or a typo in the intent lists), so fail loudly.
         raise CatalogError(
             f"resolve_catalog: app {name!r} has no entry in package_catalog. "
-            f"Add it to group_vars/all/package_catalog.yml (arch and/or darwin "
-            f"blocks). The catalog is exhaustive; there is no default-provider "
-            f"fall-through."
+            f"Add it to group_vars/all/package_catalog.yml (all: and/or "
+            f"arch/darwin blocks). The catalog is exhaustive; there is no "
+            f"default-provider fall-through."
         )
 
     if not isinstance(entry, dict):
@@ -158,29 +210,35 @@ def _resolve_one(
             f"Catalog entry '{name}' must be a mapping, got {type(entry).__name__}."
         )
 
+    # ``all:`` applies on every OS; the per-OS key is unioned with it so a
+    # CLI tool can be mise everywhere while still installing a system package
+    # on one OS (e.g. python via mise + python-gpgme via pacman).
+    all_entry = entry.get(ALL_OS_KEY)
     os_entry = entry.get(target_os)
-    if os_entry is None:
-        # App exists cross-OS but isn't packaged for this OS. Silent skip
+    blocks: list[Any] = []
+    if all_entry is not None:
+        blocks.extend(_blocks_from_entry(name, ALL_OS_KEY, all_entry))
+    if os_entry is not None:
+        blocks.extend(_blocks_from_entry(name, target_os, os_entry))
+    if not blocks:
+        # App exists but has neither all: nor a key for this OS. Silent skip
         # so darwin-only apps don't fail on Arch and vice versa.
         return
 
-    # Per-OS value is either a single provider block (dict) or a list of them.
-    blocks = os_entry if isinstance(os_entry, list) else [os_entry]
-    if not blocks:
-        raise CatalogError(
-            f"Catalog entry '{name}'.{target_os} must not be an empty list."
-        )
     seen_providers: set[str] = set()
     for block in blocks:
         if isinstance(block, dict):
             provider = block.get("provider")
             if provider in seen_providers:
                 raise CatalogError(
-                    f"Catalog entry '{name}'.{target_os} lists provider "
-                    f"{provider!r} more than once; merge the packages lists."
+                    f"Catalog entry '{name}' lists provider {provider!r} "
+                    f"more than once for {target_os} (after unioning "
+                    f"'{ALL_OS_KEY}' with '{target_os}'); merge the "
+                    f"packages lists."
                 )
             if isinstance(provider, str):
                 seen_providers.add(provider)
+        # Label errors with the OS being resolved, even for all: blocks.
         _ingest_provider_block(name, target_os, block, buckets, tap_buckets)
 
 

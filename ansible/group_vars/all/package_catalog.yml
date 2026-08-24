@@ -1,8 +1,17 @@
 ---
-# Logical app name -> per-OS install routing for the packages orchestrator.
+# Logical app name -> install routing for the packages orchestrator.
 # Every app referenced by os_apps / profiles_catalog[].apps MUST have an entry:
 # the catalog is exhaustive, so there is no implicit fall-through to a default
-# provider. An app that is intentionally Linux-only omits the `darwin:` key
+# provider.
+#
+# Keys:
+#   all:     cross-OS (typically provider: mise, packages: ["tool@version"])
+#   arch:    Arch/Garuda (pacman / aur)
+#   darwin:  macOS (brew / cask)
+#
+# `all:` is unioned with the matching OS key, so a CLI tool can be mise
+# everywhere while still installing a system package on one OS (python).
+# An app that is intentionally Linux-only omits `all:` and `darwin:`
 # (and vice versa); the resolver silently skips it on the other OS.
 # See ansible/README.md (Layer 2) for the schema.
 
@@ -20,15 +29,13 @@ package_catalog:
     darwin: { provider: cask, packages: [alfred] }
 
   atuin:
-    arch:   { provider: pacman, packages: [atuin] }
-    darwin: { provider: brew,   packages: [atuin] }
+    all: { provider: mise, packages: ["atuin@18.19.0"] }
 
   awww:
     arch: { provider: pacman, packages: [awww] }
 
   aws-cli:
-    arch:   { provider: aur, packages: [aws-cli-v2] }
-    darwin: { provider: brew, packages: [awscli] }
+    all: { provider: mise, packages: ["aws-cli@2.34.32"] }
 
   aws-session-manager-plugin:
     arch:   { provider: aur, packages: [aws-session-manager-plugin] }
@@ -38,36 +45,29 @@ package_catalog:
     darwin: { provider: cask, packages: [bartender] }
 
   bat:
-    arch:   { provider: pacman, packages: [bat] }
-    darwin: { provider: brew,   packages: [bat] }
+    all: { provider: mise, packages: ["bat@0.26.1"] }
 
   bazecor:
     arch:   { provider: aur, packages: [bazecor] }
     darwin: { provider: cask, packages: [bazecor] }
 
   beads:
-    arch:   { provider: aur, packages: [beads-git] }
-    darwin: { provider: brew, packages: [beads] }
+    all: { provider: mise, packages: ["github:steveyegge/beads[exe=bd]@1.2.2"] }
 
   btop:
-    arch:   { provider: pacman, packages: [btop] }
-    darwin: { provider: brew,   packages: [btop] }
+    all: { provider: mise, packages: ["btop@1.4.7"] }
 
   bun:
-    arch:   { provider: pacman, packages: [bun] }
-    darwin: { provider: brew,   packages: [bun] }
+    all: { provider: mise, packages: ["bun@1.4.0"] }
 
   chezmoi:
-    arch:   { provider: pacman, packages: [chezmoi] }
-    darwin: { provider: brew,   packages: [chezmoi] }
+    all: { provider: mise, packages: ["chezmoi@2.72.0"] }
 
   claude-code:
-    arch:   { provider: aur, packages: [claude-code] }
-    darwin: { provider: cask, packages: [claude-code] }
+    all: { provider: mise, packages: ["claude-code@latest"] }
 
   cloud-sql-proxy:
-    arch:   { provider: aur, packages: [cloud-sql-proxy] }
-    darwin: { provider: brew, packages: [cloud-sql-proxy] }
+    all: { provider: mise, packages: ["cloud-sql-proxy@2.25.3"] }
 
   copyq:
     arch: { provider: pacman, packages: [copyq] }
@@ -100,16 +100,13 @@ package_catalog:
     arch: { provider: aur, packages: [epson-inkjet-printer-escpr2] }
 
   eza:
-    arch:   { provider: pacman, packages: [eza] }
-    darwin: { provider: brew,   packages: [eza] }
+    all: { provider: mise, packages: ["eza@0.23.5"] }
 
   fastfetch:
-    arch:   { provider: pacman, packages: [fastfetch] }
-    darwin: { provider: brew,   packages: [fastfetch] }
+    all: { provider: mise, packages: ["fastfetch@2.67.1"] }
 
   fd:
-    arch:   { provider: pacman, packages: [fd] }
-    darwin: { provider: brew,   packages: [fd] }
+    all: { provider: mise, packages: ["fd@10.4.2"] }
 
   feh:
     arch: { provider: pacman, packages: [feh] }
@@ -126,12 +123,10 @@ package_catalog:
     arch: { provider: pacman, packages: [flameshot] }
 
   fresh-editor:
-    arch:   { provider: aur, packages: [fresh-editor-bin] }
-    darwin: { provider: brew, packages: [fresh-editor], taps: [sinelaw/fresh] }
+    all: { provider: mise, packages: ["github:sinelaw/fresh@0.4.10"] }
 
   fzf:
-    arch:   { provider: pacman, packages: [fzf] }
-    darwin: { provider: brew,   packages: [fzf] }
+    all: { provider: mise, packages: ["fzf@0.74.3"] }
 
   gcc:
     arch:   { provider: pacman, packages: [gcc] }
@@ -142,16 +137,14 @@ package_catalog:
     darwin: { provider: cask,   packages: [ghostty] }
 
   ghq:
-    arch:   { provider: pacman, packages: [ghq] }
-    darwin: { provider: brew,   packages: [ghq] }
+    all: { provider: mise, packages: ["ghq@1.10.1"] }
 
   git:
     arch:   { provider: pacman, packages: [git] }
     darwin: { provider: brew,   packages: [git] }
 
   git-filter-repo:
-    arch:   { provider: pacman, packages: [git-filter-repo] }
-    darwin: { provider: brew,   packages: [git-filter-repo] }
+    all: { provider: mise, packages: ["git-filter-repo@2.47.0"] }
 
   gitkraken:
     arch:   { provider: aur, packages: [gitkraken] }
@@ -162,23 +155,20 @@ package_catalog:
     darwin: { provider: brew,   packages: [gnupg] }
 
   go:
-    arch:   { provider: pacman, packages: [go] }
-    darwin: { provider: brew,   packages: [go] }
+    all: { provider: mise, packages: ["go@1.27.0"] }
 
   google-chrome:
     arch:   { provider: aur,  packages: [google-chrome] }
     darwin: { provider: cask, packages: [google-chrome] }
 
   google-cloud-cli:
-    arch:   { provider: aur, packages: [google-cloud-cli] }
-    darwin: { provider: cask, packages: [gcloud-cli] }
+    all: { provider: mise, packages: ["gcloud@581.0.0"] }
 
   gparted:
     arch: { provider: pacman, packages: [gparted] }
 
   grok-build:
-    arch:   { provider: aur, packages: [grok-build] }
-    darwin: { provider: cask, packages: [grok-build] }
+    all: { provider: mise, packages: ["grok@latest"] }
 
   gwenview:
     arch: { provider: pacman, packages: [gwenview] }
@@ -187,12 +177,10 @@ package_catalog:
     arch: { provider: pacman, packages: [headsetcontrol] }
 
   herdr:
-    arch:    { provider: aur, packages: [herdr-bin] }
-    darwin:  { provider: brew, packages: [herdr] }
+    all: { provider: mise, packages: ["herdr@0.8.2"] }
 
   hugo:
-    arch:   { provider: pacman, packages: [hugo] }
-    darwin: { provider: brew,   packages: [hugo] }
+    all: { provider: mise, packages: ["hugo-extended@0.165.0"] }
 
   hypridle:
     arch: { provider: pacman, packages: [hypridle] }
@@ -213,8 +201,7 @@ package_catalog:
     arch: { provider: pacman, packages: [iptables-nft] }
 
   jq:
-    arch:   { provider: pacman, packages: [jq] }
-    darwin: { provider: brew,   packages: [jq] }
+    all: { provider: mise, packages: ["jq@1.8.2"] }
 
   kanata:
     arch:   { provider: aur, packages: [kanata-bin] }
@@ -231,12 +218,10 @@ package_catalog:
     darwin: { provider: cask,   packages: [kitty] }
 
   lazydocker:
-    arch:   { provider: aur,  packages: [lazydocker] }
-    darwin: { provider: brew, packages: [lazydocker] }
+    all: { provider: mise, packages: ["lazydocker@0.25.2"] }
 
   lazygit:
-    arch:   { provider: pacman, packages: [lazygit] }
-    darwin: { provider: brew,   packages: [lazygit] }
+    all: { provider: mise, packages: ["lazygit@0.64.1"] }
 
   leader-key:
     darwin: { provider: cask, packages: [leader-key] }
@@ -290,8 +275,7 @@ package_catalog:
     darwin: { provider: cask, packages: [naps2] }
 
   neovim:
-    arch:   { provider: pacman, packages: [neovim] }
-    darwin: { provider: brew,   packages: [neovim] }
+    all: { provider: mise, packages: ["neovim@0.12.5"] }
 
   network-manager-applet:
     arch: { provider: pacman, packages: [network-manager-applet] }
@@ -303,8 +287,7 @@ package_catalog:
     arch: { provider: pacman, packages: [nm-connection-editor] }
 
   nodejs:
-    arch:   { provider: pacman, packages: [nodejs, npm, nvm] }
-    darwin: { provider: brew,   packages: [node, nvm] }
+    all: { provider: mise, packages: ["node@26.7.0"] }
 
   nvtop:
     arch: { provider: pacman, packages: [nvtop] }
@@ -319,8 +302,7 @@ package_catalog:
     arch: { provider: aur, packages: [onlyoffice-bin] }
 
   opencode:
-    arch:   { provider: pacman, packages: [opencode] }
-    darwin: { provider: brew, packages: [opencode] }
+    all: { provider: mise, packages: ["opencode@latest"] }
 
   pacseek:
     arch: { provider: aur, packages: [pacseek] }
@@ -351,8 +333,7 @@ package_catalog:
     darwin: { provider: cask, packages: [postman] }
 
   pre-commit:
-    arch:   { provider: pacman, packages: [pre-commit] }
-    darwin: { provider: brew,   packages: [pre-commit] }
+    all: { provider: mise, packages: ["pre-commit@4.6.2"] }
 
   psmisc:
     arch: { provider: pacman, packages: [psmisc] }
@@ -362,10 +343,10 @@ package_catalog:
     darwin: { provider: cask, packages: [pycharm] }
 
   python:
-    arch:
-      - { provider: pacman, packages: [python, python-black, python-gpgme, python-pip, python-poetry, python-virtualenv, uv] }
-      - { provider: aur,    packages: [pyrefly-bin] }
-    darwin: { provider: brew, packages: [black, python, pyrefly, uv] }
+    all:
+      { provider: mise, packages: ["python@3.14.7", "uv@0.12.3", "black@26.5.1", "poetry@2.4.1", "github:facebook/pyrefly@1.2.0"] }
+    arch:   { provider: pacman, packages: [python, python-gpgme] }
+    darwin: { provider: brew,   packages: [python] }
 
   python-i3ipc:
     arch: { provider: pacman, packages: [python-i3ipc] }
@@ -425,8 +406,7 @@ package_catalog:
     darwin: { provider: cask, packages: [spotify] }
 
   starship:
-    arch:   { provider: pacman, packages: [starship] }
-    darwin: { provider: brew,   packages: [starship] }
+    all: { provider: mise, packages: ["starship@1.26.0"] }
 
   steam:
     arch:   { provider: pacman, packages: [steam] }
@@ -453,8 +433,7 @@ package_catalog:
     darwin: { provider: brew, packages: [tailscale] }
 
   television:
-    arch:   { provider: pacman, packages: [television] }
-    darwin: { provider: brew,   packages: [television] }
+    all: { provider: mise, packages: ["television@0.15.9"] }
 
   thunderbird:
     arch:   { provider: pacman, packages: [thunderbird] }
@@ -566,8 +545,7 @@ package_catalog:
     arch: { provider: pacman, packages: [xorg-xkill] }
 
   yazi:
-    arch:   { provider: pacman, packages: [yazi] }
-    darwin: { provider: brew,   packages: [yazi] }
+    all: { provider: mise, packages: ["yazi@26.8.15"] }
 
   yubikey:
     arch:
@@ -580,13 +558,11 @@ package_catalog:
     darwin: { provider: cask, packages: [zed] }
 
   zellij:
-    arch:   { provider: pacman, packages: [zellij] }
-    darwin: { provider: brew,   packages: [zellij] }
+    all: { provider: mise, packages: ["zellij@0.45.0"] }
 
   zoom:
     arch:   { provider: aur,  packages: [zoom] }
     darwin: { provider: cask, packages: [zoom] }
 
   zoxide:
-    arch:   { provider: pacman, packages: [zoxide] }
-    darwin: { provider: brew,   packages: [zoxide] }
+    all: { provider: mise, packages: ["zoxide@0.10.0"] }

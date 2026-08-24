@@ -14,12 +14,12 @@ reference is [`../../ansible/README.md`](../../ansible/README.md).
      profile under `profiles_catalog` in `group_vars/all/profiles.yml` (and
      the recipe's `profiles:` list).
 
-2. Decide whether it needs a **catalog entry**
-   (`group_vars/all/package_catalog.yml`):
-   - **No entry** if the package name is the same on the target OS's default
-     provider (pacman on Arch, brew on macOS). It falls through.
-   - **Add an entry** if the app is cross-OS, needs AUR/cask, or has a
-     different package name per OS.
+2. Add a **catalog entry** (`group_vars/all/package_catalog.yml`). The
+   catalog is exhaustive; a missing entry fails resolution.
+   - Cross-OS CLI tool → `all: { provider: mise, packages: ["tool@version"] }`.
+   - GUI / OS package → per-OS `arch:` / `darwin:` blocks (pacman, aur,
+     brew, cask).
+   - Mixed (user CLI + system package) → `all:` unioned with a per-OS block.
 
 3. Verify resolution:
 
@@ -34,6 +34,10 @@ reference is [`../../ansible/README.md`](../../ansible/README.md).
 ```yaml
 package_catalog:
 
+  # Cross-OS CLI via mise. Pin a concrete version; `@latest` is rejected.
+  bat:
+    all: { provider: mise, packages: ["bat@0.26.1"] }
+
   # Cross-OS GUI app: per-OS keys, each a {provider, packages}.
   vivaldi:
     arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs] }
@@ -44,16 +48,12 @@ package_catalog:
     arch:   { provider: pacman, packages: [docker, docker-buildx, docker-compose] }
     darwin: { provider: brew,   packages: [docker, docker-buildx, docker-compose] }
 
-  # Multi-provider per OS: a LIST of {provider, packages} blocks.
+  # `all:` unioned with a per-OS block (user python via mise, system python
+  # on the OS package manager).
   python:
-    arch:
-      - { provider: pacman, packages: [python, python-pip, python-poetry] }
-      - { provider: aur,    packages: [pyrefly] }
-    darwin: { provider: brew, packages: [black, python, uv] }
-
-  # Third-party Homebrew tap. Formula name stays unqualified.
-  fresh-editor:
-    darwin: { provider: brew, packages: [fresh-editor], taps: [sinelaw/fresh] }
+    all:  { provider: mise, packages: ["python@3.14.7", "uv@0.12.3"] }
+    arch: { provider: pacman, packages: [python, python-gpgme] }
+    darwin: { provider: brew, packages: [python] }
 
   # Arch-only routing (AUR). Darwin hosts skip it silently.
   pacseek:
@@ -62,18 +62,22 @@ package_catalog:
 
 Rules:
 
-- Each entry has per-OS keys (`arch`, `darwin`, …). A per-OS value is either a
-  single `{provider, packages}` mapping or a list of such mappings (one per
-  provider) when multiple providers are needed on the same OS.
-- The same provider must not appear twice in one per-OS list — merge the
+- Each entry has `all:` and/or per-OS keys (`arch`, `darwin`, …). A value is
+  either a single `{provider, packages}` mapping or a list of such mappings
+  (one per provider) when multiple providers are needed.
+- `all:` is applied on every OS, then unioned with the matching per-OS block.
+  The same provider must not appear twice after that union — merge the
   `packages:` lists. The resolver fails fast on duplicates.
-- A logical name **not** in the catalog falls through to the default provider
-  for the OS.
+- `provider: mise` packages must be pinned `tool@version`. Use a backend
+  prefix when the short name is not in the mise registry
+  (`github:sinelaw/fresh@0.4.10`).
+- The catalog is exhaustive: a logical name **not** in the catalog is an
+  error. There is no default-provider fall-through.
 - Optional `taps: [user/repo, …]` on a `brew` or `cask` block is collected
   by the resolver and tapped before install. Formula/cask names stay
-  unqualified (`fresh-editor`, not `sinelaw/fresh/fresh-editor`).
-- An entry without a key for the current target OS is silently dropped
-  (arch-only entries don't fail on darwin and vice versa).
+  unqualified.
+- An entry without `all:` and without a key for the current target OS is
+  silently dropped (arch-only entries don't fail on darwin and vice versa).
 - Output buckets are deduped and sorted per provider for stable diffs.
 
 ## Add a new profile

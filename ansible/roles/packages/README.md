@@ -9,7 +9,7 @@ and installs via provider task files.
 Intent       os_apps + profiles_catalog[].apps (via recipe profiles:)
 Catalog      group_vars/all/package_catalog.yml
 Resolve      THIS ROLE (resolve_catalog filter)
-Providers    tasks/{pacman,aur,brew}.yml  # brew = formulae + casks
+Providers    tasks/{pacman,aur,brew,mise}.yml  # brew = formulae + casks
 ```
 
 ## Responsibilities
@@ -19,12 +19,15 @@ Providers    tasks/{pacman,aur,brew}.yml  # brew = formulae + casks
 2. Aggregate `os_apps` + recipe `profiles` → `profiles_catalog[].apps`.
 3. Resolve through the catalog into per-provider buckets.
 4. Include the matching provider task file for each non-empty bucket
-   (fixed order: pacman → aur → brew). Homebrew formulae and casks
-   use community.general.homebrew / homebrew_cask.
+   (fixed order: pacman → aur → brew → mise). Homebrew formulae and casks
+   use community.general.homebrew / homebrew_cask. mise installs pinned
+   CLI tools into the user mise prefix (`mise use --global --pin`).
 
 ## Does not
 
-- Manage configuration, services, or dotfiles.
+- Manage configuration, services, or dotfiles (mise.yml writes pins into
+  `~/.config/mise/config.toml` additively via `mise use --global`; Chezmoi
+  does not own that file).
 - Own package *lists* (`group_vars/<os>/apps.yml` and recipes).
 
 ## Inputs

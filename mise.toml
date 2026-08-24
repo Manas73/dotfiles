@@ -44,10 +44,15 @@ fi
 echo "chezmoi boundary ok"
 '''
 
+[tasks.test-catalog]
+description = "Unit-test the package catalog resolver"
+dir = "{{config_root}}/ansible"
+run = "python -m unittest tests.test_catalog"
+
 [tasks.check]
 description = "Full pre-commit validation (syntax, inventory, dry-run, diff)"
 alias = "validate"
-depends = ["test"]
+depends = ["test", "test-catalog"]
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
