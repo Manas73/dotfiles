@@ -167,27 +167,30 @@ BarWidget {
     return false
   }
 
-  function focusWorkspace(id) {
-    if (typeof Hyprland.dispatch === "function") {
-      Hyprland.dispatch("workspace " + String(id))
+  function activateWorkspace(ws, id) {
+    if (ws && typeof ws.activate === "function") {
+      ws.activate()
       return
     }
-    if (root.bar) root.bar.run("hyprctl dispatch workspace " + String(id))
+    if (typeof Hyprland.dispatch === "function")
+      Hyprland.dispatch("workspace " + String(id))
   }
 
-  readonly property real trailingGap: root.vertical ? 0 : Style.spaceReal(1.5)
+  readonly property int itemPad: Style.space(2)
+  readonly property int itemGap: Style.space(0)
   readonly property int slot: Style.bar.iconSlot
+  readonly property int cellWidth: root.vertical ? root.barSize : root.slot + root.itemPad * 2
+  readonly property int cellHeight: root.vertical ? root.slot + root.itemPad * 2 : root.barSize
 
-  implicitWidth: grid.implicitWidth + trailingGap
+  implicitWidth: grid.implicitWidth
   implicitHeight: grid.implicitHeight
 
   GridLayout {
     id: grid
     anchors.fill: parent
-    anchors.rightMargin: root.trailingGap
     columns: root.vertical ? 1 : Math.max(1, root.workspaceIds.length)
-    columnSpacing: 0
-    rowSpacing: 0
+    columnSpacing: root.vertical ? 0 : root.itemGap
+    rowSpacing: root.vertical ? root.itemGap : 0
 
     Repeater {
       model: root.workspaceIds
@@ -213,11 +216,41 @@ BarWidget {
           ? Color.urgent
           : (cell.current || cell.hovered ? Color.accent : Color.bar.text)
 
-        Layout.preferredWidth: root.vertical ? root.barSize : root.slot
-        Layout.preferredHeight: root.vertical ? root.slot : root.barSize
+        // The bar slot's MouseArea sits on top of the widget and only
+        // delivers clicks to registered targets with triggerPress().
+        property var registeredBar: null
+        property bool interactive: true
+        property bool pressable: true
+
+        function triggerPress(button) {
+          if (root.bar) root.bar.hideTooltip(cell)
+          root.activateWorkspace(cell.workspace, modelData)
+        }
+
+        function syncClickRegistration() {
+          if (cell.registeredBar && cell.registeredBar.unregisterClickTarget)
+            cell.registeredBar.unregisterClickTarget(cell)
+          cell.registeredBar = root.bar
+          if (cell.registeredBar && cell.registeredBar.registerClickTarget)
+            cell.registeredBar.registerClickTarget(cell)
+        }
+
+        Component.onCompleted: cell.syncClickRegistration()
+        Component.onDestruction: {
+          if (cell.registeredBar && cell.registeredBar.unregisterClickTarget)
+            cell.registeredBar.unregisterClickTarget(cell)
+        }
+
+        Connections {
+          target: root
+          function onBarChanged() { cell.syncClickRegistration() }
+        }
+
+        Layout.preferredWidth: root.cellWidth
+        Layout.preferredHeight: root.cellHeight
         Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-        width: Layout.preferredWidth
-        height: Layout.preferredHeight
+        width: root.cellWidth
+        height: root.cellHeight
 
         OpticalGlyph {
           id: glyph
@@ -268,7 +301,7 @@ BarWidget {
             cell.hovered = false
             if (root.bar) root.bar.hideTooltip(cell)
           }
-          onClicked: root.focusWorkspace(modelData)
+          onClicked: root.activateWorkspace(cell.workspace, modelData)
         }
       }
     }
