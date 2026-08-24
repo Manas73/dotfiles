@@ -132,12 +132,107 @@ BarWidget {
   }
 
   function trayIconSource(icon) {
-    // Quickshell already resolves the tray icon into a ready-to-use image://
-    // URL, including a "?path=" fallback search dir for apps that ship their
-    // tray icon outside a standard theme (e.g. Steam's flat public/ dir). Hand
-    // it straight to IconImage; guessing a theme sub-directory here only broke
-    // apps whose layout didn't match the guess.
-    return String(icon || "")
+    var candidates = root.iconCandidates(icon)
+    return candidates.length > 0 ? candidates[0] : ""
+  }
+
+  // Never feed `image://icon/<missing>` to Image — Quickshell's icon
+  // provider paints a magenta/black checkerboard when the name is absent
+  // from the theme (Solaar’s battery-100, Dropbox’s dropboxstatus-idle).
+  function iconCandidates(icon) {
+    var raw = String(icon || "")
+    var out = []
+
+    function add(url) {
+      if (!url) return
+      var value = String(url)
+      if (value.indexOf("image://icon/") === 0) return
+      if (out.indexOf(value) !== -1) return
+      out.push(value)
+    }
+
+    function addTheme(name) {
+      if (!name) return
+      var path = Quickshell.iconPath(name, true)
+      if (!path) return
+      if (String(path).indexOf("image://icon/") === 0) return
+      add(path)
+    }
+
+    function addFile(path) {
+      if (!path) return
+      add(path.charAt(0) === "/" ? Util.fileUrl(path) : path)
+    }
+
+    if (!raw) return out
+    if (raw.indexOf("image://qspixmap") === 0) {
+      add(raw)
+      return out
+    }
+    if (raw.indexOf("file://") === 0) {
+      add(raw)
+      return out
+    }
+    if (raw.charAt(0) === "/") {
+      addFile(raw)
+      return out
+    }
+
+    var stripped = raw
+    if (stripped.indexOf("image://icon/") === 0)
+      stripped = stripped.slice("image://icon/".length)
+
+    var extra = ""
+    var query = stripped.indexOf("?path=")
+    var name = stripped
+    if (query !== -1) {
+      extra = stripped.slice(query + 6)
+      name = stripped.slice(0, query)
+    }
+    var cut = name.indexOf("?")
+    if (cut !== -1) name = name.slice(0, cut)
+
+    if (extra) {
+      var rootDir = extra.replace(/\/$/, "")
+      addFile(rootDir + "/hicolor/16x16/status/" + name + ".png")
+      addFile(rootDir + "/hicolor/22x22/status/" + name + ".png")
+      addFile(rootDir + "/hicolor/24x24/status/" + name + ".png")
+      addFile(rootDir + "/hicolor/32x32/status/" + name + ".png")
+      addFile(rootDir + "/hicolor/scalable/status/" + name + ".svg")
+      addFile(rootDir + "/hicolor/16x16/apps/" + name + ".png")
+      addFile(rootDir + "/hicolor/32x32/apps/" + name + ".png")
+      addFile(rootDir + "/" + name + ".png")
+      addFile(rootDir + "/" + name + ".svg")
+    }
+
+    addTheme(name)
+
+    var lower = name.toLowerCase()
+    if (lower.indexOf("battery-") === 0) {
+      var digits = name.replace(/\D/g, "")
+      var n = parseInt(digits, 10)
+      var bucket = "unknown"
+      if (isFinite(n)) {
+        if (n >= 90) bucket = "100"
+        else if (n >= 70) bucket = "080"
+        else if (n >= 50) bucket = "060"
+        else if (n >= 30) bucket = "040"
+        else if (n >= 10) bucket = "020"
+        else bucket = "000"
+      }
+      addFile("/usr/share/icons/hicolor/32x32/apps/solaar-light_" + bucket + ".png")
+      addTheme("solaar-light_" + bucket)
+      addFile("/usr/share/icons/hicolor/scalable/apps/solaar.svg")
+      addTheme("solaar")
+    }
+    if (lower.indexOf("solaar") !== -1) {
+      addFile("/usr/share/icons/hicolor/scalable/apps/solaar.svg")
+      addTheme("solaar")
+    }
+    if (lower.indexOf("dropbox") !== -1)
+      addTheme("dropbox")
+
+    return out
   }
 
   // Symbolic icons ship a fixed fill (often near-white) that the host is meant
@@ -288,7 +383,6 @@ BarWidget {
             x: root.drawerExtent - root.revealExtent
             anchors.verticalCenter: parent.verticalCenter
             spacing: root.trayItemGap
-            layer.enabled: true
 
             Repeater {
               model: root.drawerItems
@@ -371,7 +465,6 @@ BarWidget {
             y: root.drawerExtent - root.revealExtent
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: root.trayItemGap
-            layer.enabled: true
 
             Repeater {
               model: root.drawerItems
@@ -767,27 +860,62 @@ BarWidget {
     id: trayIconRoot
     required property var icon
     readonly property bool symbolic: root.iconIsSymbolic(icon)
+    readonly property var candidates: root.iconCandidates(icon)
+    property int candidateIndex: 0
+    readonly property bool ready: trayIconImage.status === Image.Ready
+    readonly property string fallbackGlyph: {
+      var raw = String(icon || "").toLowerCase()
+      if (raw.indexOf("dropbox") !== -1) return ""
+      if (raw.indexOf("solaar") !== -1 || raw.indexOf("battery-") === 0) return "󰍽"
+      return "󰄛"
+    }
+
+    onCandidatesChanged: candidateIndex = 0
 
     Image {
       id: trayIconImage
       anchors.fill: parent
       fillMode: Image.PreserveAspectFit
-      // Decode at physical pixels: IconImage uses the logical size,
-      // which leaves PNG icons upscaled and blurry on HiDPI displays.
-      sourceSize.width: Math.round(Math.min(width, height) * Screen.devicePixelRatio)
-      sourceSize.height: Math.round(Math.min(width, height) * Screen.devicePixelRatio)
-      source: root.trayIconSource(trayIconRoot.icon)
-      // Kept as a hidden layer so the effect can sample it as a texture.
-      visible: !trayIconRoot.symbolic
-      layer.enabled: trayIconRoot.symbolic
+      asynchronous: false
+      smooth: true
+      mipmap: true
+      // Never request a 0×0 decode — that Errors immediately and burns
+      // through every candidate before the slot has a real size.
+      sourceSize.width: Math.max(16, Math.round(Math.min(width, height) * Screen.devicePixelRatio))
+      sourceSize.height: Math.max(16, Math.round(Math.min(width, height) * Screen.devicePixelRatio))
+      source: {
+        if (width < 8 || height < 8) return ""
+        var list = trayIconRoot.candidates
+        if (!list.length) return ""
+        var i = Math.max(0, Math.min(trayIconRoot.candidateIndex, list.length - 1))
+        return list[i]
+      }
+      onStatusChanged: {
+        if (width < 8 || height < 8) return
+        if (status === Image.Error && trayIconRoot.candidateIndex < trayIconRoot.candidates.length - 1)
+          trayIconRoot.candidateIndex += 1
+      }
+      // Hide the pink/black broken-image checkerboard while we hunt a file.
+      visible: !trayIconRoot.symbolic && status === Image.Ready
+      layer.enabled: trayIconRoot.symbolic && status === Image.Ready
     }
 
     MultiEffect {
       anchors.fill: trayIconImage
       source: trayIconImage
-      visible: trayIconRoot.symbolic
+      visible: trayIconRoot.symbolic && trayIconRoot.ready
       colorization: 1.0
       colorizationColor: root.foreground
+    }
+
+    Text {
+      anchors.centerIn: parent
+      visible: !trayIconRoot.ready
+      text: trayIconRoot.fallbackGlyph
+      color: root.foreground
+      font.family: root.fontFamily
+      font.pixelSize: Style.bar.iconFont
+      renderType: Text.NativeRendering
     }
   }
 
@@ -806,8 +934,8 @@ BarWidget {
 
     TrayIcon {
       anchors.centerIn: parent
-      width: Style.space(12)
-      height: Style.space(12)
+      width: Style.bar.iconCanvas
+      height: Style.bar.iconCanvas
       icon: trayItemRoot.modelData.icon
     }
 

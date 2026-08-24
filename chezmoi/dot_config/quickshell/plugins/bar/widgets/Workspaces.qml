@@ -176,6 +176,7 @@ BarWidget {
   }
 
   readonly property real trailingGap: root.vertical ? 0 : Style.spaceReal(1.5)
+  readonly property int slot: Style.bar.iconSlot
 
   implicitWidth: grid.implicitWidth + trailingGap
   implicitHeight: grid.implicitHeight
@@ -185,14 +186,14 @@ BarWidget {
     anchors.fill: parent
     anchors.rightMargin: root.trailingGap
     columns: root.vertical ? 1 : Math.max(1, root.workspaceIds.length)
-    columnSpacing: root.vertical ? 0 : Style.space(3)
-    rowSpacing: root.vertical ? Style.space(3) : 0
+    columnSpacing: 0
+    rowSpacing: 0
 
     Repeater {
       model: root.workspaceIds
 
       Item {
-        id: pill
+        id: cell
         required property int modelData
 
         readonly property var workspace: root.workspaceById(modelData)
@@ -203,51 +204,55 @@ BarWidget {
           var monitor = workspace.monitor
           var active = monitor && (monitor.activeWorkspace || monitor.focusedWorkspace)
           if (active && active.id === modelData) return true
-          return pill.focused
+          return cell.focused
         }
+        readonly property bool current: cell.focused || cell.visibleHere
         readonly property bool urgent: root.isUrgent(workspace)
         property bool hovered: false
-        readonly property bool emphasized: pill.focused || pill.visibleHere || pill.hovered
+        readonly property color glyphColor: cell.urgent
+          ? Color.urgent
+          : (cell.current || cell.hovered ? Color.accent : Color.bar.text)
 
-        Layout.preferredWidth: root.vertical ? root.barSize : pill.width
-        Layout.preferredHeight: root.vertical ? pill.height : root.barSize
+        Layout.preferredWidth: root.vertical ? root.barSize : root.slot
+        Layout.preferredHeight: root.vertical ? root.slot : root.barSize
         Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+        width: Layout.preferredWidth
+        height: Layout.preferredHeight
 
-        width: root.vertical ? root.barSize : Math.max(emphasized ? Style.space(50) : Style.space(40), icon.implicitWidth + Style.space(12))
-        height: root.vertical ? Math.max(emphasized ? Style.space(50) : Style.space(40), icon.implicitHeight + Style.space(8)) : root.barSize
-
-        Behavior on width { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-        Behavior on height { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-
-        Rectangle {
-          id: plate
+        OpticalGlyph {
+          id: glyph
           anchors.centerIn: parent
-          width: parent.width
-          height: Math.min(parent.height - Style.space(4), Style.space(22))
-          radius: Style.space(5)
-          color: pill.urgent
-            ? Color.urgent
-            : (pill.emphasized
-              ? Color.accent
-              : Util.alpha(Color.foreground, pill.occupied ? 0.14 : 0.06))
+          width: Style.bar.iconCanvas
+          height: Style.bar.iconCanvas
+          text: root.iconFor(modelData)
+          fontFamily: root.bar ? root.bar.fontFamily : Style.font.family
+          fontSize: Style.bar.iconFont
+          color: cell.glyphColor
+          opacity: cell.current || cell.urgent || cell.hovered ? 1 : 0.72
 
-          Behavior on color { ColorAnimation { duration: 180 } }
+          Behavior on color { ColorAnimation { duration: 140 } }
+          Behavior on opacity { NumberAnimation { duration: 140 } }
         }
 
-        Text {
-          id: icon
-          anchors.centerIn: parent
-          text: root.iconFor(modelData)
-          color: pill.urgent || pill.emphasized ? Color.background : Color.bar.text
-          opacity: pill.occupied || pill.emphasized || pill.urgent ? 1 : 0.55
-          font.family: root.bar ? root.bar.fontFamily : Style.font.family
-          font.pixelSize: Style.font.iconLarge
-          renderType: Text.NativeRendering
-          horizontalAlignment: Text.AlignHCenter
-          verticalAlignment: Text.AlignVCenter
+        Rectangle {
+          id: marker
+          visible: true
+          radius: height / 2
+          color: cell.urgent ? Color.urgent : Color.accent
+          opacity: cell.current || cell.urgent ? 1 : (cell.hovered ? 0.45 : 0)
+          width: root.vertical ? Style.space(2) : (cell.current ? Style.space(12) : Style.space(4))
+          height: root.vertical ? (cell.current ? Style.space(12) : Style.space(4)) : Style.space(2)
 
-          Behavior on color { ColorAnimation { duration: 160 } }
+          anchors.horizontalCenter: root.vertical ? undefined : parent.horizontalCenter
+          anchors.verticalCenter: root.vertical ? parent.verticalCenter : undefined
+          anchors.bottom: root.vertical ? undefined : parent.bottom
+          anchors.bottomMargin: root.vertical ? 0 : Style.space(3)
+          anchors.left: root.vertical ? parent.left : undefined
+          anchors.leftMargin: root.vertical ? Style.space(3) : 0
+
           Behavior on opacity { NumberAnimation { duration: 140 } }
+          Behavior on width { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+          Behavior on height { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
         }
 
         MouseArea {
@@ -256,12 +261,12 @@ BarWidget {
           cursorShape: Qt.PointingHandCursor
           acceptedButtons: Qt.LeftButton
           onEntered: {
-            pill.hovered = true
-            if (root.bar) root.bar.showTooltip(pill, "Workspace " + modelData)
+            cell.hovered = true
+            if (root.bar) root.bar.showTooltip(cell, "Workspace " + modelData)
           }
           onExited: {
-            pill.hovered = false
-            if (root.bar) root.bar.hideTooltip(pill)
+            cell.hovered = false
+            if (root.bar) root.bar.hideTooltip(cell)
           }
           onClicked: root.focusWorkspace(modelData)
         }
