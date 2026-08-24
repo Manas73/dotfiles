@@ -15,7 +15,7 @@
 # Packaging:
 #   Intent       os_apps + profiles_catalog[].apps (via recipe profiles:)
 #   Catalog      group_vars/all/package_catalog.yml
-#   packages     roles/packages
+#   packages     roles/packages (pacman → aur → brew → mise)
 #
 # Run examples:
 #   ansible-playbook playbooks/site.yml --limit alfred --ask-become-pass

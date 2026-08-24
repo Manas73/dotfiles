@@ -1,8 +1,10 @@
 # My Dotfiles
 
 Chezmoi owns `$HOME`. Ansible owns packages, services, and
-`~/.config/chezmoi/chezmoi.toml`. mise installs the repo toolchain and
-replaces `just` — it does not provision the machine or write dotfiles.
+`~/.config/chezmoi/chezmoi.toml`. The repo-root `mise.toml` installs the
+repo toolchain and runs tasks — it does not provision the machine or write
+dotfiles. Cross-platform CLI tools are pinned in the package catalog and
+installed by Ansible via `mise use --global`.
 
 > macOS package dispatch already works; bare-metal bootstrap is still
 > pending (`chezmoi-qxl`).
@@ -49,6 +51,7 @@ From the repo root (`~/.local/share/chezmoi`):
 | `mise tasks` | list tasks |
 | `mise run check` | pre-commit validation |
 | `mise run test` | chezmoi/repo boundary guard |
+| `mise run test-catalog` | package catalog resolver unit tests |
 | `mise run diff` | pending dotfile changes |
 | `mise run apply` | full provision (sudo) |
 | `mise run packages` | packages only (sudo) |
@@ -78,9 +81,10 @@ Details: [bootstrap fallback](docs/chezmoi/02-bootstrap-fallback.md).
 ## How it works
 
 `chezmoi apply` never installs packages, switches the login shell, or
-writes to `/etc`. Ansible never owns dotfile contents. mise never
-replaces either — it only puts their CLIs on PATH and runs the tasks
-above.
+writes to `/etc`. Ansible never owns dotfile contents. Repo-root mise
+never replaces either — it only puts ansible/chezmoi/age on PATH and
+runs the tasks above. User CLI pins live in
+`ansible/group_vars/all/package_catalog.yml`.
 
 ## Docs
 

@@ -4,8 +4,9 @@
 # Intent     -> os_apps (group_vars/<os>/apps.yml) + profiles_catalog[].apps via recipe
 # Catalog    -> group_vars/all/package_catalog.yml
 # Resolve    -> this role (resolve_catalog filter)
-# Providers  -> tasks/{pacman,aur,brew}.yml
+# Providers  -> tasks/{pacman,aur,brew,mise}.yml
 # Homebrew formulae and casks share brew.yml (homebrew + homebrew_cask).
+# mise runs last so the mise OS package is already on PATH.
 #
 # Does NOT manage configuration, services, or dotfiles.
 # Recipe must be loaded first (playbooks/tasks/load_recipe.yml) so
@@ -78,7 +79,8 @@
   tags: [packages]
 
 # Fixed order: pacman before aur (shared DB refresh), then Homebrew
-# (formulae + casks). Only non-empty buckets are included.
+# (formulae + casks), then mise (needs the mise OS package on PATH).
+# Only non-empty buckets are included.
 # Skip installs when packages_validate_only (unprivileged mise run check).
 
 - name: Install pacman packages
@@ -127,6 +129,18 @@
         or (packages_resolved.packages.cask | default([])) | length > 0
       )
   tags: [packages, brew, cask, darwin]
+
+- name: Install mise tools
+  ansible.builtin.include_tasks:
+    file: mise.yml
+    apply:
+      tags: [packages, mise]
+  vars:
+    provider_packages: "{{ packages_resolved.packages.mise | default([]) }}"
+  when:
+    - not (packages_validate_only | default(false) | bool)
+    - (packages_resolved.packages.mise | default([])) | length > 0
+  tags: [packages, mise]
 
 - name: Report resolved packages (validate-only)
   ansible.builtin.debug:

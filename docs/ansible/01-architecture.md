@@ -10,13 +10,13 @@ packages role with per-manager task files.
 ```text
 Intent       os_apps + profiles_catalog[].apps (via recipe profiles:)
 Catalog      group_vars/all/package_catalog.yml
-packages     roles/packages (resolve + tasks/{pacman,aur,brew,cask}.yml)
+packages     roles/packages (resolve + tasks/{pacman,aur,brew,mise}.yml)
 ```
 
 ## Intent
 
 Pure lists of *logical* app names. They know nothing about pacman, AUR, brew,
-or cask. Two sources feed the packages role:
+cask, or mise. Two sources feed the packages role:
 
 1. **OS-family list** — `os_apps` in `group_vars/<os>/apps.yml` (same variable
    name on every OS group: `arch`, `darwin`, …).
@@ -40,22 +40,19 @@ Profiles are **not** inventory groups. Available profiles:
 
 ## Catalog
 
-`group_vars/all/package_catalog.yml` maps each logical name to concrete,
-per-OS install instructions (provider + package list). It handles three
-patterns:
+`group_vars/all/package_catalog.yml` maps each logical name to concrete
+install instructions (provider + package list). It handles:
 
-- **Cross-OS name mapping** — e.g. `aws-cli` → `aws-cli-v2` on AUR,
-  `awscli` on brew.
-- **Roll-ups** — one logical name expands to N concrete packages per OS
-  (`docker`, `nodejs`, `python`, the JetBrains IDEs with their `-jre`
-  companions, …).
-- **Multi-provider per OS** — a per-OS value can be a list of
-  `{provider, packages}` blocks (e.g. most of `python` from pacman plus
-  `pyrefly` from AUR on Arch).
+- **Cross-OS CLI via mise** — `all: { provider: mise, packages: ["bat@0.26.1"] }`.
+  Same pin on every OS. `all:` unions with an optional per-OS block.
+- **Cross-OS GUI name mapping** — e.g. `vivaldi` → pacman on Arch, cask on Darwin.
+- **Roll-ups** — one logical name expands to N concrete packages
+  (`docker`, JetBrains IDEs with their `-jre` companions, …).
+- **Multi-provider** — `python` is mise (user toolchain) plus pacman/brew
+  (system interpreter).
 
-A logical name **not** in the catalog falls through to the default provider
-for the OS (`pacman` on Arch, `brew` on Darwin). That's why everyday
-same-name packages need no catalog entry.
+The catalog is exhaustive: a logical name **not** in the catalog is an error.
+An entry with neither `all:` nor a key for the current OS is silently skipped.
 
 OS detection uses `group_vars/all/os_providers.yml` (`os_family_map`).
 
@@ -70,7 +67,7 @@ Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.
 3. Resolves them through the catalog (`resolve_catalog` filter) into
    `{packages: {provider: [pkg, …]}, taps: {provider: [tap, …]}}`.
 4. Includes provider task files in fixed order for each non-empty bucket:
-   pacman → aur → brew (formulae + casks).
+   pacman → aur → brew (formulae + casks) → mise.
 
 ### Provider task files
 
@@ -79,9 +76,10 @@ Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.
 | `tasks/pacman.yml` | Archlinux | Verifies pacman; folds in multilib. |
 | `tasks/aur.yml` | Archlinux | Builds `yay-bin` when yay is missing. |
 | `tasks/brew.yml` | Darwin | Official installer; community.general.homebrew / homebrew_tap / homebrew_cask. |
+| `tasks/mise.yml` | all | Requires `mise` on PATH. `mise use --global --pin` for `tool@version` specs. |
 
 Each accepts `provider_packages`, no-ops on empty input, asserts the OS
-family, and installs idempotently.
+family (except mise), and installs idempotently.
 
 ## How it ties back to Chezmoi
 
