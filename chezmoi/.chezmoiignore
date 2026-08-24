@@ -38,6 +38,7 @@ key.txt.age
 {{- if not (has "hyprland" .window_manager) }}
 .config/ai-usagebar
 .config/hypr
+.config/hyprmoncfg
 .config/swaync
 .config/swayosd
 .config/waybar
