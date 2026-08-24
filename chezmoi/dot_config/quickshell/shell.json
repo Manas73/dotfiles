@@ -43,6 +43,7 @@
         { "id": "akitaonrails.ai-usagebar" },
         { "id": "omarchy.bluetooth" },
         { "id": "omarchy.network" },
+        { "id": "omarchy.tailscale" },
         { "id": "omarchy.audio" },
         { "id": "omarchy.monitor" },
         { "id": "omarchy.power" }
