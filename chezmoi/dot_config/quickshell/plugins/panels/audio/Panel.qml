@@ -145,6 +145,11 @@ Panel {
 
   readonly property real outputVolume: volumeSink && volumeSink.audio ? volumeSink.audio.volume : 0
   readonly property bool outputMuted: volumeSink && volumeSink.audio ? volumeSink.audio.muted : false
+  readonly property int outputPercent: Math.round(Math.max(0, outputVolume) * 100)
+  // Horizontal bars show the percentage next to the glyph; vertical bars stay
+  // icon-only because the slot is too narrow for a label.
+  readonly property bool showVolumePercent: !button.vertical
+  readonly property real openPanelIndicatorWidth: showVolumePercent ? button.labelWidth : 0
   readonly property real inputVolume: source && source.audio ? source.audio.volume : 0
   readonly property bool inputMuted: source && source.audio ? source.audio.muted : false
 
@@ -405,10 +410,11 @@ Panel {
     if (isHeadphones(sink)) return "󰋋"
     if (outputMuted) return "󰝟"
     var v = volume === undefined ? outputVolume : volume
-    if (v >= 0.67) return "󰕾"
-    if (v >= 0.34) return "󰖀"
-    if (v > 0) return "󰕿"
-    return "󰝟"
+    return "󰕾"
+    // if (v >= 0.67) return "󰕾"
+    // if (v >= 0.34) return "󰖀"
+    // if (v > 0) return "󰕿"
+    // return "󰝟"
   }
 
   function inputIcon() {
@@ -625,11 +631,15 @@ Panel {
     onTriggered: root.refreshDisplayAudioModels()
   }
 
-  BarIconButton {
+  WidgetButton {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: root.outputIcon()
+    text: root.showVolumePercent
+      ? root.outputIcon() + " " + root.outputPercent + "%"
+      : root.outputIcon()
+    fontSize: Style.font.bodySmall
+    horizontalMargin: 8.5
     onPressed: function(b) {
       if (b === Qt.RightButton) root.toggleAllMuted()
       else root.toggle()
