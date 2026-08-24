@@ -114,6 +114,7 @@ profiles_catalog:
       - polkit-gnome
       - qt5-wayland
       - qt6-wayland
+      - quickshell
       - rofi-wayland
       - swaync
       - swayosd
