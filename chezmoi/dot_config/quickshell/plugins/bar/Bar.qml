@@ -1017,10 +1017,18 @@ Item {
 
     implicitWidth: root.vertical ? root.barSize : 0
     implicitHeight: root.vertical ? 0 : root.barSize
-    color: root.transparent ? "transparent" : root.background
+    // Transparent layer so Hyprland can blur through it (layerrule namespace
+    // `quickshell`). The fill below is the actual tint; fully-transparent
+    // pixels stay unblurred via ignorealpha 0.2.
+    color: "transparent"
     surfaceFormat.opaque: false
-    WlrLayershell.namespace: "omarchy-bar"
+    WlrLayershell.namespace: "quickshell"
     WlrLayershell.layer: WlrLayer.Top
+
+    Rectangle {
+      anchors.fill: parent
+      color: root.transparent ? "transparent" : root.background
+    }
 
     Loader {
       anchors.fill: parent

@@ -12,3 +12,7 @@ icon-font = 14
 icon-canvas = 20
 icon-slot = 32
 status-slot = 24
+background-alpha = 0.4
+
+[popups]
+background-alpha = 0.4

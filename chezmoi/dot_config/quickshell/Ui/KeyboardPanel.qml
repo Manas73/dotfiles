@@ -80,9 +80,10 @@ PanelWindow {
   screen: anchorWindow ? anchorWindow.screen : null
   visible: open || card.opacity > 0 || popoutSwitching
   color: "transparent"
+  surfaceFormat.opaque: false
   exclusionMode: ExclusionMode.Ignore
 
-  WlrLayershell.namespace: "omarchy-keyboard-panel"
+  WlrLayershell.namespace: "quickshell"
   WlrLayershell.layer: WlrLayer.Overlay
   // Keyboard focus follows `open` (NOT `visible`). The window remains
   // mapped during the fade-out so the opacity animation has something to
