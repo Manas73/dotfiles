@@ -399,16 +399,16 @@ Panel {
   }
 
   function outputIcon(volume) {
-    // Match the old Waybar pulseaudio glyph set. The Material Design speaker
-    // icons render visually smaller in JetBrainsMono Nerd Font.
-    if (!sink || !sink.audio) return ""
+    // Material Design volume glyphs (nf-md-volume-*). The FA6 mute icon  is
+    // missing from many Nerd Fonts and renders as a tiny ".".
+    if (!sink || !sink.audio) return "󰝟"
     if (isHeadphones(sink)) return "󰋋"
-    if (outputMuted) return ""
+    if (outputMuted) return "󰝟"
     var v = volume === undefined ? outputVolume : volume
-    if (v >= 0.67) return ""
-    if (v >= 0.34) return ""
-    if (v > 0) return ""
-    return ""
+    if (v >= 0.67) return "󰕾"
+    if (v >= 0.34) return "󰖀"
+    if (v > 0) return "󰕿"
+    return "󰝟"
   }
 
   function inputIcon() {
@@ -640,7 +640,7 @@ Panel {
       var wheel = Util.wheelSteps(root.wheelAccumulator, delta)
       root.wheelAccumulator = wheel.remainder
       if (wheel.steps === 0) return
-      var volume = root.setOutputVolume(root.outputVolume + wheel.steps * 0.05)
+      var volume = root.setOutputVolume(root.outputVolume + wheel.steps * 0.02)
       root.showVolumeOsd(volume)
     }
   }
