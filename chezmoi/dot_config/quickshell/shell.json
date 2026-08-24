@@ -31,7 +31,8 @@
       "center": [
         {
           "id": "omarchy.clock",
-          "format": "dddd HH:mm"
+          "format": "hh:mm AP",
+          "formatAlt": "yyyy-MM-dd hh:mm:ss AP"
         },
         { "id": "omarchy.keyboard-layout" },
         { "id": "omarchy.weather" }

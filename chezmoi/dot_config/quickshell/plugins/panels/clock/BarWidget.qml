@@ -7,27 +7,24 @@ import "Model.js" as Model
 
 // Date/time label for the bar, and the host for the calendar popup.
 //
-// Left click reveals the calendar — asking "what is the date?" is what a
-// click on a clock means — right click walks the common label formats, and
-// middle click opens the timezone picker.
+// Left click reveals the calendar. Right click toggles format ↔ formatAlt
+// (same as Waybar's primary click on the clock). Middle click opens the
+// timezone picker. The toggle is session-only; restart restores `format`.
 BarWidget {
   id: root
   moduleName: "omarchy.clock"
 
   property date displayDate: clock.date
+  property bool showingAlt: false
 
   readonly property string configuredFormat: vertical
     ? setting("verticalFormat", "HH\n—\nmm")
-    : setting("format", "dddd HH:mm")
+    : setting("format", "' 'hh:mm AP")
   readonly property string configuredAltFormat: vertical
-    ? setting("verticalFormatAlt", "dd\nMMM\n'W'ww\n''yy")
-    : setting("formatAlt", "d MMMM 'W'ww yyyy")
+    ? setting("verticalFormatAlt", "yyyy\nMM-dd\nhh:mm:ss\nAP")
+    : setting("formatAlt", "' 'yyyy-MM-dd hh:mm:ss AP")
 
-  readonly property var formatRing: Model.clockFormatRing(configuredFormat, configuredAltFormat, Model.clockFormats(vertical))
-
-  // What the bar shows is what shell.json stores, so a cycled format is the
-  // format from then on rather than something that reverts on restart.
-  readonly property string activeFormat: configuredFormat
+  readonly property string activeFormat: showingAlt ? configuredAltFormat : configuredFormat
 
   // A seconds label needs the clock to tick sixty times as often, and a
   // repaint a second is a price only the formats that print seconds pay.
@@ -41,19 +38,7 @@ BarWidget {
   }
 
   function cycleFormat() {
-    var current = String(configuredFormat)
-    var next = Model.nextClockFormat(formatRing, current)
-    if (next === "" || next === current) return
-
-    var entry = { id: root.moduleName }
-    for (var key in root.settings) if (key !== "id") entry[key] = root.settings[key]
-    entry[vertical ? "verticalFormat" : "format"] = next
-
-    // Applied locally first so the label changes on the click itself; the
-    // shell.json write comes back through the bar as the same value.
-    root.settings = entry
-    if (root.bar && root.bar.shell && typeof root.bar.shell.updateEntryInline === "function")
-      root.bar.shell.updateEntryInline(root.moduleName, entry)
+    showingAlt = !showingAlt
   }
 
   function formatted(date) {
