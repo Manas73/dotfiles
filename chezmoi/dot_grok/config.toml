@@ -1,0 +1,24 @@
+[cli]
+installer = "npm"
+auto_update = false
+
+[ui]
+max_thoughts_width = 120
+fork_secondary_model = "grok-build"
+yolo = false
+compact_mode = false
+permission_mode = "always-approve"
+voice_keybind_enabled = false
+follow_up_behavior = "steer"
+screen_mode = "fullscreen"
+
+[marketplace]
+official_marketplace_auto_installed = true
+default_skills_installs_purged = true
+
+[[marketplace.sources]]
+name = "xAI Official"
+git = "https://github.com/xai-org/plugin-marketplace.git"
+
+[privacy]
+privacy_banner_acked = "2026-08-24T17:45:21Z"
