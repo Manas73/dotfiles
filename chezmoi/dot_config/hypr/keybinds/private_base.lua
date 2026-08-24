@@ -19,22 +19,14 @@ hl.bind(mainMod .. " + SHIFT + Space", hl.dsp.window.float({ action = "toggle" }
 -- Screenshot
 hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("flameshot gui"))
 
--- Waybar and SwayNC
-hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("/home/ms-garuda/.config/waybar/scripts/launch.sh"))
-hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t"))
+-- Quickshell
+hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("killall quickshell; ~/.config/quickshell/bin/launch"))
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("omarchy-shell notifications showHistory"))
 
--- Laptop multimedia keys for volume and LCD brightness
-local function vol(args)
-	return hl.dsp.exec_cmd(
-		"swayosd-client "
-			.. args
-			.. " --monitor \"$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')\""
-	)
-end
-
-hl.bind("XF86AudioRaiseVolume", vol("--output-volume 2"), { repeating = true, locked = true })
-hl.bind("XF86AudioLowerVolume", vol("--output-volume -2"), { repeating = true, locked = true })
-hl.bind("XF86AudioMute", vol("--output-volume mute-toggle"), { repeating = true, locked = true })
+-- Laptop multimedia keys for volume (OSD lives in the shell)
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("omarchy-audio-output-volume raise"), { repeating = true, locked = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("omarchy-audio-output-volume lower"), { repeating = true, locked = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("omarchy-audio-output-volume mute-toggle"), { locked = true })
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 
 -- Move/resize windows with mainMod + LMB/RMB and dragging

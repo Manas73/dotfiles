@@ -1,0 +1,129 @@
+# Fallback shell surfaces. Copied to ~/.config/quickshell/theme/shell.toml
+# by matugen; edit ~/.config/quickshell/shell.toml for machine overrides.
+
+[bar]
+background       = "#0f1417"
+background-alpha = 1.0
+text             = "#dfe3e7"
+active           = "#ffb4ab"
+scale-with-font  = true
+size-horizontal  = 26
+size-vertical    = 28
+
+[hyprland]
+active-border            = "#8ecff0"
+active-border-foreground = "#dfe3e7"
+
+[controls]
+normal-color        = "#dfe3e7"
+normal-fill-alpha   = 0.04
+normal-border       = "#dfe3e7"
+normal-border-width = 1
+normal-border-alpha = 0.4
+hover-cursor-color        = "#dfe3e7"
+hover-cursor-fill-alpha   = 0.08
+hover-cursor-border       = "#dfe3e7"
+hover-cursor-border-width = 1
+hover-cursor-border-alpha = 0.25
+focus-color        = "#dfe3e7"
+focus-fill-alpha   = 0.08
+focus-border       = "#dfe3e7"
+focus-border-width = 1
+focus-border-alpha = 0.25
+selected-color        = "#dfe3e7"
+selected-fill-alpha   = 0.18
+selected-border       = "#dfe3e7"
+selected-border-width = 0
+selected-border-alpha = 1.0
+pressed-fill-alpha   = 0.22
+selection-fill-alpha = 0.35
+
+[spacing]
+scale = 1.0
+scale-with-font = true
+
+[font]
+base-size = 12
+
+[popups]
+background       = "#0f1417"
+background-alpha = 1.0
+text             = "#dfe3e7"
+border           = "hyprland.active-border"
+border-alpha     = 1.0
+
+[tooltip]
+background       = "#0f1417"
+background-alpha = 0.97
+text             = "#dfe3e7"
+border           = "hyprland.active-border-foreground"
+border-alpha     = 1.0
+
+[notifications]
+background       = "#0f1417"
+background-alpha = 1.0
+text             = "#dfe3e7"
+border           = "hyprland.active-border"
+border-alpha     = 1.0
+countdown        = "#8ecff0"
+
+[launcher]
+background                = "#0f1417"
+background-alpha          = 0.95
+text                      = "#dfe3e7"
+border                    = "hyprland.active-border-foreground"
+border-alpha              = 1.0
+scrim                     = "#0f1417"
+scrim-alpha               = 0.5
+selected-background       = "#dfe3e7"
+selected-background-alpha = 0.08
+selected-text             = "#8ecff0"
+selected-border           = "hyprland.active-border-foreground"
+selected-border-alpha     = 0.25
+
+[menu]
+background                = "#0f1417"
+background-alpha          = 1.0
+text                      = "#dfe3e7"
+border                    = "hyprland.active-border-foreground"
+border-alpha              = 1.0
+scrim                     = "#0f1417"
+scrim-alpha               = 0.5
+selected-background       = "#dfe3e7"
+selected-background-alpha = 0.08
+selected-text             = "#8ecff0"
+selected-border           = "hyprland.active-border-foreground"
+selected-border-alpha     = 0.25
+
+[polkit]
+background       = "#0f1417"
+background-alpha = 1.0
+text             = "#dfe3e7"
+text-error       = "#ffb4ab"
+border           = "hyprland.active-border"
+border-error     = "#ffb4ab"
+border-alpha     = 1.0
+scrim            = "#0f1417"
+scrim-alpha      = 0.5
+accent           = "#8ecff0"
+
+[lock]
+background       = "#0f1417"
+background-alpha = 0.8
+text             = "#dfe3e7"
+text-error       = "#ffb4ab"
+border           = "hyprland.active-border"
+border-active    = "hyprland.active-border"
+border-error     = "#ffb4ab"
+border-alpha     = 1.0
+selection        = "#8ecff0"
+selection-alpha  = 0.45
+
+[image-picker]
+scrim                   = "#0f1417"
+scrim-alpha             = 0.5
+text                    = "#dfe3e7"
+selected-border         = "#8ecff0"
+selected-border-alpha   = 1.0
+unselected-border       = "#dfe3e7"
+unselected-border-alpha = 0.28

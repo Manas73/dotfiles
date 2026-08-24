@@ -1,0 +1,18 @@
+#!/bin/bash
+# Report whether the package manager has pending updates.
+# Exit 0 when updates exist (bar widget visible), 1 otherwise.
+
+set -euo pipefail
+
+if command -v checkupdates >/dev/null 2>&1; then
+  updates=$(checkupdates --nocolor 2>/dev/null | head -n 5 || true)
+  if [[ -n $updates ]]; then
+    printf '%s\n' "$updates"
+    exit 0
+  fi
+  echo "System is up to date"
+  exit 1
+fi
+
+echo "System is up to date"
+exit 1

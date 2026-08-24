@@ -40,6 +40,7 @@ key.txt.age
 .config/swaync
 .config/swayosd
 .config/waybar
+.config/quickshell
 .config/xdg-desktop-portal
 {{- end }}
 

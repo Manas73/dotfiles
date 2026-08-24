@@ -1,0 +1,4 @@
+# Helper scripts and plugin scanners must land executable.
+dot_config/quickshell/bin/** executable
+dot_config/quickshell/plugins/**/*.sh executable
+dot_config/quickshell/services/*.sh executable

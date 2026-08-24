@@ -1,0 +1,14 @@
+#!/bin/bash
+# Low-battery warning used by the battery service.
+
+set -euo pipefail
+
+if (( $# != 1 )); then
+  echo "Usage: omarchy-battery-low <percentage>" >&2
+  exit 1
+fi
+
+config="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell"
+export PATH="$config/bin:${PATH:-/usr/bin}"
+
+omarchy-notification-send -g $'\uF142B' -u critical "Time to recharge!" "Battery is down to ${1}%" -i battery-caution -t 30000

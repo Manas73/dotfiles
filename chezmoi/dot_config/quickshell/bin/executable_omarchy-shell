@@ -1,0 +1,73 @@
+#!/bin/bash
+# Forward an IPC call to the running Quickshell instance.
+# Kept as `omarchy-shell` so first-party plugins and keybinds keep working.
+
+set -euo pipefail
+
+QUIET=0
+if [[ ${1:-} == "-q" ]]; then
+  QUIET=1
+  shift
+fi
+
+fail() {
+  (( QUIET )) && exit 0
+  echo "$1" >&2
+  exit 1
+}
+
+config="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell"
+export PATH="$config/bin:${PATH:-/usr/bin}"
+
+if (( $# == 0 )) || [[ $1 == "-h" || $1 == "--help" ]]; then
+  cat <<USAGE
+Usage: omarchy-shell [-q] <target> <method> [args...]
+
+Forwards an IPC call to the running Quickshell instance for this config.
+
+Examples:
+  omarchy-shell shell ping
+  omarchy-shell shell toggle omarchy.menu '{"menu":"root"}'
+  omarchy-shell notifications showHistory
+USAGE
+  exit 0
+fi
+
+(( $# >= 2 )) || fail "Usage: omarchy-shell <target> <method> [args...]"
+[[ -f $config/shell.qml ]] || fail "quickshell config not found: $config/shell.qml"
+
+if [[ -z ${WAYLAND_DISPLAY:-} ]]; then
+  socket=$(ls -t "${XDG_RUNTIME_DIR:-/run/user/$UID}"/wayland-[0-9]* 2>/dev/null | grep -v '\.lock$' | head -n1 || true)
+  [[ -n $socket ]] && export WAYLAND_DISPLAY=${socket##*/}
+fi
+
+if [[ $1 == "shell" && ( $2 == "summon" || $2 == "toggle" ) ]] && (( $# == 3 )); then
+  set -- "$1" "$2" "$3" "{}"
+fi
+
+qs_bin=qs
+command -v qs >/dev/null 2>&1 || qs_bin=quickshell
+command -v "$qs_bin" >/dev/null 2>&1 || fail "quickshell is not installed"
+
+ipc_timeout=${QUICKSHELL_IPC_TIMEOUT:-2s}
+output=$(timeout --kill-after=1s "$ipc_timeout" "$qs_bin" ipc -n -p "$config" call -- "$@" 2>/dev/null) || {
+  status=$?
+  if (( status == 124 || status == 137 )); then
+    fail "quickshell is not responding"
+  fi
+  fail "quickshell is not running"
+}
+
+case $output in
+  "Target not found." | "Function not found." | "Too few arguments provided"* | "Too many arguments provided"*)
+    fail "$output"
+    ;;
+  "Not ready to accept queries yet"*)
+    fail "quickshell is not ready"
+    ;;
+esac
+
+if (( !QUIET )) && [[ -n $output ]]; then
+  echo "$output"
+fi
+exit 0

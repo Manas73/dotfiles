@@ -1,0 +1,25 @@
+{
+  // Generic session menu. Override or extend with ~/.config/quickshell/menu.jsonc
+  // (same JSONC shape: dotted ids, optional action / provider / when / checked).
+
+  "apps": {"icon":"󰀻","label":"Apps","aliases":["app","applications"],"provider":"apps"},
+  "trigger": {"icon":"󱓞","label":"Trigger"},
+  "style": {"icon":"","label":"Style"},
+  "system": {"icon":"","label":"System","aliases":["power-menu"]},
+
+  "trigger.emoji": {"icon":"","label":"Emoji","aliases":["emoji","emojis"],"action":"omarchy-shell shell summon omarchy.emojis"},
+  "trigger.clipboard": {"icon":"","label":"Clipboard","aliases":["clipboard"],"action":"omarchy-shell shell summon omarchy.clipboard"},
+  "trigger.notifications": {"icon":"󰂚","label":"Notification history","action":"omarchy-shell notifications showHistory"},
+  "trigger.toggle": {"icon":"󰔎","label":"Toggle"},
+  "trigger.toggle.nightlight": {"icon":"󰔎","label":"Nightlight","action":"omarchy-toggle-nightlight"},
+  "trigger.toggle.notifications": {"icon":"󰂛","label":"Do not disturb","action":"omarchy-shell notifications toggleDnd"},
+  "trigger.toggle.top-bar": {"icon":"󰍜","label":"Menu bar","action":"omarchy-toggle-bar"},
+
+  "style.bar": {"icon":"󰍜","label":"Menu bar"},
+  "style.bar.transparency": {"icon":"󰂵","label":"Transparency","action":"omarchy-shell shell toggleBarTransparency"},
+
+  "system.lock": {"icon":"","label":"Lock","action":"omarchy-system-lock"},
+  "system.logout": {"icon":"󰍃","label":"Logout","action":"omarchy-system-logout"},
+  "system.reboot": {"icon":"󰜉","label":"Reboot","action":"omarchy-system-reboot"},
+  "system.shutdown": {"icon":"󰐥","label":"Shutdown","action":"omarchy-system-shutdown"}
+}
