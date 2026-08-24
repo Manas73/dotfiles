@@ -1,0 +1,29 @@
+#!/bin/bash
+# Launch the Quickshell desktop shell from ~/.config/quickshell.
+
+set -euo pipefail
+
+config="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell"
+export PATH="$config/bin:${PATH:-/usr/bin}"
+
+if ! command -v quickshell >/dev/null 2>&1 && ! command -v qs >/dev/null 2>&1; then
+  echo "quickshell is not installed" >&2
+  exit 1
+fi
+
+# Chezmoi apply can drop +x; restore it so Process{} can exec helpers.
+chmod +x "$config/bin/"* 2>/dev/null || true
+find "$config/plugins" "$config/services" -type f \( -name '*.sh' -o -name 'status.py' \) -exec chmod +x {} + 2>/dev/null || true
+
+# This shell owns notifications and OSD. Drop competing daemons from the
+# previous Waybar session so org.freedesktop.Notifications is free.
+pkill -x waybar >/dev/null 2>&1 || true
+pkill -x swaync >/dev/null 2>&1 || true
+pkill -x swaync-client >/dev/null 2>&1 || true
+pkill -x swayosd >/dev/null 2>&1 || true
+pkill -x swayosd-server >/dev/null 2>&1 || true
+
+qs_bin=quickshell
+command -v quickshell >/dev/null 2>&1 || qs_bin=qs
+
+exec "$qs_bin" -p "$config" "$@"

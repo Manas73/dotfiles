@@ -22,7 +22,14 @@ post_hook = 'hyprctl reload'
 [templates.waybar]
 input_path = '~/.config/matugen/templates/waybar.css'
 output_path = '~/.config/waybar/colors/matugen.css'
-post_hook = 'pkill -SIGUSR2 waybar'
+
+[templates.quickshell_colors]
+input_path = '~/.config/matugen/templates/quickshell-colors.toml'
+output_path = '~/.config/quickshell/theme/colors.toml'
+
+[templates.quickshell_shell]
+input_path = '~/.config/matugen/templates/quickshell-shell.toml'
+output_path = '~/.config/quickshell/theme/shell.toml'
 
 [templates.swaync]
 input_path = '~/.config/matugen/templates/waybar.css'

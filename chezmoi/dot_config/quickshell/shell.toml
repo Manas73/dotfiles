@@ -1,0 +1,18 @@
+# Machine overrides layered on the active theme.
+# Values under [bar] are the size at font base-size 12; with scale-with-font
+# they grow with [font] base-size. Waybar uses 14px type and ~18px icons.
+
+[font]
+base-size = 14
+
+[bar]
+size-horizontal = 36
+size-vertical = 38
+icon-font = 14
+icon-canvas = 20
+icon-slot = 32
+status-slot = 24
+background-alpha = 0.4
+
+[popups]
+background-alpha = 0.4

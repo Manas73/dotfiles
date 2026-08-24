@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "idle": {
+    "screensaver": 150,
+    "lock": 300
+  },
+  "bar": {
+    "position": "top",
+    "transparent": false,
+    "centerAnchor": "omarchy.clock",
+    "layout": {
+      "left": [
+        { "id": "omarchy.menu" },
+        {
+          "id": "omarchy.workspaces",
+          "allOutputs": false,
+          "activeOnly": false,
+          "persistentGroups": [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]],
+          "icons": {
+            "1": "",
+            "2": "",
+            "3": "",
+            "4": "",
+            "5": "",
+            "6": "",
+            "7": "",
+            "8": "",
+            "default": "󰒅"
+          }
+        }
+      ],
+      "center": [
+        { "id": "omarchy.indicators" },
+        {
+          "id": "omarchy.clock",
+          "format": "hh:mm AP",
+          "formatAlt": "yyyy-MM-dd hh:mm:ss AP",
+          "verticalFormat": "HH\n\u2014\nmm"
+        },
+        { "id": "omarchy.keyboard-layout" },
+        { "id": "omarchy.weather" }
+      ],
+      "right": [
+        { "id": "omarchy.tray" },
+        { "id": "omarchy.bluetooth" },
+        { "id": "omarchy.network" },
+        { "id": "omarchy.audio" },
+        { "id": "omarchy.monitor" },
+        { "id": "omarchy.power" }
+      ]
+    }
+  },
+  "notifications": {
+    "screen": "DP-1"
+  },
+  "plugins": [],
+  "disabledPlugins": [
+    "omarchy.background",
+    "omarchy.polkit",
+    "omarchy.agents"
+  ]
+}

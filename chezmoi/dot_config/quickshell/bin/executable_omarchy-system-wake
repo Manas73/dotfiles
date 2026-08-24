@@ -1,0 +1,8 @@
+#!/bin/bash
+# Wake displays after idle. Best-effort: missing helpers are ignored.
+
+config="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell"
+export PATH="$config/bin:${PATH:-/usr/bin}"
+
+omarchy-brightness-display on 2>/dev/null || hyprctl dispatch dpms on >/dev/null 2>&1 || true
+omarchy-brightness-keyboard restore 2>/dev/null || true

@@ -1,0 +1,13 @@
+# Fallback palette used when ~/.config/quickshell/theme/colors.toml is missing.
+# Matugen overwrites the user theme copy on wallpaper change.
+
+background = "#0f1417"
+foreground = "#dfe3e7"
+accent = "#8ecff0"
+muted = "#c0c8cd"
+red = "#ffb4ab"
+color0 = "#0f1417"
+color1 = "#ffb4ab"
+color4 = "#8ecff0"
+color7 = "#dfe3e7"
+color8 = "#8a9297"

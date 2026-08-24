@@ -382,6 +382,11 @@ package_catalog:
   qt6-wayland:
     arch: { provider: pacman, packages: [qt6-wayland] }
 
+  quickshell:
+    arch:
+      - { provider: pacman, packages: [quickshell] }
+      - { provider: aur,    packages: [ai-usagebar-bin] }
+
   rambox:
     arch:   { provider: aur, packages: [rambox-pro-bin] }
     darwin: { provider: cask, packages: [rambox] }

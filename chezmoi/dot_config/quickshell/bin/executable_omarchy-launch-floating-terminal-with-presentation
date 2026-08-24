@@ -1,0 +1,43 @@
+#!/bin/bash
+# Launch a command in a floating terminal. Omarchy used uwsm + xdg-terminal-exec;
+# this port picks the first available emulator and tags the window so Hyprland
+# can float it.
+
+set -euo pipefail
+
+if (($# == 0)); then
+  echo "Usage: omarchy-launch-floating-terminal-with-presentation <command...>" >&2
+  exit 1
+fi
+
+cmd="$*"
+inner="$cmd; status=\$?; if (( status != 0 && status != 130 )); then echo; read -n 1 -s -r -p 'Press any key to close...'; fi"
+
+pick_term() {
+  local id
+  id=$(xdg-terminal-exec --print-id 2>/dev/null || true)
+  id=${id%%:*}
+  case "$id" in
+    kitty.desktop) command -v kitty >/dev/null && { echo kitty; return; } ;;
+    com.mitchellh.ghostty.desktop) command -v ghostty >/dev/null && { echo ghostty; return; } ;;
+    Alacritty.desktop) command -v alacritty >/dev/null && { echo alacritty; return; } ;;
+    foot.desktop) command -v foot >/dev/null && { echo foot; return; } ;;
+  esac
+  for t in kitty ghostty alacritty foot; do
+    command -v "$t" >/dev/null && { echo "$t"; return; }
+  done
+  return 1
+}
+
+term=$(pick_term) || {
+  echo "omarchy-launch-floating-terminal-with-presentation: no terminal emulator found" >&2
+  exit 1
+}
+
+class="org.omarchy.terminal"
+case "$term" in
+  kitty) exec kitty --class "$class" --title Omarchy -e bash -lc "$inner" ;;
+  ghostty) exec ghostty --class="$class" --title=Omarchy -e bash -lc "$inner" ;;
+  alacritty) exec alacritty --class "$class" --title Omarchy -e bash -lc "$inner" ;;
+  foot) exec foot --app-id="$class" --title=Omarchy bash -lc "$inner" ;;
+esac

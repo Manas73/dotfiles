@@ -1,0 +1,13 @@
+#!/bin/bash
+# Log out of the current graphical session.
+
+if [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]]; then
+  hyprctl dispatch exit >/dev/null 2>&1 && exit 0
+fi
+
+if [[ -n ${XDG_SESSION_ID:-} ]]; then
+  loginctl terminate-session "$XDG_SESSION_ID"
+  exit 0
+fi
+
+loginctl terminate-user "$USER"

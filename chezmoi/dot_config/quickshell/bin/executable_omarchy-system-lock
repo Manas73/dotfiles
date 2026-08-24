@@ -1,0 +1,19 @@
+#!/bin/bash
+# Lock the session: prefer the in-shell lock, then hyprlock, then loginctl.
+
+config="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell"
+export PATH="$config/bin:${PATH:-/usr/bin}"
+
+if omarchy-shell -q lock lock 2>/dev/null; then
+  result=$(omarchy-shell lock lock 2>/dev/null || true)
+  case "$result" in
+    ok) exit 0 ;;
+  esac
+fi
+
+if command -v hyprlock >/dev/null 2>&1; then
+  hyprlock &
+  exit 0
+fi
+
+loginctl lock-session
