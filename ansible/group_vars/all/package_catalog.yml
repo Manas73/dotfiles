@@ -191,6 +191,9 @@ package_catalog:
   hyprlock:
     arch: { provider: pacman, packages: [hyprlock] }
 
+  hyprmoncfg:
+    arch: { provider: aur, packages: ["hyprmoncfg"] }
+
   hyprsunset:
     arch: { provider: pacman, packages: [hyprsunset] }
 

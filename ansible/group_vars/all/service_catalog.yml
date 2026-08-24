@@ -24,6 +24,9 @@ service_catalog:
       - { manager: systemd, name: libvirtd.socket, scope: system, enabled: true }
       - { manager: systemd, name: virtlogd.socket, scope: system, enabled: true }
 
+  hyprmoncfgd:
+    arch: { manager: systemd, name: hyprmoncfgd.service, scope: system, enabled: true }
+
   # postgresql:
   #   arch:   { manager: systemd, name: postgresql.service, scope: system, enabled: true, state: started }
   #   darwin: { manager: brew,   name: postgresql@16, state: started }

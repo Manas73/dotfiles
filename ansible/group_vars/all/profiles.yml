@@ -107,6 +107,7 @@ profiles_catalog:
       - hypridle
       - hyprland
       - hyprlock
+      - hyprmoncfg
       - hyprsunset
       - matugen
       - nwg-look
@@ -125,6 +126,8 @@ profiles_catalog:
       - wl-clipboard
       - wtype
       - xdg-desktop-portal-hyprland
+    services:
+      - hyprmoncfgd
 
   i3:
     apps:
