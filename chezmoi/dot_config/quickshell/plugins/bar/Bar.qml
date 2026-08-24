@@ -37,10 +37,12 @@ Item {
     position: "top",
     transparent: false,
     centerAnchor: "omarchy.clock",
+    lockWidgets: false,
     layout: { left: [], center: [], right: [] }
   })
   property var layoutConfig: fallbackBarConfig.layout
   property string centerAnchor: ""
+  property bool lockWidgets: false
   property bool requestedTransparent: false
   property bool useTransparentForeground: false
   property bool transparent: false
@@ -358,6 +360,7 @@ Item {
     position = normalizePosition(config.position)
     setRequestedTransparency(config.transparent === true)
     centerAnchor = Util.canonicalWidgetId(config.centerAnchor || "")
+    lockWidgets = config.lockWidgets === true
 
     // layoutEntries feeds plain JS arrays to the module Repeaters, and QML
     // cannot diff those: reassigning layoutConfig rebuilds every widget on
@@ -1664,7 +1667,7 @@ Item {
       property bool suppressClick: false
       property real pressedX: 0
       property real pressedY: 0
-      readonly property bool canReorder: root.shell && typeof root.shell.mutateShellConfig === "function"
+      readonly property bool canReorder: !root.lockWidgets && root.shell && typeof root.shell.mutateShellConfig === "function"
       readonly property real dragThreshold: Style.space(4)
 
       anchors.fill: parent
