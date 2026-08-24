@@ -50,6 +50,9 @@
       ]
     }
   },
+  "notifications": {
+    "screen": "DP-1"
+  },
   "plugins": [],
   "disabledPlugins": [
     "omarchy.background",

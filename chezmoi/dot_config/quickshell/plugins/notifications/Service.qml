@@ -943,46 +943,46 @@ Item {
 
   // -------------------------------------------------------------- popup UI
   //
-  // One PanelWindow per output (Variants on Quickshell.screens) holding the
-  // stacked toast cards. Layer is Overlay, exclusionMode Ignore, no
-  // keyboard focus — popups are passive surfaces and must never steal input
-  // from the focused application.
+  // One PanelWindow on the named output (notifications.screen in shell.json),
+  // falling back to the first screen. Top-right, overlay, no keyboard focus.
 
-  Variants {
-    model: Quickshell.screens
+  PanelWindow {
+    id: popupWindow
+    visible: popupModel.count > 0
+    screen: {
+      var targetName = ""
+      var config = service.shell && service.shell.shellConfig && service.shell.shellConfig.notifications
+      if (config && config.screen) targetName = String(config.screen)
 
-    PanelWindow {
-      id: popupWindow
-      required property var modelData
-      screen: modelData
-      visible: popupModel.count > 0
+      for (var i = 0; i < Quickshell.screens.length; i++) {
+        if (Quickshell.screens[i].name === targetName)
+          return Quickshell.screens[i]
+      }
+      return Quickshell.screens[0]
+    }
 
-      WlrLayershell.namespace: "omarchy-notifications"
-      WlrLayershell.layer: WlrLayer.Overlay
-      WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-      exclusionMode: ExclusionMode.Ignore
-      color: "transparent"
+    WlrLayershell.namespace: "omarchy-notifications"
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+    exclusionMode: ExclusionMode.Ignore
+    color: "transparent"
 
-      readonly property var popupPlacement: NotificationLogic.popupPlacement(
-        service.barPosition, service.barClearance, Style.gapsOut)
+    readonly property var popupPlacement: NotificationLogic.popupPlacement(
+      service.barPosition, service.barClearance, Style.gapsOut)
 
-      // Full-screen, fixed-size surface (like the OSD overlay). Adding or
-      // removing a toast changes only the content inside; the Wayland surface
-      // never resizes, so the compositor can't briefly scale a stale buffer --
-      // which is what stretched/squished the cards during count changes.
-      anchors { top: true; bottom: true; left: true; right: true }
+    anchors { top: true; right: true }
+    margins {
+      top: popupWindow.popupPlacement.margins.top
+      right: popupWindow.popupPlacement.margins.right
+    }
 
-      // Keep the surface click-through except over the toast column, so the
-      // rest of the (invisible) full-screen overlay never eats input.
-      mask: Region { item: popupColumn }
+    implicitWidth: popupColumn.implicitWidth
+    implicitHeight: popupColumn.implicitHeight
+    mask: Region { item: popupColumn }
 
-      ColumnLayout {
-        id: popupColumn
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.topMargin: popupWindow.popupPlacement.margins.top
-        anchors.rightMargin: popupWindow.popupPlacement.margins.right
-        spacing: Style.space(8)
+    ColumnLayout {
+      id: popupColumn
+      spacing: Style.space(8)
 
         Repeater {
           model: popupModel
@@ -1059,4 +1059,3 @@ Item {
       }
     }
   }
-}
