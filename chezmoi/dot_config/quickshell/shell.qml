@@ -27,7 +27,7 @@ ShellRoot {
   readonly property string shellPath: omarchyPath
   readonly property string firstPartyPluginsDir: shellPath + "/plugins"
   readonly property string defaultsPath: omarchyPath + "/defaults/shell.json"
-  readonly property string userConfigPath: home + "/.local/state/quickshell/shell.json"
+  readonly property string userConfigPath: home + "/.config/quickshell/shell.json"
 
   // Bundled fallback so the shell can start even when the default shell.json is
   // missing or unreadable. The bar config here mirrors the on-disk defaults

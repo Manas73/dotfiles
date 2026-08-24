@@ -13,22 +13,25 @@ Plugin ids stay `omarchy.*` (they are just identifiers). Helper scripts in
 ```
 ~/.config/quickshell/
   shell.qml              entry point
+  shell.json             bar layout (which widgets, order, per-widget settings)
   Commons/ Ui/           shared QML
   plugins/               first-party bar, panels, notifications, …
   services/              plugin registry
   bin/                   portable helpers (on PATH via `bin/launch`)
   defaults/
-    shell.json           factory bar layout
+    shell.json           factory fallback if shell.json is missing
     menu.jsonc           session menu
     theme/               fallback colors if matugen has not run
 ```
 
-User state (bar layout, enabled plugins) is **not** in this tree so `chezmoi apply`
-cannot clobber live edits:
+`shell.json` is hand-written and Chezmoi-managed. The running shell also
+rewrites it when you drag widgets, pin tray icons, or change formats in the
+UI — `chezmoi apply` will overwrite those live edits unless you
+`chezmoi add ~/.config/quickshell/shell.json` first.
 
 | Path | Purpose |
 |------|---------|
-| `~/.local/state/quickshell/shell.json` | live layout + plugin settings |
+| `~/.config/quickshell/shell.json` | bar layout + plugin settings |
 | `~/.config/quickshell/local-plugins/<id>/` | third-party plugins |
 | `~/.config/quickshell/menu.jsonc` | optional menu overlay |
 | `~/.config/quickshell/shell.toml` | font/size overrides |
