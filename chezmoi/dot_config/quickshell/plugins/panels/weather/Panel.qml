@@ -532,13 +532,10 @@ Panel {
           Text {
             id: heroIcon
             anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: 5
             text: root.label || "—"
             color: root.bar.foreground
             font.family: root.bar.fontFamily
-            // Decorative condition emoji; intentionally larger than the
-            // Style.font.* scale's displayLarge (28).
-            font.pixelSize: 64
+            font.pixelSize: Style.font.displayLarge
           }
 
           Row {
@@ -550,18 +547,16 @@ Panel {
               text: root.reportTempNum || "—"
               color: root.bar.foreground
               font.family: root.bar.fontFamily
-              // Hero temperature read-out; deliberately oversized, outside
-              // the Style.font.* scale.
-              font.pixelSize: 56
+              font.pixelSize: Style.font.displayLarge
               font.bold: true
             }
             Text {
               text: root.current ? root.tempUnit : ""
               color: root.bar.foreground
               font.family: root.bar.fontFamily
-              font.pixelSize: Style.font.display
+              font.pixelSize: Style.font.title
               anchors.top: tempBig.top
-              anchors.topMargin: Style.space(10)
+              anchors.topMargin: Style.space(4)
             }
           }
         }
