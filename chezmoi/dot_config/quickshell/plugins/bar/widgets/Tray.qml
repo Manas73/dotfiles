@@ -12,6 +12,7 @@ BarWidget {
   moduleName: "omarchy.tray"
 
   property bool expanded: false
+  readonly property real chevronRotation: (vertical ? 90 : 0) + (expanded ? 180 : 0)
   property bool managePopupOpen: false
   property bool trayMenuOpen: false
   property var activeTrayItem: null
@@ -354,10 +355,6 @@ BarWidget {
         height: root.barSize
         visible: root.allItems.length > 0
 
-        HoverHandler {
-          onHoveredChanged: root.expanded = hovered
-        }
-
         BarIconButton {
           id: expandIcon
           bar: root.bar
@@ -365,8 +362,14 @@ BarWidget {
           height: implicitHeight
           x: root.drawerExtent - root.revealExtent
           text: "\uf053"
+          textRotation: root.chevronRotation
           onPressed: function(button) {
             if (button === Qt.RightButton) root.managePopupOpen = !root.managePopupOpen
+            else root.expanded = !root.expanded
+          }
+
+          Behavior on textRotation {
+            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
           }
         }
 
@@ -435,10 +438,6 @@ BarWidget {
         height: verticalTrayRoot.drawerBlockHeight
         visible: root.allItems.length > 0
 
-        HoverHandler {
-          onHoveredChanged: root.expanded = hovered
-        }
-
         BarIconButton {
           id: expandIcon
           bar: root.bar
@@ -446,9 +445,14 @@ BarWidget {
           height: implicitHeight
           y: root.drawerExtent - root.revealExtent
           text: "\uf053"
-          textRotation: 90
+          textRotation: root.chevronRotation
           onPressed: function(button) {
             if (button === Qt.RightButton) root.managePopupOpen = !root.managePopupOpen
+            else root.expanded = !root.expanded
+          }
+
+          Behavior on textRotation {
+            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
           }
         }
 
