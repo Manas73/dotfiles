@@ -4,7 +4,7 @@
   "name": "Workspaces",
   "version": "1.0.0",
   "author": "Omarchy",
-  "description": "Workspace number indicators",
+  "description": "Hyprland workspaces with per-id icons, matching the Waybar module",
   "kinds": [
     "bar-widget"
   ],
@@ -13,8 +13,25 @@
   },
   "barWidget": {
     "displayName": "Workspaces",
-    "description": "Workspace number indicators",
+    "description": "Per-monitor Hyprland workspaces with nerd-font icons",
     "category": "Compositor",
-    "allowMultiple": false
+    "allowMultiple": false,
+    "defaults": {
+      "allOutputs": false,
+      "activeOnly": false,
+      "hideEmpty": true,
+      "persistentGroups": [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]],
+      "icons": {
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": "",
+        "5": "",
+        "6": "",
+        "7": "",
+        "8": "",
+        "default": "󰒅"
+      }
+    }
   }
 }

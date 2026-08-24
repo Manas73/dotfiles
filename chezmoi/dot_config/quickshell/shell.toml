@@ -1,0 +1,8 @@
+# Machine overrides layered on the active theme.
+# Cross-axis size of a top/bottom bar (px at font base-size 12).
+# Waybar with 14px type, 18px workspace icons, and 8px vertical padding
+# is ~34px tall; the shipped default is 26.
+
+[bar]
+size-horizontal = 34
+size-vertical = 36
