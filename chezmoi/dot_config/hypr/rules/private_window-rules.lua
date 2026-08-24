@@ -139,6 +139,14 @@ hl.window_rule({
 })
 
 hl.window_rule({
+	name = "omarchy-floating-terminal",
+	match = { class = "org.omarchy.terminal" },
+	float = true,
+	center = true,
+	size = { 900, 600 },
+})
+
+hl.window_rule({
 	name = "copyq-floating",
 	match = { class = "com.github.hluk.copyq" },
 	opacity = 0.8,
