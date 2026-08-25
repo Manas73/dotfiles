@@ -384,8 +384,10 @@ Item {
     // survive to the next shell restart. It becomes the newest history entry
     // instead. Rows that never had a file (a history replay, the empty-history
     // placeholder) archive to nothing, which the move tolerates.
+    // "forget" drops the file entirely (notification center dismiss).
     if (entry) {
-      archivePopupFileFor(entry)
+      if (reason === "forget") deletePopupFileFor(entry)
+      else archivePopupFileFor(entry)
       if (restored) delete restoredPopups[NotificationLogic.popupFileName(entry)]
     }
     popupModel.remove(index)
@@ -655,6 +657,33 @@ Item {
 
   function markHistorySeen() {
     unreadCount = 0
+  }
+
+  function deleteHistoryFileFor(row) {
+    if (!row) return
+    enqueuePopupFileJob(["bash", "-c",
+      "rm -f \"$1/$2.json\" \"$3/$2\"-*", "--",
+      historyDir, NotificationLogic.imageStem(row), imagesDir])
+  }
+
+  function dismissHistoryEntry(timestamp, originalId) {
+    var ts = Number(timestamp)
+    var id = Number(originalId)
+    for (var i = historyModel.count - 1; i >= 0; i--) {
+      var row = historyModel.get(i)
+      if (!row) continue
+      if (Number(row.timestamp) !== ts || Number(row.originalId) !== id) continue
+      deleteHistoryFileFor(row)
+      historyModel.remove(i)
+      break
+    }
+    for (var j = popupModel.count - 1; j >= 0; j--) {
+      var live = popupModel.get(j)
+      if (!live) continue
+      if (Number(live.timestamp) !== ts || Number(live.originalId) !== id) continue
+      removePopup(j, "forget")
+      break
+    }
   }
 
   function replaceHistory(raw) {

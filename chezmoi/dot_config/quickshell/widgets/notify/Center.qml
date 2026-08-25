@@ -161,11 +161,18 @@ Panel {
             delegate: HistoryRow {
               width: ListView.view ? ListView.view.width : root.drawerWidth
               app: model.app || ""
+              appIcon: model.appIcon || ""
               summary: model.summary || ""
               body: model.body || ""
+              image: model.image || ""
               glyph: model.glyph || ""
               timestamp: model.timestamp || 0
+              originalId: model.originalId || 0
               fontFamily: root.fontFamily
+              onDismissed: {
+                if (root.notifier)
+                  root.notifier.dismissHistoryEntry(timestamp, originalId)
+              }
             }
           }
         }
