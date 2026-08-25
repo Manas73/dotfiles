@@ -127,6 +127,12 @@ Item {
   property alias popupModel: popupModel
   ListModel { id: popupModel }
 
+  property alias historyModel: historyModel
+  ListModel { id: historyModel }
+  property int unreadCount: 0
+  property bool historyReadQueued: false
+  property bool centerHistoryQueued: false
+
   // How many notifications the history directory keeps, and therefore how
   // many `showHistory` can replay.
   readonly property int historyLimit: 10
@@ -206,6 +212,8 @@ Item {
     // DND bypass rules: chat apps abuse urgency=critical to force
     // visibility, so critical alone isn't enough — we also require the
     // sender to be CLI-style. See shouldBypassDnd().
+    if (!isEphemeral(notification)) service.unreadCount += 1
+
     if (service.fullscreenOnScreen) {
       if (!isEphemeral(notification)) writeSilenced(notification, snapshot)
       else {
@@ -635,7 +643,35 @@ Item {
       "  [[ -e $f ]] || continue\n" +
       "  stale=\"${f##*/}\"\n" +
       "  rm -f \"$f\" \"$2/${stale%.json}\"-*\n" +
-      "done", "--", historyDir, imagesDir])
+      "done", "--", historyDir, imagesDir], function() { service.refreshHistory() })
+  }
+
+  function clearAll() {
+    clearPopups()
+    clearHistory()
+    historyModel.clear()
+    unreadCount = 0
+  }
+
+  function markHistorySeen() {
+    unreadCount = 0
+  }
+
+  function replaceHistory(raw) {
+    var rows = NotificationLogic.historyRows(
+      raw, liveRowsForReplay(), NotificationUrgency.Normal, service.historyLimit)
+    historyModel.clear()
+    for (var i = 0; i < rows.length; i++) historyModel.append(rows[i])
+  }
+
+  function refreshHistory() {
+    if (centerHistoryProc.running) {
+      service.centerHistoryQueued = true
+      return
+    }
+    centerHistoryProc.command = ["bash", "-c",
+      "awk 1 \"$1\"/*.json 2>/dev/null || true", "--", service.historyDir]
+    centerHistoryProc.running = true
   }
 
   // A restart can kill a queued job between its cp and its JSON write,
@@ -650,6 +686,28 @@ Item {
       "  stem=\"${stem%-*}\"\n" +
       "  [[ -e $1/$stem.json || -e $2/$stem.json ]] || rm -f \"$img\"\n" +
       "done", "--", popupStateDir, historyDir, imagesDir])
+  }
+
+  Process {
+    id: centerHistoryProc
+    running: false
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: service.replaceHistory(text)
+    }
+    onExited: {
+      if (service.centerHistoryQueued) {
+        service.centerHistoryQueued = false
+        service.refreshHistory()
+      }
+    }
+  }
+
+  FileView {
+    path: service.historyDir
+    watchChanges: true
+    printErrors: false
+    onFileChanged: service.refreshHistory()
   }
 
   Process {
@@ -668,10 +726,6 @@ Item {
   // replayHistory archives them, but the directory read is already in flight
   // by then, so they're handed over in memory instead of being waited for.
   property var replayCarryOver: []
-
-  // Set from the moment a read is queued until it starts, so a second
-  // showHistory while one is still waiting its turn doesn't queue another.
-  property bool historyReadQueued: false
 
   // Re-show what's in historyDir as toasts. The read goes through the file
   // queue and its own subprocess, so the replay lands in replayHistory once
@@ -893,6 +947,7 @@ Item {
       // Safe beside the restore read: it only re-persists entries whose
       // JSON exists, exactly the images the sweep keeps.
       service.sweepOrphanImages()
+      service.refreshHistory()
     })
   }
 
@@ -1025,7 +1080,7 @@ Item {
 
     ColumnLayout {
       id: popupColumn
-      spacing: Style.space(8)
+      spacing: Style.space(10)
 
         Repeater {
           model: popupModel
@@ -1093,6 +1148,7 @@ Item {
               cornerRadius: service.cornerRadius
               fontFamily: service.shell && service.shell.bar ? service.shell.bar.fontFamily : ""
               glyph: cardSlot.glyph
+              remainingLifetime: cardSlot.remainingLifetime
 
               onCloseRequested: service.dismissPopup(cardSlot.index)
               onCardClicked: service.invokePopupDefault(cardSlot.index)

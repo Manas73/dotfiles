@@ -10,6 +10,7 @@ import "widgets/clock"
 import "widgets/keyboard"
 import "widgets/weather"
 import "widgets/tray"
+import "widgets/notify"
 import "widgets/audio"
 import "widgets/usage"
 import "widgets/tailscale"
@@ -100,6 +101,7 @@ ShellRoot {
     rightSection: Row {
       spacing: 0
       Tray {}
+      Notify {}
       Audio {}
       Usage {}
       Tailscale {}

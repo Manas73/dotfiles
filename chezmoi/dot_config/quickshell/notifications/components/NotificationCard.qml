@@ -1,7 +1,3 @@
-// Notification card. Pure presentational — no service, Notification, or
-// ListModel references. The popup container drives lifetime; the history
-// panel drives static rendering. Both use the same component.
-
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -16,43 +12,30 @@ BorderSurface {
   property string summary: ""
   property string body: ""
   property string image: ""
-  // Nerd Font glyph rendered in the icon slot when no real icon is set.
-  // Used by omarchy-notification-send so user-action toasts (`Silenced
-  // notifications` etc.) show their bell/lock/etc. glyph without leaking
-  // into the summary text.
   property string glyph: ""
-  // NotificationUrgency: Low=0, Normal=1, Critical=2 (upstream).
   property int urgency: 1
   property double timestamp: 0
-  property int cornerRadius: 0
-
-  // System monospace font injected by the container.
+  property int cornerRadius: Style.cornerRadius
   property string fontFamily: ""
+  property real remainingLifetime: 0
 
+  readonly property string sansFamily: "Adwaita Sans"
+  readonly property string iconFamily: fontFamily.length > 0 ? fontFamily : Style.font.family
   readonly property bool hovered: hoverTracker.hovered
+  readonly property bool hasGlyph: glyph.length > 0
+  readonly property bool hasSmallIcon: smallIconSource.length > 0
+  readonly property bool showIcon: (hasSmallIcon && smallIconImage.status !== Image.Error) || hasGlyph
+  readonly property bool showApp: app.length > 0 && app !== summary
+  readonly property string sanitizedBody: NotificationLogic.sanitizeBody(body, app, appIcon)
+  readonly property string styledBody: sanitizedBody.replace(/\r\n|\r|\n/g, "<br/>")
+  readonly property string smallIconSource: image.length > 0 ? image : iconSource(appIcon)
+  readonly property color dimColor: Qt.darker(Color.notifications.text, 1.45)
+  readonly property color bodyColor: Qt.darker(Color.notifications.text, 1.18)
+  readonly property color accentColor: urgency === 2 ? Color.urgent : Color.notifications.countdown
+  readonly property bool showCountdown: remainingLifetime > 0 && remainingLifetime < 1
 
   signal closeRequested()
   signal cardClicked()
-  // Prefer per-notification media/avatar data, then fall back to the app icon.
-  // The `check` flag avoids Qt's missing-texture placeholder for unknown names.
-  readonly property string smallIconSource: image.length > 0 ? image : iconSource(appIcon)
-  readonly property bool hasGlyph: glyph.length > 0
-  readonly property bool compactGlyph: NotificationLogic.shouldRenderCompactGlyph(glyph, smallIconSource, singleLineToast)
-  readonly property bool hasSmallIcon: smallIconSource.length > 0
-  readonly property bool summaryStartsWithGlyph: NotificationLogic.summaryStartsWithGlyph(summary)
-  readonly property bool singleLineToast: sanitizedBody.length === 0
-  readonly property bool collapseRedundantIcon: singleLineToast && !hasGlyph && summaryStartsWithGlyph
-  readonly property string sanitizedBody: sanitizeBody(body)
-  readonly property string styledBody: sanitizedBody.replace(/\r\n|\r|\n/g, "<br/>")
-
-  readonly property color dimColor: Qt.darker(Color.notifications.text, 1.4)
-  readonly property color bodyColor: Qt.darker(Color.notifications.text, 1.15)
-  readonly property color accentColor: urgency === 2 ? Color.urgent : (urgency === 0 ? dimColor : Color.notifications.countdown)
-  readonly property var cardBorderSpec: Border.surfaceSpec("notifications", "border", Color.notifications.border, Math.max(1, Style.space(2)))
-
-  function sanitizeBody(s) {
-    return NotificationLogic.sanitizeBody(s, app, appIcon)
-  }
 
   function iconSource(icon) {
     var value = String(icon || "")
@@ -62,13 +45,11 @@ BorderSurface {
     return Quickshell.iconPath(value, true)
   }
 
-  implicitWidth: Style.space(380)
-  // Add vertical border insets so mainColumn (inset by border on top/left/right)
-  // doesn't push content under the bottom edge.
-  implicitHeight: mainColumn.implicitHeight + borderTop + borderBottom
-  radius: cornerRadius
+  implicitWidth: Style.space(360)
+  implicitHeight: content.implicitHeight + borderTop + borderBottom
+  radius: Math.max(root.cornerRadius, Style.space(10))
   color: Color.notifications.background
-  borderSpec: cardBorderSpec
+  borderSpec: Border.surfaceSpec("notifications", "border", Color.notifications.border, 1)
   clip: true
 
   HoverHandler { id: hoverTracker }
@@ -78,18 +59,25 @@ BorderSurface {
     cursorShape: Qt.PointingHandCursor
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: function(mouse) {
-      if (mouse.button === Qt.RightButton) {
-        root.closeRequested()
-      } else {
-        root.cardClicked()
-      }
+      if (mouse.button === Qt.RightButton) root.closeRequested()
+      else root.cardClicked()
     }
   }
 
+  Rectangle {
+    anchors.left: parent.left
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    anchors.topMargin: root.borderTop + Style.space(10)
+    anchors.bottomMargin: root.borderBottom + Style.space(10)
+    width: Style.space(3)
+    radius: width / 2
+    color: root.accentColor
+    opacity: root.urgency === 0 ? 0.35 : 0.9
+  }
+
   ColumnLayout {
-    id: mainColumn
-    // Inset by the card border so the content doesn't paint over the card's
-    // outer border.
+    id: content
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
@@ -98,73 +86,69 @@ BorderSurface {
     anchors.rightMargin: root.borderRight
     spacing: 0
 
-    // Text content.
     RowLayout {
       Layout.fillWidth: true
-      Layout.leftMargin: Style.space(12)
-      Layout.rightMargin: Style.space(12)
-      Layout.topMargin: root.singleLineToast ? Style.space(7) : Style.space(10)
-      Layout.bottomMargin: root.singleLineToast ? Style.space(7) : Style.space(10)
-      spacing: root.collapseRedundantIcon ? 0 : (root.compactGlyph ? Style.space(8) : Style.space(12))
+      Layout.leftMargin: Style.space(16)
+      Layout.rightMargin: Style.space(28)
+      Layout.topMargin: Style.space(12)
+      Layout.bottomMargin: Style.space(12)
+      spacing: Style.space(12)
 
-      Item {
-        id: smallIconSlot
-        Layout.preferredWidth: visible ? Style.space(40) : 0
-        Layout.preferredHeight: visible ? Style.space(40) : 0
-        Layout.alignment: Qt.AlignVCenter
-        // Hide the slot when the icon failed to resolve (themed-icon name
-        // not in the user's icon theme) AND we don't have a glyph fallback
-        // — prevents rendering Qt's pink broken-image placeholder.
-        visible: !root.collapseRedundantIcon && !root.compactGlyph && (root.hasSmallIcon || root.hasGlyph) && (root.hasGlyph || smallIconImage.status !== Image.Error)
+      Rectangle {
+        visible: root.showIcon
+        Layout.preferredWidth: Style.space(36)
+        Layout.preferredHeight: Style.space(36)
+        Layout.alignment: Qt.AlignTop
+        radius: Style.space(8)
+        color: Util.alpha(Color.notifications.text, 0.08)
 
         Image {
           id: smallIconImage
           anchors.fill: parent
+          anchors.margins: Style.space(6)
           source: root.smallIconSource
-          sourceSize.width: smallIconSlot.width * Screen.devicePixelRatio
-          sourceSize.height: smallIconSlot.height * Screen.devicePixelRatio
+          sourceSize.width: width * Screen.devicePixelRatio
+          sourceSize.height: height * Screen.devicePixelRatio
           fillMode: Image.PreserveAspectFit
           asynchronous: true
           smooth: true
-          visible: !root.hasGlyph || smallIconImage.status === Image.Ready
+          visible: !root.hasGlyph || status === Image.Ready
         }
 
-        // Glyph fallback (Nerd Font character) when no image icon is
-        // available. Used by omarchy-notification-send's `-g` flag.
         Text {
           anchors.centerIn: parent
           visible: root.hasGlyph && smallIconImage.status !== Image.Ready
           text: root.glyph
           color: Color.notifications.text
-          font.family: root.fontFamily
-          font.pixelSize: Style.font.displayLarge
+          font.family: root.iconFamily
+          font.pixelSize: Style.font.heading
         }
-      }
-
-      Text {
-        Layout.alignment: Qt.AlignVCenter
-        visible: root.compactGlyph
-        text: root.glyph
-        color: Color.notifications.text
-        font.family: root.fontFamily
-        font.pixelSize: Style.font.icon
       }
 
       ColumnLayout {
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignVCenter
-        // Keep the first line clear of the hover-revealed close button.
-        Layout.rightMargin: Style.space(10)
         spacing: Style.space(2)
+
+        Text {
+          Layout.fillWidth: true
+          visible: root.showApp
+          text: root.app
+          color: root.dimColor
+          font.family: root.sansFamily
+          font.pixelSize: Style.font.caption
+          font.letterSpacing: 0.4
+          elide: Text.ElideRight
+        }
 
         Text {
           Layout.fillWidth: true
           visible: root.summary.length > 0
           text: root.summary
-          font.family: "Liberation Sans"
           color: Color.notifications.text
-          font.pixelSize: Style.font.title
-          font.bold: true
+          font.family: root.sansFamily
+          font.pixelSize: Style.font.subtitle
+          font.weight: Font.DemiBold
           wrapMode: Text.WordWrap
           elide: Text.ElideRight
           maximumLineCount: 2
@@ -172,40 +156,57 @@ BorderSurface {
 
         Text {
           Layout.fillWidth: true
-          Layout.topMargin: Style.space(2)
           visible: root.sanitizedBody.length > 0
           text: root.styledBody
           textFormat: Text.StyledText
-          font.family: "Liberation Sans"
           color: root.bodyColor
-          font.pixelSize: Style.font.title
+          font.family: root.sansFamily
+          font.pixelSize: Style.font.body
+          lineHeight: 1.35
           wrapMode: Text.WordWrap
           elide: Text.ElideRight
           maximumLineCount: 3
         }
       }
     }
+
+    Item {
+      Layout.fillWidth: true
+      Layout.preferredHeight: root.showCountdown ? Style.space(3) : 0
+
+      Rectangle {
+        visible: root.showCountdown
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        height: Style.space(2)
+        width: parent.width * Math.max(0, Math.min(1, root.remainingLifetime))
+        color: root.accentColor
+        opacity: 0.7
+        radius: 1
+      }
+    }
   }
 
-  // Hover-revealed close. Stacked after mainColumn so its MouseArea sits
-  // above the full-card one and the click never reaches cardClicked.
-  Item {
+  Rectangle {
     anchors.top: parent.top
     anchors.right: parent.right
-    anchors.topMargin: root.borderTop + Style.space(3)
-    anchors.rightMargin: root.borderRight + Style.space(3)
-    width: Style.space(18)
-    height: Style.space(18)
+    anchors.topMargin: root.borderTop + Style.space(8)
+    anchors.rightMargin: root.borderRight + Style.space(8)
+    width: Style.space(20)
+    height: Style.space(20)
+    radius: width / 2
+    color: closeArea.containsMouse ? Util.alpha(Color.notifications.text, 0.12) : "transparent"
     visible: opacity > 0
     opacity: root.hovered ? 1 : 0
 
-    Behavior on opacity { NumberAnimation { duration: 100 } }
+    Behavior on opacity { NumberAnimation { duration: 120 } }
 
     Text {
       anchors.centerIn: parent
-      text: "✕"
+      text: "󰅖"
       color: closeArea.containsMouse ? Color.notifications.text : root.dimColor
-      font.pixelSize: Math.round(Style.font.caption * 1.44)
+      font.family: root.iconFamily
+      font.pixelSize: Style.font.bodySmall
     }
 
     MouseArea {
@@ -216,5 +217,4 @@ BorderSurface {
       onClicked: root.closeRequested()
     }
   }
-
 }

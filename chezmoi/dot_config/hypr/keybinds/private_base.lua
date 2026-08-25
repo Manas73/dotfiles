@@ -21,7 +21,7 @@ hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("flameshot gui"))
 
 -- Quickshell
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("killall quickshell; ~/.config/quickshell/bin/launch"))
-hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("omarchy-shell notifications showHistory"))
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("omarchy-shell notify toggle"))
 
 -- Laptop multimedia keys for volume (OSD lives in the shell)
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("omarchy-audio-output-volume raise"), { repeating = true, locked = true })
