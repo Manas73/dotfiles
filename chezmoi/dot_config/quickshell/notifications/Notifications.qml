@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import Quickshell.Services.Notifications
 import qs.components
 
@@ -51,6 +52,40 @@ Item {
   readonly property int defaultBarSize: barVertical ? Style.bar.sizeVertical : Style.bar.sizeHorizontal
   readonly property int liveBarSize: shell && shell.bar ? Math.max(0, shell.bar.barSize) : defaultBarSize
   readonly property int barClearance: liveBarSize + Style.gapsOut
+
+  readonly property var notificationScreen: {
+    var targetName = String(screenName || "")
+    for (var i = 0; i < Quickshell.screens.length; i++) {
+      if (Quickshell.screens[i].name === targetName) return Quickshell.screens[i]
+    }
+    return Quickshell.screens[0]
+  }
+
+  readonly property var notificationMonitor: notificationScreen ? Hyprland.monitorFor(notificationScreen) : Hyprland.focusedMonitor
+
+  // Hide toasts while a compositor-fullscreen client covers this screen.
+  // Top-layer surfaces still paint over some fullscreen clients; do not rely
+  // on z-order. History still records the notification.
+  readonly property bool fullscreenOnScreen: {
+    var mon = notificationMonitor
+    var ws = mon ? mon.activeWorkspace : null
+    if (ws && ws.hasFullscreen) return true
+
+    var t = ToplevelManager.activeToplevel
+    if (!t || !t.fullscreen) return false
+    if (!notificationScreen) return true
+    var screens = t.screens
+    var list = screens && screens.values ? screens.values : []
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] === notificationScreen) return true
+    }
+    var focused = Hyprland.focusedMonitor
+    return !!(mon && focused && String(mon.name || "") === String(focused.name || ""))
+  }
+
+  onFullscreenOnScreenChanged: {
+    if (fullscreenOnScreen) clearPopups()
+  }
 
   // Live Notification objects by originalId, kept OUT of the ListModels: a
   // QObject stored in a model role becomes a dangling C++ pointer when the
@@ -171,6 +206,15 @@ Item {
     // DND bypass rules: chat apps abuse urgency=critical to force
     // visibility, so critical alone isn't enough — we also require the
     // sender to be CLI-style. See shouldBypassDnd().
+    if (service.fullscreenOnScreen) {
+      if (!isEphemeral(notification)) writeSilenced(notification, snapshot)
+      else {
+        delete liveRefs[snapshot.originalId]
+        notification.tracked = false
+      }
+      return
+    }
+
     if (service.doNotDisturb && !shouldBypassDnd(notification)) {
       // The toast never shows, so the only record a silenced notification
       // can leave is a history entry. Write it straight into history —
@@ -945,11 +989,12 @@ Item {
   // -------------------------------------------------------------- popup UI
   //
   // One PanelWindow on the named output (notifications.screen in shell.json),
-  // falling back to the first screen. Top-right, overlay, no keyboard focus.
+  // falling back to the first screen. Top-right, no keyboard focus.
+  // Layer Top (not Overlay) so compositor-fullscreen windows cover toasts.
 
   PanelWindow {
     id: popupWindow
-    visible: popupModel.count > 0
+    visible: popupModel.count > 0 && !service.fullscreenOnScreen
     screen: {
       var targetName = service.screenName
       for (var i = 0; i < Quickshell.screens.length; i++) {
@@ -960,7 +1005,7 @@ Item {
     }
 
     WlrLayershell.namespace: "qs-notifications"
-    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
