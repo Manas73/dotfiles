@@ -1,3 +1,0 @@
-#!/bin/bash
-# No-op on non-Omarchy desktops. Idle lock still fires via omarchy-system-lock.
-exit 0

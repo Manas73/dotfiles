@@ -68,8 +68,8 @@ Hyprland. Helpers call `brightnessctl`, `pactl`/`wpctl`, `nmcli`, `bluetoothctl`
 
 Intentionally stubbed or omitted from the default bar: Omarchy agents, Omarchy
 system updates, wallpaper/theme switchers that shell out to `omarchy-theme-*`,
-and the Omarchy screensaver. The bundled background and polkit plugins are
-disabled so they do not fight `awww` and `polkit-kde`.
+and the Omarchy screensaver (idle does not launch one). The bundled background
+and polkit plugins are disabled so they do not fight `awww` and `polkit-kde`.
 
 Stop any other notification daemon (SwayNC, Dunst, Mako) before starting the
 shell — only one process can own `org.freedesktop.Notifications`.
