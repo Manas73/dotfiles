@@ -10,9 +10,8 @@ Item {
 
   readonly property var notifier: bar && bar.shell ? bar.shell.firstPartyServiceFor("notifications") : null
   readonly property bool dnd: notifier ? notifier.doNotDisturb : false
-  readonly property int unread: notifier ? notifier.unreadCount : 0
   readonly property bool opened: centerLoader.item ? centerLoader.item.opened === true : false
-  readonly property string bell: dnd ? "󰂛" : (unread > 0 ? "󰂚" : "󰂜")
+  readonly property string bell: dnd ? "󰂛" : "󰂜"
 
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
@@ -61,24 +60,12 @@ Item {
     bar: root.bar
     text: root.bell
     slotSize: Style.bar.statusSlot
-    active: root.dnd || root.unread > 0
-    tooltipText: root.dnd ? "Notifications paused" : (root.unread > 0 ? (root.unread + " new") : "Notifications")
+    active: false
+    tooltipText: root.dnd ? "Notifications paused" : "Notifications"
     onPressed: function(b) {
       if (b === Qt.RightButton) root.toggleDnd()
       else root.toggle()
     }
-  }
-
-  Rectangle {
-    visible: root.unread > 0 && !root.dnd
-    width: Style.space(7)
-    height: Style.space(7)
-    radius: width / 2
-    color: Color.urgent
-    anchors.right: parent.right
-    anchors.top: parent.top
-    anchors.rightMargin: Style.space(4)
-    anchors.topMargin: Style.space(6)
   }
 
   IpcHandler {
