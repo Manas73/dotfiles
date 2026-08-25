@@ -1,11 +1,13 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.components
 
 import "bar"
 import "osd"
 import "notifications"
 import "widgets/workspaces"
+import "widgets/submap"
 import "widgets/clock"
 import "widgets/keyboard"
 import "widgets/weather"
@@ -86,6 +88,7 @@ ShellRoot {
           "default": "󰒅"
         })
       }
+      Submap {}
     }
 
     centerSection: Row {
