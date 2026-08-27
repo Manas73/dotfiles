@@ -18,6 +18,7 @@ Item {
   property int selectedIndex: 0
   property bool passwordMode: false
   property string passwordSsid: ""
+  property bool previewOpen: false
   property var overlayScreen: null
 
   readonly property var activeMenu: {
@@ -26,6 +27,7 @@ Item {
     if (menuId === "bluetooth") return bluetoothMenu
     if (menuId === "vpn") return vpnMenu
     if (menuId === "wifi") return wifiMenu
+    if (menuId === "clipboard") return clipboardMenu
     return null
   }
   readonly property var sourceItems: activeMenu ? activeMenu.items : []
@@ -34,6 +36,15 @@ Item {
     ? (passwordSsid || "Password")
     : (activeMenu ? activeMenu.prompt : "")
   readonly property int initialIndex: activeMenu ? activeMenu.initialIndex : 0
+  readonly property var selectedItem: {
+    if (selectedIndex < 0 || selectedIndex >= filteredItems.length) return null
+    return filteredItems[selectedIndex]
+  }
+  readonly property string previewThumb: selectedItem && selectedItem.thumb ? String(selectedItem.thumb) : ""
+  readonly property string previewPath: selectedItem && selectedItem.preview ? String(selectedItem.preview) : (previewThumb)
+  readonly property string previewKind: selectedItem && selectedItem.previewKind ? String(selectedItem.previewKind) : ""
+  readonly property bool showPreview: previewOpen && previewPath !== "" && !passwordMode
+  property string previewBody: ""
   readonly property color foreground: Color.popups.text
   readonly property color hoverFill: Style.hoverFillFor(Color.popups.text, Color.accent)
   readonly property color selectedFill: Style.selectedFillFor(Color.popups.text, Color.accent)
@@ -43,6 +54,19 @@ Item {
   BluetoothMenu { id: bluetoothMenu; active: root.opened && root.menuId === "bluetooth" }
   VpnMenu { id: vpnMenu; active: root.opened && root.menuId === "vpn" }
   WifiMenu { id: wifiMenu; active: root.opened && root.menuId === "wifi" }
+  ClipboardMenu { id: clipboardMenu; active: root.opened && root.menuId === "clipboard" }
+
+  FileView {
+    id: previewFile
+    path: root.showPreview && root.previewKind !== "image" && root.previewPath !== "" ? root.previewPath : ""
+    printErrors: false
+    onLoaded: root.previewBody = text()
+    onLoadFailed: root.previewBody = ""
+    onPathChanged: {
+      if (!path) root.previewBody = ""
+      else reload()
+    }
+  }
 
   function resolveScreen() {
     var focused = Hyprland.focusedMonitor ? String(Hyprland.focusedMonitor.name || "") : ""
@@ -65,6 +89,7 @@ Item {
     query = ""
     passwordMode = false
     passwordSsid = ""
+    previewOpen = false
     selectedIndex = initialIndex
     opened = true
     Qt.callLater(function() {
@@ -82,6 +107,7 @@ Item {
     opened = false
     passwordMode = false
     passwordSsid = ""
+    previewOpen = false
     query = ""
     menuId = ""
   }
@@ -112,6 +138,24 @@ Item {
     }
     if (selectedIndex < 0 || selectedIndex >= filteredItems.length) return
     activateItem(filteredItems[selectedIndex])
+  }
+
+  function removeSelected() {
+    if (passwordMode) return
+    if (!activeMenu || typeof activeMenu.remove !== "function") return
+    if (selectedIndex < 0 || selectedIndex >= filteredItems.length) return
+    activeMenu.remove(filteredItems[selectedIndex])
+  }
+
+  function clearAll() {
+    if (passwordMode) return
+    if (!activeMenu || typeof activeMenu.clearAll !== "function") return
+    activeMenu.clearAll()
+  }
+
+  function togglePreview() {
+    if (passwordMode) return
+    previewOpen = !previewOpen
   }
 
   function activateItem(item) {
@@ -194,7 +238,7 @@ Item {
 
     BorderSurface {
       id: card
-      width: Math.min(Style.space(460), parent.width - Style.space(48))
+      width: Math.min(Style.space(root.showPreview ? 680 : 460), parent.width - Style.space(48))
       height: Math.min(cardColumn.implicitHeight + Style.spacing.popupPadding * 2, parent.height - Style.space(48))
       anchors.centerIn: parent
       color: Color.popups.background
@@ -215,11 +259,41 @@ Item {
         anchors.margins: Style.spacing.popupPadding
         spacing: Style.space(10)
 
-        PanelSectionHeader {
+        Item {
           width: parent.width
-          text: root.prompt.toUpperCase()
-          foreground: root.foreground
-          fontFamily: Style.font.family
+          implicitHeight: Math.max(headerLabel.implicitHeight, clearAction.implicitHeight)
+
+          PanelSectionHeader {
+            id: headerLabel
+            anchors.left: parent.left
+            anchors.right: clearAction.visible ? clearAction.left : parent.right
+            anchors.rightMargin: clearAction.visible ? Style.space(8) : 0
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.prompt.toUpperCase()
+            foreground: root.foreground
+            fontFamily: Style.font.family
+          }
+
+          Text {
+            id: clearAction
+            visible: !root.passwordMode && root.activeMenu && typeof root.activeMenu.clearAll === "function"
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            text: "Clear"
+            color: Color.urgent
+            font.family: Style.font.family
+            font.pixelSize: Style.font.caption
+            font.bold: true
+            opacity: clearMouse.containsMouse ? 1 : 0.85
+
+            MouseArea {
+              id: clearMouse
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: root.activeMenu.clearAll()
+            }
+          }
         }
 
         TextField {
@@ -234,6 +308,13 @@ Item {
             else if (event.key === Qt.Key_Up) { root.moveSelection(-1); event.accepted = true }
             else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
               root.activateSelected(); event.accepted = true
+            } else if (event.key === Qt.Key_Delete) {
+              if (event.modifiers & Qt.AltModifier) root.clearAll()
+              else root.removeSelected()
+              event.accepted = true
+            } else if (event.key === Qt.Key_P && (event.modifiers & Qt.AltModifier)) {
+              root.togglePreview()
+              event.accepted = true
             } else if (event.key === Qt.Key_Escape) {
               root.handleEscape(); event.accepted = true
             } else if (event.key === Qt.Key_Tab) {
@@ -268,10 +349,15 @@ Item {
           font.pixelSize: Style.font.bodySmall
         }
 
-        ListView {
-          id: list
+        Row {
+          id: listRow
           visible: !root.passwordMode && root.filteredItems.length > 0
           width: parent.width
+          spacing: Style.space(10)
+
+        ListView {
+          id: list
+          width: root.showPreview ? parent.width - previewPane.width - parent.spacing : parent.width
           height: Math.min(contentHeight, Style.space(360))
           clip: true
           spacing: Style.space(2)
@@ -285,6 +371,7 @@ Item {
             required property int index
             width: list.width
             height: implicitHeight
+            readonly property bool hasThumb: !!(modelData && modelData.thumb)
             implicitHeight: rowInner.implicitHeight + Style.spacing.md
             hasCursor: root.selectedIndex === index
             current: !!(modelData && modelData.current)
@@ -301,14 +388,39 @@ Item {
               anchors.rightMargin: Style.space(8)
               spacing: Style.space(8)
 
-              Text {
-                text: modelData && modelData.glyph ? modelData.glyph : ""
-                color: root.foreground
-                font.family: Style.font.family
-                font.pixelSize: Style.font.title
-                width: Style.space(22)
-                horizontalAlignment: Text.AlignHCenter
+              Item {
+                width: hasThumb ? Style.space(48) : Style.space(22)
+                height: hasThumb ? Style.space(32) : Style.font.title
                 anchors.verticalCenter: parent.verticalCenter
+
+                Image {
+                  visible: hasThumb
+                  anchors.fill: parent
+                  source: hasThumb ? ("file://" + modelData.thumb) : ""
+                  fillMode: Image.PreserveAspectCrop
+                  asynchronous: true
+                  cache: true
+                  sourceSize.width: Style.space(96)
+                  sourceSize.height: Style.space(48)
+                }
+
+                Rectangle {
+                  visible: hasThumb
+                  anchors.fill: parent
+                  color: "transparent"
+                  border.color: Util.alpha(root.foreground, 0.25)
+                  border.width: 1
+                  radius: Math.min(Style.cornerRadius, 3)
+                }
+
+                Text {
+                  visible: !hasThumb
+                  anchors.centerIn: parent
+                  text: modelData && modelData.glyph ? modelData.glyph : ""
+                  color: root.foreground
+                  font.family: Style.font.family
+                  font.pixelSize: Style.font.title
+                }
               }
 
               Text {
@@ -318,7 +430,7 @@ Item {
                 font.pixelSize: Style.font.body
                 font.bold: !!(modelData && modelData.current)
                 elide: Text.ElideRight
-                width: parent.width - Style.space(22) - detailText.width - Style.space(16)
+                width: parent.width - (hasThumb ? Style.space(48) : Style.space(22)) - detailText.width - Style.space(16)
                 anchors.verticalCenter: parent.verticalCenter
               }
 
@@ -341,6 +453,56 @@ Item {
               onClicked: root.activateItem(modelData)
             }
           }
+        }
+
+        Item {
+          id: previewPane
+          visible: root.showPreview
+          width: visible ? Style.space(220) : 0
+          height: Math.max(list.height, Style.space(168))
+
+          Rectangle {
+            anchors.fill: parent
+            color: Util.alpha(root.foreground, 0.06)
+            radius: Style.cornerRadius
+            border.color: Util.alpha(root.foreground, 0.18)
+            border.width: 1
+          }
+
+          Image {
+            visible: root.previewKind === "image"
+            anchors.fill: parent
+            anchors.margins: Style.space(6)
+            source: root.previewKind === "image" && root.previewPath !== "" ? ("file://" + root.previewPath) : ""
+            fillMode: Image.PreserveAspectFit
+            asynchronous: true
+            cache: true
+            sourceSize.width: Style.space(360)
+            sourceSize.height: Style.space(200)
+          }
+
+          Flickable {
+            visible: root.previewKind !== "image"
+            anchors.fill: parent
+            anchors.margins: Style.space(8)
+            clip: true
+            contentWidth: width
+            contentHeight: previewText.implicitHeight
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+            Text {
+              id: previewText
+              width: parent.width
+              text: root.previewBody
+              textFormat: root.previewKind === "html" ? Text.RichText : Text.PlainText
+              wrapMode: Text.Wrap
+              color: root.foreground
+              font.family: Style.font.family
+              font.pixelSize: Style.font.bodySmall
+            }
+          }
+        }
         }
       }
     }

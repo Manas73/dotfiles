@@ -1,0 +1,134 @@
+#!/bin/bash
+
+# omarchy:summary=List or paste CopyQ clipboard history for the picker
+# omarchy:group=clipboard
+# omarchy:args=[list|pick|remove|clear] [row]
+
+set -euo pipefail
+
+usage() {
+  echo "Usage: omarchy-clipboard [list|pick|remove|clear] [row]" >&2
+  exit 2
+}
+
+list_items() {
+  command -v copyq >/dev/null 2>&1 || return 0
+
+  local cache="${XDG_RUNTIME_DIR:-/tmp}/quickshell-clipboard"
+  rm -rf "$cache"
+  mkdir -p "$cache"
+
+  local dir_js
+  dir_js=$(python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$cache")
+
+  copyq --start-server eval -- "$(cat <<JS
+var dir = ${dir_js};
+var n = Math.min(size(), 80);
+var lines = [];
+for (var i = 0; i < n; ++i) {
+  var m = str(read("?", i));
+  var plain = str(read(i));
+  var kind = "text";
+  var preview = "";
+  var label = plain;
+  var hasImage = m.indexOf("image/") !== -1;
+  var hasHtml = m.indexOf("text/html") !== -1;
+  if (hasImage && !plain) {
+    kind = "image";
+    var mime = "image/png";
+    var ext = ".png";
+    if (m.indexOf("image/png") === -1) {
+      if (m.indexOf("image/jpeg") !== -1) { mime = "image/jpeg"; ext = ".jpg"; }
+      else if (m.indexOf("image/webp") !== -1) { mime = "image/webp"; ext = ".webp"; }
+      else if (m.indexOf("image/gif") !== -1) { mime = "image/gif"; ext = ".gif"; }
+    }
+    var ipath = dir + "/" + i + ext;
+    var img = new File(ipath);
+    img.open(File.WriteOnly);
+    img.write(read(mime, i));
+    img.close();
+    preview = ipath;
+    if (!label) label = "Image";
+  } else if (hasHtml) {
+    var html = str(read("text/html", i));
+    if (html) {
+      kind = "html";
+      if (html.length > 80000) html = html.substring(0, 80000);
+      var hpath = dir + "/" + i + ".html";
+      var hf = new File(hpath);
+      hf.open(File.WriteOnly);
+      hf.write(html);
+      hf.close();
+      preview = hpath;
+    }
+  }
+  if (!preview && plain) {
+    kind = "text";
+    var tpath = dir + "/" + i + ".txt";
+    var tf = new File(tpath);
+    tf.open(File.WriteOnly);
+    tf.write(plain);
+    tf.close();
+    preview = tpath;
+  } else if (!preview) {
+    kind = "binary";
+    label = "(binary)";
+  }
+  label = label.replace(/\s+/g, " ").replace(/\t/g, " ").trim();
+  if (label.length > 120) label = label.substring(0, 117) + "...";
+  if (preview) lines.push(i + "\t" + kind + "\t" + label + "\t" + preview);
+  else lines.push(i + "\t" + kind + "\t" + label);
+}
+lines.join("\n");
+JS
+)" 2>/dev/null || true
+
+  if command -v magick >/dev/null 2>&1; then
+    shopt -s nullglob
+    local files=("$cache"/*.png "$cache"/*.jpg "$cache"/*.jpeg "$cache"/*.webp "$cache"/*.gif)
+    if (( ${#files[@]} > 0 )); then
+      magick mogrify -resize '360x200>' "${files[@]}" 2>/dev/null || true
+    fi
+  fi
+}
+
+pick_item() {
+  local row=${1:-}
+  [[ $row =~ ^[0-9]+$ ]] || usage
+  command -v copyq >/dev/null 2>&1 || exit 1
+  # Wait for the picker overlay to release keyboard focus.
+  sleep 0.15
+  copyq --start-server select "$row" >/dev/null
+  if ! copyq paste >/dev/null 2>&1; then
+    wtype -M shift -k Insert -m shift 2>/dev/null || true
+  fi
+}
+
+remove_item() {
+  local row=${1:-}
+  [[ $row =~ ^[0-9]+$ ]] || usage
+  command -v copyq >/dev/null 2>&1 || exit 1
+  copyq --start-server remove "$row" >/dev/null
+}
+
+clear_items() {
+  command -v copyq >/dev/null 2>&1 || exit 1
+  copyq --start-server eval -- 'while (size() > 0) remove(0);' >/dev/null
+  wl-copy --clear >/dev/null 2>&1 || true
+}
+
+case "${1:-list}" in
+  list) list_items ;;
+  pick)
+    pick_item "${2:-}"
+    ;;
+  remove)
+    remove_item "${2:-}"
+    ;;
+  clear)
+    clear_items
+    ;;
+  *)
+    usage
+    ;;
+esac
