@@ -48,6 +48,23 @@ function headerDetail(info) {
   return ""
 }
 
+function ethernetDescription(opts) {
+  var state = opts || {}
+  var pending = state.pending || ""
+  if (pending === "on") return "Connecting…"
+  if (pending === "off") return "Disconnecting…"
+  if (state.connected) {
+    var speed = formatHeaderSpeed(state.linkSpeed)
+    return speed ? "Connected · " + speed : "Connected"
+  }
+  if (!state.hasLink) return "No cable"
+  return "Disconnected"
+}
+
+function wifiRadioDescription(enabled) {
+  return enabled ? "Radio on" : "Radio off"
+}
+
 function bandLabel(band) {
   if (band === "auto") return "Auto"
   if (!band) return ""
@@ -355,6 +372,8 @@ if (typeof module !== "undefined") {
     formatHeaderSpeed: formatHeaderSpeed,
     formatHeaderFreq: formatHeaderFreq,
     headerDetail: headerDetail,
+    ethernetDescription: ethernetDescription,
+    wifiRadioDescription: wifiRadioDescription,
     bandLabel: bandLabel,
     bandSectionTitle: bandSectionTitle,
     bandTooltip: bandTooltip,

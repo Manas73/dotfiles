@@ -122,25 +122,33 @@ Panel {
   property bool cursorActive: false
 
   // Keyboard focus zone for the panel. j/k crosses row boundaries:
-  // header actions ⇄ band ⇄ DNS row ⇄ Wi-Fi networks. h/l move
-  // within header actions, band pills, or DNS providers.
-  property string focusSection: "dns"  // "header" | "band" | "dns" | "wifi"
+  // header actions ⇄ links ⇄ band ⇄ DNS row ⇄ Wi-Fi networks. h/l move
+  // within header actions, the Ethernet/Wi-Fi rows, band pills, or DNS providers.
+  property string focusSection: "dns"  // "header" | "links" | "band" | "dns" | "wifi"
   property int headerIndex: 0
   readonly property bool canDisconnect: !!connectedWifiNetwork
   readonly property bool headerHasDisconnect: false
   readonly property bool canShareWifi: info.type === "wifi" && canShareNetwork(connectedWifiNetwork)
-  // The hero switch is the Wi-Fi radio, so it only exists when there is a
-  // radio to switch. On a wired box it would otherwise sit there reading
-  // "off" beside a perfectly live Ethernet connection.
+  // Wi-Fi radio and Ethernet connect/disconnect live in the links section so
+  // they can be flipped independently. The radio switch is hidden on a
+  // wired-only box; the Ethernet row is hidden when there is no wired NIC.
   readonly property bool canToggleWifi: networkManagerAvailable && wifiStationAvailable
+  readonly property bool canToggleEthernet: networkManagerAvailable && !!wiredDevice
+  readonly property var linkKinds: {
+    var kinds = []
+    if (canToggleEthernet) kinds.push("ethernet")
+    if (canToggleWifi) kinds.push("wifi")
+    return kinds
+  }
+  readonly property bool canToggleLinks: linkKinds.length > 0
+  property int linkIndex: 0
   readonly property int qrHeaderIndex: canShareWifi ? 0 : -1
   readonly property int speedHeaderIndex: canRunSpeedTest ? (canShareWifi ? 1 : 0) : -1
-  readonly property int toggleHeaderIndex: canToggleWifi ? (canShareWifi ? 1 : 0) + (canRunSpeedTest ? 1 : 0) : -1
-  readonly property int headerActionCount: (canShareWifi ? 1 : 0) + (canRunSpeedTest ? 1 : 0) + (canToggleWifi ? 1 : 0)
+  readonly property int headerActionCount: (canShareWifi ? 1 : 0) + (canRunSpeedTest ? 1 : 0)
   readonly property bool qrHeaderHasCursor: cursorActive && focusSection === "header" && headerIndex === qrHeaderIndex
   readonly property bool speedHeaderHasCursor: cursorActive && focusSection === "header" && headerIndex === speedHeaderIndex
-  readonly property bool toggleHeaderHasCursor: cursorActive && focusSection === "header" && headerIndex === toggleHeaderIndex
-  readonly property string toggleHint: Networking.wifiEnabled ? "Turn Wi-Fi off" : "Turn Wi-Fi on"
+  readonly property bool ethernetLinkHasCursor: cursorActive && focusSection === "links" && linkKinds[linkIndex] === "ethernet"
+  readonly property bool wifiLinkHasCursor: cursorActive && focusSection === "links" && linkKinds[linkIndex] === "wifi"
   readonly property var dnsProviders: ["DHCP", "Cloudflare", "Google", "Custom"]
   property int dnsIndex: 0
   // ["2.4", "5", ...], or empty when there is nothing to choose between.
@@ -173,6 +181,14 @@ Panel {
   property bool bandAutoFocused: true
 
   onHeaderActionCountChanged: clampHeaderIndex()
+  onLinkKindsChanged: {
+    if (linkIndex > linkKinds.length - 1) linkIndex = Math.max(0, linkKinds.length - 1)
+  }
+
+  onCanToggleLinksChanged: {
+    if (!canToggleLinks && focusSection === "links")
+      focusSection = headerActionCount > 0 ? "header" : (canSelectBand ? "band" : "dns")
+  }
 
   // Availability shifts as scans land, so the option list can shrink out from
   // under the cursor. Clamp the index and evacuate the section before it
@@ -183,7 +199,7 @@ Panel {
 
   onCanSelectBandChanged: {
     if (!canSelectBand && focusSection === "band") {
-      focusSection = "dns"
+      focusSection = canToggleLinks ? "links" : "dns"
       bandAutoFocused = true
     }
   }
@@ -210,6 +226,60 @@ Panel {
     Qt.callLater(function() { root.refresh(true) })
   }
 
+  function linkKindAt(index) {
+    var kinds = linkKinds || []
+    if (index < 0 || index >= kinds.length) return ""
+    return kinds[index]
+  }
+
+  function selectLinkByDelta(delta) {
+    linkIndex = Math.max(0, Math.min(linkKinds.length - 1, linkIndex + delta))
+  }
+
+  function activateLink() {
+    var kind = linkKindAt(linkIndex)
+    if (kind === "ethernet") toggleEthernet()
+    else if (kind === "wifi") toggleNetwork()
+  }
+
+  function setLinkCursor(kind) {
+    cursorActive = true
+    focusSection = "links"
+    var idx = linkKinds.indexOf(kind)
+    if (idx >= 0) linkIndex = idx
+  }
+
+  function toggleEthernet() {
+    if (!canToggleEthernet || !wiredDevice || ethernetProc.running) return
+    if (pendingEthernet !== "" && ethernetStateChanging) return
+
+    if (ethernetOn) {
+      pendingEthernet = "off"
+      ethernetTimeout.restart()
+      wiredDevice.autoconnect = false
+      wiredDevice.disconnect()
+      Qt.callLater(function() { root.refresh() })
+      return
+    }
+
+    // Connecting with no carrier just fails; the row already says "No cable".
+    if (!ethernetHasLink && !wiredDevice.network) return
+
+    pendingEthernet = "on"
+    ethernetTimeout.restart()
+    wiredDevice.autoconnect = true
+    if (wiredDevice.network) {
+      wiredDevice.network.connect()
+    } else if (wiredDevice.name) {
+      ethernetProc.command = ["nmcli", "device", "connect", wiredDevice.name]
+      ethernetProc.running = true
+    } else {
+      pendingEthernet = ""
+      ethernetTimeout.stop()
+    }
+    Qt.callLater(function() { root.refresh() })
+  }
+
   IpcHandler {
     enabled: root.ipcOwner
     target: "network"
@@ -220,6 +290,7 @@ Panel {
     function hide() { root.close() }
     function toggle() { root.toggle() }
     function toggleNetwork() { root.toggleNetwork() }
+    function toggleEthernet() { root.toggleEthernet() }
     // Compat routes for configs that summon the centered cards through the
     // network target; both cards are their own plugins now.
     function showQr() { root.summonWifiQr(true) }
@@ -229,7 +300,6 @@ Panel {
   function activateHeader() {
     if (headerIndex === qrHeaderIndex) summonWifiQr()
     else if (headerIndex === speedHeaderIndex) summonSpeedTest()
-    else if (headerIndex === toggleHeaderIndex) toggleNetwork()
   }
 
   function setHeaderCursor(index) {
@@ -326,7 +396,7 @@ Panel {
       refresh(true)
       selectedIndex = wifiNetworks.length > 0 ? 0 : -1
       wifiActionFocused = false
-      focusSection = wifiNetworks.length > 0 ? "wifi" : "dns"
+      focusSection = wifiNetworks.length > 0 ? "wifi" : (canToggleLinks ? "links" : "dns")
       var idx = dnsProviders.indexOf(dnsProvider)
       dnsIndex = idx >= 0 ? idx : 0
       syncBandIndex()
@@ -440,10 +510,39 @@ Panel {
   // icon reflects connection changes without polling. Wired is preferred
   // when both are up, matching the default-route device.
   readonly property var wiredDevice: findDevice(DeviceType.Wired)
+  readonly property bool ethernetConnected: !!(wiredDevice && wiredDevice.connected)
+  readonly property bool ethernetHasLink: !!(wiredDevice && wiredDevice.hasLink)
+  readonly property bool ethernetStateChanging: {
+    if (!wiredDevice) return false
+    if (wiredDevice.state === ConnectionState.Connecting || wiredDevice.state === ConnectionState.Disconnecting)
+      return true
+    return !!(wiredDevice.network && wiredDevice.network.stateChanging)
+  }
+  // While a change is in flight, show the requested Ethernet state rather than
+  // the one still in force. Cleared when NM catches up, or by ethernetTimeout.
+  property string pendingEthernet: ""
+  readonly property bool ethernetOn: pendingEthernet === "on" ? true
+    : pendingEthernet === "off" ? false
+    : ethernetConnected
+  readonly property string ethernetDescription: Model.ethernetDescription({
+    connected: ethernetConnected,
+    hasLink: ethernetHasLink,
+    linkSpeed: wiredDevice ? wiredDevice.linkSpeed : 0,
+    pending: pendingEthernet
+  })
   readonly property string kind: {
     if (wiredDevice && wiredDevice.connected) return "ethernet"
     if (connectedWifiNetwork) return "wifi"
     return "disconnected"
+  }
+
+  onEthernetConnectedChanged: {
+    if (pendingEthernet === "on" && ethernetConnected) pendingEthernet = ""
+    if (pendingEthernet === "off" && !ethernetConnected) pendingEthernet = ""
+  }
+
+  onPendingEthernetChanged: {
+    if (pendingEthernet === "") ethernetTimeout.stop()
   }
   readonly property int signalStrength: connectedWifiNetwork
     ? Math.round((connectedWifiNetwork.signalStrength || 0) * 100)
@@ -901,6 +1000,23 @@ Panel {
     }
   }
 
+  // Ethernet connect fallback when the WiredDevice has a carrier but Quickshell
+  // has not exposed a Network object to call connect() on.
+  Process {
+    id: ethernetProc
+    onExited: function(exitCode) {
+      if (exitCode !== 0) root.pendingEthernet = ""
+      root.refresh()
+    }
+  }
+
+  Timer {
+    id: ethernetTimeout
+    interval: 12000
+    repeat: false
+    onTriggered: root.pendingEthernet = ""
+  }
+
   // Poll details while the panel is open so the IP/route header catches up
   // as soon as NetworkManager finishes activating a connection.
   Timer {
@@ -1014,16 +1130,35 @@ Panel {
           if (dy >= 0) return
         }
         if (dy !== 0) {
-          // Vertical order is header ⇄ band ⇄ DNS ⇄ wifi, with the band section
-          // dropping out of the chain entirely when it isn't on screen.
+          // Vertical order is header ⇄ links ⇄ band ⇄ DNS ⇄ wifi, with the
+          // links and band sections dropping out of the chain when hidden.
           if (root.focusSection === "header") {
             if (dy > 0) {
-              if (root.canSelectBand) {
+              if (root.canToggleLinks) {
+                root.focusSection = "links"
+                root.linkIndex = 0
+              } else if (root.canSelectBand) {
                 root.focusSection = "band"
                 root.bandAutoFocused = true
               } else {
                 root.focusSection = "dns"
               }
+            }
+          } else if (root.focusSection === "links") {
+            if (dy < 0) {
+              if (root.linkIndex > 0) {
+                root.linkIndex -= 1
+              } else if (root.headerActionCount > 0) {
+                root.focusSection = "header"
+                root.headerIndex = 0
+              }
+            } else if (root.linkIndex < root.linkKinds.length - 1) {
+              root.linkIndex += 1
+            } else if (root.canSelectBand) {
+              root.focusSection = "band"
+              root.bandAutoFocused = true
+            } else {
+              root.focusSection = "dns"
             }
           } else if (root.focusSection === "band") {
             // Automatic on the header line, then the pills -- which collapse
@@ -1031,6 +1166,9 @@ Panel {
             if (dy < 0) {
               if (!root.bandAutoFocused) {
                 root.bandAutoFocused = true
+              } else if (root.canToggleLinks) {
+                root.focusSection = "links"
+                root.linkIndex = Math.max(0, root.linkKinds.length - 1)
               } else if (root.headerActionCount > 0) {
                 root.focusSection = "header"
                 root.headerIndex = 0
@@ -1042,12 +1180,15 @@ Panel {
             }
           } else if (root.focusSection === "dns") {
             // k from DNS moves up into the band section when it's on screen,
-            // then the disconnect button; otherwise stays put. j drops into the
+            // then the interface toggles; otherwise stays put. j drops into the
             // wifi list if there's anywhere to land.
             if (dy < 0) {
               if (root.canSelectBand) {
                 root.focusSection = "band"
                 root.bandAutoFocused = !root.bandPillsVisible
+              } else if (root.canToggleLinks) {
+                root.focusSection = "links"
+                root.linkIndex = Math.max(0, root.linkKinds.length - 1)
               } else if (root.headerActionCount > 0) {
                 root.focusSection = "header"
                 root.headerIndex = 0
@@ -1068,6 +1209,7 @@ Panel {
         }
         if (dx !== 0) {
           if (root.focusSection === "header") root.selectHeaderByDelta(dx)
+          else if (root.focusSection === "links") root.selectLinkByDelta(dx)
           else if (root.focusSection === "band") { if (!root.bandAutoFocused) root.selectBandByDelta(dx) }
           else if (root.focusSection === "dns") root.selectDnsByDelta(dx)
           else if (root.focusSection === "wifi") root.selectWifiActionByDelta(dx)
@@ -1076,6 +1218,7 @@ Panel {
       onActivateRequested: {
         if (root.cursorActive) {
           if (root.focusSection === "header") root.activateHeader()
+          else if (root.focusSection === "links") root.activateLink()
           else if (root.focusSection === "band") root.activateBand()
           else if (root.focusSection === "dns") root.activateDns()
           else root.activateSelected()
@@ -1086,6 +1229,7 @@ Panel {
       onTextKey: function(t) {
         if (t === "r" || t === "R") root.refresh()
         else if (t === "w" || t === "W") root.toggleNetwork()
+        else if (t === "e" || t === "E") root.toggleEthernet()
       }
 
     Column {
@@ -1100,7 +1244,7 @@ Panel {
         width: parent.width
         implicitHeight: Math.max(heroIcon.implicitHeight, heroLabels.implicitHeight, heroActions.implicitHeight)
 
-        // Status only — the switch owns toggling, mouse and keyboard alike.
+        // Status only — interface power lives in the connections section.
         Text {
           id: heroIcon
           text: root.icon
@@ -1113,7 +1257,8 @@ Panel {
         }
 
         // Sharing belongs to the connected-network hero rather than the scan
-        // result row. The radio switch remains beside it as the other hero action.
+        // result row. Interface power lives in the connections section so
+        // Ethernet and Wi-Fi can be switched independently.
         RowLayout {
           id: heroActions
           spacing: Style.space(8)
@@ -1151,23 +1296,6 @@ Panel {
             onHovered: function(on) { if (on) root.setHeaderCursor(root.speedHeaderIndex) }
             onClicked: root.summonSpeedTest()
           }
-
-          ToggleSwitch {
-            id: powerSwitch
-            visible: root.canToggleWifi
-            checked: Networking.wifiEnabled
-            hasCursor: root.toggleHeaderHasCursor
-            foreground: root.bar.foreground
-            Layout.alignment: Qt.AlignVCenter
-            onHovered: function(on) { if (on) root.setHeaderCursor(root.toggleHeaderIndex) }
-            onToggled: root.toggleNetwork()
-
-            PanelToolTip {
-              visible: powerSwitch.containsMouse
-              text: root.toggleHint
-              fontFamily: root.bar.fontFamily
-            }
-          }
         }
 
         Column {
@@ -1180,7 +1308,7 @@ Panel {
           spacing: Style.space(2)
 
           // Link detail rides inline after the name — "Ethernet (2.5gbit)" —
-          // rather than in a pill, which crowded the on/off switch.
+          // rather than in a pill, which crowded the hero actions.
           Text {
             id: heroSsid
             width: parent.width
@@ -1225,7 +1353,59 @@ Panel {
 
       }
 
+      // Ethernet connect/disconnect and the Wi-Fi radio are separate controls
+      // so turning one off cannot take the other with it.
+      PanelSeparator {
+        visible: root.canToggleLinks
+        foreground: root.bar.foreground
+      }
+
+      Column {
+        visible: root.canToggleLinks
+        width: parent.width
+        spacing: Style.space(6)
+
+        PanelSectionHeader {
+          text: "CONNECTIONS"
+          foreground: root.bar.foreground
+          fontFamily: root.bar.fontFamily
+        }
+
+        Toggle {
+          visible: root.canToggleEthernet
+          width: parent.width
+          height: visible ? implicitHeight : 0
+          label: "Ethernet"
+          description: root.ethernetDescription
+          checked: root.ethernetOn
+          hasCursor: root.ethernetLinkHasCursor
+          foreground: root.bar.foreground
+          fontFamily: root.bar.fontFamily
+          onHovered: function(on) { if (on) root.setLinkCursor("ethernet") }
+          onClicked: root.toggleEthernet()
+        }
+
+        Toggle {
+          visible: root.canToggleWifi
+          width: parent.width
+          height: visible ? implicitHeight : 0
+          label: "Wi-Fi"
+          description: Model.wifiRadioDescription(Networking.wifiEnabled)
+          checked: Networking.wifiEnabled
+          hasCursor: root.wifiLinkHasCursor
+          foreground: root.bar.foreground
+          fontFamily: root.bar.fontFamily
+          onHovered: function(on) { if (on) root.setLinkCursor("wifi") }
+          onClicked: root.toggleNetwork()
+        }
+      }
+
       // Connection details: transfer metrics first, then IP/Gateway.
+      PanelSeparator {
+        visible: !!root.info.iface
+        foreground: root.bar.foreground
+      }
+
       Column {
         visible: !!root.info.iface
         width: parent.width
