@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Wayland
 import qs.components
 
@@ -64,6 +65,67 @@ Item {
     if (item.bar !== undefined) item.bar = root
     var kids = item.children || []
     for (var i = 0; i < kids.length; i++) injectBar(kids[i])
+  }
+
+  // Per-module widget instances across every monitor's bar. IPC can only
+  // bind one handler per target, so the owning instance looks up the widget
+  // on Hyprland's focused monitor and relays open/toggle there.
+  property var moduleWidgetMap: ({})
+
+  function registerModuleWidget(name, item) {
+    if (!name || !item) return
+    var map = moduleWidgetMap
+    var list = map[name] ? map[name].slice() : []
+    if (list.indexOf(item) >= 0) return
+    list.push(item)
+    map[name] = list
+    moduleWidgetMap = map
+  }
+
+  function unregisterModuleWidget(name, item) {
+    if (!name || !item) return
+    var map = moduleWidgetMap
+    var list = map[name]
+    if (!list) return
+    var next = []
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] !== item) next.push(list[i])
+    }
+    map[name] = next
+    moduleWidgetMap = map
+  }
+
+  function moduleWidgets(name) {
+    var list = moduleWidgetMap[name]
+    return list && list.slice ? list.slice() : []
+  }
+
+  function widgetScreenName(item) {
+    if (!item) return ""
+    var win = item.QsWindow ? item.QsWindow.window : null
+    if (!win && item.anchorItem && item.anchorItem.QsWindow)
+      win = item.anchorItem.QsWindow.window
+    if (!win || !win.screen) return ""
+    var mon = Hyprland.monitorFor(win.screen)
+    if (mon && mon.name) return String(mon.name)
+    return String(win.screen.name || "")
+  }
+
+  function focusedModuleWidget(name) {
+    var items = moduleWidgets(name)
+    if (items.length === 0) return null
+    var focused = Hyprland.focusedMonitor ? String(Hyprland.focusedMonitor.name || "") : ""
+    if (focused) {
+      for (var i = 0; i < items.length; i++) {
+        if (widgetScreenName(items[i]) === focused) return items[i]
+      }
+    }
+    return items[0]
+  }
+
+  function callOnFocused(name, method) {
+    var w = focusedModuleWidget(name)
+    if (w && typeof w[method] === "function") return w[method]()
   }
 
   Variants {

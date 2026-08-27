@@ -76,8 +76,26 @@ Item {
     }
     target: "notify"
 
-    function toggle(): string { root.toggle(); return "ok" }
-    function open(): string { root.open(); return "ok" }
-    function close(): string { root.close(); return "ok" }
+    function toggle(): string {
+      if (root.bar && typeof root.bar.callOnFocused === "function")
+        root.bar.callOnFocused("notify", "toggle")
+      else
+        root.toggle()
+      return "ok"
+    }
+    function open(): string {
+      if (root.bar && typeof root.bar.callOnFocused === "function")
+        root.bar.callOnFocused("notify", "open")
+      else
+        root.open()
+      return "ok"
+    }
+    function close(): string {
+      if (root.bar && typeof root.bar.callOnFocused === "function")
+        root.bar.callOnFocused("notify", "close")
+      else
+        root.close()
+      return "ok"
+    }
   }
 }

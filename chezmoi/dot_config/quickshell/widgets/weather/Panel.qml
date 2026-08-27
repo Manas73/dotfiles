@@ -475,11 +475,11 @@ Panel {
     enabled: root.ipcOwner
     target: root.ipcTarget
 
-    function open(): void { root.openFromHotkey() }
-    function close(): void { root.close() }
-    function show(): void { root.openFromHotkey() }
-    function hide(): void { root.close() }
-    function toggle(): void { root.toggle() }
+    function open(): void { root.invokeFocused("openFromHotkey") }
+    function close(): void { root.invokeFocused("close") }
+    function show(): void { root.invokeFocused("openFromHotkey") }
+    function hide(): void { root.invokeFocused("close") }
+    function toggle(): void { root.invokeFocused("toggle") }
     function edit(): void { root.openFromHotkey(); root.startEditingLocation() }
   }
 

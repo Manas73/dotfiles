@@ -25,9 +25,10 @@ Item {
   property var hostWidget: null
   readonly property bool ipcOwner: {
     var key = hostWidget || root
-    if (bar && typeof bar.moduleWidgets === "function") {
+    if (bar && typeof bar.moduleWidgets === "function" && moduleName) {
       var items = bar.moduleWidgets(moduleName)
-      return !moduleName || items.length === 0 || items[0] === key || items[0] === root
+      if (items.length > 0)
+        return items[0] === key || items[0] === root
     }
     var window = key.QsWindow ? key.QsWindow.window : (root.QsWindow ? root.QsWindow.window : null)
     var screens = Quickshell.screens
@@ -48,6 +49,41 @@ Item {
     return false
   }
 
+  // IPC is registered on one instance, but a bar exists per monitor.
+  // Hotkeys should open the copy on Hyprland's focused display, not
+  // whichever screen happened to own the IpcHandler.
+  function invokeFocused(method) {
+    var fn = String(method || "")
+    if (bar && typeof bar.callOnFocused === "function" && moduleName)
+      return bar.callOnFocused(moduleName, fn)
+    if (typeof root[fn] === "function") return root[fn]()
+  }
+
+  property var _registeredBar: null
+  property string _registeredName: ""
+  property var _registeredItem: null
+
+  function syncModuleRegistry() {
+    if (_registeredBar && typeof _registeredBar.unregisterModuleWidget === "function")
+      _registeredBar.unregisterModuleWidget(_registeredName, _registeredItem)
+    _registeredBar = null
+    _registeredName = ""
+    _registeredItem = null
+    if (!bar || !moduleName || typeof bar.registerModuleWidget !== "function") return
+    bar.registerModuleWidget(moduleName, root)
+    _registeredBar = bar
+    _registeredName = moduleName
+    _registeredItem = root
+  }
+
+  onBarChanged: syncModuleRegistry()
+  onModuleNameChanged: syncModuleRegistry()
+  Component.onCompleted: syncModuleRegistry()
+  Component.onDestruction: {
+    if (_registeredBar && typeof _registeredBar.unregisterModuleWidget === "function")
+      _registeredBar.unregisterModuleWidget(_registeredName, _registeredItem)
+  }
+
   // Read a single value from this panel's inline shell.json entry, with a
   // fallback for missing/null values. Matches BarWidget.setting().
   function setting(name, fallback) {
@@ -63,11 +99,11 @@ Item {
     enabled: root.manageIpc && root.ipcTarget !== "" && root.ipcOwner
     target: root.ipcTarget
 
-    function open(): void { root.open() }
-    function close(): void { root.close() }
-    function show(): void { root.open() }
-    function hide(): void { root.close() }
-    function toggle(): void { root.toggle() }
+    function open(): void { root.invokeFocused("open") }
+    function close(): void { root.invokeFocused("close") }
+    function show(): void { root.invokeFocused("open") }
+    function hide(): void { root.invokeFocused("close") }
+    function toggle(): void { root.invokeFocused("toggle") }
   }
 
 }

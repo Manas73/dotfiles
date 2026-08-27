@@ -222,11 +222,11 @@ Panel {
 
     function brightness(percent: string): string { return root.brightnessIpc(percent) }
     function state(): string { return root.stateIpc() }
-    function open() { root.open() }
-    function close() { root.close() }
-    function toggle() { root.toggle() }
-    function show() { root.open() }
-    function hide() { root.close() }
+    function open() { root.invokeFocused("open") }
+    function close() { root.invokeFocused("close") }
+    function toggle() { root.invokeFocused("toggle") }
+    function show() { root.invokeFocused("open") }
+    function hide() { root.invokeFocused("close") }
   }
 
   function refresh() {

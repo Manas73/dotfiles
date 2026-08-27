@@ -23,17 +23,17 @@ hl.define_submap("resize", function()
 end)
 
 --------------------------------------------------------------------------------
--- Rofi menus submap (Super + Alt + Space)
+-- Quickshell / menu submap (Super + Alt + Space)
 --------------------------------------------------------------------------------
 hl.bind(mainMod .. " + " .. altMod .. " + Space", hl.dsp.submap("rofi_menus"))
 
 hl.define_submap("rofi_menus", "reset", function()
-  hl.bind("A", hl.dsp.exec_cmd(home .. "/.config/.settings/audio_menu.sh"))
-  hl.bind("M", hl.dsp.exec_cmd(home .. "/.config/.settings/microphone_menu.sh"))
-  hl.bind("B", hl.dsp.exec_cmd(home .. "/.config/.settings/bluetooth_menu.sh"))
+  hl.bind("A", hl.dsp.exec_cmd("omarchy-shell audio toggle"))
+  hl.bind("M", hl.dsp.exec_cmd("omarchy-shell microphone toggle"))
+  hl.bind("B", hl.dsp.exec_cmd("omarchy-shell bluetooth toggle"))
   hl.bind("C", hl.dsp.exec_cmd(home .. "/.config/.settings/clipboard-wayland.sh"))
   hl.bind("V", hl.dsp.exec_cmd("omarchy-shell vpn toggle"))
-  hl.bind("W", hl.dsp.exec_cmd(home .. "/.config/.settings/wifi_menu.sh"))
+  hl.bind("W", hl.dsp.exec_cmd("omarchy-shell network toggle"))
   hl.bind("escape", hl.dsp.submap("reset"))
 end)
 

@@ -365,11 +365,11 @@ Panel {
   IpcHandler {
     enabled: root.ipcOwner
     target: root.ipcTarget
-    function open(): void { root.open() }
-    function close(): void { root.close() }
-    function show(): void { root.open() }
-    function hide(): void { root.close() }
-    function toggle(): void { root.toggle() }
+    function open(): void { root.invokeFocused("open") }
+    function close(): void { root.invokeFocused("close") }
+    function show(): void { root.invokeFocused("open") }
+    function hide(): void { root.invokeFocused("close") }
+    function toggle(): void { root.invokeFocused("toggle") }
     function refresh(): string { tailscale.refresh(); return "ok" }
     function up(): string { tailscale.loginOrUp(); return "ok" }
     function down(): string { tailscale.down(); return "ok" }

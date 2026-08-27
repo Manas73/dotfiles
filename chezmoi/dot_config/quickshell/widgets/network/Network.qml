@@ -284,11 +284,11 @@ Panel {
     enabled: root.ipcOwner
     target: "network"
 
-    function open() { root.open() }
-    function close() { root.close() }
-    function show() { root.open() }
-    function hide() { root.close() }
-    function toggle() { root.toggle() }
+    function open() { root.invokeFocused("open") }
+    function close() { root.invokeFocused("close") }
+    function show() { root.invokeFocused("open") }
+    function hide() { root.invokeFocused("close") }
+    function toggle() { root.invokeFocused("toggle") }
     function toggleNetwork() { root.toggleNetwork() }
     function toggleEthernet() { root.toggleEthernet() }
     // Compat routes for configs that summon the centered cards through the
