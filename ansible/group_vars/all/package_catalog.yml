@@ -419,6 +419,9 @@ package_catalog:
     arch:   { provider: aur, packages: [sublime-text-4] }
     darwin: { provider: cask, packages: [sublime-text] }
 
+  superfile:
+    all:   { provider: mise, packages: [superfile@1.6.0] }
+
   swaync:
     arch: { provider: pacman, packages: [swaync] }
 
@@ -546,9 +549,6 @@ package_catalog:
 
   xorg-xkill:
     arch: { provider: pacman, packages: [xorg-xkill] }
-
-  yazi:
-    all: { provider: mise, packages: ["yazi@26.8.15"] }
 
   yubikey:
     arch:

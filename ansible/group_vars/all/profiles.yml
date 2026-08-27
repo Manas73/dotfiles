@@ -46,8 +46,8 @@ profiles_catalog:
       - pre-commit
       - python
       - starship
+      - superfile
       - television
-      - yazi
       - yubikey
       - zellij
       - zoxide
