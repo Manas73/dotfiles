@@ -19,7 +19,7 @@ Ansible owns:
 Ansible does not own:
 
 - The contents of `~/.config/*` dotfiles (Chezmoi owns these).
-- `~/.gitconfig`, `~/.ssh/*`, Fish functions, Hyprland/i3 configs.
+- `~/.gitconfig`, `~/.ssh/*`, Fish functions, Hyprland configs.
 
 ## Layout
 
@@ -122,7 +122,6 @@ packages     roles/packages
    | `fonts`        | Linux     | ttf-* font set. macOS uses homebrew-cask-fonts.      |
    | `gaming`       | Linux     | Steam, Lutris, umu-launcher.                         |
    | `hyprland`     | Linux     | Hyprland window manager and adjacent tools.          |
-   | `i3`           | Linux     | i3 + X11 ecosystem (xclip, xorg-xev, ...).           |
    | `kde`          | Linux     | KDE Plasma desktop integration.                      |
 
    A recipe opts into profiles via `profiles:`:
@@ -134,7 +133,6 @@ packages     roles/packages
      - cloud
      - development
      - hyprland
-     - i3
    ```
 
    Profiles are NOT inventory groups. The dispatcher unions `os_apps` with

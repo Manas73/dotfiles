@@ -38,7 +38,7 @@ From the host's recipe + inventory (unprefixed):
 - `gpu`
 - `plasma_window_manager` (Linux only; consumed by `plasma_custom_wm` role)
 - `profiles` (template derives the `window_manager` data field by
-  intersecting this list with `[i3, hyprland, qtile]`)
+  intersecting this list with `[hyprland, i3, qtile]`)
 
 ## Interactive Prompts
 
@@ -62,8 +62,8 @@ encryption = "age"
     profile = "..."
     osid = "..."
     gpu = "..."
-    window_manager = ["i3", "hyprland"]
-    plasma_window_manager = "i3"
+    window_manager = ["hyprland"]
+    plasma_window_manager = "kwin"
 ```
 
 ## Failure Modes

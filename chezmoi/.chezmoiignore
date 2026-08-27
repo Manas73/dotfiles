@@ -9,7 +9,6 @@ key.txt.age
 .config/wireplumber
 .config/mimeapps.list
 
-.config/greenclip.toml
 .config/gtkrc
 .config/kdeglobals
 .config/kscreenlockerrc
@@ -23,15 +22,6 @@ key.txt.age
 
 .local/share/kxmlgui5/dolphin/dolphinui.rc
 .local/share/user-places.xbel.tmpl
-{{- end }}
-
-{{/* i3 + X11 companions (sxhkd, redshift, picom, polybar). */}}
-{{- if not (has "i3" .window_manager) }}
-.config/i3
-.config/picom
-.config/polybar
-.config/sxhkd
-.config/redshift
 {{- end }}
 
 {{/* Hyprland + Wayland companions. */}}

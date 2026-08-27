@@ -121,23 +121,6 @@ profiles_catalog:
     services:
       - hyprmoncfgd
 
-  i3:
-    apps:
-      - feh
-      - i3-wm
-      - libxcb
-      - picom
-      - polybar
-      - python-i3ipc
-      - rofi-calc
-      - rofi-emoji
-      - rofi-greenclip
-      - sxhkd
-      - xcb-util-cursor
-      - xclip
-      - xorg-xev
-      - xorg-xkill
-
   kde:
     apps:
       - dolphin

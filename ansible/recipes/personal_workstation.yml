@@ -11,8 +11,9 @@ profile: "personal"
 email: "manas.sambare@gmail.com"
 
 # Plasma custom window manager. Consumed by the plasma_custom_wm role.
-# Set to "kwin" or omit to disable masking and use stock KWin.
-plasma_window_manager: "i3"
+# "kwin" (or empty) unmasks stock KWin. Must stay defined so the role
+# actually runs and restores KWin after a previous custom-WM setup.
+plasma_window_manager: "kwin"
 
 # Profile membership. Each name resolves against profiles_catalog
 # (group_vars/all/profiles.yml).
@@ -23,7 +24,6 @@ profiles:
   - fonts
   - gaming
   - hyprland
-  - i3
   - kde
   - virtualization
 

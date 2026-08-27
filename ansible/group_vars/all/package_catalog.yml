@@ -108,9 +108,6 @@ package_catalog:
   fd:
     all: { provider: mise, packages: ["fd@10.4.2"] }
 
-  feh:
-    arch: { provider: pacman, packages: [feh] }
-
   firefox:
     arch:   { provider: pacman, packages: [firefox] }
     darwin: { provider: cask,   packages: [firefox] }
@@ -194,9 +191,6 @@ package_catalog:
   hyprsunset:
     arch: { provider: pacman, packages: [hyprsunset] }
 
-  i3-wm:
-    arch: { provider: pacman, packages: [i3-wm] }
-
   iptables-nft:
     arch: { provider: pacman, packages: [iptables-nft] }
 
@@ -241,9 +235,6 @@ package_catalog:
 
   libvirt:
     arch: { provider: pacman, packages: [libvirt] }
-
-  libxcb:
-    arch: { provider: pacman, packages: [libxcb] }
 
   lutris:
     arch: { provider: pacman, packages: [lutris] }
@@ -304,9 +295,6 @@ package_catalog:
   pacseek:
     arch: { provider: aur, packages: [pacseek] }
 
-  picom:
-    arch: { provider: pacman, packages: [picom] }
-
   pipewire:
     arch: { provider: pacman, packages: [pipewire] }
 
@@ -318,9 +306,6 @@ package_catalog:
 
   playerctl:
     arch: { provider: pacman, packages: [playerctl] }
-
-  polybar:
-    arch: { provider: pacman, packages: [polybar] }
 
   postman:
     arch:   { provider: aur, packages: [postman-bin] }
@@ -342,9 +327,6 @@ package_catalog:
     arch:   { provider: pacman, packages: [python, python-gpgme] }
     darwin: { provider: brew,   packages: [python] }
 
-  python-i3ipc:
-    arch: { provider: pacman, packages: [python-i3ipc] }
-
   python-screeninfo:
     arch: { provider: aur, packages: [python-screeninfo] }
 
@@ -365,18 +347,6 @@ package_catalog:
   rambox:
     arch:   { provider: aur, packages: [rambox-pro-bin] }
     darwin: { provider: cask, packages: [rambox] }
-
-  redshift:
-    arch: { provider: aur, packages: [redshift] }
-
-  rofi-calc:
-    arch: { provider: pacman, packages: [rofi-calc] }
-
-  rofi-emoji:
-    arch: { provider: pacman, packages: [rofi-emoji] }
-
-  rofi-greenclip:
-    arch: { provider: aur, packages: [rofi-greenclip] }
 
   rofi-wayland:
     arch: { provider: aur, packages: [rofi-wayland] }
@@ -415,9 +385,6 @@ package_catalog:
 
   swtpm:
     arch: { provider: pacman, packages: [swtpm] }
-
-  sxhkd:
-    arch: { provider: pacman, packages: [sxhkd] }
 
   tailscale:
     arch:   { provider: pacman, packages: [tailscale] }
@@ -508,23 +475,11 @@ package_catalog:
   wl-clipboard:
     arch: { provider: pacman, packages: [wl-clipboard] }
 
-  xcb-util-cursor:
-    arch: { provider: pacman, packages: [xcb-util-cursor] }
-
-  xclip:
-    arch: { provider: pacman, packages: [xclip] }
-
   xdg-desktop-portal-gtk:
     arch: { provider: pacman, packages: [xdg-desktop-portal-gtk] }
 
   xdg-desktop-portal-hyprland:
     arch: { provider: pacman, packages: [xdg-desktop-portal-hyprland] }
-
-  xorg-xev:
-    arch: { provider: pacman, packages: [xorg-xev] }
-
-  xorg-xkill:
-    arch: { provider: pacman, packages: [xorg-xkill] }
 
   yubikey:
     arch:
