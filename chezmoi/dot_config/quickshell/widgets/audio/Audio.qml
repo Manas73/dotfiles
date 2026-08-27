@@ -119,8 +119,9 @@ Panel {
   readonly property bool outputMuted: volumeSink && volumeSink.audio ? volumeSink.audio.muted : false
   readonly property int outputPercent: Math.round(Math.max(0, outputVolume) * 100)
   // Horizontal bars show the percentage next to the glyph; vertical bars stay
-  // icon-only because the slot is too narrow for a label.
-  readonly property bool showVolumePercent: !button.vertical
+  // icon-only because the slot is too narrow for a label. Muted is icon-only
+  // too — the red mute glyph is the signal, not a leftover percent.
+  readonly property bool showVolumePercent: !button.vertical && !outputMuted
   readonly property real openPanelIndicatorWidth: showVolumePercent ? button.labelWidth : 0
   onRawAudioSinksChanged: if (rawAudioSinks.length > 0) cachedAudioSinks = rawAudioSinks
 

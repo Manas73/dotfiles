@@ -53,7 +53,7 @@ Panel {
   readonly property real inputVolume: source && source.audio ? source.audio.volume : 0
   readonly property bool inputMuted: source && source.audio ? source.audio.muted : false
   readonly property int inputPercent: Math.round(Math.max(0, inputVolume) * 100)
-  readonly property bool showVolumePercent: !button.vertical
+  readonly property bool showVolumePercent: !button.vertical && !inputMuted
   readonly property real openPanelIndicatorWidth: showVolumePercent ? button.labelWidth : 0
 
   onRawAudioSourcesChanged: if (rawAudioSources.length > 0) cachedAudioSources = rawAudioSources
