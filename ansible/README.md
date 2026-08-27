@@ -109,7 +109,7 @@ packages     roles/packages
      fonts:
        apps:     [ttf-dejavu, ttf-fira-code, ...]
      hyprland:
-       apps:     [waybar, hyprland, hyprlock, matugen, ...]
+       apps:     [hyprland, hyprlock, quickshell, matugen, ...]
      kde:
        apps:     [dolphin, gwenview, plasma-x11-session, ...]
    ```

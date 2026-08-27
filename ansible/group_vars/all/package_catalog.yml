@@ -182,9 +182,6 @@ package_catalog:
   hugo:
     all: { provider: mise, packages: ["hugo-extended@0.165.0"] }
 
-  hypridle:
-    arch: { provider: pacman, packages: [hypridle] }
-
   hyprland:
     arch: { provider: pacman, packages: [hyprland] }
 
@@ -295,9 +292,6 @@ package_catalog:
   nvtop:
     arch: { provider: pacman, packages: [nvtop] }
 
-  nwg-look:
-    arch: { provider: pacman, packages: [nwg-look] }
-
   omniwm:
     darwin: { provider: brew, packages: [omniwm], taps: [BarutSRB/tap] }
 
@@ -324,9 +318,6 @@ package_catalog:
 
   playerctl:
     arch: { provider: pacman, packages: [playerctl] }
-
-  polkit-gnome:
-    arch: { provider: pacman, packages: [polkit-gnome] }
 
   polybar:
     arch: { provider: pacman, packages: [polybar] }
@@ -422,12 +413,6 @@ package_catalog:
   superfile:
     all:   { provider: mise, packages: [superfile@1.6.0] }
 
-  swaync:
-    arch: { provider: pacman, packages: [swaync] }
-
-  swayosd:
-    arch: { provider: pacman, packages: [swayosd] }
-
   swtpm:
     arch: { provider: pacman, packages: [swtpm] }
 
@@ -489,9 +474,6 @@ package_catalog:
   ttf-vista-fonts:
     arch: { provider: aur, packages: [ttf-vista-fonts] }
 
-  udiskie:
-    arch: { provider: pacman, packages: [udiskie] }
-
   umu-launcher:
     arch: { provider: aur, packages: [umu-launcher] }
 
@@ -516,9 +498,6 @@ package_catalog:
     arch:   { provider: aur, packages: [vuescan-bin] }
     darwin: { provider: cask, packages: [vuescan] }
 
-  waybar:
-    arch: { provider: aur, packages: [waybar-git] }
-
   webstorm:
     arch:   { provider: aur,  packages: [webstorm, webstorm-jre] }
     darwin: { provider: cask, packages: [webstorm] }
@@ -528,9 +507,6 @@ package_catalog:
 
   wl-clipboard:
     arch: { provider: pacman, packages: [wl-clipboard] }
-
-  wtype:
-    arch: { provider: pacman, packages: [wtype] }
 
   xcb-util-cursor:
     arch: { provider: pacman, packages: [xcb-util-cursor] }

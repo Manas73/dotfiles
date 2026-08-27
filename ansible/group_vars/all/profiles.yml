@@ -104,27 +104,19 @@ profiles_catalog:
     apps:
       - awww
       - copyq
-      - hypridle
       - hyprland
       - hyprlock
       - hyprmoncfg
       - hyprsunset
       - matugen
-      - nwg-look
       - pipewire
-      - polkit-gnome
       - qt5-wayland
       - qt6-wayland
       - quickshell
       - rofi-wayland
-      - swaync
-      - swayosd
-      - udiskie
       - uwsm
-      - waybar
       - wl-clip-persist
       - wl-clipboard
-      - wtype
       - xdg-desktop-portal-hyprland
     services:
       - hyprmoncfgd

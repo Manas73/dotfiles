@@ -39,9 +39,6 @@ key.txt.age
 .config/ai-usagebar
 .config/hypr
 .config/hyprmoncfg
-.config/swaync
-.config/swayosd
-.config/waybar
 .config/quickshell
 .config/xdg-desktop-portal
 {{- end }}
