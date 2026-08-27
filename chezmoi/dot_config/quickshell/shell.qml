@@ -106,7 +106,7 @@ ShellRoot {
       Tray {}
       Notify {}
       Audio {}
-      Usage {}
+      // Usage {}
       Tailscale {}
       Network {}
       Bluetooth {}
