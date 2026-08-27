@@ -51,7 +51,5 @@ require("keybinds.submaps")
 require("rules.layer-rules")
 require("rules.window-rules")
 
--- hyprmoncfg: generated monitor rules load last so they win over anything above.
--- Keep this exact include; `hyprmoncfg manage`/`doctor` look for it, and
--- `chezmoi apply` must not strip it.
+-- Added by hyprmoncfg: its generated monitor rules load last, so nothing before this can override the applied layout.
 dofile(os.getenv("HOME") .. "/.config/hypr/hyprmoncfg-monitors.lua")
