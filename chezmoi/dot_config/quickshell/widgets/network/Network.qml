@@ -1363,7 +1363,7 @@ Panel {
       Column {
         visible: root.canToggleLinks
         width: parent.width
-        spacing: Style.space(6)
+        spacing: Style.space(4)
 
         PanelSectionHeader {
           text: "CONNECTIONS"
@@ -1371,32 +1371,25 @@ Panel {
           fontFamily: root.bar.fontFamily
         }
 
-        Toggle {
+        LinkToggleRow {
           visible: root.canToggleEthernet
           width: parent.width
           height: visible ? implicitHeight : 0
+          kind: "ethernet"
           label: "Ethernet"
           description: root.ethernetDescription
           checked: root.ethernetOn
-          hasCursor: root.ethernetLinkHasCursor
-          foreground: root.bar.foreground
-          fontFamily: root.bar.fontFamily
-          onHovered: function(on) { if (on) root.setLinkCursor("ethernet") }
-          onClicked: root.toggleEthernet()
+          busy: root.pendingEthernet !== "" || root.ethernetStateChanging
         }
 
-        Toggle {
+        LinkToggleRow {
           visible: root.canToggleWifi
           width: parent.width
           height: visible ? implicitHeight : 0
+          kind: "wifi"
           label: "Wi-Fi"
           description: Model.wifiRadioDescription(Networking.wifiEnabled)
           checked: Networking.wifiEnabled
-          hasCursor: root.wifiLinkHasCursor
-          foreground: root.bar.foreground
-          fontFamily: root.bar.fontFamily
-          onHovered: function(on) { if (on) root.setLinkCursor("wifi") }
-          onClicked: root.toggleNetwork()
         }
       }
 
@@ -1713,6 +1706,81 @@ Panel {
         }
       }
     }
+    }
+  }
+
+  // Compact Ethernet / Wi-Fi power row. Same chrome as a scan result: hover
+  // fill only under the panel cursor, no idle card. Name left, switch right,
+  // status as a muted caption on the same line.
+  component LinkToggleRow: CursorSurface {
+    id: row
+    required property string kind
+    required property string label
+    required property string description
+    required property bool checked
+    property bool busy: false
+
+    hasCursor: row.kind === "ethernet" ? root.ethernetLinkHasCursor : root.wifiLinkHasCursor
+    foreground: root.bar.foreground
+    fill: root.hoverFill
+    implicitHeight: rowBody.implicitHeight
+
+    MouseArea {
+      anchors.fill: parent
+      hoverEnabled: true
+      cursorShape: Qt.PointingHandCursor
+      onContainsMouseChanged: if (containsMouse) root.setLinkCursor(row.kind)
+      onClicked: {
+        root.setLinkCursor(row.kind)
+        if (row.kind === "ethernet") root.toggleEthernet()
+        else root.toggleNetwork()
+      }
+    }
+
+    Item {
+      id: rowBody
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.top: parent.top
+      anchors.leftMargin: Style.space(10)
+      anchors.rightMargin: Style.space(10)
+      implicitHeight: Math.max(nameLabel.implicitHeight, track.implicitHeight) + Style.spacing.rowPaddingX
+
+      Text {
+        id: nameLabel
+        text: row.label
+        color: root.bar.foreground
+        font.family: root.bar.fontFamily
+        font.pixelSize: Style.font.body
+        elide: Text.ElideRight
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+      }
+
+      Text {
+        id: statusLabel
+        text: row.description
+        color: Qt.darker(root.bar.foreground, 1.5)
+        font.family: root.bar.fontFamily
+        font.pixelSize: Style.font.caption
+        elide: Text.ElideRight
+        anchors.left: nameLabel.right
+        anchors.leftMargin: Style.space(8)
+        anchors.right: track.left
+        anchors.rightMargin: Style.space(8)
+        anchors.verticalCenter: parent.verticalCenter
+      }
+
+      ToggleSwitch {
+        id: track
+        checked: row.checked
+        busy: row.busy
+        interactive: false
+        cursorRing: false
+        foreground: root.bar.foreground
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+      }
     }
   }
 
