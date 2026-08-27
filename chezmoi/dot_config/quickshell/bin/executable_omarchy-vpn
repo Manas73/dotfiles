@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# omarchy:summary=List or toggle NetworkManager VPN and WireGuard connections
+# omarchy:group=vpn
+# omarchy:args=[list|up|down] [uuid]
+
+set -euo pipefail
+
+usage() {
+  echo "Usage: omarchy-vpn [list|up|down] [uuid]" >&2
+  exit 2
+}
+
+is_vpn_type() {
+  [[ $1 == vpn || $1 == wireguard ]]
+}
+
+# UUID, TYPE, TIMESTAMP, DEVICE, NAME — NAME last so leftover colons stay in
+# the connection title. nmcli -g escapes a literal colon as \:; unescape only
+# after the first four fields have been split off.
+list_connections() {
+  command -v nmcli >/dev/null 2>&1 || return 0
+
+  local line uuid type ts device name
+  while IFS= read -r line || [[ -n $line ]]; do
+    [[ -z $line ]] && continue
+    uuid=${line%%:*}
+    line=${line#*:}
+    type=${line%%:*}
+    line=${line#*:}
+    ts=${line%%:*}
+    line=${line#*:}
+    device=${line%%:*}
+    name=${line#*:}
+    name=${name//\\:/:}
+    is_vpn_type "$type" || continue
+    kind=$type
+    if [[ $type == vpn ]]; then
+      service=$(nmcli -g vpn.service-type connection show uuid "$uuid" 2>/dev/null || true)
+      if [[ -n $service ]]; then
+        kind=${service##*.}
+      fi
+    fi
+    if [[ -n $device ]]; then
+      printf '%s\t%s\t%s\t1\t%s\t%s\n' "$uuid" "$type" "$kind" "$ts" "$name"
+    else
+      printf '%s\t%s\t%s\t0\t%s\t%s\n' "$uuid" "$type" "$kind" "$ts" "$name"
+    fi
+  done < <(nmcli -g UUID,TYPE,TIMESTAMP,DEVICE,NAME connection show)
+}
+
+case "${1:-list}" in
+  list)
+    list_connections
+    ;;
+  up)
+    uuid=${2:-}
+    [[ -n $uuid ]] || usage
+    exec nmcli connection up uuid "$uuid"
+    ;;
+  down)
+    uuid=${2:-}
+    [[ -n $uuid ]] || usage
+    exec nmcli connection down uuid "$uuid"
+    ;;
+  *)
+    usage
+    ;;
+esac

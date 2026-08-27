@@ -16,6 +16,7 @@ import "widgets/notify"
 import "widgets/audio"
 import "widgets/usage"
 import "widgets/tailscale"
+import "widgets/vpn"
 import "widgets/network"
 import "widgets/wifiqr"
 import "widgets/speedtest"
@@ -109,6 +110,7 @@ ShellRoot {
       Microphone {}
       // Usage {}
       Tailscale {}
+      Vpn {}
       Network {}
       Bluetooth {}
       Monitor {}
