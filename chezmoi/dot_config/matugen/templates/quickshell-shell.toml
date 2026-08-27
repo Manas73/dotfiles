@@ -8,6 +8,8 @@ active           = '{{colors.error.default.hex}}'
 scale-with-font  = true
 size-horizontal  = 26
 size-vertical    = 28
+margin           = 10
+padding          = 12
 
 [hyprland]
 active-border            = '{{colors.primary.default.hex}}'

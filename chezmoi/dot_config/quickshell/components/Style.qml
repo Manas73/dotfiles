@@ -293,12 +293,21 @@ QtObject {
     return (isFinite(n) && n > 0) ? Math.round(n) : fallback
   }
 
-  function barToken(key, fallback) {
+  function barMeasure(key, fallback) {
     var v = barOverrides[key]
     var n = Number(v)
-    var base = (isFinite(n) && n > 0) ? n : fallback
+    var base = (isFinite(n) && n >= 0) ? n : fallback
     if (barScaleWithFont) base *= fontScale
-    return Math.max(1, Math.round(base))
+    return Math.max(0, Math.round(base))
+  }
+
+  function barToken(key, fallback) {
+    return Math.max(1, root.barMeasure(key, fallback))
+  }
+
+  function barHas(key) {
+    var v = barOverrides[key]
+    return v !== undefined && v !== null && v !== ""
   }
 
   function boolToken(value, fallback) {
@@ -345,6 +354,13 @@ QtObject {
     readonly property int iconCanvas:     root.barToken("icon-canvas",     16)
     readonly property int iconFont:       root.barToken("icon-font",       13)
     readonly property int statusSlot:     root.barToken("status-slot",     21)
+    // Screen-edge inset around the three pills. `margin` is the default;
+    // `margin-top` is the attached-edge gap (top of a top bar), `margin-side`
+    // is the start/end gap along the bar. Values are at font base-size 12.
+    readonly property int margin: root.barMeasure("margin", 10)
+    readonly property int marginTop: root.barHas("margin-top") ? root.barMeasure("margin-top", 10) : margin
+    readonly property int marginSide: root.barHas("margin-side") ? root.barMeasure("margin-side", 10) : margin
+    readonly property int padding: root.barMeasure("padding", 12)
   }
 
   function refresh() {
@@ -406,8 +422,8 @@ QtObject {
         if (key === "scale-with-font") {
           nextBarScaleWithFont = boolToken(raw, nextBarScaleWithFont)
         } else {
-          var b = parseInt(raw, 10)
-          if (isFinite(b) && b > 0) barOut[key] = b
+          var b = parseFloat(raw)
+          if (isFinite(b) && b >= 0) barOut[key] = b
         }
       } else if (section === "spacing") {
         if (key === "scale-with-font") {

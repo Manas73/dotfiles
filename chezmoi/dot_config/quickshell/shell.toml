@@ -13,6 +13,11 @@ icon-canvas = 20
 icon-slot = 32
 status-slot = 24
 background-alpha = 0.7
+# Sizes below are at font base-size 12 and scale with base-size.
+margin = 10          # screen-edge inset around the pills
+# margin-top = 10    # attached-edge gap (top of a top bar); defaults to margin
+# margin-side = 10   # start/end gap along the bar; defaults to margin
+padding = 12         # inner padding inside each pill
 
 [popups]
 background-alpha = 0.7
