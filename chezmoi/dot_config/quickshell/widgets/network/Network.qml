@@ -74,6 +74,10 @@ Panel {
   property bool wifiStationAvailable: false
   property string dnsProvider: ""
   property string pendingDnsProvider: ""
+  // While a change is in flight, show the provider that was asked for rather
+  // than the one still in force, so the row answers the click immediately.
+  // actionProc puts it back if the change failed.
+  readonly property string dnsEffective: pendingDnsProvider !== "" ? pendingDnsProvider : dnsProvider
   // Wi-Fi band state from `omarchy-network-band`. `bandCurrent` is the band
   // the radio is actually on; `bandSelected` is the pinned choice ("auto" when
   // nothing is pinned), and the two differ whenever Auto is in effect.
@@ -472,7 +476,7 @@ Panel {
     if (scanWifi === undefined) scanWifi = false
     if (!detailsProc.running) detailsProc.running = true
     if (!dnsProc.running) {
-      dnsProc.command = ["bash", "-c", root.dnsCommand("")]
+      dnsProc.command = [root.dnsBin()]
       dnsProc.running = true
     }
     if (!bandProc.running) {
@@ -658,8 +662,12 @@ Panel {
     bar.shell.summon("speedtest", connection ? JSON.stringify({ connection: connection }) : "{}")
   }
 
+  function dnsBin() {
+    return Quickshell.shellDir + "/bin/omarchy-dns"
+  }
+
   function dnsCommand(provider) {
-    var command = "omarchy-dns"
+    var command = Util.shellQuote(root.dnsBin())
     if (provider) command += " " + Util.shellQuote(provider)
     return command
   }
@@ -674,10 +682,12 @@ Panel {
       return
     }
 
+    // Stay open like a band change: the pill should flip immediately, and a
+    // failed apply (actionProc non-zero) snaps back instead of hiding the
+    // failure behind a closed panel.
     root.pendingDnsProvider = provider
-    actionProc.command = ["bash", "-c", root.dnsCommand(provider)]
+    actionProc.command = [root.dnsBin(), provider]
     actionProc.running = true
-    root.close()
   }
 
   function requiresCredentials(security) {
@@ -872,19 +882,22 @@ Panel {
     stdout: StdioCollector { id: actionStdout; waitForEnd: true }
     stderr: StdioCollector { id: actionStderr; waitForEnd: true }
     onExited: function(exitCode) {
+      var shouldRefresh = false
       if (root.pendingDnsProvider !== "") {
         if (exitCode === 0) root.dnsProvider = root.pendingDnsProvider
         root.pendingDnsProvider = ""
+        shouldRefresh = true
       }
       if (root.pendingBand !== "") {
         // A refused or reverted pin leaves bandSelected alone, so the pills
         // keep showing what is actually in force rather than what was asked.
         if (exitCode === 0) root.bandSelected = root.pendingBand
         root.pendingBand = ""
-        // The panel stayed open through the reconnect, so pull fresh state now
-        // instead of leaving stale readings until the next poll tick.
-        root.refresh()
+        shouldRefresh = true
       }
+      // The panel stayed open through the change, so pull fresh state now
+      // instead of leaving stale readings until the next poll tick.
+      if (shouldRefresh) root.refresh()
     }
   }
 
@@ -1575,7 +1588,7 @@ Panel {
     // Map the panel's domain semantics onto Button's structural props:
     // `current DNS` is the pill's `active` fill; the keyboard cursor lights
     // up `hasCursor`.
-    active: root.dnsProvider === provider
+    active: root.dnsEffective === provider
     hasCursor: root.cursorActive && root.focusSection === "dns" && root.dnsIndex === index
 
     onHovered: function(isHovered) {

@@ -6,6 +6,15 @@
 
 set -euo pipefail
 
+# Whenever this runs as root — invoked directly through a sudoers rule, or
+# re-execed by require_root below — pin PATH to trusted system directories so
+# bare helpers (dirname, install, tee, rm, nmcli, systemctl, awk) cannot
+# resolve out of a user-writable bin/. The unprivileged wrapper keeps the
+# caller's PATH so it can still find sudo/pkexec.
+if (( EUID == 0 )); then
+  export PATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin
+fi
+
 NM_DNS_CONF=/etc/NetworkManager/conf.d/20-omarchy-dns.conf
 
 provider_from_arg() {
@@ -28,33 +37,51 @@ provider_from_arg() {
   esac
 }
 
-# The path etc/sudoers.d/omarchy-dns names. The privileged half always runs from
-# there rather than from whichever copy was invoked, so the rule matches even
-# where $OMARCHY_PATH points at a checkout.
+# Omarchy packages this at /usr/bin/omarchy-dns and names that path in
+# etc/sudoers.d/omarchy-dns. A chezmoi-only install has the helper under
+# ~/.config/quickshell/bin instead, so escalate whichever copy actually exists.
 PACKAGED_PATH=/usr/bin/omarchy-dns
+
+privileged_bin() {
+  if [[ -x $PACKAGED_PATH ]]; then
+    printf '%s\n' "$PACKAGED_PATH"
+  else
+    readlink -f "$0"
+  fi
+}
 
 # True when sudo would run this exact command without stopping for a password.
 # `sudo -l` on its own reports whether a command is permitted, which the blanket
 # %wheel rule answers yes to for everything; the long listing prints the matched
 # entry's tags, so !authenticate is the grant in etc/sudoers.d/omarchy-dns and
 # nothing else. Listing runs nothing and, under -n, prompts for nothing, so a
-# machine whose omarchy-settings predates that file falls through to polkit
-# instead of dying on a password prompt it has no terminal to show.
+# machine without that sudoers file falls through to polkit (or to an
+# unprivileged NetworkManager path) instead of dying on a password prompt it
+# has no terminal to show.
 sudo_grants_passwordless() {
-  sudo -n -l -l "$PACKAGED_PATH" "$@" 2>/dev/null | grep -q '!authenticate'
+  sudo -n -l -l "$(privileged_bin)" "$@" 2>/dev/null | grep -q '!authenticate'
 }
 
 require_root() {
+  local bin
+  bin=$(privileged_bin)
+
   if (( EUID == 0 )); then
     return
   elif [[ -t 0 ]] || sudo_grants_passwordless "$@"; then
     # A terminal can carry sudo's own password prompt. Without one, sudo is
     # right only where the grant reaches; polkit can at least put a prompt on
     # screen, and offer to authenticate as someone else.
-    exec sudo "$PACKAGED_PATH" "$@"
+    exec sudo "$bin" "$@"
   else
-    exec pkexec "$PACKAGED_PATH" "$@"
+    exec pkexec "$bin" "$@"
   fi
+}
+
+nm_can_modify_system() {
+  local line
+  line=$(nmcli -t general permissions 2>/dev/null | grep -F 'org.freedesktop.NetworkManager.settings.modify.system:' || true)
+  [[ ${line##*:} == yes ]]
 }
 
 networkmanager_global_dns() {
@@ -85,14 +112,37 @@ resolved_dns() {
   ' /etc/systemd/resolved.conf 2>/dev/null || true
 }
 
-current_dns_provider() {
-  local dns=""
-  local compact=""
+# Per-connection DNS is what actually moves on a NetworkManager host that is
+# not running systemd-resolved, and it is what the unprivileged apply path
+# writes. Prefer the active wifi/ethernet profile so the panel matches the
+# route currently in use.
+active_connection_dns() {
+  local device type state conn dns
 
-  dns=$(networkmanager_global_dns)
-  if [[ -z $(printf '%s' "$dns" | tr -d '[:space:],') ]]; then
-    dns=$(resolved_dns)
-  fi
+  while IFS=: read -r device type state; do
+    [[ -n $device && $state == connected ]] || continue
+    case "$type" in
+      wifi|ethernet) ;;
+      *) continue ;;
+    esac
+
+    conn=$(nmcli -e no -g GENERAL.CONNECTION device show "$device" 2>/dev/null || true)
+    [[ -n $conn && $conn != -- ]] || continue
+
+    dns=$(nmcli -e no -g ipv4.dns connection show "$conn" 2>/dev/null || true)
+    if [[ -z $(printf '%s' "$dns" | tr -d '[:space:],') ]]; then
+      dns=$(nmcli -e no -g ipv6.dns connection show "$conn" 2>/dev/null || true)
+    fi
+    if [[ -n $(printf '%s' "$dns" | tr -d '[:space:],') ]]; then
+      printf '%s\n' "$dns"
+      return 0
+    fi
+  done < <(nmcli -t -f DEVICE,TYPE,STATE device status)
+}
+
+classify_dns() {
+  local dns=$1
+  local compact
 
   compact=$(printf '%s' "$dns" | tr -d '[:space:],')
 
@@ -105,6 +155,20 @@ current_dns_provider() {
   else
     echo "Custom"
   fi
+}
+
+current_dns_provider() {
+  local dns=""
+
+  dns=$(networkmanager_global_dns)
+  if [[ -z $(printf '%s' "$dns" | tr -d '[:space:],') ]]; then
+    dns=$(resolved_dns)
+  fi
+  if [[ -z $(printf '%s' "$dns" | tr -d '[:space:],') ]]; then
+    dns=$(active_connection_dns)
+  fi
+
+  classify_dns "$dns"
 }
 
 normalize_servers() {
@@ -136,6 +200,8 @@ split_dns_servers() {
 write_networkmanager_dns() {
   local servers="$1"
 
+  (( EUID == 0 )) || return 0
+
   install -d -m 0755 "$(dirname "$NM_DNS_CONF")"
   cat >"$NM_DNS_CONF" <<EOF
 # Managed by omarchy-dns. Remove this file or run omarchy dns DHCP to use DHCP DNS again.
@@ -147,7 +213,14 @@ EOF
 }
 
 clear_networkmanager_dns() {
+  (( EUID == 0 )) || return 0
   rm -f "$NM_DNS_CONF"
+}
+
+write_resolved_conf() {
+  (( EUID == 0 )) || return 0
+  [[ -e /usr/lib/systemd/system/systemd-resolved.service ]] || return 0
+  tee /etc/systemd/resolved.conf >/dev/null
 }
 
 networkmanager_dns_connection() {
@@ -209,17 +282,69 @@ reload_dns_stack() {
     # Load the updated NetworkManager config first, then reapply the active
     # profiles. A single conf,dns-full reload here pushes the old active DNS
     # settings, making the shell toggle appear one selection behind.
-    nmcli general reload conf >/dev/null 2>&1 || systemctl reload NetworkManager.service 2>/dev/null || true
+    if (( EUID == 0 )); then
+      nmcli general reload conf >/dev/null 2>&1 || systemctl reload NetworkManager.service 2>/dev/null || true
+    fi
     reapply_active_dns_connections
   fi
 
-  systemctl reload systemd-resolved.service 2>/dev/null || systemctl restart systemd-resolved.service
+  # Only touch resolved when it is already running. Restarting a disabled
+  # unit would steal /etc/resolv.conf from NetworkManager or Tailscale.
+  if systemctl is-active --quiet systemd-resolved.service 2>/dev/null; then
+    systemctl reload systemd-resolved.service 2>/dev/null || systemctl restart systemd-resolved.service 2>/dev/null || true
 
-  if systemctl is-active --quiet NetworkManager.service 2>/dev/null; then
-    # A resolved reload/restart can leave per-link DNS stale or empty; ask
-    # NetworkManager to publish DNS after resolved has reread its config.
-    nmcli general reload dns-full >/dev/null 2>&1 || true
+    if systemctl is-active --quiet NetworkManager.service 2>/dev/null; then
+      # A resolved reload/restart can leave per-link DNS stale or empty; ask
+      # NetworkManager to publish DNS after resolved has reread its config.
+      nmcli general reload dns-full >/dev/null 2>&1 || true
+    fi
   fi
+}
+
+apply_provider() {
+  case "$provider" in
+  Cloudflare)
+    write_networkmanager_dns "1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001"
+    set_connection_dns "1.1.1.1 1.0.0.1" "2606:4700:4700::1111 2606:4700:4700::1001"
+    write_resolved_conf <<'EOF'
+[Resolve]
+DNS=1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com 2606:4700:4700::1111#cloudflare-dns.com 2606:4700:4700::1001#cloudflare-dns.com
+FallbackDNS=9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 2620:fe::9#dns.quad9.net
+DNSOverTLS=opportunistic
+EOF
+    ;;
+
+  Google)
+    write_networkmanager_dns "8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844"
+    set_connection_dns "8.8.8.8 8.8.4.4" "2001:4860:4860::8888 2001:4860:4860::8844"
+    write_resolved_conf <<'EOF'
+[Resolve]
+DNS=8.8.8.8#dns.google 8.8.4.4#dns.google 2001:4860:4860::8888#dns.google 2001:4860:4860::8844#dns.google
+FallbackDNS=9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 2620:fe::9#dns.quad9.net
+DNSOverTLS=opportunistic
+EOF
+    ;;
+
+  DHCP)
+    clear_networkmanager_dns
+    clear_connection_dns
+    write_resolved_conf <<'EOF'
+[Resolve]
+DNSOverTLS=no
+EOF
+    ;;
+
+  Custom)
+    split_dns_servers "$dns_servers"
+    write_networkmanager_dns "$dns_servers"
+    set_connection_dns "$ipv4_dns" "$ipv6_dns"
+    write_resolved_conf <<EOF
+[Resolve]
+DNS=${dns_servers//,/ }
+FallbackDNS=9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 2620:fe::9#dns.quad9.net
+EOF
+    ;;
+  esac
 }
 
 usage() {
@@ -241,41 +366,11 @@ if ! provider=$(provider_from_arg "$1"); then
   exit 1
 fi
 
-require_root "$provider"
+dns_servers=""
+ipv4_dns=""
+ipv6_dns=""
 
-case "$provider" in
-Cloudflare)
-  write_networkmanager_dns "1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001"
-  set_connection_dns "1.1.1.1 1.0.0.1" "2606:4700:4700::1111 2606:4700:4700::1001"
-  tee /etc/systemd/resolved.conf >/dev/null <<'EOF'
-[Resolve]
-DNS=1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com 2606:4700:4700::1111#cloudflare-dns.com 2606:4700:4700::1001#cloudflare-dns.com
-FallbackDNS=9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 2620:fe::9#dns.quad9.net
-DNSOverTLS=opportunistic
-EOF
-  ;;
-
-Google)
-  write_networkmanager_dns "8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844"
-  set_connection_dns "8.8.8.8 8.8.4.4" "2001:4860:4860::8888 2001:4860:4860::8844"
-  tee /etc/systemd/resolved.conf >/dev/null <<'EOF'
-[Resolve]
-DNS=8.8.8.8#dns.google 8.8.4.4#dns.google 2001:4860:4860::8888#dns.google 2001:4860:4860::8844#dns.google
-FallbackDNS=9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 2620:fe::9#dns.quad9.net
-DNSOverTLS=opportunistic
-EOF
-  ;;
-
-DHCP)
-  clear_networkmanager_dns
-  clear_connection_dns
-  tee /etc/systemd/resolved.conf >/dev/null <<'EOF'
-[Resolve]
-DNSOverTLS=no
-EOF
-  ;;
-
-Custom)
+if [[ $provider == Custom ]]; then
   echo "Enter your DNS servers (space-separated, e.g. '192.168.1.1 1.1.1.1'):"
   if ! read -r dns_servers; then
     dns_servers=""
@@ -286,16 +381,18 @@ Custom)
     echo "Error: No DNS servers provided." >&2
     exit 1
   fi
+fi
 
-  split_dns_servers "$dns_servers"
-  write_networkmanager_dns "$dns_servers"
-  set_connection_dns "$ipv4_dns" "$ipv6_dns"
-  tee /etc/systemd/resolved.conf >/dev/null <<EOF
-[Resolve]
-DNS=${dns_servers//,/ }
-FallbackDNS=9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 2620:fe::9#dns.quad9.net
-EOF
-  ;;
-esac
+# NetworkManager already grants this session modify.system, so the stock
+# providers can be applied with nmcli alone — no /usr/bin helper, no polkit
+# prompt. Escalate only when that grant is missing.
+if (( EUID != 0 )); then
+  if nm_can_modify_system && apply_provider; then
+    reload_dns_stack
+    exit 0
+  fi
+  require_root "$provider"
+fi
 
+apply_provider
 reload_dns_stack
