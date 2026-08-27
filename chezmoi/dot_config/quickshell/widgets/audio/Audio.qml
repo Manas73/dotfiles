@@ -519,6 +519,7 @@ Panel {
       ? root.outputIcon() + " " + root.outputPercent + "%"
       : root.outputIcon()
     fontSize: Style.font.bodySmall
+    active: root.outputMuted
     horizontalMargin: 8.5
     onPressed: function(b) {
       if (b === Qt.RightButton) root.toggleOutputMute()

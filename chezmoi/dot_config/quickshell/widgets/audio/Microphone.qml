@@ -234,6 +234,7 @@ Panel {
       ? root.inputIcon() + " " + root.inputPercent + "%"
       : root.inputIcon()
     fontSize: Style.font.bodySmall
+    active: root.inputMuted
     horizontalMargin: 8.5
     onPressed: function(b) {
       if (b === Qt.RightButton) root.toggleInputMute()
