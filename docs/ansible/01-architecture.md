@@ -35,7 +35,6 @@ Profiles are **not** inventory groups. Available profiles:
 | `fonts`       | Linux    | ttf-* font set.                                 |
 | `gaming`      | Linux    | Steam, Lutris, umu-launcher.                    |
 | `hyprland`    | Linux    | Hyprland window manager and adjacent tools.     |
-| `i3`          | Linux    | i3 + X11 ecosystem (xclip, xorg-xev, …).        |
 | `kde`         | Linux    | KDE Plasma desktop integration.                 |
 
 ## Catalog

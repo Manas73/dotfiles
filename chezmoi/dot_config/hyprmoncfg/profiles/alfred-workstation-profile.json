@@ -1,7 +1,7 @@
 {
   "name": "alfred-workstation-profile",
   "created_at": "2026-08-24T18:01:57.130845965Z",
-  "updated_at": "2026-08-24T18:03:57.810350262Z",
+  "updated_at": "2026-08-27T11:38:06.473681273Z",
   "outputs": [
     {
       "key": "bnq|benq ex3210r|etj8m01783sl0",
@@ -15,7 +15,7 @@
       "mode": "2560x1440@165.00Hz",
       "width": 2560,
       "height": 1440,
-      "refresh": 165,
+      "refresh": 165.002,
       "x": 2560,
       "y": 0,
       "scale": 1,
@@ -40,7 +40,7 @@
       "mode": "2560x1440@165.00Hz",
       "width": 2560,
       "height": 1440,
-      "refresh": 165,
+      "refresh": 165.002,
       "x": 0,
       "y": 0,
       "scale": 1,
@@ -66,57 +66,57 @@
     "rules": [
       {
         "workspace": "1",
-        "output_key": "bnq|benq ex3210r|etj8m01786sl0",
-        "output_name": "DP-1",
-        "default": true,
-        "persistent": true
-      },
-      {
-        "workspace": "2",
-        "output_key": "bnq|benq ex3210r|etj8m01786sl0",
-        "output_name": "DP-1"
-      },
-      {
-        "workspace": "3",
-        "output_key": "bnq|benq ex3210r|etj8m01786sl0",
-        "output_name": "DP-1"
-      },
-      {
-        "workspace": "4",
-        "output_key": "bnq|benq ex3210r|etj8m01786sl0",
-        "output_name": "DP-1"
-      },
-      {
-        "workspace": "5",
-        "output_key": "bnq|benq ex3210r|etj8m01786sl0",
-        "output_name": "DP-1"
-      },
-      {
-        "workspace": "6",
         "output_key": "bnq|benq ex3210r|etj8m01783sl0",
         "output_name": "DP-2",
         "default": true,
         "persistent": true
       },
       {
-        "workspace": "7",
+        "workspace": "2",
         "output_key": "bnq|benq ex3210r|etj8m01783sl0",
         "output_name": "DP-2"
+      },
+      {
+        "workspace": "3",
+        "output_key": "bnq|benq ex3210r|etj8m01783sl0",
+        "output_name": "DP-2"
+      },
+      {
+        "workspace": "4",
+        "output_key": "bnq|benq ex3210r|etj8m01783sl0",
+        "output_name": "DP-2"
+      },
+      {
+        "workspace": "5",
+        "output_key": "bnq|benq ex3210r|etj8m01783sl0",
+        "output_name": "DP-2"
+      },
+      {
+        "workspace": "6",
+        "output_key": "bnq|benq ex3210r|etj8m01786sl0",
+        "output_name": "DP-1",
+        "default": true,
+        "persistent": true
+      },
+      {
+        "workspace": "7",
+        "output_key": "bnq|benq ex3210r|etj8m01786sl0",
+        "output_name": "DP-1"
       },
       {
         "workspace": "8",
-        "output_key": "bnq|benq ex3210r|etj8m01783sl0",
-        "output_name": "DP-2"
+        "output_key": "bnq|benq ex3210r|etj8m01786sl0",
+        "output_name": "DP-1"
       },
       {
         "workspace": "9",
-        "output_key": "bnq|benq ex3210r|etj8m01783sl0",
-        "output_name": "DP-2"
+        "output_key": "bnq|benq ex3210r|etj8m01786sl0",
+        "output_name": "DP-1"
       },
       {
         "workspace": "10",
-        "output_key": "bnq|benq ex3210r|etj8m01783sl0",
-        "output_name": "DP-2"
+        "output_key": "bnq|benq ex3210r|etj8m01786sl0",
+        "output_name": "DP-1"
       }
     ]
   },

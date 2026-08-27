@@ -25,7 +25,7 @@ service_catalog:
       - { manager: systemd, name: virtlogd.socket, scope: system, enabled: true }
 
   hyprmoncfgd:
-    arch: { manager: systemd, name: hyprmoncfgd.service, scope: system, enabled: true }
+    arch: { manager: systemd, name: hyprmoncfgd.service, scope: user, enabled: true }
 
   # postgresql:
   #   arch:   { manager: systemd, name: postgresql.service, scope: system, enabled: true, state: started }

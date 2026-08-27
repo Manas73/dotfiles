@@ -11,15 +11,18 @@
 -- - Dependency Inversion: Main config depends on abstractions (modules)
 --
 -- Structure:
---   conf.d/     - Core configuration (monitors, input, appearance, etc.)
+--   conf/       - Core configuration (input, appearance, etc.)
 --   keybinds/   - Keybinding modules (base, applications, workspaces, etc.)
 --   rules/      - Window and layer rules
 --   colors/     - Theme colors
 --
+-- Monitors and workspace-to-output rules are owned by hyprmoncfg.
+-- Generated rules load last via dofile below.
+--
 --------------------------------------------------------------------------------
 
--- Make ~/.config/hypr/ requireable so `require("conf.d.monitors")` resolves to
--- ~/.config/hypr/conf.d/monitors.lua, etc.
+-- Make ~/.config/hypr/ requireable so `require("conf.environment")` resolves
+-- to ~/.config/hypr/conf/environment.lua, etc.
 local hypr_root = os.getenv("HOME") .. "/.config/hypr"
 package.path = hypr_root .. "/?.lua;"
             .. hypr_root .. "/?/init.lua;"
@@ -30,7 +33,6 @@ package.path = hypr_root .. "/?.lua;"
 _G.colors = require("colors.matugen")
 
 -- Core configuration
-require("conf.monitors")
 require("conf.environment")
 require("conf.programs")
 require("conf.autostart")
@@ -48,3 +50,8 @@ require("keybinds.submaps")
 -- Rules
 require("rules.layer-rules")
 require("rules.window-rules")
+
+-- hyprmoncfg: generated monitor rules load last so they win over anything above.
+-- Keep this exact include; `hyprmoncfg manage`/`doctor` look for it, and
+-- `chezmoi apply` must not strip it.
+dofile(os.getenv("HOME") .. "/.config/hypr/hyprmoncfg-monitors.lua")
