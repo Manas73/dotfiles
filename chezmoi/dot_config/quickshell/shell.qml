@@ -23,6 +23,7 @@ import "widgets/speedtest"
 import "widgets/bluetooth"
 import "widgets/monitor"
 import "widgets/power"
+import "picker"
 
 ShellRoot {
   id: shell
@@ -51,6 +52,12 @@ ShellRoot {
       speedTest.open(payloadJson)
       return true
     }
+    if (key === "picker" || key === "omarchy.picker") {
+      var payload = {}
+      try { payload = JSON.parse(payloadJson || "{}") || {} } catch (e) {}
+      picker.openMenu(payload.menu || payload.id || "")
+      return true
+    }
     return false
   }
 
@@ -59,6 +66,7 @@ ShellRoot {
     if (key === "osd" || key === "omarchy.osd") osd.close()
     else if (key === "wifi-qr" || key === "omarchy.wifiqr") wifiQr.close()
     else if (key === "speedtest" || key === "omarchy.speedtest") speedTest.close()
+    else if (key === "picker" || key === "omarchy.picker") picker.close()
   }
 
   Mpris { id: media; shell: shell }
@@ -73,6 +81,7 @@ ShellRoot {
 
   WifiQr { id: wifiQr; shell: shell }
   SpeedTest { id: speedTest; shell: shell }
+  Picker { id: picker; shell: shell }
 
   Bar {
     id: bar
