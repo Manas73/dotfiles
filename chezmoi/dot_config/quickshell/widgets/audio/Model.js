@@ -35,6 +35,19 @@ function outputVolumeName(volume, muted) {
   return "Whisper"
 }
 
+function inputVolumeName(volume, muted) {
+  if (muted) return "Muted"
+  var p = Math.round(volume * 100)
+  if (p === 0) return "Silent"
+  if (p >= 100) return "Broadcast"
+  if (p >= 85) return "Stage voice"
+  if (p >= 70) return "Projected"
+  if (p >= 50) return "Conversation"
+  if (p >= 30) return "Close talk"
+  if (p >= 15) return "Soft"
+  return "Whisper"
+}
+
 function parseSinkAvailability(raw) {
   var next = {}
   var lines = String(raw || "").split("\n")
@@ -239,6 +252,7 @@ if (typeof module !== "undefined") {
     isAudioSource: isAudioSource,
     listSnapshot: listSnapshot,
     outputVolumeName: outputVolumeName,
+    inputVolumeName: inputVolumeName,
     parseSinkAvailability: parseSinkAvailability,
     friendlyDeviceLabel: friendlyDeviceLabel,
     nodeProps: nodeProps,

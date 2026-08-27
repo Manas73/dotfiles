@@ -106,6 +106,7 @@ ShellRoot {
       Tray {}
       Notify {}
       Audio {}
+      Microphone {}
       // Usage {}
       Tailscale {}
       Network {}
