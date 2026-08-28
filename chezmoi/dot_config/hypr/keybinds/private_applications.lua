@@ -12,5 +12,5 @@ hl.bind(mainMod .. " + M",      hl.dsp.exec_cmd(home .. "/.config/.settings/work
 hl.bind(mainMod .. " + G",      hl.dsp.exec_cmd(home .. "/.config/.settings/git_client.sh"))
 
 -- Rofi - Simple binds
-hl.bind(mainMod .. " + Space",  hl.dsp.exec_cmd("rofi -show drun -show-icons"))
+hl.bind(mainMod .. " + Space",  hl.dsp.exec_cmd("omarchy-shell picker toggle apps"))
 hl.bind(mainMod .. " + Delete", hl.dsp.exec_cmd("omarchy-shell picker toggle power"))

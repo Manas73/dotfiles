@@ -1,0 +1,243 @@
+#!/usr/bin/env python3
+
+# omarchy:summary=List or launch XDG desktop applications for the picker
+# omarchy:group=apps
+# omarchy:args=[list|launch] [desktop-file]
+
+import configparser
+import os
+import shutil
+import sys
+
+def usage():
+    print("Usage: omarchy-apps [list|launch] [desktop-file]", file=sys.stderr)
+    sys.exit(2)
+
+
+def data_dirs():
+    home = os.path.expanduser("~")
+    dirs = [os.path.join(os.environ.get("XDG_DATA_HOME", os.path.join(home, ".local/share")), "applications")]
+    for part in os.environ.get("XDG_DATA_DIRS", "/usr/local/share:/usr/share").split(":"):
+        if part:
+            dirs.append(os.path.join(part, "applications"))
+    return dirs
+
+
+def current_desktops():
+    raw = os.environ.get("XDG_CURRENT_DESKTOP", "Hyprland")
+    return [p.strip() for p in raw.split(":") if p.strip()]
+
+
+def parse_desktop(path):
+    parser = configparser.ConfigParser(interpolation=None, strict=False)
+    try:
+        parser.read(path, encoding="utf-8")
+    except (configparser.Error, OSError, UnicodeError):
+        return None
+    if not parser.has_section("Desktop Entry"):
+        return None
+    return parser["Desktop Entry"]
+
+
+def csv_keys(value):
+    return [p.strip() for p in str(value or "").split(";") if p.strip()]
+
+
+def should_show(entry, desktops):
+    if str(entry.get("Type", "Application")).strip() != "Application":
+        return False
+    if str(entry.get("Hidden", "")).lower() == "true":
+        return False
+    if str(entry.get("NoDisplay", "")).lower() == "true":
+        return False
+    only = csv_keys(entry.get("OnlyShowIn", ""))
+    if only and not any(d in only for d in desktops):
+        return False
+    not_show = csv_keys(entry.get("NotShowIn", ""))
+    if any(d in not_show for d in desktops):
+        return False
+    tryexec = str(entry.get("TryExec", "")).strip()
+    if tryexec and not os.path.isfile(tryexec) and not shutil.which(tryexec):
+        return False
+    return bool(str(entry.get("Name", "")).strip())
+
+
+ICON_EXTS = (".png", ".svg", ".xpm")
+ICON_SIZES = (
+    "48x48", "32x32", "64x64", "24x24", "22x22", "96x96",
+    "128x128", "256x256", "512x512", "scalable",
+)
+ICON_CATS = ("apps", "applications", "places", "devices", "mimetypes", "legacy", "status", "actions")
+
+
+def gtk_icon_theme():
+    home = os.path.expanduser("~")
+    for path in (
+        os.path.join(home, ".config/gtk-4.0/settings.ini"),
+        os.path.join(home, ".config/gtk-3.0/settings.ini"),
+    ):
+        if not os.path.isfile(path):
+            continue
+        parser = configparser.ConfigParser(interpolation=None, strict=False)
+        try:
+            parser.read(path, encoding="utf-8")
+            theme = parser.get("Settings", "gtk-icon-theme-name", fallback="").strip()
+            if theme:
+                return theme
+        except (configparser.Error, OSError):
+            continue
+    return ""
+
+
+def theme_dirs(*parents):
+    out = []
+    for parent in parents:
+        if not os.path.isdir(parent):
+            continue
+        if os.path.isfile(os.path.join(parent, "index.theme")) or os.path.isdir(os.path.join(parent, "apps")):
+            out.append(parent)
+            continue
+        try:
+            names = os.listdir(parent)
+        except OSError:
+            continue
+        for name in names:
+            path = os.path.join(parent, name)
+            if os.path.isdir(path) and (
+                os.path.isfile(os.path.join(path, "index.theme")) or os.path.isdir(os.path.join(path, "apps"))
+            ):
+                out.append(path)
+    return out
+
+
+def icon_roots():
+    home = os.path.expanduser("~")
+    theme = gtk_icon_theme()
+    roots = []
+    if theme:
+        roots.extend((
+            os.path.join(home, ".local/share/icons", theme),
+            os.path.join(home, ".icons", theme),
+            os.path.join("/usr/share/icons", theme),
+        ))
+    roots.extend(theme_dirs(
+        os.path.join(home, ".local/share/icons"),
+        os.path.join(home, ".icons"),
+        "/usr/share/icons",
+    ))
+    roots.extend((
+        "/usr/share/icons/hicolor",
+        "/usr/share/icons/Adwaita",
+        "/usr/share/icons/Papirus",
+        "/usr/share/icons/breeze",
+        "/usr/share/pixmaps",
+    ))
+    seen = set()
+    unique = []
+    for root in roots:
+        if root in seen or not os.path.isdir(root):
+            continue
+        seen.add(root)
+        unique.append(root)
+    return unique
+
+
+def icon_basename(name):
+    base = os.path.basename(str(name or "").strip())
+    lower = base.lower()
+    for ext in ICON_EXTS:
+        if lower.endswith(ext):
+            return base[: -len(ext)]
+    return base
+
+
+def find_icon(name, cache, roots):
+    name = str(name or "").strip()
+    if not name:
+        return ""
+    if name in cache:
+        return cache[name]
+    if os.path.isabs(name) and os.path.isfile(name):
+        cache[name] = name
+        return name
+    base = icon_basename(name)
+    for root in roots:
+        if os.path.basename(root) == "pixmaps":
+            for ext in ICON_EXTS:
+                path = os.path.join(root, base + ext)
+                if os.path.isfile(path):
+                    cache[name] = path
+                    return path
+            continue
+        for size in ICON_SIZES:
+            for cat in ICON_CATS:
+                for ext in ICON_EXTS:
+                    for path in (
+                        os.path.join(root, size, cat, base + ext),
+                        os.path.join(root, cat, size, base + ext),
+                    ):
+                        if os.path.isfile(path):
+                            cache[name] = path
+                            return path
+    cache[name] = ""
+    return ""
+
+
+def clean(value):
+    return str(value or "").replace("\t", " ").replace("\n", " ").replace("\r", " ").strip()
+
+
+def list_apps():
+    desktops = current_desktops()
+    seen = set()
+    apps = []
+    roots = icon_roots()
+    icons = {}
+    for directory in data_dirs():
+        if not os.path.isdir(directory):
+            continue
+        try:
+            names = os.listdir(directory)
+        except OSError:
+            continue
+        for fname in names:
+            if not fname.endswith(".desktop"):
+                continue
+            path = os.path.join(directory, fname)
+            if fname in seen or not os.path.isfile(path):
+                continue
+            entry = parse_desktop(path)
+            if not entry or not should_show(entry, desktops):
+                seen.add(fname)
+                continue
+            seen.add(fname)
+            name = clean(entry.get("Name", ""))
+            detail = clean(entry.get("GenericName", "") or entry.get("Comment", ""))
+            search = " ".join(p for p in (name, detail, clean(entry.get("Comment", "")), fname[:-8]) if p)
+            icon = find_icon(entry.get("Icon", ""), icons, roots)
+            apps.append((name.lower(), name, detail, icon, path, search))
+    apps.sort(key=lambda row: row[0])
+    for _key, name, detail, icon, path, search in apps:
+        print("\t".join((path, name, detail, icon, search)))
+
+
+def launch(path):
+    if not path or not os.path.isfile(path):
+        sys.exit(1)
+    os.execvp("uwsm", ["uwsm", "app", "--", path])
+
+
+def main():
+    action = sys.argv[1] if len(sys.argv) > 1 else "list"
+    if action == "list":
+        list_apps()
+    elif action == "launch":
+        if len(sys.argv) < 3:
+            usage()
+        launch(sys.argv[2])
+    else:
+        usage()
+
+
+if __name__ == "__main__":
+    main()

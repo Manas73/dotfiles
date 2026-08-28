@@ -29,6 +29,7 @@ Item {
     if (menuId === "wifi") return wifiMenu
     if (menuId === "clipboard") return clipboardMenu
     if (menuId === "power") return powerMenu
+    if (menuId === "apps") return appsMenu
     return null
   }
   readonly property var sourceItems: activeMenu ? activeMenu.items : []
@@ -58,6 +59,7 @@ Item {
   WifiMenu { id: wifiMenu; active: root.opened && root.menuId === "wifi" }
   ClipboardMenu { id: clipboardMenu; active: root.opened && root.menuId === "clipboard" }
   PowerMenu { id: powerMenu; active: root.opened && root.menuId === "power" }
+  AppsMenu { id: appsMenu; active: root.opened && root.menuId === "apps" }
 
   FileView {
     id: previewFile
@@ -394,6 +396,7 @@ Item {
             width: list.width
             height: implicitHeight
             readonly property bool hasThumb: !!(modelData && modelData.thumb)
+            readonly property bool hasIcon: !!(modelData && modelData.icon)
             readonly property bool destructive: !!(modelData && modelData.destructive)
             readonly property color rowColor: destructive ? Color.urgent : root.foreground
             implicitHeight: rowInner.implicitHeight + Style.spacing.md
@@ -413,19 +416,20 @@ Item {
               spacing: Style.space(8)
 
               Item {
-                width: hasThumb ? Style.space(48) : Style.space(22)
-                height: hasThumb ? Style.space(32) : Style.font.title
+                width: hasThumb ? Style.space(48) : (hasIcon ? Style.space(24) : Style.space(22))
+                height: hasThumb ? Style.space(32) : (hasIcon ? Style.space(24) : Style.font.title)
                 anchors.verticalCenter: parent.verticalCenter
 
                 Image {
-                  visible: hasThumb
+                  visible: hasThumb || hasIcon
                   anchors.fill: parent
-                  source: hasThumb ? ("file://" + modelData.thumb) : ""
-                  fillMode: Image.PreserveAspectCrop
+                  source: hasThumb ? ("file://" + modelData.thumb)
+                    : (hasIcon ? ("file://" + modelData.icon) : "")
+                  fillMode: hasThumb ? Image.PreserveAspectCrop : Image.PreserveAspectFit
                   asynchronous: true
                   cache: true
-                  sourceSize.width: Style.space(96)
-                  sourceSize.height: Style.space(48)
+                  sourceSize.width: hasThumb ? Style.space(96) : Style.space(48)
+                  sourceSize.height: hasThumb ? Style.space(48) : Style.space(48)
                 }
 
                 Rectangle {
@@ -438,7 +442,7 @@ Item {
                 }
 
                 Text {
-                  visible: !hasThumb
+                  visible: !hasThumb && !hasIcon
                   anchors.centerIn: parent
                   text: modelData && modelData.glyph ? modelData.glyph : ""
                   color: rowColor
@@ -454,7 +458,7 @@ Item {
                 font.pixelSize: Style.font.body
                 font.bold: !!(modelData && modelData.current)
                 elide: Text.ElideRight
-                width: parent.width - (hasThumb ? Style.space(48) : Style.space(22)) - detailText.width - Style.space(16)
+                width: parent.width - (hasThumb ? Style.space(48) : (hasIcon ? Style.space(24) : Style.space(22))) - detailText.width - Style.space(16)
                 anchors.verticalCenter: parent.verticalCenter
               }
 
