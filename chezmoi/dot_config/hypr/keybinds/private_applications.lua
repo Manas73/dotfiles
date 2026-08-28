@@ -13,4 +13,4 @@ hl.bind(mainMod .. " + G",      hl.dsp.exec_cmd(home .. "/.config/.settings/git_
 
 -- Rofi - Simple binds
 hl.bind(mainMod .. " + Space",  hl.dsp.exec_cmd("rofi -show drun -show-icons"))
-hl.bind(mainMod .. " + Delete", hl.dsp.exec_cmd(home .. "/.config/.settings/powermenu.sh"))
+hl.bind(mainMod .. " + Delete", hl.dsp.exec_cmd("omarchy-shell picker toggle power"))

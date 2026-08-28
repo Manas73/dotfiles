@@ -28,6 +28,7 @@ Item {
     if (menuId === "vpn") return vpnMenu
     if (menuId === "wifi") return wifiMenu
     if (menuId === "clipboard") return clipboardMenu
+    if (menuId === "power") return powerMenu
     return null
   }
   readonly property var sourceItems: activeMenu ? activeMenu.items : []
@@ -44,6 +45,7 @@ Item {
   readonly property string previewPath: selectedItem && selectedItem.preview ? String(selectedItem.preview) : (previewThumb)
   readonly property string previewKind: selectedItem && selectedItem.previewKind ? String(selectedItem.previewKind) : ""
   readonly property bool showPreview: previewOpen && previewPath !== "" && !passwordMode
+  readonly property bool showSearch: !passwordMode && !(activeMenu && activeMenu.showSearch === false)
   property string previewBody: ""
   readonly property color foreground: Color.popups.text
   readonly property color hoverFill: Style.hoverFillFor(Color.popups.text, Color.accent)
@@ -55,6 +57,7 @@ Item {
   VpnMenu { id: vpnMenu; active: root.opened && root.menuId === "vpn" }
   WifiMenu { id: wifiMenu; active: root.opened && root.menuId === "wifi" }
   ClipboardMenu { id: clipboardMenu; active: root.opened && root.menuId === "clipboard" }
+  PowerMenu { id: powerMenu; active: root.opened && root.menuId === "power" }
 
   FileView {
     id: previewFile
@@ -96,10 +99,8 @@ Item {
       if (!root.opened) return
       root.resetSelection()
       if (passwordField) passwordField.text = ""
-      if (searchField) {
-        searchField.text = ""
-        searchField.forceActiveFocus()
-      }
+      if (searchField) searchField.text = ""
+      root.focusInput()
     })
   }
 
@@ -158,13 +159,41 @@ Item {
     previewOpen = !previewOpen
   }
 
+  function focusInput() {
+    if (passwordMode && passwordField) passwordField.forceActiveFocus()
+    else if (showSearch && searchField) searchField.forceActiveFocus()
+    else if (keySink) keySink.forceActiveFocus()
+  }
+
+  function handleNavKey(event) {
+    if (event.key === Qt.Key_Down) { moveSelection(1); event.accepted = true }
+    else if (event.key === Qt.Key_Up) { moveSelection(-1); event.accepted = true }
+    else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+      activateSelected(); event.accepted = true
+    } else if (event.key === Qt.Key_Delete) {
+      if (event.modifiers & Qt.AltModifier) clearAll()
+      else removeSelected()
+      event.accepted = true
+    } else if (event.key === Qt.Key_P && (event.modifiers & Qt.AltModifier)) {
+      togglePreview(); event.accepted = true
+    } else if (event.key === Qt.Key_Escape) {
+      handleEscape(); event.accepted = true
+    } else if (event.key === Qt.Key_Tab) {
+      moveSelection(event.modifiers & Qt.ShiftModifier ? -1 : 1)
+      event.accepted = true
+    }
+  }
+
   function activateItem(item) {
     if (!item || !activeMenu || typeof activeMenu.activate !== "function") return
     var result = activeMenu.activate(item)
     if (result === "stay") {
       query = ""
       if (searchField) searchField.text = ""
-      Qt.callLater(root.resetSelection)
+      Qt.callLater(function() {
+        root.resetSelection()
+        root.focusInput()
+      })
       return
     }
     if (result === "password") {
@@ -191,13 +220,16 @@ Item {
     if (passwordMode) {
       passwordMode = false
       passwordSsid = ""
-      Qt.callLater(function() { if (searchField) searchField.forceActiveFocus() })
+      Qt.callLater(root.focusInput)
       return
     }
-    if (menuId === "wifi" && wifiMenu.back()) {
+    if (activeMenu && typeof activeMenu.back === "function" && activeMenu.back()) {
       query = ""
       if (searchField) searchField.text = ""
-      Qt.callLater(root.resetSelection)
+      Qt.callLater(function() {
+        root.resetSelection()
+        root.focusInput()
+      })
       return
     }
     close()
@@ -296,32 +328,22 @@ Item {
           }
         }
 
+        Item {
+          id: keySink
+          width: 0
+          height: 0
+          focus: true
+          Keys.onPressed: function(event) { root.handleNavKey(event) }
+        }
+
         TextField {
           id: searchField
-          visible: !root.passwordMode
+          visible: root.showSearch
           width: parent.width
           placeholderText: "Search"
           foreground: root.foreground
           onTextChanged: root.query = text
-          Keys.onPressed: function(event) {
-            if (event.key === Qt.Key_Down) { root.moveSelection(1); event.accepted = true }
-            else if (event.key === Qt.Key_Up) { root.moveSelection(-1); event.accepted = true }
-            else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-              root.activateSelected(); event.accepted = true
-            } else if (event.key === Qt.Key_Delete) {
-              if (event.modifiers & Qt.AltModifier) root.clearAll()
-              else root.removeSelected()
-              event.accepted = true
-            } else if (event.key === Qt.Key_P && (event.modifiers & Qt.AltModifier)) {
-              root.togglePreview()
-              event.accepted = true
-            } else if (event.key === Qt.Key_Escape) {
-              root.handleEscape(); event.accepted = true
-            } else if (event.key === Qt.Key_Tab) {
-              root.moveSelection(event.modifiers & Qt.ShiftModifier ? -1 : 1)
-              event.accepted = true
-            }
-          }
+          Keys.onPressed: function(event) { root.handleNavKey(event) }
         }
 
         TextField {
@@ -372,12 +394,14 @@ Item {
             width: list.width
             height: implicitHeight
             readonly property bool hasThumb: !!(modelData && modelData.thumb)
+            readonly property bool destructive: !!(modelData && modelData.destructive)
+            readonly property color rowColor: destructive ? Color.urgent : root.foreground
             implicitHeight: rowInner.implicitHeight + Style.spacing.md
             hasCursor: root.selectedIndex === index
             current: !!(modelData && modelData.current)
-            foreground: root.foreground
-            fill: root.hoverFill
-            currentFill: root.selectedFill
+            foreground: rowColor
+            fill: destructive ? Style.hoverFillFor(Color.urgent, Color.urgent) : root.hoverFill
+            currentFill: destructive ? Style.selectedFillFor(Color.urgent, Color.urgent) : root.selectedFill
 
             Row {
               id: rowInner
@@ -417,7 +441,7 @@ Item {
                   visible: !hasThumb
                   anchors.centerIn: parent
                   text: modelData && modelData.glyph ? modelData.glyph : ""
-                  color: root.foreground
+                  color: rowColor
                   font.family: Style.font.family
                   font.pixelSize: Style.font.title
                 }
@@ -425,7 +449,7 @@ Item {
 
               Text {
                 text: modelData ? modelData.label : ""
-                color: root.foreground
+                color: rowColor
                 font.family: Style.font.family
                 font.pixelSize: Style.font.body
                 font.bold: !!(modelData && modelData.current)
