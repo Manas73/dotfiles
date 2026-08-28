@@ -1,11 +1,13 @@
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import qs.components
 import "ClockModel.js" as Model
 
-// The clock's calendar popup: a month grid with ISO week numbers, built to
-// sit beside the weather panel — same hero-over-detail composition, same
-// spacing scale, same small-caps labels.
+// The clock's calendar popup: three world clocks over today's date, then a
+// month grid with ISO week numbers. Built to sit beside the weather panel —
+// same hero-over-detail composition, same spacing scale, same small-caps
+// labels. Click a clock to set its label and IANA timezone.
 //
 // The grid is a read-out rather than a picker: today is the only marked
 // day, and the only thing that moves is which month is on screen —
@@ -51,18 +53,43 @@ Panel {
   // asks for a birth year and a life expectancy, and a second bar tracks one
   // against the other. A birth year rather than an age, so it keeps counting
   // on its own. Without one the bar stays hidden.
-  readonly property int birthYear: Model.parseBirthYear(setting("birthYear", 0), today.getFullYear())
+  readonly property int birthYear: Model.parseBirthYear(root.settings && root.settings.birthYear, today.getFullYear())
   readonly property int age: Model.ageFromBirthYear(birthYear, today.getFullYear())
-  readonly property int lifeExpectancy: Model.parseLifeExpectancy(setting("lifeExpectancy", 0))
+  readonly property int lifeExpectancy: Model.parseLifeExpectancy(root.settings && root.settings.lifeExpectancy)
   readonly property real lifeDone: Model.lifeProgress(age, lifeExpectancy)
   readonly property int lifeDonePercent: Model.lifeProgressPercent(age, lifeExpectancy)
   property bool editingLife: false
+
+  // Three labeled IANA zones above the date. Missing config falls through
+  // to Local / UTC / New York; clicking a clock edits that slot's label
+  // and zone, then persistSettings writes it next to week-start and life.
+  readonly property var worldClocks: Model.parseWorldClocks(root.settings && root.settings.worldClocks)
+  property int editingWorldClock: -1
+  readonly property bool editingClocks: editingWorldClock >= 0
+  // Minutes east of UTC, one per clock. Local is `null` (use wall time);
+  // NaN is an unknown IANA zone. Qt's JS Intl ignores timeZone, so IANA
+  // offsets come from `date +%z` against /usr/share/zoneinfo.
+  property var worldClockOffsetMinutes: []
+  property bool clockSettingsLoaded: false
+  property bool clockSettingsHydrating: false
+  readonly property string clockSettingsDir: Quickshell.env("HOME") + "/.local/state/quickshell/settings"
+  readonly property string clockSettingsPath: clockSettingsDir + "/clock.json"
+  readonly property string timezoneCachePath: clockSettingsDir + "/timezones.json"
+  property var timezoneCache: []
+  property string timezoneCacheFetchedAt: ""
+  property bool timezoneRefreshing: false
+  readonly property var timezoneOptions: Model.timezoneDropdownOptions(
+    root.timezoneCache,
+    root.editingWorldClock >= 0 && root.worldClocks[root.editingWorldClock]
+      ? root.worldClocks[root.editingWorldClock].zone
+      : ""
+  )
 
   // Unset falls through to the locale's own first day, so a fresh install
   // starts out matching the rest of the desktop rather than a hardcoded
   // convention. Clicking the grid's "W" heading writes the choice back to
   // shell.json.
-  readonly property int weekStart: Model.normalizedWeekStart(setting("weekStartDay", null), Qt.locale().firstDayOfWeek)
+  readonly property int weekStart: Model.normalizedWeekStart(root.settings && root.settings.weekStartDay, Qt.locale().firstDayOfWeek)
   // The interface is English throughout, so day names are not taken from the
   // system locale. Where the week starts still is: that is a regional
   // convention rather than a translation, and it stays overridable above.
@@ -101,6 +128,7 @@ Panel {
     // Dismissing the panel mid-edit would otherwise leave the inputs up,
     // waiting behind a closed popup for the next time it opens.
     if (root.editingLife) root.cancelEditingLife()
+    if (root.editingClocks) root.cancelEditingWorldClock()
     root.controller.hide()
   }
 
@@ -142,12 +170,11 @@ Panel {
     moveMonth(delta * 12)
   }
 
-  // Applied locally first so the panel redraws on the click itself; the
-  // shell.json write comes back through the bar as the same value. With no
-  // writable entry (the widget is not in the layout) it stays a session-only
-  // preference rather than doing nothing. The host widget builds its own
-  // entry when the label format is cycled, so it has to be kept in step or
-  // it would write this key straight back out from a stale copy.
+  // Applied locally first so the panel redraws on the click itself. The
+  // clock.json write is the restart-surviving copy; updateEntryInline is
+  // kept for hosts that still own a layout entry. The host widget builds
+  // its own entry when the label format is cycled, so it has to be kept
+  // in step or it would write this key straight back out from a stale copy.
   function persistSettings(values) {
     var entry = { id: root.moduleName }
     for (var existing in root.settings) if (existing !== "id") entry[existing] = root.settings[existing]
@@ -157,6 +184,7 @@ Panel {
     if (root.hostWidget && "settings" in root.hostWidget) root.hostWidget.settings = entry
     if (root.bar && root.bar.shell && typeof root.bar.shell.updateEntryInline === "function")
       root.bar.shell.updateEntryInline(root.moduleName, entry)
+    root.writeClockSettingsFile(entry)
   }
 
   function setWeekStart(day) {
@@ -216,6 +244,113 @@ Panel {
     setWeekStart(Model.toggledWeekStart(root.weekStart))
   }
 
+  function startEditingWorldClock(index) {
+    if (index < 0 || index > 2) return
+    root.editingWorldClock = index
+    Qt.callLater(function() {
+      var entry = root.worldClocks[index] || {}
+      worldZoneField.value = entry.zone || "Local"
+    })
+  }
+
+  function cancelEditingWorldClock() {
+    if (worldZoneField && worldZoneField.popupOpen) worldZoneField.close()
+    root.editingWorldClock = -1
+    Qt.callLater(function() { if (keyCatcher) keyCatcher.forceActiveFocus() })
+  }
+
+  function commitWorldClock() {
+    var index = root.editingWorldClock
+    if (index < 0) {
+      root.cancelEditingWorldClock()
+      return
+    }
+    var next = Model.parseWorldClocks(root.worldClocks)
+    next[index] = Model.parseWorldClock({
+      zone: worldZoneField.value
+    }, next[index])
+    persistSettings({ worldClocks: next })
+    cancelEditingWorldClock()
+  }
+
+  function applyTimezoneCacheFile(raw) {
+    var parsed = Model.parseTimezoneCacheFile(raw)
+    root.timezoneCache = parsed.timezones
+    root.timezoneCacheFetchedAt = parsed.fetchedAt
+  }
+
+  function applyTimezoneFetch(raw) {
+    root.timezoneRefreshing = false
+    var parsed = Model.parseTimezoneList(raw)
+    if (parsed.length === 0) return
+    var fetchedAt = new Date().toISOString()
+    root.timezoneCache = parsed
+    root.timezoneCacheFetchedAt = fetchedAt
+    if (ensureClockSettingsDir.running !== true)
+      ensureClockSettingsDir.running = true
+    timezoneCacheFile.setText(JSON.stringify(Model.serializeTimezoneCache(parsed, fetchedAt), null, 2) + "\n")
+  }
+
+  function refreshTimezoneCache() {
+    if (timezoneFetchProc.running) return
+    root.timezoneRefreshing = true
+    timezoneFetchProc.running = true
+  }
+
+  function applyClockSettingsFile(raw) {
+    var parsed = Model.parseClockSettingsFile(raw)
+    root.clockSettingsHydrating = true
+    if (parsed) {
+      var entry = { id: root.moduleName }
+      for (var existing in root.settings) if (existing !== "id") entry[existing] = root.settings[existing]
+      for (var key in parsed) entry[key] = parsed[key]
+      root.settings = entry
+      if (root.hostWidget && "settings" in root.hostWidget) root.hostWidget.settings = entry
+    }
+    root.clockSettingsHydrating = false
+    root.clockSettingsLoaded = true
+  }
+
+  function writeClockSettingsFile(entry) {
+    if (!root.clockSettingsLoaded || root.clockSettingsHydrating) return
+    if (ensureClockSettingsDir.running !== true)
+      ensureClockSettingsDir.running = true
+    clockSettingsFile.setText(JSON.stringify(Model.serializeClockSettings(entry), null, 2) + "\n")
+  }
+
+  function worldClockTime(index, zone, now) {
+    var offsets = root.worldClockOffsetMinutes
+    var offset = offsets && index < offsets.length ? offsets[index] : undefined
+    return Model.formatWorldTime(now, zone, offset)
+  }
+
+  function applyWorldClockOffsets(raw) {
+    var lines = String(raw || "").replace(/^\s+|\s+$/g, "").split(/\n/)
+    var next = []
+    for (var i = 0; i < 3; i++) next.push(Model.parseUtcOffset(lines[i]))
+    root.worldClockOffsetMinutes = next
+  }
+
+  function refreshWorldClockOffsets() {
+    if (!worldOffsetProc) return
+    var clocks = root.worldClocks
+    worldOffsetProc.running = false
+    worldOffsetProc.command = [
+      "bash", "-c",
+      'for z; do' +
+        ' if [ "$z" = Local ] || [ -z "$z" ]; then echo local;' +
+        ' elif [ "$z" = UTC ]; then echo +0000;' +
+        ' elif [ -e "/usr/share/zoneinfo/$z" ]; then TZ="$z" date +%z;' +
+        ' else echo invalid; fi;' +
+      ' done',
+      "world-offset",
+      Model.normalizeZone(clocks[0] && clocks[0].zone),
+      Model.normalizeZone(clocks[1] && clocks[1].zone),
+      Model.normalizeZone(clocks[2] && clocks[2].zone)
+    ]
+    worldOffsetProc.running = true
+  }
+
   // English short day names, matching the rest of the interface.
   function weekdayLabel(weekday) {
     return String(labelLocale.dayName(weekday, Locale.ShortFormat)).toUpperCase()
@@ -232,6 +367,58 @@ Panel {
     }
   }
 
+  Process {
+    id: ensureClockSettingsDir
+    command: ["mkdir", "-p", root.clockSettingsDir]
+  }
+
+  Process {
+    id: worldOffsetProc
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: root.applyWorldClockOffsets(text)
+    }
+  }
+
+  onWorldClocksChanged: root.refreshWorldClockOffsets()
+
+  FileView {
+    id: clockSettingsFile
+    path: root.clockSettingsPath
+    watchChanges: true
+    atomicWrites: true
+    printErrors: false
+    onLoaded: root.applyClockSettingsFile(text())
+    onLoadFailed: root.applyClockSettingsFile("")
+  }
+
+  FileView {
+    id: timezoneCacheFile
+    path: root.timezoneCachePath
+    watchChanges: true
+    atomicWrites: true
+    printErrors: false
+    onLoaded: root.applyTimezoneCacheFile(text())
+    onLoadFailed: root.applyTimezoneCacheFile("")
+  }
+
+  Process {
+    id: timezoneFetchProc
+    command: ["curl", "-fsS", "--max-time", "10", "https://timeapi.io/api/v1/timezone/availabletimezones"]
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: root.applyTimezoneFetch(text)
+    }
+    onExited: function(exitCode) {
+      if (exitCode !== 0) root.timezoneRefreshing = false
+    }
+  }
+
+  Component.onCompleted: {
+    ensureClockSettingsDir.running = true
+    root.refreshWorldClockOffsets()
+  }
+
   KeyboardPanel {
     id: panel
     anchorItem: root.anchorItem
@@ -246,13 +433,19 @@ Panel {
     PanelKeyCatcher {
       id: keyCatcher
       anchors.fill: parent
-      blocked: root.editingLife
+      blocked: root.editingLife || (worldZoneField && worldZoneField.popupOpen)
       onMoveRequested: function(dx, dy) {
         if (dx !== 0) root.moveMonth(dx)
         if (dy !== 0) root.moveYear(dy)
       }
-      onActivateRequested: root.goToToday()
-      onCloseRequested: root.close()
+      onActivateRequested: {
+        if (root.editingClocks) root.commitWorldClock()
+        else root.goToToday()
+      }
+      onCloseRequested: {
+        if (root.editingClocks) root.cancelEditingWorldClock()
+        else root.close()
+      }
       onTabRequested: function(direction) { root.switchPanel(direction) }
       onTextKey: function(t) {
         if (t === "[") root.moveMonth(-1)
@@ -280,59 +473,198 @@ Panel {
           width: Math.max(calendarScroll.width, gridColumn.width)
           spacing: Style.space(8)
 
-          // ---- Hero: today, centered. Once the view has stepped back
-          //      it is also the way home — clicking the date you are
-          //      looking for beats hunting for a reset button.
-          Item {
+          // ---- Hero: three world clocks over today's date. The date is
+          //      a quiet label rather than a display-size title; clicking
+          //      it still jumps the grid back to this month.
+          Column {
+            id: heroColumn
             width: parent.width
-            height: heroRow.height
+            spacing: Style.space(12)
 
-            Row {
-              id: heroRow
-              anchors.horizontalCenter: parent.horizontalCenter
-              spacing: Style.space(22)
+            Item {
+              width: parent.width
+              height: worldClocksBlock.height
 
-              Text {
-                // Baseline-aligned, not center-aligned: "July 26" carries a
-                // descender, so centering the two boxes leaves the icon
-                // sitting visibly low against the digits.
-                anchors.baseline: heroDate.baseline
-                text: "󰃭"
-                color: heroMouse.containsMouse
-                  ? Style.hoverStateColor(root.contentForeground, Color.accent)
-                  : root.contentForeground
-                font.family: root.contentFontFamily
-                font.pixelSize: Style.font.displayLarge
-              }
+              Item {
+                id: worldClocksBlock
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: gridColumn.width
+                height: root.editingClocks ? worldClockEditor.height : worldClocksRow.height
 
-              Text {
-                id: heroDate
-                anchors.verticalCenter: parent.verticalCenter
-                text: Qt.formatDate(root.today, "MMMM d")
-                color: heroMouse.containsMouse
-                  ? Style.hoverStateColor(root.contentForeground, Color.accent)
-                  : root.contentForeground
-                font.family: root.contentFontFamily
-                font.pixelSize: Style.font.displayLarge
-                font.bold: true
+                Row {
+                  id: worldClocksRow
+                  visible: !root.editingClocks
+                  width: parent.width
+                  spacing: 0
+
+                  Repeater {
+                    model: root.worldClocks
+
+                    Item {
+                      id: worldClockCell
+                      required property int index
+                      required property var modelData
+
+                      width: Math.floor(worldClocksRow.width / 3)
+                      height: worldClockCol.height
+
+                      Column {
+                        id: worldClockCol
+                        width: parent.width
+                        spacing: Style.space(2)
+
+                        Text {
+                          width: parent.width
+                          horizontalAlignment: Text.AlignHCenter
+                          elide: Text.ElideRight
+                          text: String(worldClockCell.modelData.label || "").toUpperCase()
+                          color: worldClockMouse.containsMouse
+                            ? Style.hoverStateColor(root.contentForeground, Color.accent)
+                            : Qt.darker(root.contentForeground, 1.5)
+                          font.family: root.contentFontFamily
+                          font.pixelSize: Style.font.caption
+                          font.letterSpacing: 1
+                          font.bold: true
+                        }
+
+                        Text {
+                          width: parent.width
+                          horizontalAlignment: Text.AlignHCenter
+                          text: {
+                            var _ = root.worldClockOffsetMinutes
+                            return root.worldClockTime(worldClockCell.index, worldClockCell.modelData.zone, clock.date) || "—"
+                          }
+                          color: worldClockMouse.containsMouse
+                            ? Style.hoverStateColor(root.contentForeground, Color.accent)
+                            : root.contentForeground
+                          font.family: root.contentFontFamily
+                          font.pixelSize: Style.font.heading
+                        }
+                      }
+
+                      MouseArea {
+                        id: worldClockMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.startEditingWorldClock(worldClockCell.index)
+
+                        PanelToolTip {
+                          visible: worldClockMouse.containsMouse
+                          text: "Set timezone"
+                          fontFamily: root.contentFontFamily
+                        }
+                      }
+                    }
+                  }
+                }
+
+                Column {
+                  id: worldClockEditor
+                  visible: root.editingClocks
+                  width: parent.width
+                  spacing: Style.space(8)
+
+                  Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "TIMEZONE"
+                    color: Qt.darker(root.contentForeground, 1.5)
+                    font.family: root.contentFontFamily
+                    font.pixelSize: Style.font.bodySmall
+                    font.letterSpacing: 1
+                  }
+
+                  Item {
+                    width: parent.width
+                    height: worldZoneField.height
+
+                    SearchableDropdown {
+                      id: worldZoneField
+                      anchors.horizontalCenter: parent.horizontalCenter
+                      width: Style.space(200)
+                      showLabel: false
+                      textAlignment: Text.AlignHCenter
+                      options: root.timezoneOptions
+                      placeholderText: "Search timezones"
+                      emptyText: root.timezoneCache.length === 0 ? "Refresh to load timezones" : "No matches"
+                      foreground: root.contentForeground
+                      fontFamily: root.contentFontFamily
+                    }
+
+                    PanelActionButton {
+                      id: timezoneRefresh
+                      anchors.left: worldZoneField.right
+                      anchors.leftMargin: Style.space(10)
+                      anchors.verticalCenter: worldZoneField.verticalCenter
+                      iconText: "󰑐"
+                      tooltipText: root.timezoneRefreshing
+                        ? "Fetching timezones…"
+                        : (root.timezoneCache.length > 0 ? "Refresh timezone list" : "Download timezone list")
+                      foreground: root.contentForeground
+                      fontFamily: root.contentFontFamily
+                      enabled: !root.timezoneRefreshing
+                      onClicked: root.refreshTimezoneCache()
+                    }
+                  }
+
+                  Button {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "Submit"
+                    foreground: root.contentForeground
+                    fontFamily: root.contentFontFamily
+                    bordered: true
+                    onClicked: root.commitWorldClock()
+                  }
+                }
               }
             }
 
-            MouseArea {
-              id: heroMouse
-              x: heroRow.x
-              y: heroRow.y
-              width: heroRow.width
-              height: heroRow.height
-              enabled: !root.viewingCurrentMonth
-              hoverEnabled: enabled
-              cursorShape: Qt.PointingHandCursor
-              onClicked: root.goToToday()
+            Item {
+              width: parent.width
+              height: heroDateCol.height
 
-              PanelToolTip {
-                visible: heroMouse.containsMouse
-                text: "Back to today"
-                fontFamily: root.contentFontFamily
+              Column {
+                id: heroDateCol
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: Style.space(2)
+
+                Text {
+                  anchors.horizontalCenter: parent.horizontalCenter
+                  text: Qt.formatDate(root.today, "dddd").toUpperCase()
+                  color: heroMouse.containsMouse
+                    ? Style.hoverStateColor(root.contentForeground, Color.accent)
+                    : Qt.darker(root.contentForeground, 1.5)
+                  font.family: root.contentFontFamily
+                  font.pixelSize: Style.font.caption
+                  font.letterSpacing: 1.2
+                  font.bold: true
+                }
+
+                Text {
+                  id: heroDate
+                  anchors.horizontalCenter: parent.horizontalCenter
+                  text: Qt.formatDate(root.today, "MMMM d")
+                  color: heroMouse.containsMouse
+                    ? Style.hoverStateColor(root.contentForeground, Color.accent)
+                    : root.contentForeground
+                  font.family: root.contentFontFamily
+                  font.pixelSize: Style.font.heading
+                }
+              }
+
+              MouseArea {
+                id: heroMouse
+                anchors.fill: heroDateCol
+                enabled: !root.viewingCurrentMonth
+                hoverEnabled: enabled
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.goToToday()
+
+                PanelToolTip {
+                  visible: heroMouse.containsMouse
+                  text: "Back to today"
+                  fontFamily: root.contentFontFamily
+                }
               }
             }
           }

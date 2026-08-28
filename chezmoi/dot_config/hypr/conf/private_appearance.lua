@@ -64,7 +64,7 @@ hl.config({
       vibrancy_darkness = 0.2,
 
       popups = true,
-      popups_ignorealpha = 0,
+      popups_ignorealpha = 0.2,
     },
   },
 

@@ -278,6 +278,306 @@ function stepMonth(year, month, delta) {
   return { year: target.getFullYear(), month: target.getMonth() }
 }
 
+// ---- World clocks in the calendar popup. Three labeled IANA zones sit
+//      above the date; clicking one swaps the row for label + zone fields
+//      and writes the result back through the panel's settings.
+var DEFAULT_WORLD_CLOCKS = [
+  { label: "Local", zone: "Local" },
+  { label: "UTC", zone: "UTC" },
+  { label: "New York", zone: "America/New_York" }
+]
+
+var ZONE_ALIASES = {
+  local: "Local",
+  utc: "UTC",
+  gmt: "UTC",
+  z: "UTC",
+  ny: "America/New_York",
+  nyc: "America/New_York",
+  "new york": "America/New_York",
+  london: "Europe/London",
+  uk: "Europe/London",
+  paris: "Europe/Paris",
+  tokyo: "Asia/Tokyo",
+  india: "Asia/Kolkata",
+  ist: "Asia/Kolkata",
+  kolkata: "Asia/Kolkata",
+  calcutta: "Asia/Kolkata"
+}
+
+function trimText(value) {
+  return String(value === undefined || value === null ? "" : value).replace(/^\s+|\s+$/g, "")
+}
+
+function isLocalZone(zone) {
+  return /^local$/i.test(trimText(zone)) || trimText(zone) === ""
+}
+
+function normalizeZone(zone) {
+  var text = trimText(zone)
+  if (text === "") return "Local"
+  var alias = ZONE_ALIASES[text.toLowerCase()]
+  if (alias) return alias
+  if (/^(utc|gmt|z)$/i.test(text)) return "UTC"
+  return text
+}
+
+function zoneIana(zone) {
+  var normalized = normalizeZone(zone)
+  if (normalized === "Local") return null
+  return normalized === "UTC" ? "UTC" : normalized
+}
+
+function labelFromZone(zone) {
+  var normalized = normalizeZone(zone)
+  if (normalized === "Local") return "Local"
+  if (normalized === "UTC") return "UTC"
+  var parts = normalized.split("/")
+  return parts[parts.length - 1].replace(/_/g, " ")
+}
+
+function parseWorldClock(value, fallback) {
+  var base = fallback && typeof fallback === "object" ? fallback : DEFAULT_WORLD_CLOCKS[0]
+  if (!value || typeof value !== "object")
+    return { label: labelFromZone(base.zone), zone: normalizeZone(base.zone) }
+  var zone = normalizeZone(value.zone !== undefined ? value.zone : base.zone)
+  return { label: labelFromZone(zone), zone: zone }
+}
+
+function parseWorldClocks(value) {
+  var list = []
+  if (Array.isArray(value)) {
+    list = value
+  } else if (value && typeof value === "object") {
+    for (var i = 0; i < 3; i++) if (value[i] !== undefined) list.push(value[i])
+  }
+  var out = []
+  for (var i = 0; i < 3; i++)
+    out.push(parseWorldClock(list[i], DEFAULT_WORLD_CLOCKS[i]))
+  return out
+}
+
+function humanizeZoneName(zone) {
+  var parts = String(zone).split("/")
+  return parts[parts.length - 1].replace(/_/g, " ")
+}
+
+function timezoneOption(zone) {
+  var value = normalizeZone(zone)
+  if (value === "Local")
+    return { value: "Local", label: "Local", description: "This machine" }
+  if (value === "UTC")
+    return { value: "UTC", label: "UTC", description: "Coordinated Universal Time" }
+  if (trimText(zone) === "") return null
+  return { value: value, label: humanizeZoneName(value), description: value }
+}
+
+// timeapi.io /api/v1/timezone/availabletimezones is a JSON string array.
+// The on-disk cache wraps that as { fetchedAt, timezones }.
+function parseTimezoneList(rawOrList) {
+  var list = []
+  if (Array.isArray(rawOrList)) {
+    list = rawOrList
+  } else {
+    var text = trimText(rawOrList)
+    if (text === "") return []
+    try {
+      var data = JSON.parse(text)
+      if (Array.isArray(data)) list = data
+      else if (data && Array.isArray(data.timezones)) list = data.timezones
+      else return []
+    } catch (e) {
+      return []
+    }
+  }
+  var seen = {}
+  var out = []
+  for (var i = 0; i < list.length; i++) {
+    var opt = timezoneOption(typeof list[i] === "object" && list[i] ? list[i].value : list[i])
+    if (!opt) continue
+    var key = String(opt.value).toLowerCase()
+    if (seen[key]) continue
+    seen[key] = true
+    out.push(opt)
+  }
+  return out
+}
+
+function parseTimezoneCacheFile(raw) {
+  var timezones = parseTimezoneList(raw)
+  var fetchedAt = ""
+  try {
+    var data = JSON.parse(trimText(raw))
+    if (data && typeof data === "object" && !Array.isArray(data) && data.fetchedAt)
+      fetchedAt = String(data.fetchedAt)
+  } catch (e) {}
+  return { timezones: timezones, fetchedAt: fetchedAt }
+}
+
+function serializeTimezoneCache(zones, fetchedAt) {
+  var list = []
+  var seen = {}
+  var src = Array.isArray(zones) ? zones : []
+  for (var i = 0; i < src.length; i++) {
+    var zone = src[i] && typeof src[i] === "object" ? src[i].value : src[i]
+    zone = trimText(zone)
+    if (zone === "" || /^local$/i.test(zone)) continue
+    var key = zone.toLowerCase()
+    if (seen[key]) continue
+    seen[key] = true
+    list.push(zone)
+  }
+  return { fetchedAt: fetchedAt ? String(fetchedAt) : "", timezones: list }
+}
+
+function timezoneDropdownOptions(cached, extraZone) {
+  var seen = { local: true, utc: true }
+  var out = [
+    timezoneOption("Local"),
+    timezoneOption("UTC")
+  ]
+  function add(opt) {
+    if (!opt) return
+    var key = String(opt.value).toLowerCase()
+    if (seen[key]) return
+    seen[key] = true
+    out.push(opt)
+  }
+  add(timezoneOption(extraZone))
+  var list = Array.isArray(cached) ? cached : parseTimezoneList(cached)
+  for (var i = 0; i < list.length; i++) {
+    if (list[i] && typeof list[i] === "object" && list[i].value)
+      add({
+        value: list[i].value,
+        label: list[i].label || humanizeZoneName(list[i].value),
+        description: list[i].description || list[i].value
+      })
+    else
+      add(timezoneOption(list[i]))
+  }
+  return out
+}
+
+function worldTimeOptions(zone) {
+  var opts = { hour: "numeric", minute: "2-digit", hour12: true }
+  var iana = zoneIana(zone)
+  if (iana) opts.timeZone = iana
+  return opts
+}
+
+function tidyWorldTime(text) {
+  return String(text === undefined || text === null ? "" : text)
+    .replace(/[\u202f\u00a0]/g, " ")
+    .replace(/^\s+|\s+$/g, "")
+}
+
+// QML's V4 engine has Intl.DateTimeFormat but ignores options.timeZone, so
+// every zone would print local time. Probe once: UTC noon vs Tokyo must
+// differ if the engine actually honors IANA zones.
+var intlHonorsTimeZone = (function() {
+  try {
+    if (typeof Intl === "undefined" || !Intl.DateTimeFormat) return false
+    var sample = new Date(Date.UTC(2026, 0, 1, 12, 0, 0))
+    var utc = new Intl.DateTimeFormat("en-US", {
+      timeZone: "UTC", hour: "2-digit", minute: "2-digit", hour12: false, hourCycle: "h23"
+    }).format(sample)
+    var tokyo = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Tokyo", hour: "2-digit", minute: "2-digit", hour12: false, hourCycle: "h23"
+    }).format(sample)
+    return String(utc).replace(/\D/g, "") !== String(tokyo).replace(/\D/g, "")
+  } catch (e) {
+    return false
+  }
+})()
+
+function coerceDate(date) {
+  var when = date instanceof Date ? date : new Date(date)
+  return isNaN(when.getTime()) ? null : when
+}
+
+function formatHm12(hours, minutes) {
+  var h24 = Math.floor(Number(hours))
+  var m = Math.floor(Number(minutes))
+  if (!isFinite(h24) || !isFinite(m)) return ""
+  h24 = ((h24 % 24) + 24) % 24
+  m = ((m % 60) + 60) % 60
+  var h = h24 % 12
+  if (h === 0) h = 12
+  return h + ":" + (m < 10 ? "0" : "") + m + " " + (h24 >= 12 ? "PM" : "AM")
+}
+
+// GNU date +%z / ISO offset → minutes east of UTC. "local" means use the
+// machine zone; anything else unreadable is invalid (NaN).
+function parseUtcOffset(raw) {
+  if (typeof raw === "number") return isFinite(raw) ? Math.round(raw) : NaN
+  var text = trimText(raw)
+  if (text === "" || /^local$/i.test(text)) return null
+  if (/^invalid$/i.test(text)) return NaN
+  var match = /^([+-])(\d{2}):?(\d{2})$/.exec(text)
+  if (!match) return NaN
+  var minutes = parseInt(match[2], 10) * 60 + parseInt(match[3], 10)
+  return match[1] === "-" ? -minutes : minutes
+}
+
+function formatAtUtcOffset(date, utcOffsetMinutes) {
+  var when = coerceDate(date)
+  if (!when) return ""
+  if (typeof utcOffsetMinutes !== "number" || !isFinite(utcOffsetMinutes)) return ""
+  var shifted = new Date(when.getTime() + utcOffsetMinutes * 60000)
+  return formatHm12(shifted.getUTCHours(), shifted.getUTCMinutes())
+}
+
+function formatWorldTime(date, zone, utcOffsetMinutes) {
+  var when = coerceDate(date)
+  if (!when) return ""
+  var normalized = normalizeZone(zone)
+
+  if (utcOffsetMinutes !== undefined && utcOffsetMinutes !== null)
+    return formatAtUtcOffset(when, utcOffsetMinutes)
+
+  if (normalized === "Local" || isLocalZone(normalized))
+    return formatHm12(when.getHours(), when.getMinutes())
+  if (normalized === "UTC")
+    return formatHm12(when.getUTCHours(), when.getUTCMinutes())
+
+  if (intlHonorsTimeZone) {
+    try {
+      return tidyWorldTime(new Intl.DateTimeFormat("en-US", worldTimeOptions(normalized)).format(when))
+    } catch (e) {
+      return ""
+    }
+  }
+  return ""
+}
+
+function parseClockSettingsFile(raw) {
+  var text = trimText(raw)
+  if (text === "") return null
+  try {
+    var data = JSON.parse(text)
+    if (!data || typeof data !== "object") return null
+    var out = {}
+    if (data.worldClocks !== undefined) out.worldClocks = parseWorldClocks(data.worldClocks)
+    if (data.weekStartDay !== undefined && data.weekStartDay !== null)
+      out.weekStartDay = data.weekStartDay
+    if (data.birthYear !== undefined) out.birthYear = data.birthYear
+    if (data.lifeExpectancy !== undefined) out.lifeExpectancy = data.lifeExpectancy
+    return out
+  } catch (e) {
+    return null
+  }
+}
+
+function serializeClockSettings(entry) {
+  var src = entry && typeof entry === "object" ? entry : {}
+  var out = { worldClocks: parseWorldClocks(src.worldClocks) }
+  if (src.weekStartDay !== undefined && src.weekStartDay !== null)
+    out.weekStartDay = src.weekStartDay
+  if (src.birthYear !== undefined) out.birthYear = src.birthYear
+  if (src.lifeExpectancy !== undefined) out.lifeExpectancy = src.lifeExpectancy
+  return out
+}
+
 if (typeof module !== "undefined") {
   module.exports = {
     dateKey: dateKey,
@@ -303,6 +603,23 @@ if (typeof module !== "undefined") {
     clockNeedsSeconds: clockNeedsSeconds,
     clockFormatRing: clockFormatRing,
     nextClockFormat: nextClockFormat,
-    isoWeekLiteral: isoWeekLiteral
+    isoWeekLiteral: isoWeekLiteral,
+    DEFAULT_WORLD_CLOCKS: DEFAULT_WORLD_CLOCKS,
+    isLocalZone: isLocalZone,
+    normalizeZone: normalizeZone,
+    parseWorldClock: parseWorldClock,
+    parseWorldClocks: parseWorldClocks,
+    humanizeZoneName: humanizeZoneName,
+    timezoneOption: timezoneOption,
+    parseTimezoneList: parseTimezoneList,
+    parseTimezoneCacheFile: parseTimezoneCacheFile,
+    serializeTimezoneCache: serializeTimezoneCache,
+    timezoneDropdownOptions: timezoneDropdownOptions,
+    zoneIana: zoneIana,
+    parseUtcOffset: parseUtcOffset,
+    formatHm12: formatHm12,
+    formatWorldTime: formatWorldTime,
+    parseClockSettingsFile: parseClockSettingsFile,
+    serializeClockSettings: serializeClockSettings
   }
 }

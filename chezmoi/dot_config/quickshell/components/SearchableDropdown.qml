@@ -7,9 +7,12 @@ import qs.components
 // list in real time. Use for pickers with enough options that scanning
 // is friction.
 //
-// Filtering is case-insensitive substring against each option's label.
-// Options can be string[] or [{ value, label, description? }] — the same
-// shape Dropdown accepts. The filter clears whenever the popup closes.
+// Filtering is case-insensitive substring against each option's label,
+// description, and value. The filter clears whenever the popup closes.
+//
+// popupType Window makes this an xdg-popup of the parent layer-shell
+// surface so Hyprland's blur_popups rule can frost it. Item popups are
+// just more pixels on the panel and never get a blur pass.
 //
 // Keyboard: Tab to focus the trigger, Enter/Space opens (search focused
 // immediately). Down arrow from the search jumps to the first match;
@@ -35,17 +38,10 @@ Item {
   property int popupRowHeight: Style.spacing.popupRowHeight
   property int popupMinHeight: Style.spacing.searchablePopupMinHeight
   property bool showLabel: true
+  property int textAlignment: Text.AlignLeft
 
-  // Panel-cursor flag. When true, the trigger renders the shared
-  // hover-cursor state. Active Qt focus defaults to the same visuals.
-  // Emits `hovered(bool)` on pointer enter/leave so the panel can keep
-  // its cursor state in sync with the mouse.
   property bool hasCursor: false
 
-  // popupOpen + open()/close()/toggle() let a parent panel know when the
-  // dropdown owns keys (search field + result list are active) and
-  // suspend its own keyCatcher so typing into the filter doesn't drive
-  // the panel cursor.
   readonly property bool popupOpen: popup.opened
   function open() { popup.open() }
   function close() { popup.close() }
@@ -78,7 +74,9 @@ Item {
     for (var i = 0; i < options.length; i++) {
       var lbl = optionLabel(options[i]).toLowerCase()
       var desc = optionDescription(options[i]).toLowerCase()
-      if (lbl.indexOf(q) !== -1 || desc.indexOf(q) !== -1) out.push(options[i])
+      var val = optionValue(options[i]).toLowerCase()
+      if (lbl.indexOf(q) !== -1 || desc.indexOf(q) !== -1 || val.indexOf(q) !== -1)
+        out.push(options[i])
     }
     filtered = out
   }
@@ -133,10 +131,13 @@ Item {
 
       Text {
         anchors.left: parent.left
-        anchors.right: chevron.left
+        anchors.right: root.textAlignment === Text.AlignHCenter ? parent.right : chevron.left
         anchors.verticalCenter: parent.verticalCenter
-        anchors.leftMargin: trigger.borderLeft + Style.spacing.controlPaddingX
-        anchors.rightMargin: trigger.borderRight + Style.spacing.md
+        anchors.leftMargin: root.textAlignment === Text.AlignHCenter
+          ? chevron.implicitWidth + Style.spacing.controlGap + trigger.borderLeft
+          : trigger.borderLeft + Style.spacing.controlPaddingX
+        anchors.rightMargin: chevron.implicitWidth + Style.spacing.controlGap + trigger.borderRight
+        horizontalAlignment: root.textAlignment
         text: root.currentLabel() || root.triggerLabel || root.placeholderText
         color: (root.currentLabel() || root.triggerLabel) ? root.foreground : Qt.darker(root.foreground, 1.5)
         font.family: root.fontFamily
@@ -164,10 +165,27 @@ Item {
         }
       }
 
-      QQC.Popup {
-        id: popup
+      // Wayland's default xdg positioner for a generic Popup is
+      // top-right / gravity right (menu-style), so the list opens beside
+      // the field. ComboBox uses bottom-left / gravity down. A 1×1 parent
+      // on the field's bottom-left makes that default land under the
+      // trigger instead of to its right.
+      Item {
+        id: belowAnchor
+        width: 1
+        height: 1
         x: 0
         y: trigger.height + Style.spacing.xxs
+      }
+
+      QQC.Popup {
+        id: popup
+        parent: belowAnchor
+        popupType: QQC.Popup.Window
+        dim: false
+        modal: false
+        x: 0
+        y: 0
         width: trigger.width
         implicitHeight: Math.max(root.popupMinHeight,
                                  Math.min(resultList.contentHeight + Style.space(50),
