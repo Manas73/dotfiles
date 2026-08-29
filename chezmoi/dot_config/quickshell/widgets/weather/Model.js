@@ -1,35 +1,176 @@
-// weather.json holds {"name": ..., "latitude": ..., "longitude": ...} (see
-// omarchy-weather-location, which owns the format). Missing, blank, or
-// unparseable means the location is auto-detected from the IP address.
+// weather.json holds a home location plus optional extra place tabs:
+//   {"name", "latitude", "longitude", "places": [...], "activePlaceId"}
+// omarchy-weather-location owns the home fields. Missing, blank, or
+// unparseable means the home tab auto-detects from the IP address.
+function newPlaceId() {
+  return "p" + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36)
+}
+
+function normalizePlace(place, fallbackId) {
+  if (!place || typeof place !== "object") return null
+  var latitude = parseFloat(place.latitude)
+  var longitude = parseFloat(place.longitude)
+  var hasCoordinates = !isNaN(latitude) && !isNaN(longitude)
+  var id = typeof place.id === "string" ? place.id.replace(/^\s+|\s+$/g, "") : ""
+  return {
+    id: id || fallbackId || newPlaceId(),
+    name: typeof place.name === "string" ? place.name.replace(/^\s+|\s+$/g, "") : "",
+    latitude: hasCoordinates ? latitude : null,
+    longitude: hasCoordinates ? longitude : null
+  }
+}
+
+function emptyPlacesState() {
+  var home = { id: "home", name: "", latitude: null, longitude: null }
+  return { name: "", latitude: null, longitude: null, places: [home], activePlaceId: "home" }
+}
+
 function parseLocationFile(raw) {
-  var unset = { name: "", latitude: null, longitude: null }
+  var unset = emptyPlacesState()
   try {
     var data = JSON.parse(String(raw || ""))
     if (!data || typeof data !== "object") return unset
 
-    var latitude = parseFloat(data.latitude)
-    var longitude = parseFloat(data.longitude)
-    var hasCoordinates = !isNaN(latitude) && !isNaN(longitude)
+    var home = normalizePlace({
+      id: "home",
+      name: data.name,
+      latitude: data.latitude,
+      longitude: data.longitude
+    }, "home")
+    var places = []
+    var listed = data.places
+    if (listed && listed.length) {
+      for (var i = 0; i < listed.length; i++) {
+        var place = normalizePlace(listed[i], i === 0 ? "home" : newPlaceId())
+        if (place) places.push(place)
+      }
+    }
+    if (!places.length) places = [home]
+
+    var active = typeof data.activePlaceId === "string" ? data.activePlaceId : ""
+    if (!findPlace(places, active)) active = places[0].id
+
     return {
-      name: typeof data.name === "string" ? data.name.replace(/^\s+|\s+$/g, "") : "",
-      latitude: hasCoordinates ? latitude : null,
-      longitude: hasCoordinates ? longitude : null
+      name: places[0].name,
+      latitude: places[0].latitude,
+      longitude: places[0].longitude,
+      places: places,
+      activePlaceId: active
     }
   } catch (e) {
     return unset
   }
 }
 
-// wttr.in path segment for a configured location: exact coordinates when
-// both are present, the URL-encoded name as a fallback (hand-edited
-// weather.loc files may only carry a name), empty for IP auto-detect.
-function wttrLocationQuery(location, latitude, longitude) {
-  var lat = parseFloat(String(latitude))
-  var lon = parseFloat(String(longitude))
-  if (!isNaN(lat) && !isNaN(lon)) return lat + "," + lon
+function serializeLocationFile(state) {
+  var places = state && state.places && state.places.length ? state.places : emptyPlacesState().places
+  var first = places[0]
+  var out = {
+    name: first.name || "",
+    places: places,
+    activePlaceId: state && state.activePlaceId ? state.activePlaceId : first.id
+  }
+  if (first.latitude !== null && first.longitude !== null) {
+    out.latitude = first.latitude
+    out.longitude = first.longitude
+  }
+  return JSON.stringify(out, null, 2)
+}
 
-  var name = String(location || "").replace(/^\s+|\s+$/g, "")
-  return name === "" ? "" : encodeURIComponent(name)
+function findPlace(places, id) {
+  var list = places || []
+  var key = String(id || "")
+  for (var i = 0; i < list.length; i++) {
+    if (list[i] && list[i].id === key) return list[i]
+  }
+  return null
+}
+
+function placeLabel(place) {
+  var name = place && place.name ? String(place.name) : ""
+  return name || "Auto"
+}
+
+function placeIndex(places, id) {
+  var list = places || []
+  var key = String(id || "")
+  for (var i = 0; i < list.length; i++) {
+    if (list[i] && list[i].id === key) return i
+  }
+  return 0
+}
+
+function replacePlace(places, next) {
+  var list = (places || []).slice()
+  if (!next) return list
+  for (var i = 0; i < list.length; i++) {
+    if (list[i] && list[i].id === next.id) {
+      list[i] = next
+      return list
+    }
+  }
+  list.push(next)
+  return list
+}
+
+function removePlace(places, id) {
+  var list = places || []
+  if (list.length <= 1) return list.slice()
+  var out = []
+  for (var i = 0; i < list.length; i++) {
+    if (list[i] && list[i].id !== id) out.push(list[i])
+  }
+  return out.length ? out : list.slice()
+}
+
+function neighborPlaceId(places, id, delta) {
+  var list = places || []
+  if (!list.length) return ""
+  var index = placeIndex(list, id)
+  var next = (index + (delta || 0) + list.length) % list.length
+  return list[next].id
+}
+
+// linecast --location: exact coordinates when both are present, else the
+// place name, else empty (IP auto-detect).
+function linecastLocationArg(state) {
+  if (!state) return ""
+  var lat = parseFloat(String(state.latitude))
+  var lon = parseFloat(String(state.longitude))
+  if (!isNaN(lat) && !isNaN(lon)) return lat + "," + lon
+  return String(state.name || "").replace(/^\s+|\s+$/g, "")
+}
+
+function linecastCommand(binary, view, opts) {
+  var cmd = [String(binary || "omarchy-linecast"), String(view || "weather")]
+  opts = opts || {}
+  if (opts.json) cmd.push("--json")
+  if (opts.print) cmd.push("--print")
+  cmd.push("--icons", opts.icons || "nerd")
+  if (opts.location) {
+    cmd.push("--location")
+    cmd.push(String(opts.location))
+  }
+  if (opts.units === "metric") cmd.push("--metric")
+  if (opts.units === "imperial") cmd.push("--imperial")
+  return cmd
+}
+
+function parseWeatherJson(raw) {
+  try {
+    var data = JSON.parse(String(raw || ""))
+    if (!data || typeof data !== "object") return null
+    var current = data.current || {}
+    var icon = current.icon != null ? String(current.icon) : ""
+    var location = typeof data.location === "string" ? data.location : ""
+    if (location.indexOf(",") >= 0) location = location.split(",")[0].replace(/^\s+|\s+$/g, "")
+    return {
+      location: location,
+      icon: icon
+    }
+  } catch (e) {
+    return null
+  }
 }
 
 // Open-Meteo geocoding response → suggestion rows for the location picker.
@@ -69,227 +210,181 @@ function locationCommit(text, suggestions, selectedIndex) {
   return { name: name, latitude: null, longitude: null }
 }
 
-function isFutureForecastDate(dateString, todayString) {
-  if (!dateString) return false
-  return String(dateString).slice(0, 10) > String(todayString || "")
-}
-
-function roundedTemp(value) {
-  if (value === undefined || value === null || value === "") return ""
-  var n = parseFloat(String(value))
-  return isNaN(n) ? "" : String(Math.round(n))
-}
-
-function celsiusToFahrenheit(value) {
-  if (value === undefined || value === null || value === "") return ""
-  var n = parseFloat(String(value))
-  return isNaN(n) ? "" : (n * 9 / 5) + 32
-}
-
-function formatTemp(value, useImperial) {
-  if (value === undefined || value === null || value === "") return ""
-  return value + "°" + (useImperial ? "F" : "C")
-}
-
 function normalizedUnit(value) {
   return String(value || "").replace(/^\s+|\s+$/g, "").toLowerCase()
 }
 
-function localeUsesImperial(localeName) {
-  var name = String(localeName || "").replace(".", "_")
-  return /^en[_-]US($|[_.-])/.test(name) || /^en[_-]LR($|[_.-])/.test(name) || /^my($|[_.-])/.test(name)
-}
-
-function countryUsesImperial(countryName) {
-  var country = String(countryName || "")
-    .replace(/^\s+|\s+$/g, "")
-    .replace(/[._-]+/g, " ")
-    .toLowerCase()
-  if (!country) return null
-  if (country === "us" || country === "usa" || country === "united states" || country === "united states of america") return true
-  if (country === "liberia" || country === "myanmar" || country === "burma") return true
-  return false
-}
-
-function shouldUseImperial(unitOverride, localeName, countryName) {
-  var unit = normalizedUnit(unitOverride)
-  if (unit === "imperial") return true
-  if (unit === "metric") return false
-
-  var countryPreference = countryUsesImperial(countryName)
-  if (countryPreference !== null) return countryPreference
-
-  return localeUsesImperial(localeName)
-}
-
-function dayName(dateString, formatter) {
-  if (!dateString) return ""
-  var d = new Date(dateString + "T12:00:00")
-  if (isNaN(d.getTime())) return ""
-  if (formatter) return formatter(d)
-  return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][d.getDay()]
-}
-
-function openMeteoForecastDays(dailyForecastReport, todayString) {
-  var daily = dailyForecastReport && dailyForecastReport.daily ? dailyForecastReport.daily : null
-  if (!daily || !daily.time) return []
-
-  var result = []
-  for (var i = 0; i < daily.time.length && result.length < 3; ++i) {
-    var date = daily.time[i]
-    if (!isFutureForecastDate(date, todayString)) continue
-
-    var maxC = daily.temperature_2m_max ? daily.temperature_2m_max[i] : ""
-    var minC = daily.temperature_2m_min ? daily.temperature_2m_min[i] : ""
-    result.push({
-      date: date,
-      maxtempC: roundedTemp(maxC),
-      mintempC: roundedTemp(minC),
-      maxtempF: roundedTemp(celsiusToFahrenheit(maxC)),
-      mintempF: roundedTemp(celsiusToFahrenheit(minC)),
-      openMeteoWeatherCode: daily.weather_code ? daily.weather_code[i] : null
-    })
-  }
-  return result
-}
-
-// Open-Meteo bundles current conditions with the daily forecast request and
-// answers far faster than wttr.in. Normalize them to wttr's
-// current_condition shape so the panel can use either source
-// interchangeably. Open-Meteo reports metric (°C, km/h).
-function openMeteoCurrentCondition(dailyForecastReport) {
-  var current = dailyForecastReport && dailyForecastReport.current ? dailyForecastReport.current : null
-  if (!current || current.temperature_2m === undefined || current.temperature_2m === null) return null
+function linecastPrintEnvironment(columns, rows) {
   return {
-    temp_C: roundedTemp(current.temperature_2m),
-    temp_F: roundedTemp(celsiusToFahrenheit(current.temperature_2m)),
-    FeelsLikeC: roundedTemp(current.apparent_temperature),
-    FeelsLikeF: roundedTemp(celsiusToFahrenheit(current.apparent_temperature)),
-    windspeedKmph: roundedTemp(current.wind_speed_10m),
-    windspeedMiles: roundedTemp(current.wind_speed_10m * 0.621371),
-    humidity: roundedTemp(current.relative_humidity_2m),
-    openMeteoWeatherCode: current.weather_code,
-    isDay: current.is_day
+    LINECAST_COLOR: "truecolor",
+    LINECAST_ICONS: "nerd",
+    CLICOLOR_FORCE: "1",
+    NO_COLOR: "",
+    TERM: "xterm-256color",
+    COLORTERM: "truecolor",
+    COLUMNS: String(Math.max(20, columns || 20)),
+    LINES: String(Math.max(6, rows || 6))
   }
 }
 
-function currentIcon(current, fallback) {
-  if (!current) return fallback || ""
-  if (current.openMeteoWeatherCode !== undefined && current.openMeteoWeatherCode !== null)
-    return iconForOpenMeteoCode(current.openMeteoWeatherCode, Number(current.isDay) === 0)
-  if (current.weatherCode !== undefined && current.weatherCode !== null)
-    return iconForCode(current.weatherCode, false)
-  return fallback || ""
-}
+var ANSI_16 = [
+  "#000000", "#bb0000", "#00bb00", "#bbbb00",
+  "#0000bb", "#bb00bb", "#00bbbb", "#bbbbbb",
+  "#555555", "#ff5555", "#55ff55", "#ffff55",
+  "#5555ff", "#ff55ff", "#55ffff", "#ffffff"
+]
 
-// wttr.in has no day/night flag. Use its icon only to fill an empty initial
-// state, never to replace a day/night-aware icon resolved by Open-Meteo.
-function provisionalCurrentIcon(current, resolvedIcon) {
-  return resolvedIcon || currentIcon(current, "")
-}
-
-function weatherResponseCompletesSave(hasConfiguredCoordinates, source) {
-  return hasConfiguredCoordinates ? source === "open-meteo" : source === "wttr"
-}
-
-function wttrNextForecastDays(report, todayString) {
-  var days = report && report.weather ? report.weather : []
-  var result = []
-  for (var i = 0; i < days.length && result.length < 3; ++i) {
-    if (isFutureForecastDate(days[i].date, todayString)) result.push(days[i])
+function rgbHex(r, g, b) {
+  function h(n) {
+    n = Math.max(0, Math.min(255, parseInt(n, 10) || 0))
+    return (n < 16 ? "0" : "") + n.toString(16)
   }
-  return result
+  return "#" + h(r) + h(g) + h(b)
 }
 
-function buildForecastDays(report, dailyForecastReport, todayString) {
-  var days = openMeteoForecastDays(dailyForecastReport, todayString)
-  return days.length > 0 ? days : wttrNextForecastDays(report, todayString)
+function color256(n) {
+  n = parseInt(n, 10) || 0
+  if (n < 16) return ANSI_16[n]
+  if (n < 232) {
+    n -= 16
+    var r = Math.floor(n / 36)
+    var g = Math.floor((n % 36) / 6)
+    var b = n % 6
+    var c = [0, 95, 135, 175, 215, 255]
+    return rgbHex(c[r], c[g], c[b])
+  }
+  var v = 8 + (n - 232) * 10
+  return rgbHex(v, v, v)
 }
 
-function bareTempForDay(day, kind, useImperial) {
-  if (!day) return ""
-  var v = useImperial
-    ? (kind === "max" ? day.maxtempF : day.mintempF)
-    : (kind === "max" ? day.maxtempC : day.mintempC)
-  if (v === undefined || v === null || v === "") return ""
-  return v + "°"
-}
-
-function dayIcon(day) {
-  if (!day) return ""
-  if (day.openMeteoWeatherCode !== undefined && day.openMeteoWeatherCode !== null)
-    return iconForOpenMeteoCode(day.openMeteoWeatherCode)
-  if (!day.hourly || day.hourly.length === 0) return ""
-
-  var best = day.hourly[0]
-  var bestDist = 9999
-  for (var i = 0; i < day.hourly.length; ++i) {
-    var t = parseInt(String(day.hourly[i].time || "0"), 10)
-    var dist = Math.abs(t - 1200)
-    if (dist < bestDist) {
-      bestDist = dist
-      best = day.hourly[i]
+function applySgr(params, state) {
+  var i = 0
+  if (!params.length) params = ["0"]
+  while (i < params.length) {
+    var p = parseInt(params[i], 10)
+    if (isNaN(p) || p === 0) {
+      state.fg = null
+      state.bg = null
+      state.bold = false
+    } else if (p === 1) {
+      state.bold = true
+    } else if (p === 22) {
+      state.bold = false
+    } else if (p === 39) {
+      state.fg = null
+    } else if (p === 49) {
+      state.bg = null
+    } else if (p >= 30 && p <= 37) {
+      state.fg = ANSI_16[p - 30]
+    } else if (p >= 90 && p <= 97) {
+      state.fg = ANSI_16[p - 90 + 8]
+    } else if (p >= 40 && p <= 47) {
+      state.bg = ANSI_16[p - 40]
+    } else if (p >= 100 && p <= 107) {
+      state.bg = ANSI_16[p - 100 + 8]
+    } else if (p === 38 || p === 48) {
+      var isFg = p === 38
+      var mode = parseInt(params[i + 1], 10)
+      if (mode === 2) {
+        var hex = rgbHex(params[i + 2], params[i + 3], params[i + 4])
+        if (isFg) state.fg = hex
+        else state.bg = hex
+        i += 4
+      } else if (mode === 5) {
+        var indexed = color256(params[i + 2])
+        if (isFg) state.fg = indexed
+        else state.bg = indexed
+        i += 2
+      }
     }
+    i++
   }
-  return iconForCode(best.weatherCode, false)
 }
 
-function iconForOpenMeteoCode(code, night) {
-  var c = parseInt(String(code || "0"), 10)
-  if (c === 0) return iconForCode(113, night)
-  if (c === 1 || c === 2) return iconForCode(116, night)
-  if (c === 3) return iconForCode(119, night)
-  if (c === 45 || c === 48) return iconForCode(143, night)
-  if (c === 51 || c === 53 || c === 55 || c === 56 || c === 57 || c === 61) return iconForCode(266, night)
-  if (c === 63 || c === 65 || c === 66 || c === 67 || c === 80 || c === 81 || c === 82) return iconForCode(308, night)
-  if (c === 71 || c === 73 || c === 75 || c === 77 || c === 85 || c === 86) return iconForCode(338, night)
-  if (c === 95 || c === 96 || c === 99) return iconForCode(389, night)
-  return iconForCode(119, night)
+function takeChar(raw, i) {
+  var c = raw.charCodeAt(i)
+  if (c >= 0xD800 && c <= 0xDBFF && i + 1 < raw.length) {
+    var d = raw.charCodeAt(i + 1)
+    if (d >= 0xDC00 && d <= 0xDFFF) return raw.substring(i, i + 2)
+  }
+  return raw.charAt(i)
 }
 
-function iconForCode(code, night) {
-  var c = parseInt(String(code || "0"), 10)
-  switch (c) {
-    case 113: return night ? "" : ""
-    case 116: return night ? "" : ""
-    case 119: case 122: return ""
-    case 143: case 248: case 260: return night ? "\ue346" : "\ue313"
-    case 176: case 263: case 353: return night ? "" : ""
-    case 179: case 227: case 230: case 323: case 326: case 368: return night ? "" : ""
-    case 182: case 185: case 281: case 284: case 311: case 314:
-    case 317: case 320: case 350: case 362: case 365: case 374: case 377: return ""
-    case 200: case 386: case 389: case 392: case 395: return ""
-    case 266: case 293: case 296: case 299: case 302: case 305: case 308: case 356: case 359: return ""
-    case 329: case 332: case 335: case 338: case 371: return ""
-    default: return ""
+function ansiToLines(raw) {
+  raw = String(raw || "")
+  raw = raw.replace(/\u001b\][^\u0007]*(?:\u0007|\u001b\\)/g, "")
+  raw = raw.replace(/\r\n/g, "\n").replace(/\r/g, "")
+
+  var lines = []
+  var segs = []
+  var state = { fg: null, bg: null, bold: false }
+  var buf = ""
+
+  function flush() {
+    if (buf === "") return
+    segs.push({ text: buf, fg: state.fg, bg: state.bg, bold: !!state.bold })
+    buf = ""
   }
+
+  function newline() {
+    flush()
+    lines.push(segs)
+    segs = []
+  }
+
+  var i = 0
+  while (i < raw.length) {
+    if (raw.charAt(i) === "\u001b") {
+      var rest = raw.substring(i)
+      var csi = rest.match(/^\u001b\[([0-9;]*)([A-Za-z])/)
+      if (csi) {
+        if (csi[2] === "m") {
+          flush()
+          applySgr(csi[1] === "" ? [] : csi[1].split(";"), state)
+        }
+        i += csi[0].length
+        continue
+      }
+      i += 1
+      while (i < raw.length) {
+        var code = raw.charCodeAt(i)
+        i += 1
+        if (code >= 64 && code <= 126) break
+      }
+      continue
+    }
+    if (raw.charAt(i) === "\n") {
+      newline()
+      i += 1
+      continue
+    }
+    var ch = takeChar(raw, i)
+    buf += ch
+    i += ch.length
+  }
+  flush()
+  if (segs.length) lines.push(segs)
+  while (lines.length && lines[lines.length - 1].length === 0) lines.pop()
+  return lines
 }
 
 if (typeof module !== "undefined") {
   module.exports = {
     parseLocationFile: parseLocationFile,
-    wttrLocationQuery: wttrLocationQuery,
+    serializeLocationFile: serializeLocationFile,
+    newPlaceId: newPlaceId,
+    findPlace: findPlace,
+    placeLabel: placeLabel,
+    replacePlace: replacePlace,
+    removePlace: removePlace,
+    neighborPlaceId: neighborPlaceId,
+    linecastLocationArg: linecastLocationArg,
+    linecastCommand: linecastCommand,
+    parseWeatherJson: parseWeatherJson,
     parseGeocodingResults: parseGeocodingResults,
     locationCommit: locationCommit,
-    isFutureForecastDate: isFutureForecastDate,
-    roundedTemp: roundedTemp,
-    celsiusToFahrenheit: celsiusToFahrenheit,
-    formatTemp: formatTemp,
     normalizedUnit: normalizedUnit,
-    localeUsesImperial: localeUsesImperial,
-    countryUsesImperial: countryUsesImperial,
-    shouldUseImperial: shouldUseImperial,
-    dayName: dayName,
-    openMeteoForecastDays: openMeteoForecastDays,
-    openMeteoCurrentCondition: openMeteoCurrentCondition,
-    currentIcon: currentIcon,
-    provisionalCurrentIcon: provisionalCurrentIcon,
-    weatherResponseCompletesSave: weatherResponseCompletesSave,
-    wttrNextForecastDays: wttrNextForecastDays,
-    buildForecastDays: buildForecastDays,
-    bareTempForDay: bareTempForDay,
-    dayIcon: dayIcon,
-    iconForOpenMeteoCode: iconForOpenMeteoCode,
-    iconForCode: iconForCode
+    linecastPrintEnvironment: linecastPrintEnvironment,
+    ansiToLines: ansiToLines
   }
 }

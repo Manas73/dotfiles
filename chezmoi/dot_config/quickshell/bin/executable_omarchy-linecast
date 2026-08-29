@@ -1,0 +1,18 @@
+#!/bin/bash
+# omarchy:summary=Run linecast from PATH, ~/.local/bin, or the uv tool install.
+
+set -euo pipefail
+
+export PATH="${HOME}/.local/bin:${PATH:-/usr/bin}"
+
+if command -v linecast >/dev/null 2>&1; then
+  exec linecast "$@"
+fi
+
+uv_bin="${HOME}/.local/share/uv/tools/linecast/bin/linecast"
+if [[ -x $uv_bin ]]; then
+  exec "$uv_bin" "$@"
+fi
+
+echo "omarchy-linecast: linecast is not installed (uv tool install linecast)" >&2
+exit 127

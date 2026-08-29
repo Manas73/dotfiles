@@ -22,6 +22,11 @@ BarWidget {
     if (panelLoader.item && panelLoader.item.toggle) panelLoader.item.toggle()
   }
 
+  function startEditingLocation() {
+    if (panelLoader.item && panelLoader.item.startEditingLocation)
+      panelLoader.item.startEditingLocation()
+  }
+
   // Shape contract for shell.summon/hide/toggle routing (Bar.findPanelWidget
   // requires open/close/opened on the bar-widget root). Open maps to the
   // panel's hotkey path so summoning suppresses the center hover reveal,
@@ -45,7 +50,11 @@ BarWidget {
     if (panelLoader.item) panelLoader.item.closeForPopoutSwitch()
   }
 
-  visible: panelLoader.item && panelLoader.item.label !== ""
+  // Keep the slot on the bar even before the first forecast arrives, or if
+  // the nested panel fails to load. An empty label used to hide the whole
+  // widget, which made a fetch/load error look like the pill was removed.
+  readonly property string fallbackLabel: ""
+  readonly property string label: (panelLoader.item && panelLoader.item.label) ? panelLoader.item.label : fallbackLabel
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 
@@ -67,10 +76,9 @@ BarWidget {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: panelLoader.item ? panelLoader.item.label : ""
+    text: root.label
     slotSize: Style.bar.statusSlot
-    // Tooltip suppressed because the panel is the detail view.
-    tooltipText: ""
+    tooltipText: panelLoader.item && panelLoader.item.reportLocation ? panelLoader.item.reportLocation : ""
 
     onPressed: function(b) {
       if (!root.bar) return
