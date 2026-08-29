@@ -80,6 +80,10 @@ profiles_catalog:
     services:
       - docker
 
+  fun:
+    apps:
+      - cmatrix
+
   fonts:
     apps:
       - ttf-dejavu

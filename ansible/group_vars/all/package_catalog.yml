@@ -69,6 +69,10 @@ package_catalog:
   cloud-sql-proxy:
     all: { provider: mise, packages: ["cloud-sql-proxy@2.25.3"] }
 
+  cmatrix:
+    arch: { provider: pacman, packages: [cmatrix] }
+    darwin: { provider: brew, packages: [cmatrix] }
+
   copyq:
     arch: { provider: pacman, packages: [copyq] }
 
