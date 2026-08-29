@@ -31,6 +31,7 @@ key.txt.age
 .config/hyprmoncfg
 .config/quickshell
 .config/xdg-desktop-portal
+.local/state/quickshell/settings
 {{- end }}
 
 {{- if ne .chezmoi.os "darwin" }}

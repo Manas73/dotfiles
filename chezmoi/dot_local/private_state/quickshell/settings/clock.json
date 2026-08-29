@@ -1,0 +1,16 @@
+{
+  "worldClocks": [
+    {
+      "label": "Toronto",
+      "zone": "America/Toronto"
+    },
+    {
+      "label": "UTC",
+      "zone": "UTC"
+    },
+    {
+      "label": "Dubai",
+      "zone": "Asia/Dubai"
+    }
+  ]
+}
