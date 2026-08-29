@@ -30,9 +30,7 @@ chezmoi/
 ├── dot_local/              → ~/.local/*
 ├── dot_ssh/                → ~/.ssh/*
 ├── .chezmoi.toml.tmpl      manual-fallback Chezmoi config
-├── .chezmoiignore          in-source skip list
-├── .chezmoiscripts/        Chezmoi-run scripts (age decrypt only)
-└── key.txt.age             encrypted age identity
+└── .chezmoiignore          in-source skip list
 ```
 
 Chezmoi owns the *contents* of these files. Ansible never edits them. If a
@@ -42,33 +40,10 @@ config needs per-machine variation, it is a `.tmpl` that reads Chezmoi data
 ## `.chezmoiignore`
 
 `chezmoi/.chezmoiignore` lists paths that live *inside* `chezmoi/` but must
-not be applied into `$HOME`. The key entry is `key.txt.age`: the encrypted
-age identity ships in the source tree for first-run bootstrap but must not be
-copied into the home directory verbatim.
+not be applied into `$HOME`.
 
 Repo-only top-level directories (`ansible/`, `docs/`) are **not** listed here
 — they are already invisible thanks to `.chezmoiroot`.
-
-## The age identity
-
-Secrets in templates are decrypted with an [age](https://age-encryption.org)
-identity. The flow:
-
-1. `chezmoi/key.txt.age` is the passphrase-encrypted identity, committed to
-   the repo.
-2. On first run, it is decrypted with `chezmoi age decrypt --passphrase`
-   (prompts once, interactively) to `~/.config/chezmoi/key.txt`.
-3. Subsequent runs are non-interactive — the decrypted identity persists.
-
-Two things trigger the decrypt, both calling the same flow:
-
-- `chezmoi/.chezmoiscripts/run_once_before_decrypt-private-key.sh.tmpl`
-  (the Chezmoi-only bootstrap path).
-- The Ansible `chezmoi` role (the provisioned path).
-
-If Chezmoi reports it cannot find the age identity, re-run the first-run
-decrypt; see [`../ansible/04-tags-and-validation.md`](../ansible/04-tags-and-validation.md)
-(Troubleshooting).
 
 ## Chezmoi config ownership
 

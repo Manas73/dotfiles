@@ -11,8 +11,8 @@ installed by Ansible via `mise use --global`.
 
 ## 1. New machine
 
-You need **mise** and **git**. Everything else (`ansible-core`, `chezmoi`,
-`age`) comes from `mise.toml` when you run a task.
+You need **mise** and **git**. Everything else (`ansible-core`, `chezmoi`)
+comes from `mise.toml` when you run a task.
 
 ```sh
 curl https://mise.run | sh
@@ -34,7 +34,7 @@ cd ~/.local/share/chezmoi
 
 mise trust          # no-op with a warning if already trusted
 mise run deps       # galaxy collections (already vendored; run to refresh)
-mise run apply      # sudo + age passphrase, once each
+mise run apply      # sudo
 ```
 
 Log out and back in so new groups (`docker`, `input`, `uinput`) apply.
@@ -82,7 +82,7 @@ Details: [bootstrap fallback](docs/chezmoi/02-bootstrap-fallback.md).
 
 `chezmoi apply` never installs packages, switches the login shell, or
 writes to `/etc`. Ansible never owns dotfile contents. Repo-root mise
-never replaces either — it only puts ansible/chezmoi/age on PATH and
+never replaces either — it only puts ansible/chezmoi on PATH and
 runs the tasks above. User CLI pins live in
 `ansible/group_vars/all/package_catalog.yml`.
 

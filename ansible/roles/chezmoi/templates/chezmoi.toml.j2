@@ -1,9 +1,4 @@
 {{ ansible_managed | comment }}
-encryption = "age"
-
-[age]
-    identity = "~/.config/chezmoi/key.txt"
-    recipient = "{{ chezmoi_age_recipient }}"
 
 [data]
     email = "{{ email }}"

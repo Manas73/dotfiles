@@ -93,15 +93,6 @@ export LC_ALL=C.UTF-8 LANG=C.UTF-8
 
 (The `mise` tasks set this automatically.)
 
-### Chezmoi cannot find the age identity
-
-On the very first run, the Chezmoi source directory (`chezmoi/`, via
-`.chezmoiroot`) contains `key.txt.age` (passphrase-encrypted). The chezmoi
-role — and `run_once_before_decrypt-private-key.sh.tmpl` — decrypt it with
-`chezmoi age decrypt --passphrase`, prompting once for the passphrase. After
-that, `~/.config/chezmoi/key.txt` persists and runs are non-interactive. See
-[`../chezmoi/01-dotfiles-model.md`](../chezmoi/01-dotfiles-model.md).
-
 ### SSH: "Repository not found" from a Turing org
 
 The SSH key works (`ssh -T git@github.com-turing` greets you) but

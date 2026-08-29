@@ -5,16 +5,6 @@
   hosts: all
   gather_facts: true
   tags: [dotfiles, chezmoi]
-  vars_prompt:
-    # Only needed on first run for a host that lacks ~/.config/chezmoi/key.txt.
-    # Leave blank if the age identity is already decrypted; the role skips
-    # decryption when this is empty.
-    - name: chezmoi_age_passphrase
-      prompt: "age identity passphrase (blank if key.txt already exists)"
-      private: true
-      confirm: false
-      default: ""
-      unsafe: true
   pre_tasks:
     - name: Load machine recipe
       ansible.builtin.import_tasks: tasks/load_recipe.yml

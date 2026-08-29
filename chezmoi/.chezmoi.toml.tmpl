@@ -51,12 +51,6 @@
 {{- $gpuchoices := list "nvidia" "amd" "none" -}}
 {{- $gpu := promptChoiceOnce . "gpu" "GPU Vendor" $gpuchoices $gpu -}}
 
-encryption = "age"
-
-[age]
-    identity = "~/.config/chezmoi/key.txt"
-    recipient = "age1egva8dwupvqgh2r3d48j2jsrjkfrgvvpjk83vttdcjftlyze5cgs7ccffj"
-
 [data]
     email = {{ $email | quote }}
     profile = {{ $profile | quote }}

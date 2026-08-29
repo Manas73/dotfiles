@@ -35,10 +35,8 @@ dotfile-only change never risks touching system state.
 ├── README.md                quick orientation
 ├── chezmoi/                 Chezmoi source state (the ONLY dir Chezmoi sees)
 │   ├── dot_*/               source files deployed into $HOME
-│   ├── key.txt.age          encrypted age identity (first-run bootstrap)
 │   ├── .chezmoi.toml.tmpl   manual-fallback Chezmoi config
-│   ├── .chezmoiignore       paths under chezmoi/ that Chezmoi must skip
-│   └── .chezmoiscripts/     Chezmoi-specific scripts (age decrypt only)
+│   └── .chezmoiignore       paths under chezmoi/ that Chezmoi must skip
 ├── ansible/                 provisioning: hosts, vars, playbooks, roles
 └── docs/                    this documentation
 ```
@@ -56,7 +54,7 @@ This is enforced structurally, not by listing exceptions:
   pins Chezmoi's source directory to the `chezmoi/` subdirectory. Everything
   outside `chezmoi/` is invisible to Chezmoi **by construction**.
 - `chezmoi/.chezmoiignore` only needs to list paths that live *inside*
-  `chezmoi/` but should not be applied into `$HOME` (e.g. `key.txt.age`).
+  `chezmoi/` but should not be applied into `$HOME`.
   Repo-only top-level directories need no ignore entries.
 
 Verify the invariant at any time (the `mise run test` task does exactly this):

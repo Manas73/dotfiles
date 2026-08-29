@@ -19,7 +19,7 @@ On the new machine, before running any Ansible:
 
 1. Install [`mise`](https://mise.run) (`curl https://mise.run | sh`) and
    `git` (skip if already present; otherwise `mise use -g git`). The
-   repo's `mise.toml` supplies `ansible-core`, `chezmoi`, and `age`.
+   repo's `mise.toml` supplies `ansible-core` and `chezmoi`.
 2. Generate an SSH key (ed25519 recommended) and add the public key to the
    matching GitHub account. For SSO-enforced orgs, also authorize the key
    per-org at `https://github.com/settings/keys`.

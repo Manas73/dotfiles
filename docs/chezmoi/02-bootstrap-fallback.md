@@ -41,9 +41,7 @@ Because there is no Ansible-rendered `chezmoi.toml`, the
 - GPU vendor
 
 These prompts are the manual equivalent of the data Ansible fills in
-automatically on inventory-managed hosts. The first run also prompts once for
-the age passphrase to decrypt the identity (see
-[`01-dotfiles-model.md`](01-dotfiles-model.md)).
+automatically on inventory-managed hosts.
 
 ## When to graduate to Ansible
 
