@@ -5,7 +5,7 @@
 # provider.
 #
 # Keys:
-#   all:     cross-OS (typically provider: mise, packages: ["tool@version"])
+#   all:     cross-OS (typically provider: mise or uv)
 #   arch:    Arch/Garuda (pacman / aur)
 #   darwin:  macOS (brew / cask)
 #
@@ -235,6 +235,9 @@ package_catalog:
 
   libvirt:
     arch: { provider: pacman, packages: [libvirt] }
+
+  linecast:
+    all: { provider: uv, packages: [linecast] }
 
   lutris:
     arch: { provider: pacman, packages: [lutris] }

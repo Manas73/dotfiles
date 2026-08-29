@@ -39,6 +39,7 @@ profiles_catalog:
       - lazydocker
       - lazygit
       - libfido2
+      - linecast
       - mise
       - moreutils
       - neovim
