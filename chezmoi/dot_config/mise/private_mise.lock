@@ -360,63 +360,63 @@ url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/49917393
 provenance = "cosign"
 
 [[tools.claude-code]]
-version = "2.1.246"
+version = "2.1.251"
 backend = "aqua:anthropics/claude-code"
 
 [tools.claude-code."platforms.linux-arm64"]
-checksum = "sha256:baeb4f7d0f459e1d1f11f2f7ff90efd666a0764188921385294c73753345ec08"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.246/claude-linux-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/529654632"
+checksum = "sha256:53a4cc28612c6534884019223ee38b9bad5a12814fe8e31d42ea26ff2b169373"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.251/claude-linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/533990601"
 
 [tools.claude-code."platforms.linux-arm64-musl"]
-checksum = "sha256:708dcc2f1ea8d5561f5e478098334c113aa487f27c3b92014f7b535b5f3d6f23"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.246/claude-linux-arm64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/529654634"
+checksum = "sha256:de4f08a4a4332dfd3b712e5ad0f5c02f44b8fe2da8cafaeee8b1e26a513642a6"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.251/claude-linux-arm64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/533990602"
 
 [tools.claude-code."platforms.linux-x64"]
-checksum = "sha256:45debae066f0eb96cd1c29536855294d4f1baf2eb55b147089724423a611a5df"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.246/claude-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/529654702"
+checksum = "sha256:4fda59f47ab17c0e0c831b3144e3025c050397ba37d574388f52e92e1af81c74"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.251/claude-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/533990718"
 
 [tools.claude-code."platforms.linux-x64-baseline"]
-checksum = "sha256:45debae066f0eb96cd1c29536855294d4f1baf2eb55b147089724423a611a5df"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.246/claude-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/529654702"
+checksum = "sha256:4fda59f47ab17c0e0c831b3144e3025c050397ba37d574388f52e92e1af81c74"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.251/claude-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/533990718"
 
 [tools.claude-code."platforms.linux-x64-musl"]
-checksum = "sha256:6037c226344c67785ae1b551028fc514ec017f3999af527181f52d7fc38967bf"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.246/claude-linux-x64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/529654630"
+checksum = "sha256:4466b58d9de65221f305270b16c94cfb02eb2ae56353a97fda0ad28ec0c775e6"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.251/claude-linux-x64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/533990603"
 
 [tools.claude-code."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:6037c226344c67785ae1b551028fc514ec017f3999af527181f52d7fc38967bf"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.246/claude-linux-x64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/529654630"
+checksum = "sha256:4466b58d9de65221f305270b16c94cfb02eb2ae56353a97fda0ad28ec0c775e6"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.251/claude-linux-x64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/533990603"
 
 [tools.claude-code."platforms.macos-arm64"]
-checksum = "sha256:65d7fd085d3a9d297e4300f78e5364ccf3c8f5f34351128da3a59e1e316a3f8c"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.246/claude-darwin-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/529654633"
+checksum = "sha256:02e1e8f41406ae4f4a6b85f25ce6653bf586478dfe64e4d56e0a21624756141d"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.251/claude-darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/533990605"
 
 [tools.claude-code."platforms.macos-x64"]
-checksum = "sha256:bd25bfa4bdc9bc14fe842a79f5d5f96a86ad363bf9414fd6e941148ea980ff6e"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.246/claude-darwin-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/529654631"
+checksum = "sha256:da2b0b631cd3af3053d18aa27c5cfc5626a4ffdb0f92d1b63bca7b85a5edfe80"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.251/claude-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/533990604"
 
 [tools.claude-code."platforms.macos-x64-baseline"]
-checksum = "sha256:bd25bfa4bdc9bc14fe842a79f5d5f96a86ad363bf9414fd6e941148ea980ff6e"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.246/claude-darwin-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/529654631"
+checksum = "sha256:da2b0b631cd3af3053d18aa27c5cfc5626a4ffdb0f92d1b63bca7b85a5edfe80"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.251/claude-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/533990604"
 
 [tools.claude-code."platforms.windows-x64"]
-checksum = "sha256:c0902e0fb0f3f248cd86324544851c89a649815cc41772c896380c2c02bdad9c"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.246/claude-win32-x64.zip"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/529654709"
+checksum = "sha256:22e6a1ee55a866750b5a842912ea1d8a90644868456062ca2a31bccc379c960a"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.251/claude-win32-x64.zip"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/533990740"
 
 [tools.claude-code."platforms.windows-x64-baseline"]
-checksum = "sha256:c0902e0fb0f3f248cd86324544851c89a649815cc41772c896380c2c02bdad9c"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.246/claude-win32-x64.zip"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/529654709"
+checksum = "sha256:22e6a1ee55a866750b5a842912ea1d8a90644868456062ca2a31bccc379c960a"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.251/claude-win32-x64.zip"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/533990740"
 
 [[tools.cloud-sql-proxy]]
 version = "2.25.3"
@@ -893,6 +893,73 @@ provenance = "github-attestations"
 version = "1.2.2"
 backend = "github:steveyegge/beads"
 
+[tools."github:steveyegge/beads"."platforms.linux-arm64"]
+checksum = "sha256:501f38a1070d4b9b3b6261a86a3c92c4a52366869021560430a4bb0036afd83a"
+url = "https://github.com/gastownhall/beads/releases/download/v1.2.2/beads_1.2.2_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/gastownhall/beads/releases/assets/515294077"
+provenance = "github-attestations"
+
+[tools."github:steveyegge/beads"."platforms.linux-arm64-musl"]
+checksum = "sha256:501f38a1070d4b9b3b6261a86a3c92c4a52366869021560430a4bb0036afd83a"
+url = "https://github.com/gastownhall/beads/releases/download/v1.2.2/beads_1.2.2_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/gastownhall/beads/releases/assets/515294077"
+provenance = "github-attestations"
+
+[tools."github:steveyegge/beads"."platforms.linux-x64"]
+checksum = "sha256:8140098a51d3b81d5548d1c5e6db1a2d9930e5d141efe2a4bff7d079c4d321e8"
+url = "https://github.com/gastownhall/beads/releases/download/v1.2.2/beads_1.2.2_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/gastownhall/beads/releases/assets/515294021"
+provenance = "github-attestations"
+provenance_verified = true
+
+[tools."github:steveyegge/beads"."platforms.linux-x64-baseline"]
+checksum = "sha256:8140098a51d3b81d5548d1c5e6db1a2d9930e5d141efe2a4bff7d079c4d321e8"
+url = "https://github.com/gastownhall/beads/releases/download/v1.2.2/beads_1.2.2_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/gastownhall/beads/releases/assets/515294021"
+provenance = "github-attestations"
+
+[tools."github:steveyegge/beads"."platforms.linux-x64-musl"]
+checksum = "sha256:8140098a51d3b81d5548d1c5e6db1a2d9930e5d141efe2a4bff7d079c4d321e8"
+url = "https://github.com/gastownhall/beads/releases/download/v1.2.2/beads_1.2.2_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/gastownhall/beads/releases/assets/515294021"
+provenance = "github-attestations"
+
+[tools."github:steveyegge/beads"."platforms.linux-x64-musl-baseline"]
+checksum = "sha256:8140098a51d3b81d5548d1c5e6db1a2d9930e5d141efe2a4bff7d079c4d321e8"
+url = "https://github.com/gastownhall/beads/releases/download/v1.2.2/beads_1.2.2_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/gastownhall/beads/releases/assets/515294021"
+provenance = "github-attestations"
+
+[tools."github:steveyegge/beads"."platforms.macos-arm64"]
+checksum = "sha256:2aa1245c666419900d2d6993a05049e92c40e0e601d19579cca5b07a7bb8021d"
+url = "https://github.com/gastownhall/beads/releases/download/v1.2.2/beads_1.2.2_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/gastownhall/beads/releases/assets/515302581"
+provenance = "github-attestations"
+
+[tools."github:steveyegge/beads"."platforms.macos-x64"]
+checksum = "sha256:e192dcb60f0f48d9463cd3bcf425d41fc0a632080cf9a06153c97ce12368c4bb"
+url = "https://github.com/gastownhall/beads/releases/download/v1.2.2/beads_1.2.2_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/gastownhall/beads/releases/assets/515302725"
+provenance = "github-attestations"
+
+[tools."github:steveyegge/beads"."platforms.macos-x64-baseline"]
+checksum = "sha256:e192dcb60f0f48d9463cd3bcf425d41fc0a632080cf9a06153c97ce12368c4bb"
+url = "https://github.com/gastownhall/beads/releases/download/v1.2.2/beads_1.2.2_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/gastownhall/beads/releases/assets/515302725"
+provenance = "github-attestations"
+
+[tools."github:steveyegge/beads"."platforms.windows-x64"]
+checksum = "sha256:1f00c29cd9599e182a4a4e829f5210daca2da14155920aee2836d8bc613b2feb"
+url = "https://github.com/gastownhall/beads/releases/download/v1.2.2/beads_1.2.2_windows_amd64.zip"
+url_api = "https://api.github.com/repos/gastownhall/beads/releases/assets/515294217"
+provenance = "github-attestations"
+
+[tools."github:steveyegge/beads"."platforms.windows-x64-baseline"]
+checksum = "sha256:1f00c29cd9599e182a4a4e829f5210daca2da14155920aee2836d8bc613b2feb"
+url = "https://github.com/gastownhall/beads/releases/download/v1.2.2/beads_1.2.2_windows_amd64.zip"
+url_api = "https://api.github.com/repos/gastownhall/beads/releases/assets/515294217"
+provenance = "github-attestations"
+
 [[tools.go]]
 version = "1.27.0"
 backend = "core:go"
@@ -942,41 +1009,41 @@ checksum = "sha256:f0c0a0d33ba94f4d2c5dbc887334ce678b21813504ddb3aafcb06e60a5a66
 url = "https://dl.google.com/go/go1.27.0.windows-amd64.zip"
 
 [[tools.grok]]
-version = "1.0.5"
+version = "1.0.13"
 backend = "http:grok"
 
 [tools.grok."platforms.linux-arm64"]
-url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.5-linux-aarch64"
+url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.13-linux-aarch64"
 
 [tools.grok."platforms.linux-arm64-musl"]
-url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.5-linux-aarch64"
+url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.13-linux-aarch64"
 
 [tools.grok."platforms.linux-x64"]
-url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.5-linux-x86_64"
+url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.13-linux-x86_64"
 
 [tools.grok."platforms.linux-x64-baseline"]
-url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.5-linux-x86_64"
+url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.13-linux-x86_64"
 
 [tools.grok."platforms.linux-x64-musl"]
-url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.5-linux-x86_64"
+url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.13-linux-x86_64"
 
 [tools.grok."platforms.linux-x64-musl-baseline"]
-url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.5-linux-x86_64"
+url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.13-linux-x86_64"
 
 [tools.grok."platforms.macos-arm64"]
-url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.5-macos-aarch64"
+url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.13-macos-aarch64"
 
 [tools.grok."platforms.macos-x64"]
-url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.5-macos-x86_64"
+url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.13-macos-x86_64"
 
 [tools.grok."platforms.macos-x64-baseline"]
-url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.5-macos-x86_64"
+url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.13-macos-x86_64"
 
 [tools.grok."platforms.windows-x64"]
-url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.5-windows-x86_64.exe"
+url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.13-windows-x86_64.exe"
 
 [tools.grok."platforms.windows-x64-baseline"]
-url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.5-windows-x86_64.exe"
+url = "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-1.0.13-windows-x86_64.exe"
 
 [[tools.herdr]]
 version = "0.8.2"
@@ -1278,6 +1345,39 @@ url_api = "https://api.github.com/repos/jesseduffield/lazygit/releases/assets/51
 version = "0.12.5"
 backend = "vfox:mise-plugins/vfox-neovim"
 
+[tools.neovim."platforms.linux-arm64"]
+url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-arm64.tar.gz"
+
+[tools.neovim."platforms.linux-arm64-musl"]
+url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-arm64.tar.gz"
+
+[tools.neovim."platforms.linux-x64"]
+url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz"
+
+[tools.neovim."platforms.linux-x64-baseline"]
+url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz"
+
+[tools.neovim."platforms.linux-x64-musl"]
+url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz"
+
+[tools.neovim."platforms.linux-x64-musl-baseline"]
+url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz"
+
+[tools.neovim."platforms.macos-arm64"]
+url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-macos-arm64.tar.gz"
+
+[tools.neovim."platforms.macos-x64"]
+url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-macos-x86_64.tar.gz"
+
+[tools.neovim."platforms.macos-x64-baseline"]
+url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-macos-x86_64.tar.gz"
+
+[tools.neovim."platforms.windows-x64"]
+url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-win64.zip"
+
+[tools.neovim."platforms.windows-x64-baseline"]
+url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-win64.zip"
+
 [[tools.node]]
 version = "26.7.0"
 backend = "core:node"
@@ -1327,63 +1427,63 @@ checksum = "sha256:d3bd72755141ed32bbcd841228ee81897c8a98d50dfa7dae2179399a0a7c9
 url = "https://nodejs.org/dist/v26.7.0/node-v26.7.0-win-x64.zip"
 
 [[tools.opencode]]
-version = "1.18.23"
+version = "1.18.25"
 backend = "aqua:anomalyco/opencode"
 
 [tools.opencode."platforms.linux-arm64"]
-checksum = "sha256:86d3afaf4e8784f9adab189be2a315c12b27ec40a04b70defbe70595c3cc7c65"
-url = "https://github.com/anomalyco/opencode/releases/download/v1.18.23/opencode-linux-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/528740696"
+checksum = "sha256:35ef77897425e41b5183a2c21ac4fb1d4d944d82a94e3c920f57b5490af11ac5"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.18.25/opencode-linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/533313415"
 
 [tools.opencode."platforms.linux-arm64-musl"]
-checksum = "sha256:f7488a9d10f4406aa582deca4b54716d0e2f610668524ce5c3697e5e4d61ff51"
-url = "https://github.com/anomalyco/opencode/releases/download/v1.18.23/opencode-linux-arm64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/528740634"
+checksum = "sha256:e9144dca084c2cce87a0868e120e57cdcffc17bd0b68df6a92e18af2c2f52de0"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.18.25/opencode-linux-arm64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/533313414"
 
 [tools.opencode."platforms.linux-x64"]
-checksum = "sha256:ab7015cd8113e011a461f30a0c2b77d8299a144ff688cb62e93e8802835d7288"
-url = "https://github.com/anomalyco/opencode/releases/download/v1.18.23/opencode-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/528740635"
+checksum = "sha256:58a3729a6f3432dd6d2917fcc4a949788891a035818646ad480e12c947f56e78"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.18.25/opencode-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/533313461"
 
 [tools.opencode."platforms.linux-x64-baseline"]
-checksum = "sha256:ab7015cd8113e011a461f30a0c2b77d8299a144ff688cb62e93e8802835d7288"
-url = "https://github.com/anomalyco/opencode/releases/download/v1.18.23/opencode-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/528740635"
+checksum = "sha256:58a3729a6f3432dd6d2917fcc4a949788891a035818646ad480e12c947f56e78"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.18.25/opencode-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/533313461"
 
 [tools.opencode."platforms.linux-x64-musl"]
-checksum = "sha256:18e3e5064ecddde181886256c9e57774207d3dd0460b615ba8e47a1690ff3526"
-url = "https://github.com/anomalyco/opencode/releases/download/v1.18.23/opencode-linux-x64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/528740694"
+checksum = "sha256:2bcc1cce8ef98e6ac3d7a4b8703429fa070b9b5969b247dacfa1bef1f5b6ed44"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.18.25/opencode-linux-x64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/533313483"
 
 [tools.opencode."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:18e3e5064ecddde181886256c9e57774207d3dd0460b615ba8e47a1690ff3526"
-url = "https://github.com/anomalyco/opencode/releases/download/v1.18.23/opencode-linux-x64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/528740694"
+checksum = "sha256:2bcc1cce8ef98e6ac3d7a4b8703429fa070b9b5969b247dacfa1bef1f5b6ed44"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.18.25/opencode-linux-x64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/533313483"
 
 [tools.opencode."platforms.macos-arm64"]
-checksum = "sha256:373cf36673836f2ce8847295a0bb2cd2447d03c769b44d84185916bd471b4274"
-url = "https://github.com/anomalyco/opencode/releases/download/v1.18.23/opencode-darwin-arm64.zip"
-url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/528740576"
+checksum = "sha256:606b09722d98069605e16037fb8c3c7c8ebbfed9ba713079a5efb2e5b065ae27"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.18.25/opencode-darwin-arm64.zip"
+url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/533313310"
 
 [tools.opencode."platforms.macos-x64"]
-checksum = "sha256:6b617da75b5773836fcdc7247d7ea2bd39aec942a58b89a041bafb3d4d2a8c23"
-url = "https://github.com/anomalyco/opencode/releases/download/v1.18.23/opencode-darwin-x64.zip"
-url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/528740469"
+checksum = "sha256:6c5c569f779b197e1df6390c62278bbdf0e73e7cc248a429648680c63a6f3f1c"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.18.25/opencode-darwin-x64.zip"
+url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/533313312"
 
 [tools.opencode."platforms.macos-x64-baseline"]
-checksum = "sha256:6b617da75b5773836fcdc7247d7ea2bd39aec942a58b89a041bafb3d4d2a8c23"
-url = "https://github.com/anomalyco/opencode/releases/download/v1.18.23/opencode-darwin-x64.zip"
-url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/528740469"
+checksum = "sha256:6c5c569f779b197e1df6390c62278bbdf0e73e7cc248a429648680c63a6f3f1c"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.18.25/opencode-darwin-x64.zip"
+url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/533313312"
 
 [tools.opencode."platforms.windows-x64"]
-checksum = "sha256:a2fe9e8c2d074d26975024d494927b966680b3efdc3e0377eadb9afb05f7e191"
-url = "https://github.com/anomalyco/opencode/releases/download/v1.18.23/opencode-windows-x64.zip"
-url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/528743431"
+checksum = "sha256:831e213e5f454d6e8b26f0fb24c7b3d42b40e47d73d154672a9192702eb08416"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.18.25/opencode-windows-x64.zip"
+url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/533315557"
 
 [tools.opencode."platforms.windows-x64-baseline"]
-checksum = "sha256:a2fe9e8c2d074d26975024d494927b966680b3efdc3e0377eadb9afb05f7e191"
-url = "https://github.com/anomalyco/opencode/releases/download/v1.18.23/opencode-windows-x64.zip"
-url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/528743431"
+checksum = "sha256:831e213e5f454d6e8b26f0fb24c7b3d42b40e47d73d154672a9192702eb08416"
+url = "https://github.com/anomalyco/opencode/releases/download/v1.18.25/opencode-windows-x64.zip"
+url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/533315557"
 
 [[tools.poetry]]
 version = "2.4.1"
