@@ -10,13 +10,13 @@ packages role with per-manager task files.
 ```text
 Intent       os_apps + profiles_catalog[].apps (via recipe profiles:)
 Catalog      group_vars/all/package_catalog.yml
-packages     roles/packages (resolve + tasks/{pacman,aur,brew,mise}.yml)
+packages     roles/packages (resolve + tasks/{pacman,aur,brew,mise,uv}.yml)
 ```
 
 ## Intent
 
 Pure lists of *logical* app names. They know nothing about pacman, AUR, brew,
-cask, or mise. Two sources feed the packages role:
+cask, mise, or uv. Two sources feed the packages role:
 
 1. **OS-family list** — `os_apps` in `group_vars/<os>/apps.yml` (same variable
    name on every OS group: `arch`, `darwin`, …).
@@ -44,6 +44,8 @@ install instructions (provider + package list). It handles:
 
 - **Cross-OS CLI via mise** — `all: { provider: mise, packages: ["bat@0.26.1"] }`.
   Same pin on every OS. `all:` unions with an optional per-OS block.
+- **Cross-OS Python CLI via uv** — `all: { provider: uv, packages: [linecast] }`.
+  `uv tool install` of a PEP 508 spec.
 - **Cross-OS GUI name mapping** — e.g. `vivaldi` → pacman on Arch, cask on Darwin.
 - **Roll-ups** — one logical name expands to N concrete packages
   (`docker`, JetBrains IDEs with their `-jre` companions, …).
@@ -66,7 +68,7 @@ Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.
 3. Resolves them through the catalog (`resolve_catalog` filter) into
    `{packages: {provider: [pkg, …]}, taps: {provider: [tap, …]}}`.
 4. Includes provider task files in fixed order for each non-empty bucket:
-   pacman → aur → brew (formulae + casks) → mise.
+   pacman → aur → brew (formulae + casks) → mise → uv.
 
 ### Provider task files
 
@@ -76,9 +78,10 @@ Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.
 | `tasks/aur.yml` | Archlinux | Builds `yay-bin` when yay is missing. |
 | `tasks/brew.yml` | Darwin | Official installer; community.general.homebrew / homebrew_tap / homebrew_cask. |
 | `tasks/mise.yml` | all | Requires `mise` on PATH. `mise use --global --pin` for `tool@version` specs. |
+| `tasks/uv.yml` | all | Requires `uv` on PATH (mise tool). `uv tool install --quiet` per spec. |
 
 Each accepts `provider_packages`, no-ops on empty input, asserts the OS
-family (except mise), and installs idempotently.
+family (except mise and uv), and installs idempotently.
 
 ## How it ties back to Chezmoi
 

@@ -17,6 +17,7 @@ reference is [`../../ansible/README.md`](../../ansible/README.md).
 2. Add a **catalog entry** (`group_vars/all/package_catalog.yml`). The
    catalog is exhaustive; a missing entry fails resolution.
    - Cross-OS CLI tool → `all: { provider: mise, packages: ["tool@version"] }`.
+   - Cross-OS Python CLI → `all: { provider: uv, packages: [linecast] }`.
    - GUI / OS package → per-OS `arch:` / `darwin:` blocks (pacman, aur,
      brew, cask).
    - Mixed (user CLI + system package) → `all:` unioned with a per-OS block.
@@ -37,6 +38,10 @@ package_catalog:
   # Cross-OS CLI via mise. Pin a concrete version; `@latest` is rejected.
   bat:
     all: { provider: mise, packages: ["bat@0.26.1"] }
+
+  # Cross-OS Python CLI via uv. Specs are passed to `uv tool install`.
+  linecast:
+    all: { provider: uv, packages: [linecast] }
 
   # Cross-OS GUI app: per-OS keys, each a {provider, packages}.
   vivaldi:
@@ -71,6 +76,8 @@ Rules:
 - `provider: mise` packages must be pinned `tool@version`. Use a backend
   prefix when the short name is not in the mise registry
   (`github:sinelaw/fresh@0.4.10`).
+- `provider: uv` packages are PEP 508 specs passed to `uv tool install`
+  (`linecast`, `linecast==1.2.3`). Bare names are allowed.
 - The catalog is exhaustive: a logical name **not** in the catalog is an
   error. There is no default-provider fall-through.
 - Optional `taps: [user/repo, …]` on a `brew` or `cask` block is collected

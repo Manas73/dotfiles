@@ -1,0 +1,83 @@
+---
+# Install CLI tools via uv (user-level, cross-OS).
+#
+# Input: provider_packages (list[str]) — uv tool specs passed as-is to
+# `uv tool install` (e.g. linecast, linecast==1.2.3).
+#
+# uv itself is a mise tool (logical app `python` ships `uv@version`) and
+# is installed by the earlier mise provider task. This file only runs
+# `uv tool install --quiet` into ~/.local/share/uv/tools and writes
+# executables to ~/.local/bin. Additive: tools the user added with
+# `uv tool install` are not removed.
+#
+# No become. `uv tool install --quiet` for unattended runs. uv has no
+# dry-run; check mode uses the tools directory as `creates`.
+
+- name: Assert provider_packages is defined and a list
+  ansible.builtin.assert:
+    that:
+      - provider_packages is defined
+      - provider_packages is sequence
+    fail_msg: "packages/uv: provider_packages must be a list."
+    quiet: true
+  tags: [packages, uv]
+
+- name: Locate the uv binary
+  ansible.builtin.shell: |
+    set -euo pipefail
+    if command -v uv >/dev/null 2>&1; then
+      command -v uv
+    elif test -x "{{ ansible_facts['user_dir'] }}/.local/bin/uv"; then
+      printf '%s\n' "{{ ansible_facts['user_dir'] }}/.local/bin/uv"
+    else
+      mise_bin=""
+      if command -v mise >/dev/null 2>&1; then
+        mise_bin="$(command -v mise)"
+      elif test -x "{{ ansible_facts['user_dir'] }}/.local/bin/mise"; then
+        mise_bin="{{ ansible_facts['user_dir'] }}/.local/bin/mise"
+      fi
+      if test -n "${mise_bin}"; then
+        "${mise_bin}" which uv
+      else
+        exit 1
+      fi
+    fi
+  register: packages_uv_binary
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  tags: [packages, uv]
+
+- name: Fail fast if uv is not installed
+  ansible.builtin.fail:
+    msg: >-
+      uv is not installed on this host. Install it via the packages role
+      (logical app `python` in the cli profile: mise package `uv@version`)
+      or `mise use -g uv`, then re-run.
+  when: packages_uv_binary.rc != 0
+  tags: [packages, uv]
+
+- name: Resolve the uv tools directory
+  ansible.builtin.command:
+    argv:
+      - "{{ packages_uv_binary.stdout }}"
+      - tool
+      - dir
+  register: packages_uv_tool_dir
+  changed_when: false
+  check_mode: false
+  tags: [packages, uv]
+
+- name: Install uv tools
+  ansible.builtin.command:
+    argv:
+      - "{{ packages_uv_binary.stdout }}"
+      - tool
+      - install
+      - --quiet
+      - "{{ item }}"
+    creates: "{{ packages_uv_tool_dir.stdout }}/{{ item | regex_replace('[\\s=<>!~\\[;@].*$', '') }}"
+  loop: "{{ provider_packages }}"
+  args:
+    chdir: "{{ ansible_facts['user_dir'] }}"
+  tags: [packages, uv]

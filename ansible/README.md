@@ -9,7 +9,7 @@ See `docs/ansible/02-onboarding.md` for adding a new machine and
 
 Ansible owns:
 
-- OS/package installation (pacman, AUR via yay, Homebrew formulae, Homebrew casks) and user-level CLI tools via mise.
+- OS/package installation (pacman, AUR via yay, Homebrew formulae, Homebrew casks) and user-level CLI tools via mise and uv.
 - User groups, udev rules, and systemd user services.
 - Fish login shell switching.
 - Docker, Kanata, and Plasma custom-WM setup.
@@ -75,7 +75,7 @@ Mental model:
 - Inventory groups are **OS only** (`linux → arch`, `darwin`). No machine-class groups.
 - Each host sets `recipe:` (loads `recipes/<recipe>.yml`) and host deltas (`gpu`, …).
 - `primary_user` defaults to `ansible_facts['user_id']` in `group_vars/all`.
-- Provider install logic: `roles/packages/tasks/{pacman,aur,brew,mise}.yml`.
+- Provider install logic: `roles/packages/tasks/{pacman,aur,brew,mise,uv}.yml`.
 
 ## Package Architecture
 
@@ -141,7 +141,7 @@ packages     roles/packages
    silently ignored.
 
 All sources are pure lists of logical app names. They know nothing about
-pacman, AUR, brew, cask, or mise.
+pacman, AUR, brew, cask, mise, or uv.
 
 ### Layer 2: Catalog
 
@@ -157,6 +157,10 @@ package_catalog:
   # pinned `tool@version` specs; `@latest` is rejected.
   bat:
     all: { provider: mise, packages: ["bat@0.26.1"] }
+
+  # Cross-OS Python CLI via uv. Specs are passed to `uv tool install`.
+  linecast:
+    all: { provider: uv, packages: [linecast] }
 
   # Cross-OS GUI app: per-OS keys, each holding a provider and a list of
   # concrete packages. Both keys are independent and can contain multiple
@@ -194,6 +198,8 @@ Rules:
 - `provider: mise` packages must be pinned `tool@version` (bare names and
   `@latest` fail). Use a backend prefix when the short name is missing
   (`github:sinelaw/fresh@0.4.10`).
+- `provider: uv` packages are PEP 508 specs passed to `uv tool install`
+  (`linecast`, `linecast==1.2.3`). Bare names are allowed.
 - The catalog is exhaustive: a logical name **not** in the catalog is an
   error. There is no default-provider fall-through.
 - An entry without `all:` and without a key for the current `target_os` is
@@ -215,7 +221,7 @@ Rules:
    filter, producing
    `packages_resolved = {packages: {provider: [pkg, ...]}, taps: {provider: [tap, ...]}}`.
 4. Include provider task files in fixed order for each non-empty bucket:
-   `pacman.yml` → `aur.yml` → `brew.yml` (formulae + casks) → `mise.yml`.
+   `pacman.yml` → `aur.yml` → `brew.yml` (formulae + casks) → `mise.yml` → `uv.yml`.
 
 ### Provider task files
 
@@ -227,9 +233,10 @@ Each file under `roles/packages/tasks/` installs for one package manager:
 | `aur.yml` | Archlinux | Clones `yay-bin` and builds it when yay is missing. |
 | `brew.yml` | Darwin | Official installer; `community.general.homebrew` / `homebrew_tap` / `homebrew_cask`. |
 | `mise.yml` | all | Requires `mise` on PATH (OS package or curl bootstrap). `mise use --global --pin`. |
+| `uv.yml` | all | Requires `uv` on PATH (mise tool). `uv tool install --quiet` per spec. |
 
 Shared contract: input `provider_packages` (list), no-op when empty, assert
-OS family (except mise), idempotent install, side effects limited to packages.
+OS family (except mise and uv), idempotent install, side effects limited to packages.
 
 Multilib is a pacman *repo*, not a separate manager, so `steam` and friends
 route to `provider: pacman` (with multilib enabled in `/etc/pacman.conf`).
@@ -243,9 +250,9 @@ route to `provider: pacman` (with multilib enabled in `/etc/pacman.conf`).
      profile under `profiles_catalog` in `group_vars/all/profiles.yml` (and
      the recipe's `profiles:` list).
 2. Add a catalog entry. Cross-OS CLI tools use `all: { provider: mise,
-   packages: ["tool@version"] }`. GUI / OS packages use per-OS
-   `arch:` / `darwin:` blocks. The catalog is exhaustive: a missing entry
-   fails resolution.
+   packages: ["tool@version"] }` or `all: { provider: uv, packages: [name] }`
+   for PyPI CLIs. GUI / OS packages use per-OS `arch:` / `darwin:` blocks.
+   The catalog is exhaustive: a missing entry fails resolution.
 3. Verify the resolution:
 
    ```sh
@@ -327,6 +334,7 @@ Copy `recipes/personal_workstation.yml` (or `mac_turing.yml`), edit
 | `brew`     | Homebrew formulae + casks.                           |
 | `cask`     | Same as `brew` (merged job).                         |
 | `mise`     | mise CLI tools (`mise use --global --pin`).          |
+| `uv`       | uv CLI tools (`uv tool install --quiet`).            |
 | `arch`     | All arch-OS package work.                            |
 | `darwin`   | All darwin-OS package work.                          |
 | `upgrade`  | `pacman -Syu` task.                                  |

@@ -10,6 +10,7 @@
 | `pacman` / `aur` | A single provider task file under `roles/packages/tasks/`. |
 | `brew` / `cask` | Homebrew formulae + casks. |
 | `mise` | mise CLI tools (`mise use --global --pin`). |
+| `uv` | uv CLI tools (`uv tool install --quiet`). |
 | `arch` / `darwin` | All package work for the matching OS. |
 | `dotfiles` / `chezmoi` | `chezmoi` role only (render `chezmoi.toml` + `chezmoi apply`). |
 | `system` | sudoers, `roles/system` (fish/docker/libvirt), macos_defaults (darwin), kanata, plasma_custom_wm (gated by flags). Sub-tags: `sudoers`, `fish`, `docker`, `libvirt`, `macos` / `defaults`, `kanata`, `plasma`. |

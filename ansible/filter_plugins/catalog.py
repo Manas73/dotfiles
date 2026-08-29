@@ -19,6 +19,10 @@ Catalog schema (in YAML)::
     bat:
       all: { provider: mise, packages: ["bat@0.26.1"] }
 
+    # Cross-OS Python CLI via uv. Specs are passed to ``uv tool install``.
+    linecast:
+      all: { provider: uv, packages: [linecast] }
+
     python:
       all: { provider: mise, packages: ["python@3.14.7", "uv@0.12.3"] }
       arch:   { provider: pacman, packages: [python, python-gpgme] }
@@ -47,6 +51,9 @@ Rules:
 * ``provider: mise`` packages must be pinned ``tool@version`` specs
   (``bat@0.26.1``, ``ubi:owner/repo[exe=bd]@1.2.3``). Bare names and
   ``@latest`` are rejected.
+* ``provider: uv`` packages are PEP 508 specs passed to
+  ``uv tool install`` (``linecast``, ``linecast==1.2.3``). Bare names
+  are allowed.
 * The catalog is exhaustive: an app whose logical name is not in the
   catalog raises ``CatalogError``. There is no default-provider
   fall-through — every app in os_apps / profiles_catalog[].apps must be listed.
@@ -67,7 +74,7 @@ from ansible.errors import AnsibleFilterError
 # Multilib is intentionally absent: it is a pacman repo, not a separate
 # manager, so multilib packages route to ``pacman`` and pacman.yml installs
 # them via the same module.
-VALID_PROVIDERS = {"pacman", "aur", "brew", "cask", "mise"}
+VALID_PROVIDERS = {"pacman", "aur", "brew", "cask", "mise", "uv"}
 
 # Cross-OS key unioned with the per-OS block. Not a target_os value.
 ALL_OS_KEY = "all"

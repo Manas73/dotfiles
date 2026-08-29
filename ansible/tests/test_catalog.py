@@ -135,6 +135,30 @@ class ResolveCatalogTests(unittest.TestCase):
         resolved = resolve(["bat"], catalog, "arch", "mise")
         self.assertEqual(resolved["packages"], {"mise": ["bat@0.26.1"]})
 
+    def test_all_key_uv_installs_on_every_os(self):
+        catalog = {
+            "linecast": {"all": {"provider": "uv", "packages": ["linecast"]}},
+        }
+        for os_name, default in (("arch", "pacman"), ("darwin", "brew")):
+            resolved = resolve(["linecast"], catalog, os_name, default)
+            self.assertEqual(resolved["packages"], {"uv": ["linecast"]})
+
+    def test_uv_allows_unpinned_and_versioned_specs(self):
+        catalog = {
+            "linecast": {"all": {"provider": "uv", "packages": ["linecast"]}},
+            "ruff": {"all": {"provider": "uv", "packages": ["ruff==0.6.0"]}},
+        }
+        resolved = resolve(["linecast", "ruff"], catalog)
+        self.assertEqual(
+            resolved["packages"],
+            {"uv": ["linecast", "ruff==0.6.0"]},
+        )
+
+    def test_uv_default_provider_is_valid(self):
+        catalog = {"linecast": {"all": {"provider": "uv", "packages": ["linecast"]}}}
+        resolved = resolve(["linecast"], catalog, "arch", "uv")
+        self.assertEqual(resolved["packages"], {"uv": ["linecast"]})
+
     def test_empty_all_list_fails(self):
         catalog = {"bat": {"all": []}}
         with self.assertRaises(CatalogError) as ctx:
