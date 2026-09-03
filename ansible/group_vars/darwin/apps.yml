@@ -14,6 +14,7 @@ os_apps:
   # ----------------------------------------------------------------
   # Cross-OS GUI apps via catalog (route to cask).
   # ----------------------------------------------------------------
+  - balena-etcher
   - bartender
   - bazecor
   - docker

@@ -41,6 +41,10 @@ package_catalog:
     arch:   { provider: aur, packages: [aws-session-manager-plugin] }
     darwin: { provider: cask, packages: [session-manager-plugin] }
 
+  balena-etcher:
+    arch:   { provider: aur, packages: [balena-etcher] }
+    darwin: { provider: cask, packages: [balenaetcher] }
+
   bartender:
     darwin: { provider: cask, packages: [bartender] }
 

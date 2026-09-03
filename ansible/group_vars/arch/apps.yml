@@ -16,6 +16,7 @@ os_apps:
   # Cross-OS apps & bundles (catalog handles routing per OS).
   # ----------------------------------------------------------------
   - "1password"
+  - balena-etcher
   - bazecor
   - docker
   - dropbox
