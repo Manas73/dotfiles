@@ -377,7 +377,7 @@ package_catalog:
     arch: { provider: pacman, packages: [solaar] }
 
   spotify:
-    arch:   { provider: pacman, packages: [spotify] }
+    arch:   { provider: aur, packages: [spotify] }
     darwin: { provider: cask, packages: [spotify] }
 
   starship:
