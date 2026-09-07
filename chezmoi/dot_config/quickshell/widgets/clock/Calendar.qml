@@ -4,10 +4,9 @@ import Quickshell.Io
 import qs.components
 import "ClockModel.js" as Model
 
-// The clock's calendar popup: three world clocks over today's date, then a
-// month grid with ISO week numbers. Built to sit beside the weather panel —
-// same hero-over-detail composition, same spacing scale, same small-caps
-// labels. Click a clock to set its label and IANA timezone.
+// The clock's calendar popup: three world clocks, then a month grid with
+// ISO week numbers. Built to sit beside the weather panel — same spacing
+// scale, same small-caps labels. Click a clock to set its timezone.
 //
 // The grid is a read-out rather than a picker: today is the only marked
 // day, and the only thing that moves is which month is on screen —
@@ -43,22 +42,6 @@ Panel {
 
   readonly property date viewDate: new Date(viewYear, viewMonth, 1)
   readonly property bool viewingCurrentMonth: viewYear === today.getFullYear() && viewMonth === today.getMonth()
-
-  // Pinned to today, not to the month being browsed — stepping through the
-  // calendar does not change how much of the year is gone.
-  readonly property real yearDone: Model.yearProgress(today.getFullYear(), today.getMonth(), today.getDate())
-  readonly property int yearDonePercent: Model.yearProgressPercent(today.getFullYear(), today.getMonth(), today.getDate())
-
-  // Memento mori, for anyone who goes looking: double-tapping the year bar
-  // asks for a birth year and a life expectancy, and a second bar tracks one
-  // against the other. A birth year rather than an age, so it keeps counting
-  // on its own. Without one the bar stays hidden.
-  readonly property int birthYear: Model.parseBirthYear(root.settings && root.settings.birthYear, today.getFullYear())
-  readonly property int age: Model.ageFromBirthYear(birthYear, today.getFullYear())
-  readonly property int lifeExpectancy: Model.parseLifeExpectancy(root.settings && root.settings.lifeExpectancy)
-  readonly property real lifeDone: Model.lifeProgress(age, lifeExpectancy)
-  readonly property int lifeDonePercent: Model.lifeProgressPercent(age, lifeExpectancy)
-  property bool editingLife: false
 
   // Three labeled IANA zones above the date. Missing config falls through
   // to Local / UTC / New York; clicking a clock edits that slot's label
@@ -127,7 +110,6 @@ Panel {
     setCenterHoverRevealSuppressed(false)
     // Dismissing the panel mid-edit would otherwise leave the inputs up,
     // waiting behind a closed popup for the next time it opens.
-    if (root.editingLife) root.cancelEditingLife()
     if (root.editingClocks) root.cancelEditingWorldClock()
     root.controller.hide()
   }
@@ -191,53 +173,6 @@ Panel {
     var next = Model.normalizedWeekStart(day, root.weekStart)
     if (next === root.weekStart) return
     persistSettings({ weekStartDay: Model.weekStartSettingName(next) })
-  }
-
-  function startEditingLife() {
-    root.editingLife = true
-    Qt.callLater(function() {
-      bornField.text = root.birthYear > 0 ? String(root.birthYear) : ""
-      expectancyField.text = String(root.lifeExpectancy)
-      bornField.selectAll()
-      bornField.forceActiveFocus()
-    })
-  }
-
-  function cancelEditingLife() {
-    root.editingLife = false
-    Qt.callLater(function() { if (keyCatcher) keyCatcher.forceActiveFocus() })
-  }
-
-  // Shared by both fields: Tab hops to the other one, Enter commits the pair,
-  // Escape drops the lot.
-  function handleLifeKey(event, other) {
-    if (event.key === Qt.Key_Escape) {
-      root.cancelEditingLife()
-      event.accepted = true
-    } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-      root.commitLife()
-      event.accepted = true
-    } else if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
-      other.selectAll()
-      other.forceActiveFocus()
-      event.accepted = true
-    }
-  }
-
-  // Double-tapping the life bar puts it away again. The expectancy stays in
-  // the config so setting a birth year again brings your own number back
-  // rather than the default.
-  function clearLife() {
-    if (root.birthYear <= 0) return
-    persistSettings({ birthYear: 0 })
-  }
-
-  function commitLife() {
-    var born = Model.parseBirthYear(bornField.text, today.getFullYear())
-    var span = Model.parseLifeExpectancy(expectancyField.text)
-    if (born !== root.birthYear || span !== root.lifeExpectancy)
-      persistSettings({ birthYear: born, lifeExpectancy: span })
-    cancelEditingLife()
   }
 
   function toggleWeekStart() {
@@ -433,7 +368,7 @@ Panel {
     PanelKeyCatcher {
       id: keyCatcher
       anchors.fill: parent
-      blocked: root.editingLife || (worldZoneField && worldZoneField.popupOpen)
+      blocked: worldZoneField && worldZoneField.popupOpen
       onMoveRequested: function(dx, dy) {
         if (dx !== 0) root.moveMonth(dx)
         if (dy !== 0) root.moveYear(dy)
@@ -473,19 +408,12 @@ Panel {
           width: Math.max(calendarScroll.width, gridColumn.width)
           spacing: Style.space(8)
 
-          // ---- Hero: three world clocks over today's date. The date is
-          //      a quiet label rather than a display-size title; clicking
-          //      it still jumps the grid back to this month.
-          Column {
-            id: heroColumn
+          // ---- World clocks. Click one to set that slot's IANA zone.
+          Item {
             width: parent.width
-            spacing: Style.space(12)
+            height: worldClocksBlock.height
 
             Item {
-              width: parent.width
-              height: worldClocksBlock.height
-
-              Item {
                 id: worldClocksBlock
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: gridColumn.width
@@ -617,245 +545,72 @@ Panel {
                   }
                 }
               }
-            }
+          }
 
-            Item {
-              width: parent.width
-              height: heroDateCol.height
+          Item {
+            width: parent.width
+            height: 1
 
-              Column {
-                id: heroDateCol
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: Style.space(2)
-
-                Text {
-                  anchors.horizontalCenter: parent.horizontalCenter
-                  text: Qt.formatDate(root.today, "dddd").toUpperCase()
-                  color: heroMouse.containsMouse
-                    ? Style.hoverStateColor(root.contentForeground, Color.accent)
-                    : Qt.darker(root.contentForeground, 1.5)
-                  font.family: root.contentFontFamily
-                  font.pixelSize: Style.font.caption
-                  font.letterSpacing: 1.2
-                  font.bold: true
-                }
-
-                Text {
-                  id: heroDate
-                  anchors.horizontalCenter: parent.horizontalCenter
-                  text: Qt.formatDate(root.today, "MMMM d")
-                  color: heroMouse.containsMouse
-                    ? Style.hoverStateColor(root.contentForeground, Color.accent)
-                    : root.contentForeground
-                  font.family: root.contentFontFamily
-                  font.pixelSize: Style.font.heading
-                }
-              }
-
-              MouseArea {
-                id: heroMouse
-                anchors.fill: heroDateCol
-                enabled: !root.viewingCurrentMonth
-                hoverEnabled: enabled
-                cursorShape: Qt.PointingHandCursor
-                onClicked: root.goToToday()
-
-                PanelToolTip {
-                  visible: heroMouse.containsMouse
-                  text: "Back to today"
-                  fontFamily: root.contentFontFamily
-                }
-              }
+            PanelSeparator {
+              anchors.horizontalCenter: parent.horizontalCenter
+              width: gridColumn.width
+              foreground: root.contentForeground
             }
           }
 
-          // ---- Year progress, doubling as the rule under the hero:
-          //      a plain hairline said nothing, and whole days done
-          //      over days in the year says the same thing louder.
+          // ---- Month stepping, spanning the grid it drives. Sits above
+          //      the days so the month you are looking at is named before
+          //      you start reading it. The chevrons sit on the grid's
+          //      outer bounds so the row reads as a full-width rail. The
+          //      label is centered and fixed-width, so it holds still
+          //      from "MAY" to "SEPTEMBER".
           Item {
             width: parent.width
-            height: yearBlock.y + yearBlock.height
+            height: monthNav.height
 
             Item {
-              id: yearBlock
-              y: Style.space(6)
+              id: monthNav
               anchors.horizontalCenter: parent.horizontalCenter
               width: gridColumn.width
-              height: Math.max(yearLabel.implicitHeight, Style.space(10))
+              height: monthLabel.implicitHeight + Style.space(10)
 
-              TapHandler {
-                enabled: !root.editingLife
-                onDoubleTapped: root.startEditingLife()
-              }
-
-              Row {
-                visible: root.editingLife
+              Text {
+                id: monthLabel
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: Style.space(10)
-
-                Text {
-                  anchors.verticalCenter: parent.verticalCenter
-                  text: "BORN"
-                  color: Qt.darker(root.contentForeground, 1.5)
-                  font.family: root.contentFontFamily
-                  font.pixelSize: Style.font.bodySmall
-                  font.letterSpacing: 1
-                }
-
-                TextField {
-                  id: bornField
-                  width: Style.space(70)
-                  anchors.verticalCenter: parent.verticalCenter
-                  placeholderText: "year"
-                  foreground: root.contentForeground
-                  font.family: root.contentFontFamily
-                  inputMethodHints: Qt.ImhDigitsOnly
-
-                  Keys.onPressed: function(event) { root.handleLifeKey(event, expectancyField) }
-                }
-
-                Text {
-                  anchors.verticalCenter: parent.verticalCenter
-                  anchors.verticalCenterOffset: 0
-                  leftPadding: Style.space(6)
-                  text: "LIVE TO"
-                  color: Qt.darker(root.contentForeground, 1.5)
-                  font.family: root.contentFontFamily
-                  font.pixelSize: Style.font.bodySmall
-                  font.letterSpacing: 1
-                }
-
-                TextField {
-                  id: expectancyField
-                  width: Style.space(60)
-                  anchors.verticalCenter: parent.verticalCenter
-                  placeholderText: "90"
-                  foreground: root.contentForeground
-                  font.family: root.contentFontFamily
-                  inputMethodHints: Qt.ImhDigitsOnly
-
-                  Keys.onPressed: function(event) { root.handleLifeKey(event, bornField) }
-                }
-              }
-
-              Text {
-                id: yearLabel
-                visible: !root.editingLife
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                text: root.today.getFullYear()
-                color: Qt.darker(root.contentForeground, 1.5)
+                // Fixed width so the chevrons hold still between a
+                // "MAY 2026" and a "SEPTEMBER 2026".
+                width: Style.space(130)
+                horizontalAlignment: Text.AlignHCenter
+                text: Qt.formatDate(root.viewDate, "MMMM yyyy").toUpperCase()
+                color: Qt.darker(root.contentForeground, 1.4)
                 font.family: root.contentFontFamily
-                font.pixelSize: Style.font.bodySmall
+                font.pixelSize: Style.font.body
                 font.letterSpacing: 1
               }
 
-              Text {
-                id: yearPercent
-                visible: !root.editingLife
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                text: root.yearDonePercent + "%"
-                color: root.contentForeground
-                font.family: root.contentFontFamily
-                font.pixelSize: Style.font.bodySmall
-              }
-
-              Rectangle {
-                id: yearTrack
-                visible: !root.editingLife
-                anchors.left: yearLabel.right
-                anchors.right: yearPercent.left
-                anchors.leftMargin: Style.space(12)
-                anchors.rightMargin: Style.space(12)
-                anchors.verticalCenter: parent.verticalCenter
-                height: Style.space(6)
-                radius: Style.cornerRadius > 0 ? height / 2 : 0
-                color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
-
-                Rectangle {
-                  width: Math.round(parent.width * root.yearDone)
-                  height: parent.height
-                  radius: parent.radius
-                  color: Style.selectedStateColor(root.contentForeground, Color.accent)
-
-                  Behavior on width { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-                }
-              }
-            }
-          }
-
-          // ---- Memento mori. Only here once someone has gone looking and
-          //      given an age; the same rail as the year above it, measured
-          //      against a nominal lifetime.
-          Item {
-            visible: root.birthYear > 0
-            width: parent.width
-            height: visible ? lifeBlock.height : 0
-
-            Item {
-              id: lifeBlock
-              anchors.horizontalCenter: parent.horizontalCenter
-              width: gridColumn.width
-              height: Math.max(lifeLabel.implicitHeight, Style.space(10))
-
-              Text {
-                id: lifeLabel
+              PanelActionButton {
+                // Pulled out by the button's own padding so the glyph, not
+                // its hit box, lines up with the grid's outer edge.
                 anchors.left: parent.left
+                anchors.leftMargin: -Style.space(8)
                 anchors.verticalCenter: parent.verticalCenter
-                text: "LIFE"
-                color: Qt.darker(root.contentForeground, 1.5)
-                font.family: root.contentFontFamily
-                font.pixelSize: Style.font.bodySmall
-                font.letterSpacing: 1
+                iconText: "󰅁"
+                tooltipText: "Previous month"
+                foreground: root.contentForeground
+                fontFamily: root.contentFontFamily
+                onClicked: root.moveMonth(-1)
               }
 
-              Text {
-                id: lifePercent
+              PanelActionButton {
                 anchors.right: parent.right
+                anchors.rightMargin: -Style.space(8)
                 anchors.verticalCenter: parent.verticalCenter
-                text: root.lifeDonePercent + "%"
-                color: root.contentForeground
-                font.family: root.contentFontFamily
-                font.pixelSize: Style.font.bodySmall
-              }
-
-              Rectangle {
-                anchors.left: lifeLabel.right
-                anchors.right: lifePercent.left
-                anchors.leftMargin: Style.space(12)
-                anchors.rightMargin: Style.space(12)
-                anchors.verticalCenter: parent.verticalCenter
-                height: Style.space(6)
-                radius: Style.cornerRadius > 0 ? height / 2 : 0
-                color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
-
-                Rectangle {
-                  width: Math.round(parent.width * root.lifeDone)
-                  height: parent.height
-                  radius: parent.radius
-                  color: Style.selectedStateColor(root.contentForeground, Color.accent)
-
-                  Behavior on width { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-                }
-              }
-
-              TapHandler {
-                onDoubleTapped: root.clearLife()
-              }
-
-              MouseArea {
-                id: lifeMouse
-                anchors.fill: parent
-                hoverEnabled: true
-                acceptedButtons: Qt.NoButton
-
-                PanelToolTip {
-                  visible: lifeMouse.containsMouse
-                  text: "Memento Mori"
-                  fontFamily: root.contentFontFamily
-                }
+                iconText: "󰅂"
+                tooltipText: "Next month"
+                foreground: root.contentForeground
+                fontFamily: root.contentFontFamily
+                onClicked: root.moveMonth(1)
               }
             }
           }
@@ -878,9 +633,8 @@ Panel {
 
             Column {
               id: gridColumn
-              // The meter above is a solid rule; the grid needs room to
-              // read as its own block rather than hanging off it.
-              y: Style.space(18)
+              // Small gap so the weekday headers don't kiss the chevrons.
+              y: Style.space(6)
               anchors.horizontalCenter: parent.horizontalCenter
               spacing: Style.space(3)
 
@@ -1014,63 +768,6 @@ Panel {
               height: gridColumn.height - headerRow.height - gridColumn.spacing
               color: root.contentForeground
               opacity: 0.1
-            }
-          }
-
-          // ---- Month stepping, spanning the grid it drives. The chevrons
-          //      sit on the grid's outer bounds, the same edges the year
-          //      rail above uses, so the row reads as the panel's other
-          //      full-width rail instead of a cluster floating in space.
-          //      The label is centered and fixed-width, so it holds still
-          //      from "MAY" to "SEPTEMBER".
-          Item {
-            width: parent.width
-            height: monthNav.height
-
-            Item {
-              id: monthNav
-              anchors.horizontalCenter: parent.horizontalCenter
-              width: gridColumn.width
-              height: monthLabel.implicitHeight + Style.space(10)
-
-              Text {
-                id: monthLabel
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-                // Fixed width so the chevrons hold still between a
-                // "MAY 2026" and a "SEPTEMBER 2026".
-                width: Style.space(130)
-                horizontalAlignment: Text.AlignHCenter
-                text: Qt.formatDate(root.viewDate, "MMMM yyyy").toUpperCase()
-                color: Qt.darker(root.contentForeground, 1.4)
-                font.family: root.contentFontFamily
-                font.pixelSize: Style.font.body
-                font.letterSpacing: 1
-              }
-
-              PanelActionButton {
-                // Pulled out by the button's own padding so the glyph, not
-                // its hit box, lines up with the "2026" on the year rail.
-                anchors.left: parent.left
-                anchors.leftMargin: -Style.space(8)
-                anchors.verticalCenter: parent.verticalCenter
-                iconText: "󰅁"
-                tooltipText: "Previous month"
-                foreground: root.contentForeground
-                fontFamily: root.contentFontFamily
-                onClicked: root.moveMonth(-1)
-              }
-
-              PanelActionButton {
-                anchors.right: parent.right
-                anchors.rightMargin: -Style.space(8)
-                anchors.verticalCenter: parent.verticalCenter
-                iconText: "󰅂"
-                tooltipText: "Next month"
-                foreground: root.contentForeground
-                fontFamily: root.contentFontFamily
-                onClicked: root.moveMonth(1)
-              }
             }
           }
         }
