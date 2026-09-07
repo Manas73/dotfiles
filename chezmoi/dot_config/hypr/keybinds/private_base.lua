@@ -21,7 +21,17 @@ hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("flameshot gui"))
 
 -- Quickshell
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("killall quickshell; ~/.config/quickshell/bin/launch"))
-hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("omarchy-shell notify toggle"))
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("omarchy-shell omapager.panel toggle"))
+
+-- omapager extras (comma set + copy-code / snooze-all). Super+N is the
+-- panel toggle above; these stay commented until they earn a key.
+-- hl.bind(mainMod .. " + comma", hl.dsp.exec_cmd("omarchy-shell notifications dismissOne"))
+-- hl.bind(mainMod .. " + SHIFT + comma", hl.dsp.exec_cmd("omarchy-shell notifications dismissAll"))
+-- hl.bind(mainMod .. " + CTRL + comma", hl.dsp.exec_cmd("omarchy-shell notifications toggleDnd"))
+-- hl.bind(mainMod .. " + ALT + comma", hl.dsp.exec_cmd("omarchy-shell notifications invokeLast"))
+-- hl.bind(mainMod .. " + SHIFT + ALT + comma", hl.dsp.exec_cmd("omarchy-shell notifications showHistory"))
+-- hl.bind(mainMod .. " + ALT + C", hl.dsp.exec_cmd("omarchy-shell omapager offer code"))
+-- hl.bind(mainMod .. " + CTRL + ALT + comma", hl.dsp.exec_cmd("omarchy-shell omapager snoozeAll 60"))
 
 -- Laptop multimedia keys for volume (OSD lives in the shell)
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("omarchy-audio-output-volume raise"), { repeating = true, locked = true })

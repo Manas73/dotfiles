@@ -1,7 +1,7 @@
 # Hyprland Configuration
 
-Lua config loaded by `hyprland.lua`. Quickshell is the bar, notifications,
-and OSD.
+Lua config loaded by `hyprland.lua`. Quickshell is the bar, omapager
+notifications, and OSD.
 
 ## Directory Structure
 

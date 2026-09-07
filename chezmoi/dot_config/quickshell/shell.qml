@@ -5,14 +5,13 @@ import qs.components
 
 import "bar"
 import "osd"
-import "notifications"
+import "omapager" as Omapager
 import "widgets/workspaces"
 import "widgets/submap"
 import "widgets/clock"
 import "widgets/keyboard"
 import "widgets/weather"
 import "widgets/tray"
-import "widgets/notify"
 import "widgets/audio"
 import "widgets/usage"
 import "widgets/tailscale"
@@ -34,8 +33,16 @@ ShellRoot {
   function firstPartyServiceFor(id) {
     var key = String(id || "")
     if (key === "media" || key === "omarchy.media") return media
-    if (key === "notifications" || key === "omarchy.notifications") return notifications
+    if (key === "notifications" || key === "omarchy.notifications"
+        || key === "njpatel.omapager" || key === "omapager")
+      return omapager
     return null
+  }
+
+  // omapager's bar widget looks the daemon up this way; keep it as an alias
+  // of firstPartyServiceFor so both names resolve to the same Item.
+  function serviceFor(id) {
+    return firstPartyServiceFor(id)
   }
 
   function summon(id, payloadJson) {
@@ -71,8 +78,8 @@ ShellRoot {
 
   Mpris { id: media; shell: shell }
 
-  Notifications {
-    id: notifications
+  Omapager.Service {
+    id: omapager
     shell: shell
     screenName: "DP-1"
   }
@@ -114,7 +121,9 @@ ShellRoot {
     rightSection: Row {
       spacing: 0
       Tray {}
-      Notify {}
+      Omapager.Widget {
+        settings: ({ alwaysShow: true })
+      }
       Audio {}
       Microphone {}
       // Usage {}

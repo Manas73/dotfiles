@@ -16,6 +16,15 @@ hl.layer_rule({
   ignore_alpha = 0.2,
 })
 
+-- omapager toasts (namespace `omapager`). Overlay layer, separate from the
+-- bar so a notification arriving does not share the bar's exclusive zone.
+hl.layer_rule({
+  name         = "omapager-blur",
+  match        = { namespace = "omapager" },
+  blur         = true,
+  ignore_alpha = 0.2,
+})
+
 -- Rofi blur
 hl.layer_rule({
   name      = "rofi-blur",

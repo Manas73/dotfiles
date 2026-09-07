@@ -9,7 +9,7 @@ theme/             matugen colors
 components/        shared style + panel chrome
 bar/               per-monitor bar window
 widgets/           one folder per widget
-notifications/
+omapager/          notification daemon + bar panel (vendored)
 osd/
 bin/               helpers on PATH via bin/launch
 ```
@@ -20,4 +20,4 @@ Add or remove widgets by editing `shell.qml`. Theme colors come from matugen (`t
 ~/.config/quickshell/bin/launch
 ```
 
-Hyprland: `Super+Shift+R` restarts the shell, `Super+N` shows notification history, volume keys drive the OSD.
+Hyprland: `Super+Shift+R` restarts the shell, `Super+N` toggles the notification panel, volume keys drive the OSD. See `omapager/README.md` for the rest of the keys.

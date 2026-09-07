@@ -12,7 +12,7 @@ if ! command -v quickshell >/dev/null 2>&1 && ! command -v qs >/dev/null 2>&1; t
 fi
 
 # Chezmoi apply can drop +x; restore it so Process{} can exec helpers.
-chmod +x "$config/bin/"* 2>/dev/null || true
+chmod +x "$config/bin/"* "$config/omapager/bin/"* 2>/dev/null || true
 find "$config/plugins" "$config/services" -type f \( -name '*.sh' -o -name 'status.py' \) -exec chmod +x {} + 2>/dev/null || true
 
 # This shell owns notifications and OSD. Drop competing daemons from the
