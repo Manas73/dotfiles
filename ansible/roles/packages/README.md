@@ -43,13 +43,11 @@ Providers    tasks/{pacman,aur,brew,mise,uv}.yml  # brew = formulae + casks
 
 ## Live output
 
-mise runs under async+poll with stdout on a PTY into
-`~/.cache/dotfiles/ansible-packages.log`. The `live_log` callback prints a
-rolling window of the last `packages_install_log_lines` (default 20) new
-lines every `packages_install_poll` seconds, or `| … still running` if the
-log is quiet. Override the window with `ANSIBLE_PACKAGES_LIVE_LOG_LINES` /
-`[callback_live_log] max_lines` in `ansible.cfg`. AUR installs go through
-`kewlfft.aur.aur` and do not stream.
+mise runs with stdout on a PTY into `~/.cache/dotfiles/ansible-packages.log`.
+The `live_log` callback tails that file and prints each new line as it
+arrives, or `| … still running` after 10s of silence. Override the path
+with `ANSIBLE_PACKAGES_LIVE_LOG`. AUR installs go through `kewlfft.aur.aur`
+and do not stream.
 
 ## Outputs (set_fact)
 

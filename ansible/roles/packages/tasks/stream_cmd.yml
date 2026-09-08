@@ -3,7 +3,8 @@
 #
 # Child stdout/stderr go to packages_live_log via a PTY (files/pty_run.py)
 # so line-buffered tools actually emit while they run. The live_log
-# callback tails that file on each async poll (last N lines of each burst).
+# callback tails that file in a background thread and prints each new
+# line as it arrives.
 #
 # Required vars:
 #   stream_title — task name / banner
@@ -18,8 +19,7 @@
   ansible.builtin.debug:
     msg: >-
       {{ stream_title }}.
-      Live log: {{ packages_live_log }}
-      (last {{ packages_install_log_lines }} lines every {{ packages_install_poll }}s).
+      Live log: {{ packages_live_log }} (streaming).
 
 - name: Ensure the live log directory exists
   ansible.builtin.file:
@@ -47,8 +47,6 @@
       - "{{ packages_install_log_lines }}"
     chdir: "{{ stream_chdir | default(omit) }}"
   become: "{{ stream_become | default(false) | bool }}"
-  async: "{{ packages_install_async_timeout }}"
-  poll: "{{ packages_install_poll }}"
   register: stream_result
   environment: "{{ stream_environment | default(omit) }}"
   changed_when: "'STREAM_CHANGED' in (stream_result.stdout | default(''))"
