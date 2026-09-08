@@ -18,8 +18,7 @@ LANG = "C.UTF-8"
 uv = "latest"
 chezmoi = "latest"
 # pipx backend; uv (above) makes the install a `uv tool install`.
-# ansible-core only — collections (community.general, kewlfft.aur) are
-# vendored in ansible/collections/.
+# ansible-core only — community.general is vendored in ansible/collections/.
 "pipx:ansible-core" = { version = "2.21", depends = ["uv"] }
 
 [tasks.default]
@@ -90,3 +89,13 @@ run = 'ansible-playbook playbooks/dotfiles.yml --limit "$(hostname)"'
 description = "Install packages only (sudo)"
 dir = "{{config_root}}/ansible"
 run = 'ansible-playbook playbooks/site.yml --limit "$(hostname)" --tags packages --ask-become-pass'
+
+[tasks.aur-conflicts]
+description = "Report AUR catalog packages that conflict with installed packages"
+dir = "{{config_root}}/ansible"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+py=$(sed -n '1s/^#!//p' "$(command -v ansible)")
+exec "$py" scripts/aur_conflicts.py "$@"
+'''

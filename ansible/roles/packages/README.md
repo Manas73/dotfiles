@@ -20,11 +20,10 @@ Providers    tasks/{pacman,aur,brew,mise,uv}.yml  # brew = formulae + casks
 3. Resolve through the catalog into per-provider buckets.
 4. Include the matching provider task file for each non-empty bucket
    (fixed order: pacman → aur → brew → mise → uv). Homebrew formulae and
-   casks use community.general.homebrew / homebrew_cask. AUR uses
-   kewlfft.aur.aur (yay, with yay-bin bootstrapped via makepkg if needed).
-   mise installs pinned CLI tools into the user mise prefix
-   (`mise use --global --pin`). uv installs Python CLIs via
-   `uv tool install --quiet`.
+   casks use community.general.homebrew / homebrew_cask. AUR installs via
+   `yay` (bootstraps `yay-bin` from the AUR if missing). mise installs
+   pinned CLI tools into the user mise prefix (`mise use --global --pin`).
+   uv installs Python CLIs via `uv tool install --quiet`.
 
 ## Does not
 
@@ -43,11 +42,10 @@ Providers    tasks/{pacman,aur,brew,mise,uv}.yml  # brew = formulae + casks
 
 ## Live output
 
-mise runs with stdout on a PTY into `~/.cache/dotfiles/ansible-packages.log`.
-The `live_log` callback tails that file and prints each new line as it
-arrives, or `| … still running` after 10s of silence. Override the path
-with `ANSIBLE_PACKAGES_LIVE_LOG`. AUR installs go through `kewlfft.aur.aur`
-and do not stream.
+yay and mise run with stdout on a PTY into
+`~/.cache/dotfiles/ansible-packages.log`. The `live_log` callback tails
+that file and prints each new line as it arrives, or `| … still running`
+after 10s of silence. Override the path with `ANSIBLE_PACKAGES_LIVE_LOG`.
 
 ## Outputs (set_fact)
 
