@@ -32,8 +32,9 @@ sudo: a terminal is required to read the password
 ```
 
 A `NOPASSWD` rule scoped to `pacman` is the conventional fix. The packages
-role's AUR (`yay`) task is not marked `become: true` because `yay` and
-`makepkg` refuse to run as root; the grant here is what makes that design work.
+role's AUR task (`kewlfft.aur.aur`) is not marked `become: true` because
+`yay` and `makepkg` refuse to run as root; the grant here is what makes
+that design work.
 
 ## Example
 

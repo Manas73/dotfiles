@@ -18,7 +18,8 @@ LANG = "C.UTF-8"
 uv = "latest"
 chezmoi = "latest"
 # pipx backend; uv (above) makes the install a `uv tool install`.
-# ansible-core only — community.general is vendored in ansible/collections/.
+# ansible-core only — collections (community.general, kewlfft.aur) are
+# vendored in ansible/collections/.
 "pipx:ansible-core" = { version = "2.21", depends = ["uv"] }
 
 [tasks.default]

@@ -1,15 +1,13 @@
 ---
-# Install AUR packages via yay on Arch/Garuda hosts.
+# Install AUR packages via kewlfft.aur.aur on Arch/Garuda hosts.
 #
 # Input: provider_packages (list[str]) — concrete AUR package names.
-# Bootstraps yay-bin from the AUR if missing. yay must run as the primary
-# user (not root); makepkg refuses to run as root.
-# Flags come from packages_aur_yay_install_args (defaults/main.yml):
-# --noconfirm is not enough for package conflicts; --useask auto-accepts
-# them so Ansible can run with no TTY.
-# The install task uses stream_cmd.yml (PTY + live_log callback) so
-# yay's output is tailed while it runs.
-# Check mode: AUR tasks are skipped because yay/makepkg cannot dry-run.
+# If yay is missing, installs yay-bin with use=makepkg, then installs the
+# rest with use=yay. extra_args add --useask so package conflicts do not
+# fail unattended (the module already passes --noconfirm --needed).
+# Check mode is supported by the module (pacman -T).
+# No become: yay/makepkg refuse root; sudoers grants NOPASSWD pacman so
+# the helper can install repo deps.
 
 - name: Assert provider_packages is defined and a list
   ansible.builtin.assert:
@@ -37,26 +35,6 @@
   check_mode: false
   tags: [packages, aur, arch]
 
-- name: Warn and skip AUR tasks in check mode
-  ansible.builtin.debug:
-    msg: >-
-      Check mode: skipping AUR tasks. yay and makepkg cannot preview
-      installs safely. Re-run without --check to install AUR packages.
-  when:
-    - ansible_check_mode
-    - provider_packages | length > 0
-  tags: [packages, aur, arch]
-
-- name: Refresh pacman databases before AUR ops (pacman -Sy)
-  community.general.pacman:
-    update_cache: true
-  become: true
-  when:
-    - not ansible_check_mode
-    - packages_aur_refresh_databases | bool
-    - provider_packages | length > 0
-  tags: [packages, aur, arch]
-
 - name: Detect yay
   ansible.builtin.shell: command -v yay
   register: packages_aur_yay_binary
@@ -65,61 +43,34 @@
   check_mode: false
   tags: [packages, aur, arch]
 
-- name: Bootstrap yay from the AUR (first-time install)
+- name: Ensure git and base-devel are present to bootstrap yay
+  community.general.pacman:
+    name:
+      - git
+      - base-devel
+    state: present
+  become: true
   when:
-    - not ansible_check_mode
     - packages_aur_yay_binary.rc != 0
     - provider_packages | length > 0
-  block:
-    - name: Ensure git and base-devel are present for the bootstrap clone
-      community.general.pacman:
-        name:
-          - git
-          - base-devel
-        state: present
-      become: true
-
-    - name: Remove any previous yay bootstrap directory
-      ansible.builtin.file:
-        path: "{{ packages_aur_bootstrap_dir }}"
-        state: absent
-
-    - name: Clone yay-bin from the AUR
-      ansible.builtin.git:
-        repo: https://aur.archlinux.org/yay-bin.git
-        dest: "{{ packages_aur_bootstrap_dir }}"
-        depth: 1
-        version: master
-
-    - name: Build and install yay via makepkg
-      ansible.builtin.command:
-        cmd: makepkg -si --noconfirm
-        chdir: "{{ packages_aur_bootstrap_dir }}"
-      register: packages_aur_yay_makepkg
-      changed_when: >-
-        'Packages (' in packages_aur_yay_makepkg.stdout
-        or 'installing' in (packages_aur_yay_makepkg.stdout | lower)
-
-    - name: Clean up yay bootstrap directory
-      ansible.builtin.file:
-        path: "{{ packages_aur_bootstrap_dir }}"
-        state: absent
   tags: [packages, aur, arch]
 
-- name: Install AUR packages via yay
-  ansible.builtin.include_tasks:
-    file: stream_cmd.yml
-    apply:
-      tags: [packages, aur, arch]
-  vars:
-    stream_title: >-
-      Install AUR packages via yay
-      ({{ (provider_packages | unique | sort) | length }})
-    stream_shell: >-
-      yay -S
-      {{ (packages_aur_yay_install_args + (provider_packages | unique | sort)) | map('quote') | join(' ') }}
-    stream_changed_regex: "installing|building|downloading"
+- name: Bootstrap yay-bin via makepkg
+  kewlfft.aur.aur:
+    name: yay-bin
+    use: makepkg
+    state: present
   when:
-    - not ansible_check_mode
+    - packages_aur_yay_binary.rc != 0
     - provider_packages | length > 0
+  tags: [packages, aur, arch]
+
+- name: Install AUR packages
+  kewlfft.aur.aur:
+    name: "{{ provider_packages | unique | sort }}"
+    use: yay
+    state: present
+    update_cache: "{{ packages_aur_refresh_databases | bool }}"
+    extra_args: "{{ packages_aur_yay_extra_args }}"
+  when: provider_packages | length > 0
   tags: [packages, aur, arch]

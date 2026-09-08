@@ -9,7 +9,7 @@ See `docs/ansible/02-onboarding.md` for adding a new machine and
 
 Ansible owns:
 
-- OS/package installation (pacman, AUR via yay, Homebrew formulae, Homebrew casks) and user-level CLI tools via mise and uv.
+- OS/package installation (pacman, AUR via kewlfft.aur/yay, Homebrew formulae, Homebrew casks) and user-level CLI tools via mise and uv.
 - User groups, udev rules, and systemd user services.
 - Fish login shell switching.
 - Docker, Kanata, and Plasma custom-WM setup.
@@ -230,7 +230,7 @@ Each file under `roles/packages/tasks/` installs for one package manager:
 | File | OS | Bootstrap behavior |
 |------|-----|--------------------|
 | `pacman.yml` | Archlinux | Verifies pacman; optional `-Sy` / `-Syu`. |
-| `aur.yml` | Archlinux | Clones `yay-bin` and builds it when yay is missing. |
+| `aur.yml` | Archlinux | `kewlfft.aur.aur`; builds `yay-bin` via makepkg when yay is missing. |
 | `brew.yml` | Darwin | Official installer; `community.general.homebrew` / `homebrew_tap` / `homebrew_cask`. |
 | `mise.yml` | all | Requires `mise` on PATH (OS package or curl bootstrap). `mise use --global --pin`. |
 | `uv.yml` | all | Requires `uv` on PATH (mise tool). `uv tool install --quiet` per spec. |

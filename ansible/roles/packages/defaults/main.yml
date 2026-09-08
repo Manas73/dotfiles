@@ -6,7 +6,7 @@
 # mise run check.
 packages_validate_only: false
 
-# Long yay/mise installs write here. The live_log callback tails this
+# Long mise installs write here. The live_log callback tails this
 # file on each async poll (last packages_install_log_lines of each burst).
 # Override the path with ANSIBLE_PACKAGES_LIVE_LOG; the window size with
 # ANSIBLE_PACKAGES_LIVE_LOG_LINES (must match packages_install_log_lines).
@@ -24,24 +24,15 @@ packages_pacman_refresh_databases: true
 # when a full upgrade is intentional.
 packages_pacman_perform_upgrade: false
 
-# --- AUR / yay ---
-packages_aur_bootstrap_dir: "/tmp/yay-bin-bootstrap"
+# --- AUR (kewlfft.aur.aur) ---
+# Refresh the package cache (`yay -Sy`) before install.
 packages_aur_refresh_databases: true
 
-# Flags after `yay -S`, before package names.
-# --noconfirm does not accept package conflicts (pacman answers No and
-# the transaction fails). --useask maps that question to Yes via
-# pacman's --ask. --answerdiff/--answerclean None skip yay review menus,
-# which also ignore --noconfirm.
-packages_aur_yay_install_args:
-  - --needed
-  - --noconfirm
-  - --removemake
-  - --useask
-  - --answerdiff
-  - "None"
-  - --answerclean
-  - "None"
+# Extra yay flags. The module already passes --noconfirm --needed
+# --cleanafter. --noconfirm alone answers No to package conflicts;
+# --useask maps that to Yes. --answerdiff/--answerclean None skip
+# yay review menus. extra_args requires use=yay (not auto).
+packages_aur_yay_extra_args: "--useask --removemake --answerdiff None --answerclean None"
 
 # --- Homebrew ---
 # Preferred brew binary. Empty = probe /opt/homebrew then /usr/local.
