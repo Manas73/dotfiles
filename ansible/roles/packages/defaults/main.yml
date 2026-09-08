@@ -19,6 +19,21 @@ packages_pacman_perform_upgrade: false
 packages_aur_bootstrap_dir: "/tmp/yay-bin-bootstrap"
 packages_aur_refresh_databases: true
 
+# Flags after `yay -S`, before package names.
+# --noconfirm does not accept package conflicts (pacman answers No and
+# the transaction fails). --useask maps that question to Yes via
+# pacman's --ask. --answerdiff/--answerclean None skip yay review menus,
+# which also ignore --noconfirm.
+packages_aur_yay_install_args:
+  - --needed
+  - --noconfirm
+  - --removemake
+  - --useask
+  - --answerdiff
+  - "None"
+  - --answerclean
+  - "None"
+
 # --- Homebrew ---
 # Preferred brew binary. Empty = probe /opt/homebrew then /usr/local.
 # Missing brew is installed with the official NONINTERACTIVE script.

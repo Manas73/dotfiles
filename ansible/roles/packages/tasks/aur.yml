@@ -4,6 +4,9 @@
 # Input: provider_packages (list[str]) — concrete AUR package names.
 # Bootstraps yay-bin from the AUR if missing. yay must run as the primary
 # user (not root); makepkg refuses to run as root.
+# Flags come from packages_aur_yay_install_args (defaults/main.yml):
+# --noconfirm is not enough for package conflicts; --useask auto-accepts
+# them so Ansible can run with no TTY.
 # Check mode: AUR tasks are skipped because yay/makepkg cannot dry-run.
 
 - name: Assert provider_packages is defined and a list
@@ -103,7 +106,7 @@
 
 - name: Install AUR packages via yay
   ansible.builtin.command:
-    argv: "{{ ['yay', '-S', '--needed', '--noconfirm', '--removemake'] + (provider_packages | unique | sort) }}"
+    argv: "{{ ['yay', '-S'] + packages_aur_yay_install_args + (provider_packages | unique | sort) }}"
   register: packages_aur_install
   when:
     - not ansible_check_mode
