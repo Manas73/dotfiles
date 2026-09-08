@@ -7,6 +7,8 @@
 # Flags come from packages_aur_yay_install_args (defaults/main.yml):
 # --noconfirm is not enough for package conflicts; --useask auto-accepts
 # them so Ansible can run with no TTY.
+# The install task uses stream_cmd.yml (PTY + live_log callback) so
+# yay's output is tailed while it runs.
 # Check mode: AUR tasks are skipped because yay/makepkg cannot dry-run.
 
 - name: Assert provider_packages is defined and a list
@@ -105,14 +107,19 @@
   tags: [packages, aur, arch]
 
 - name: Install AUR packages via yay
-  ansible.builtin.command:
-    argv: "{{ ['yay', '-S'] + packages_aur_yay_install_args + (provider_packages | unique | sort) }}"
-  register: packages_aur_install
+  ansible.builtin.include_tasks:
+    file: stream_cmd.yml
+    apply:
+      tags: [packages, aur, arch]
+  vars:
+    stream_title: >-
+      Install AUR packages via yay
+      ({{ (provider_packages | unique | sort) | length }})
+    stream_shell: >-
+      yay -S
+      {{ (packages_aur_yay_install_args + (provider_packages | unique | sort)) | map('quote') | join(' ') }}
+    stream_changed_regex: "installing|building|downloading"
   when:
     - not ansible_check_mode
     - provider_packages | length > 0
-  changed_when: >-
-    'installing' in (packages_aur_install.stdout | default('') | lower)
-    or 'building' in (packages_aur_install.stdout | default('') | lower)
-    or 'downloading' in (packages_aur_install.stdout | default('') | lower)
   tags: [packages, aur, arch]

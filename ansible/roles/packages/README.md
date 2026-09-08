@@ -39,6 +39,15 @@ Providers    tasks/{pacman,aur,brew,mise,uv}.yml  # brew = formulae + casks
 - `os_family_map` — from `group_vars/all/os_providers.yml`
 - Provider defaults in `defaults/main.yml`
 
+## Live output
+
+yay and mise run under async+poll with stdout on a PTY into
+`~/.cache/dotfiles/ansible-packages.log`. The `live_log` callback prints a
+rolling window of the last `packages_install_log_lines` (default 20) new
+lines every `packages_install_poll` seconds, or `| … still running` if the
+log is quiet. Override the window with `ANSIBLE_PACKAGES_LIVE_LOG_LINES` /
+`[callback_live_log] max_lines` in `ansible.cfg`.
+
 ## Outputs (set_fact)
 
 - `packages_target_os`, `packages_default_provider`

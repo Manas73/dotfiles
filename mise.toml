@@ -46,7 +46,7 @@ echo "chezmoi boundary ok"
 [tasks.test-catalog]
 description = "Unit-test the package catalog resolver"
 dir = "{{config_root}}/ansible"
-run = "python -m unittest tests.test_catalog"
+run = "python -m unittest tests.test_catalog tests.test_pty_run"
 
 [tasks.check]
 description = "Full pre-commit validation (syntax, inventory, dry-run, diff)"

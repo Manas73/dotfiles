@@ -47,22 +47,33 @@
   tags: [packages, mise]
 
 - name: Pin and install mise tools globally
-  ansible.builtin.command:
-    argv: "{{ packages_mise_use_argv }}"
+  ansible.builtin.include_tasks:
+    file: stream_cmd.yml
+    apply:
+      tags: [packages, mise]
   vars:
-    packages_mise_use_argv: "{{ [packages_mise_binary.stdout, 'use', '--global', '--pin', '--yes'] + (['--dry-run'] if ansible_check_mode else []) + provider_packages }}"
+    stream_title: >-
+      Pin and install mise tools globally
+      ({{ provider_packages | length }})
+    stream_shell: >-
+      {{ ([packages_mise_binary.stdout, 'use', '--global', '--pin', '--yes'] + provider_packages) | map('quote') | join(' ') }}
+    stream_environment:
+      MISE_YES: "1"
+    stream_chdir: "{{ ansible_facts['user_dir'] }}"
+    stream_changed_regex: "install"
+  when: not ansible_check_mode
+  tags: [packages, mise]
+
+- name: Preview mise pins (check mode)
+  ansible.builtin.command:
+    argv: "{{ [packages_mise_binary.stdout, 'use', '--global', '--pin', '--yes', '--dry-run'] + provider_packages }}"
   environment:
     MISE_YES: "1"
   args:
     chdir: "{{ ansible_facts['user_dir'] }}"
-  register: packages_mise_use
-  changed_when: >-
-    not ansible_check_mode
-    and (
-      (packages_mise_use.stdout | default('') | lower) is search('install')
-      or (packages_mise_use.stderr | default('') | lower) is search('install')
-    )
+  changed_when: false
   check_mode: false
+  when: ansible_check_mode
   tags: [packages, mise]
 
 - name: Refresh the global mise lockfile
@@ -75,9 +86,7 @@
     MISE_YES: "1"
   args:
     chdir: "{{ ansible_facts['user_dir'] }}"
-  when:
-    - not ansible_check_mode
-    - packages_mise_use is succeeded
+  when: not ansible_check_mode
   changed_when: false
   failed_when: false
   tags: [packages, mise]
