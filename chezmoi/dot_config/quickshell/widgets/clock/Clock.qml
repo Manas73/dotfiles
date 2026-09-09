@@ -9,11 +9,13 @@ Item {
   property var bar: null
   property string format: "hh:mm AP"
   property string formatAlt: "yyyy-MM-dd hh:mm:ss AP"
+  property string tooltipFormat: "hh:mm:ss AP | yyyy-MM-dd"
   property bool showingAlt: false
 
   readonly property string activeFormat: showingAlt ? formatAlt : format
-  readonly property bool showsSeconds: Model.clockNeedsSeconds(activeFormat)
+  readonly property bool showsSeconds: Model.clockNeedsSeconds(activeFormat) || Model.clockNeedsSeconds(tooltipFormat)
   readonly property string displayText: Qt.formatDateTime(clock.date, activeFormat)
+  readonly property string tooltipText: Qt.formatDateTime(clock.date, tooltipFormat)
   readonly property color foreground: bar ? bar.barForeground : Color.bar.text
 
   implicitWidth: label.implicitWidth + Style.space(16)
@@ -47,6 +49,20 @@ Item {
     else root.open()
   }
 
+  function showTooltip() {
+    if (root.bar) root.bar.showTooltip(root, root.tooltipText)
+  }
+
+  function hideTooltip() {
+    if (root.bar) root.bar.hideTooltip(root)
+  }
+
+  // Keep the tooltip in step with the clock while the pointer stays on it;
+  // WidgetButton only writes the text on enter, so seconds would freeze.
+  onTooltipTextChanged: if (mouse.containsMouse) root.showTooltip()
+  onVisibleChanged: if (!visible) root.hideTooltip()
+  Component.onDestruction: root.hideTooltip()
+
   Loader {
     id: calendarLoader
     active: true
@@ -71,12 +87,16 @@ Item {
   }
 
   MouseArea {
+    id: mouse
     anchors.fill: parent
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
-    onClicked: function(mouse) {
-      if (mouse.button === Qt.RightButton) root.showingAlt = !root.showingAlt
+    onEntered: root.showTooltip()
+    onExited: root.hideTooltip()
+    onClicked: function(event) {
+      root.hideTooltip()
+      if (event.button === Qt.RightButton) root.showingAlt = !root.showingAlt
       else root.toggle()
     }
   }
