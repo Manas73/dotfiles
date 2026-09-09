@@ -7,3 +7,4 @@
     gpu = "{{ gpu }}"
     window_manager = {{ (profiles | default([])) | intersect(['i3', 'hyprland', 'qtile']) | to_json }}
     plasma_window_manager = "{{ plasma_window_manager | default('') }}"
+    wallpaper = "{{ wallpaper_path | default('') }}"

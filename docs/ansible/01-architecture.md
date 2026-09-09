@@ -87,5 +87,6 @@ family (except mise and uv), and installs idempotently.
 
 The site playbook loads the host's recipe, runs packages, then the `chezmoi`
 role renders `~/.config/chezmoi/chezmoi.toml` from inventory + recipe vars
-and runs `chezmoi apply`, then system wiring and specialty roles. Packages
-and dotfiles never duplicate each other.
+and runs `chezmoi apply`, then the `wallpaper` role applies the recipe
+image (matugen on Linux, osascript on Darwin), then system wiring and
+specialty roles. Packages and dotfiles never duplicate each other.

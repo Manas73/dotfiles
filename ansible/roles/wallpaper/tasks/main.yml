@@ -1,0 +1,38 @@
+---
+# Wallpaper role.
+#
+# After chezmoi apply, set the recipe wallpaper:
+#   Linux  — matugen image <path> --source-color-index N
+#            (generates theme files; matugen config may also call awww)
+#   Darwin — osascript System Events desktop picture (built-in, no extra pkg)
+#
+# Image files stay with Chezmoi (~/.config/.settings/). This role only applies
+# them. Hyprland autostart may restore the last awww wallpaper at login; it
+# does not choose or generate the wallpaper.
+
+- name: Skip when no wallpaper is configured
+  ansible.builtin.meta: end_host
+  when: wallpaper_path | default('') | length == 0
+
+- name: Stat the wallpaper image
+  ansible.builtin.stat:
+    path: "{{ wallpaper_path }}"
+    checksum_algorithm: sha256
+  register: wallpaper_stat
+  check_mode: false
+
+- name: Fail if the wallpaper image is missing
+  ansible.builtin.fail:
+    msg: >-
+      Wallpaper image not found at {{ wallpaper_path }}. Chezmoi should have
+      deployed it under ~/.config/.settings/ (chezmoi/dot_config/dot_settings/).
+      Set wallpaper: on the recipe to a deployed filename or an absolute path.
+  when: not wallpaper_stat.stat.exists | default(false)
+
+- name: Apply wallpaper on Linux
+  ansible.builtin.include_tasks: linux.yml
+  when: ansible_facts['system'] | default('') | lower == 'linux'
+
+- name: Apply wallpaper on Darwin
+  ansible.builtin.include_tasks: darwin.yml
+  when: ansible_facts['os_family'] | default('') == 'Darwin'

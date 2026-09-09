@@ -1,5 +1,6 @@
 ---
-# Chezmoi config rendering and dotfile apply only.
+# Chezmoi config rendering, dotfile apply, and recipe wallpaper.
+# Invoked by `mise run dotfiles`.
 
 - name: Render Chezmoi config and apply dotfiles
   hosts: all
@@ -9,5 +10,20 @@
     - name: Load machine recipe
       ansible.builtin.import_tasks: tasks/load_recipe.yml
       tags: [always]
+    - name: Normalize wallpaper path
+      ansible.builtin.import_tasks: tasks/normalize_wallpaper.yml
   roles:
     - role: chezmoi
+
+- name: Apply recipe wallpaper
+  hosts: all
+  gather_facts: true
+  tags: [dotfiles, wallpaper]
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
+    - name: Normalize wallpaper path
+      ansible.builtin.import_tasks: tasks/normalize_wallpaper.yml
+  roles:
+    - role: wallpaper

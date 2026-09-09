@@ -55,7 +55,7 @@ From the repo root (`~/.local/share/chezmoi`):
 | `mise run diff` | pending dotfile changes |
 | `mise run apply` | full provision (sudo) |
 | `mise run packages` | packages only (sudo) |
-| `mise run dotfiles` | re-apply dotfiles only |
+| `mise run dotfiles` | re-apply dotfiles + wallpaper |
 | `mise run deps` | refresh Ansible collections |
 
 Host-acting tasks (`apply`, `dotfiles`, `packages`) use

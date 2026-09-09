@@ -62,7 +62,8 @@ differ in profiles/flags/email.
 
 `primary_user` defaults to the user running ansible
 (`group_vars/all/main.yml`). `osid` comes from `group_vars/arch/main.yml`.
-Recipe supplies `email`, `profile`, `profiles:`, feature flags, plasma WM.
+Recipe supplies `email`, `profile`, `profiles:`, feature flags, plasma WM,
+wallpaper.
 
 ### New recipe
 

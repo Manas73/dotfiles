@@ -15,6 +15,9 @@
       ansible.builtin.import_tasks: tasks/load_recipe.yml
       tags: [always]
 
+    - name: Normalize wallpaper path
+      ansible.builtin.import_tasks: tasks/normalize_wallpaper.yml
+
     - name: Assert required identity and recipe vars
       ansible.builtin.assert:
         that:
@@ -30,10 +33,13 @@
           - package_catalog is defined
           - service_catalog is defined
           - os_family_map is defined
+          - wallpaper is string or wallpaper is mapping
+          - wallpaper_path is defined
         fail_msg: >-
           Missing required vars after recipe load. Need recipe + host gpu,
           OS group_vars (osid, os_apps), recipe fields (email, profile,
           profiles), and group_vars/all (catalogs, profiles_catalog, os_providers).
+          wallpaper must be a filename, path, or {image, source_color_index}.
         quiet: true
 
   roles:

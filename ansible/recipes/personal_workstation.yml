@@ -28,6 +28,12 @@ profiles:
   - kde
   - virtualization
 
+# Desktop wallpaper. Image is Chezmoi-managed under ~/.config/.settings/;
+# the wallpaper role applies it after chezmoi (matugen on Linux).
+wallpaper:
+  image: iceland_shore.jpg
+  source_color_index: 0
+
 # Feature flags (override group_vars/all defaults).
 docker_enabled: true
 kanata_enabled: true

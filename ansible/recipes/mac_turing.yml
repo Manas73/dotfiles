@@ -21,5 +21,10 @@ profiles:
   - development
   - omniwm
 
+# Desktop wallpaper. Image is Chezmoi-managed under ~/.config/.settings/;
+# the wallpaper role applies it after chezmoi (osascript on Darwin).
+wallpaper:
+  image: purple_gradient.jpeg
+
 # Optional per-recipe defaults (appended to group_vars/darwin/macos_defaults.yml).
 # macos_defaults_extra: []

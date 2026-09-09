@@ -81,7 +81,7 @@ dir = "{{config_root}}/ansible"
 run = 'ansible-playbook playbooks/site.yml --limit "$(hostname)" --ask-become-pass'
 
 [tasks.dotfiles]
-description = "Re-apply dotfiles only (render chezmoi.toml + chezmoi apply)"
+description = "Re-apply dotfiles only (chezmoi.toml + chezmoi apply + wallpaper)"
 dir = "{{config_root}}/ansible"
 run = 'ansible-playbook playbooks/dotfiles.yml --limit "$(hostname)"'
 

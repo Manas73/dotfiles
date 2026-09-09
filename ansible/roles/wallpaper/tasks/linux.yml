@@ -1,0 +1,85 @@
+---
+# Linux: matugen generates theme files from the wallpaper and, when its
+# config has [config.wallpaper], also sets the compositor wallpaper (awww).
+# --source-color-index avoids the interactive color picker.
+# --continue-on-error keeps theme generation if awww is not running.
+
+- name: Locate matugen binary
+  ansible.builtin.shell: command -v matugen
+  register: wallpaper_matugen_which
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Fail fast if matugen is not installed
+  ansible.builtin.fail:
+    msg: >-
+      matugen is not installed. On Arch it comes from the hyprland profile
+      (catalog name `matugen`). Run `mise run packages` before applying
+      wallpaper, or unset wallpaper: on this recipe.
+  when: wallpaper_matugen_which.rc != 0
+
+- name: Stat matugen config for idempotency
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['user_dir'] }}/.config/matugen/config.toml"
+    checksum_algorithm: sha256
+  register: wallpaper_matugen_config
+  check_mode: false
+
+- name: Build wallpaper apply token
+  ansible.builtin.set_fact:
+    wallpaper_apply_token: >-
+      {{
+        wallpaper_path ~ '|'
+        ~ wallpaper_stat.stat.checksum ~ '|'
+        ~ (wallpaper_source_color_index | int) ~ '|'
+        ~ (wallpaper_matugen_config.stat.checksum | default(''))
+      }}
+
+- name: Stat previous wallpaper state
+  ansible.builtin.stat:
+    path: "{{ wallpaper_state_path }}"
+  register: wallpaper_state_stat
+  check_mode: false
+
+- name: Load previous wallpaper state
+  ansible.builtin.slurp:
+    src: "{{ wallpaper_state_path }}"
+  register: wallpaper_state_prev
+  when: wallpaper_state_stat.stat.exists
+  check_mode: false
+
+- name: Decide whether matugen needs to run
+  ansible.builtin.set_fact:
+    wallpaper_needs_apply: >-
+      {{
+        (not wallpaper_state_stat.stat.exists)
+        or ((wallpaper_state_prev.content | b64decode | trim) != wallpaper_apply_token)
+      }}
+
+- name: Apply wallpaper and generate theme with matugen
+  ansible.builtin.command:
+    argv:
+      - "{{ wallpaper_matugen_which.stdout | trim }}"
+      - image
+      - "{{ wallpaper_path }}"
+      - --source-color-index
+      - "{{ wallpaper_source_color_index | int }}"
+      - --continue-on-error
+  register: wallpaper_matugen
+  changed_when: true
+  when: wallpaper_needs_apply | bool
+
+- name: Ensure wallpaper state directory exists
+  ansible.builtin.file:
+    path: "{{ wallpaper_state_path | dirname }}"
+    state: directory
+    mode: "0755"
+  when: wallpaper_needs_apply | bool
+
+- name: Record applied wallpaper state
+  ansible.builtin.copy:
+    dest: "{{ wallpaper_state_path }}"
+    content: "{{ wallpaper_apply_token }}\n"
+    mode: "0644"
+  when: wallpaper_needs_apply | bool

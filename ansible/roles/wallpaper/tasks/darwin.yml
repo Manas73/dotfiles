@@ -1,0 +1,59 @@
+---
+# Darwin: set the desktop picture via System Events (built-in; no extra
+# package). Fill/scale follows the user's last Finder wallpaper option.
+
+- name: Build wallpaper apply token
+  ansible.builtin.set_fact:
+    wallpaper_apply_token: >-
+      {{
+        wallpaper_path ~ '|'
+        ~ wallpaper_stat.stat.checksum ~ '|'
+        ~ (wallpaper_source_color_index | int) ~ '|'
+      }}
+
+- name: Stat previous wallpaper state
+  ansible.builtin.stat:
+    path: "{{ wallpaper_state_path }}"
+  register: wallpaper_state_stat
+  check_mode: false
+
+- name: Load previous wallpaper state
+  ansible.builtin.slurp:
+    src: "{{ wallpaper_state_path }}"
+  register: wallpaper_state_prev
+  when: wallpaper_state_stat.stat.exists
+  check_mode: false
+
+- name: Decide whether the desktop picture needs to be set
+  ansible.builtin.set_fact:
+    wallpaper_needs_apply: >-
+      {{
+        (not wallpaper_state_stat.stat.exists)
+        or ((wallpaper_state_prev.content | b64decode | trim) != wallpaper_apply_token)
+      }}
+
+- name: Set macOS desktop picture
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/osascript
+      - -e
+      - >-
+        tell application "System Events" to tell every desktop
+        to set picture to POSIX file "{{ wallpaper_path }}"
+  register: wallpaper_osascript
+  changed_when: true
+  when: wallpaper_needs_apply | bool
+
+- name: Ensure wallpaper state directory exists
+  ansible.builtin.file:
+    path: "{{ wallpaper_state_path | dirname }}"
+    state: directory
+    mode: "0755"
+  when: wallpaper_needs_apply | bool
+
+- name: Record applied wallpaper state
+  ansible.builtin.copy:
+    dest: "{{ wallpaper_state_path }}"
+    content: "{{ wallpaper_apply_token }}\n"
+    mode: "0644"
+  when: wallpaper_needs_apply | bool

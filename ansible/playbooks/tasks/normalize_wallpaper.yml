@@ -1,0 +1,39 @@
+---
+# Resolve recipe wallpaper → wallpaper_image / wallpaper_path.
+# Import from plays that already gathered facts (chezmoi, wallpaper, validate).
+# Do not tag these `always`: --tags on another play would run them without facts.
+
+- name: Normalize wallpaper settings from recipe
+  ansible.builtin.set_fact:
+    wallpaper_image: >-
+      {{
+        wallpaper.image | default('')
+        if (wallpaper is mapping)
+        else (wallpaper | default('', true) | string)
+      }}
+    wallpaper_source_color_index: >-
+      {{
+        wallpaper.source_color_index | default(wallpaper_source_color_index | default(0)) | int
+        if (wallpaper is mapping)
+        else (wallpaper_source_color_index | default(0) | int)
+      }}
+
+- name: Resolve wallpaper path
+  ansible.builtin.set_fact:
+    wallpaper_path: >-
+      {{
+        ''
+        if (wallpaper_image | length == 0)
+        else (
+          wallpaper_image | regex_replace('^~', wallpaper_home)
+          if wallpaper_image.startswith('~')
+          else (
+            wallpaper_image
+            if wallpaper_image.startswith('/')
+            else (wallpaper_dir | default(wallpaper_home ~ '/.config/.settings/wallpapers'))
+                 ~ '/' ~ wallpaper_image
+          )
+        )
+      }}
+  vars:
+    wallpaper_home: "{{ ansible_facts['user_dir'] | default(lookup('env', 'HOME')) }}"

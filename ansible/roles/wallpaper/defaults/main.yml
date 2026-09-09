@@ -1,0 +1,8 @@
+---
+# Shared defaults also live in group_vars/all/main.yml. Recipes override
+# `wallpaper` (filename, path, or {image, source_color_index}).
+
+wallpaper: ""
+wallpaper_dir: "{{ ansible_facts['user_dir'] | default(lookup('env', 'HOME')) }}/.config/.settings"
+wallpaper_source_color_index: 0
+wallpaper_state_path: "{{ ansible_facts['user_dir'] | default(lookup('env', 'HOME')) }}/.local/state/dotfiles/wallpaper.applied"

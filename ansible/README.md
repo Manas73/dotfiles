@@ -15,10 +15,12 @@ Ansible owns:
 - Docker, Kanata, and Plasma custom-WM setup.
 - Rendering `~/.config/chezmoi/chezmoi.toml` from inventory vars.
 - Running `chezmoi apply` non-interactively.
+- Applying the recipe wallpaper after chezmoi (matugen on Linux, osascript on Darwin).
 
 Ansible does not own:
 
 - The contents of `~/.config/*` dotfiles (Chezmoi owns these).
+- Wallpaper image files (Chezmoi: `~/.config/.settings/`).
 - `~/.gitconfig`, `~/.ssh/*`, Fish functions, Hyprland configs.
 
 ## Layout
@@ -50,7 +52,9 @@ ansible/
 │   ├── site.yml
 │   ├── dotfiles.yml
 │   ├── validate.yml
-│   └── tasks/load_recipe.yml    # loads recipes/<recipe>.yml
+│   └── tasks/
+│       ├── load_recipe.yml      # loads recipes/<recipe>.yml
+│       └── normalize_wallpaper.yml
 └── roles/
     ├── packages/
     ├── system/
@@ -58,7 +62,8 @@ ansible/
     ├── sudoers/
     ├── chezmoi/
     ├── kanata/
-    └── plasma_custom_wm/
+    ├── plasma_custom_wm/
+    └── wallpaper/               # recipe wallpaper after chezmoi
 ```
 
 Mental model:
@@ -70,6 +75,7 @@ Mental model:
 | OS-wide packages? | `group_vars/<os>/apps.yml` (`os_apps`) |
 | Package bundles? | `group_vars/all/profiles.yml` + recipe `profiles:` |
 | macOS prefs (defaults)? | `group_vars/darwin/macos_defaults.yml` (+ recipe `macos_defaults_extra`) |
+| Wallpaper? | recipe `wallpaper:` + image in Chezmoi `.settings/`; applied by `roles/wallpaper` |
 | New OS family? | inventory group + `group_vars/<os>/` + `os_providers.yml` row |
 
 - Inventory groups are **OS only** (`linux → arch`, `darwin`). No machine-class groups.
@@ -338,8 +344,9 @@ Copy `recipes/personal_workstation.yml` (or `mac_turing.yml`), edit
 | `arch`     | All arch-OS package work.                            |
 | `darwin`   | All darwin-OS package work.                          |
 | `upgrade`  | `pacman -Syu` task.                                  |
-| `dotfiles` | Chezmoi render + apply.                              |
-| `chezmoi`  | Alias for the chezmoi role play (same as `dotfiles`).|
+| `dotfiles` | Chezmoi render + apply, then recipe wallpaper.       |
+| `chezmoi`  | Chezmoi role play only.                              |
+| `wallpaper`| Wallpaper role only (after the image is deployed).   |
 | `system`   | sudoers, system role, kanata, plasma (umbrella).     |
 | `sudoers`  | sudoers drop-in only.                                |
 | `fish`     | Fish login shell only.                               |

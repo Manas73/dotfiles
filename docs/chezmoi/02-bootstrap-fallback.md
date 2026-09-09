@@ -21,7 +21,8 @@ Or, with the task runner:
 mise run dotfiles
 ```
 
-This runs the `chezmoi` role only (render `chezmoi.toml` + `chezmoi apply`).
+This runs the `chezmoi` role (render `chezmoi.toml` + `chezmoi apply`) and
+then the `wallpaper` role (matugen on Linux, desktop picture on Darwin).
 
 ## Case 2: Host not in Ansible inventory
 

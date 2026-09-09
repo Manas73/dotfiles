@@ -5,10 +5,11 @@
 #   1. Sudoers drop-in for passwordless pacman (linux only).
 #   2. Install OS packages so binaries exist.
 #   3. Apply Chezmoi dotfiles so configs exist for the services below.
-#   4. System wiring (fish login shell, docker/libvirt groups).
-#   5. Enable services (systemd units / brew services) via service_catalog.
-#   6. macOS defaults (darwin only).
-#   7. Specialty services (Kanata, Plasma custom WM).
+#   4. Apply recipe wallpaper (matugen on Linux, osascript on Darwin).
+#   5. System wiring (fish login shell, docker/libvirt groups).
+#   6. Enable services (systemd units / brew services) via service_catalog.
+#   7. macOS defaults (darwin only).
+#   8. Specialty services (Kanata, Plasma custom WM).
 #
 # Each play loads recipes/<recipe>.yml first (see tasks/load_recipe.yml).
 #
@@ -52,8 +53,23 @@
     - name: Load machine recipe
       ansible.builtin.import_tasks: tasks/load_recipe.yml
       tags: [always]
+    - name: Normalize wallpaper path
+      ansible.builtin.import_tasks: tasks/normalize_wallpaper.yml
   roles:
     - role: chezmoi
+
+- name: Apply recipe wallpaper
+  hosts: all
+  gather_facts: true
+  tags: [dotfiles, wallpaper]
+  pre_tasks:
+    - name: Load machine recipe
+      ansible.builtin.import_tasks: tasks/load_recipe.yml
+      tags: [always]
+    - name: Normalize wallpaper path
+      ansible.builtin.import_tasks: tasks/normalize_wallpaper.yml
+  roles:
+    - role: wallpaper
 
 - name: System wiring (shell, docker, libvirt)
   hosts: all

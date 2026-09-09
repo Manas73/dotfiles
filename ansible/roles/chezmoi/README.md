@@ -35,6 +35,8 @@ From the host's recipe + inventory (unprefixed):
 - `plasma_window_manager` (Linux only; consumed by `plasma_custom_wm` role)
 - `profiles` (template derives the `window_manager` data field by
   intersecting this list with `[hyprland, i3, qtile]`)
+- `wallpaper_path` (from `load_recipe.yml`; written as `wallpaper` in
+  chezmoi data so templates such as hyprlock can follow the recipe image)
 
 The role is fully non-interactive.
 
@@ -48,6 +50,7 @@ The role is fully non-interactive.
     gpu = "..."
     window_manager = ["hyprland"]
     plasma_window_manager = "kwin"
+    wallpaper = "/home/.../.config/.settings/desktop_wallpaper.jpeg"
 ```
 
 ## Failure Modes

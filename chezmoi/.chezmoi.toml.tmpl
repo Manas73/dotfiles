@@ -58,3 +58,4 @@
     gpu = {{ $gpu | quote }}
     window_manager = {{ $window_manager | toToml }}
     plasma_window_manager = {{ $plasma_window_manager | quote }}
+    wallpaper = {{ print .chezmoi.homeDir "/.config/.settings/desktop_wallpaper.jpeg" | quote }}

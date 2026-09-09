@@ -1,10 +1,10 @@
-source = /home/ms-garuda/.config/hypr/colors/matugen.conf
+source = {{ .chezmoi.homeDir }}/.config/hypr/colors/matugen.conf
 
 # BACKGROUND
 background {
     monitor =
     #path = screenshot
-    path = /home/ms-garuda/.config/.settings/desktop_wallpaper.jpeg
+    path = {{ with index . "wallpaper" }}{{ . }}{{ else }}{{ .chezmoi.homeDir }}/.config/.settings/desktop_wallpaper.jpeg{{ end }}
     #color = $background
     blur_passes = 2
     contrast = 1
@@ -70,5 +70,3 @@ label {
   halign = center
   valign = center
 }
-
-
