@@ -162,35 +162,55 @@ package_catalog:
   # Cross-OS CLI tool via mise. `all:` applies on every OS. Packages are
   # pinned `tool@version` specs; `@latest` is rejected.
   bat:
-    all: { provider: mise, packages: ["bat@0.26.1"] }
+    all:
+      provider: mise
+      packages: ["bat@0.26.1"]
 
   # Cross-OS Python CLI via uv. Specs are passed to `uv tool install`.
   linecast:
-    all: { provider: uv, packages: [linecast] }
+    all:
+      provider: uv
+      packages: [linecast]
 
   # Cross-OS GUI app: per-OS keys, each holding a provider and a list of
   # concrete packages. Both keys are independent and can contain multiple
   # packages -- this is the "roll-up" pattern.
   vivaldi:
-    arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs] }
-    darwin: { provider: cask,   packages: [vivaldi] }
+    arch:
+      provider: pacman
+      packages: [vivaldi, vivaldi-ffmpeg-codecs]
+    darwin:
+      provider: cask
+      packages: [vivaldi]
 
   # Roll-up: one logical name expands to N concrete packages per OS.
   docker:
-    arch:   { provider: pacman, packages: [docker, docker-buildx, docker-compose] }
-    darwin: { provider: brew,   packages: [docker, docker-buildx, docker-compose] }
+    arch:
+      provider: pacman
+      packages: [docker, docker-buildx, docker-compose]
+    darwin:
+      provider: brew
+      packages: [docker, docker-buildx, docker-compose]
 
   # `all:` unioned with a per-OS block: user python via mise, system
   # python stays on the OS package manager (Ansible's interpreter).
   python:
-    all:  { provider: mise, packages: ["python@3.14.7", "uv@0.12.3"] }
-    arch: { provider: pacman, packages: [python, python-gpgme] }
-    darwin: { provider: brew, packages: [python] }
+    all:
+      provider: mise
+      packages: ["python@3.14.7", "uv@0.12.3"]
+    arch:
+      provider: pacman
+      packages: [python, python-gpgme]
+    darwin:
+      provider: brew
+      packages: [python]
 
   # Arch-only routing: AUR package that wouldn't be reachable via plain
   # `pacman -S`. Has only an `arch:` key; darwin hosts skip it silently.
   pacseek:
-    arch: { provider: aur, packages: [pacseek] }
+    arch:
+      provider: aur
+      packages: [pacseek]
 ```
 
 Rules:
@@ -226,7 +246,9 @@ Rules:
       post_install:
         - { action: chmod, path: /opt/rambox, mode: "0755" }
         - { action: chmod, path: /opt/rambox/rambox, mode: "+x" }
-    darwin: { provider: cask, packages: [rambox] }
+    darwin:
+      provider: cask
+      packages: [rambox]
   ```
 
   Current types (each re-applied every packages run so vendor upgrades

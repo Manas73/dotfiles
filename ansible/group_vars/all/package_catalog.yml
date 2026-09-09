@@ -19,342 +19,607 @@
 # An app that is intentionally Linux-only omits `all:` and `darwin:`
 # (and vice versa); the resolver silently skips it on the other OS.
 # See ansible/README.md (Layer 2) for the schema.
+#
+# Formatting (keep this file consistent):
+#   - Every provider block is nested mappings, not flow maps.
+#   - `packages:` / `taps:` stay one-line lists.
+#   - `post_install:` items stay one-line flow maps.
+#   - Quote package strings that contain @, :, [, ], or other YAML-unsafe
+#     characters. Leave plain names unquoted.
 
 package_catalog:
 
   "1password":
-    arch:   { provider: aur,  packages: ["1password"] }
-    darwin: { provider: cask, packages: ["1password"] }
+    arch:
+      provider: aur
+      packages: [1password]
+    darwin:
+      provider: cask
+      packages: [1password]
 
   alacritty:
-    arch:   { provider: pacman, packages: [alacritty] }
-    darwin: { provider: cask,   packages: [alacritty] }
+    arch:
+      provider: pacman
+      packages: [alacritty]
+    darwin:
+      provider: cask
+      packages: [alacritty]
 
   alfred:
-    darwin: { provider: cask, packages: [alfred] }
+    darwin:
+      provider: cask
+      packages: [alfred]
 
   atuin:
-    all: { provider: mise, packages: ["atuin@18.19.0"] }
+    all:
+      provider: mise
+      packages: ["atuin@18.19.0"]
 
   awww:
-    arch: { provider: pacman, packages: [awww] }
+    arch:
+      provider: pacman
+      packages: [awww]
 
   aws-cli:
-    all: { provider: mise, packages: ["aws-cli@2.34.32"] }
+    all:
+      provider: mise
+      packages: ["aws-cli@2.34.32"]
 
   aws-session-manager-plugin:
-    arch:   { provider: aur, packages: [aws-session-manager-plugin] }
-    darwin: { provider: cask, packages: [session-manager-plugin] }
+    arch:
+      provider: aur
+      packages: [aws-session-manager-plugin]
+    darwin:
+      provider: cask
+      packages: [session-manager-plugin]
 
   bartender:
-    darwin: { provider: cask, packages: [bartender] }
+    darwin:
+      provider: cask
+      packages: [bartender]
 
   bat:
-    all: { provider: mise, packages: ["bat@0.26.1"] }
+    all:
+      provider: mise
+      packages: ["bat@0.26.1"]
 
   bazecor:
-    arch:   { provider: aur, packages: [bazecor] }
-    darwin: { provider: cask, packages: [bazecor] }
+    arch:
+      provider: aur
+      packages: [bazecor]
+    darwin:
+      provider: cask
+      packages: [bazecor]
 
   beads:
-    all: { provider: mise, packages: ["github:steveyegge/beads[exe=bd]@1.2.2"] }
+    all:
+      provider: mise
+      packages: ["github:steveyegge/beads[exe=bd]@1.2.2"]
 
   btop:
-    all: { provider: mise, packages: ["btop@1.4.7"] }
+    all:
+      provider: mise
+      packages: ["btop@1.4.7"]
 
   bun:
-    all: { provider: mise, packages: ["bun@1.4.0"] }
+    all:
+      provider: mise
+      packages: ["bun@1.4.0"]
 
   chezmoi:
-    all: { provider: mise, packages: ["chezmoi@2.72.0"] }
+    all:
+      provider: mise
+      packages: ["chezmoi@2.72.0"]
 
   claude-code:
-    all: { provider: mise, packages: ["claude-code@latest"] }
+    all:
+      provider: mise
+      packages: ["claude-code@latest"]
 
   cloud-sql-proxy:
-    all: { provider: mise, packages: ["cloud-sql-proxy@2.25.3"] }
+    all:
+      provider: mise
+      packages: ["cloud-sql-proxy@2.25.3"]
 
   cmatrix:
-    arch: { provider: pacman, packages: [cmatrix] }
-    darwin: { provider: brew, packages: [cmatrix] }
+    arch:
+      provider: pacman
+      packages: [cmatrix]
+    darwin:
+      provider: brew
+      packages: [cmatrix]
 
   copyq:
-    arch: { provider: pacman, packages: [copyq] }
+    arch:
+      provider: pacman
+      packages: [copyq]
 
   datagrip:
-    arch:   { provider: aur,  packages: [datagrip, datagrip-jre] }
-    darwin: { provider: cask, packages: [datagrip] }
+    arch:
+      provider: aur
+      packages: [datagrip, datagrip-jre]
+    darwin:
+      provider: cask
+      packages: [datagrip]
 
   dnsmasq:
-    arch: { provider: pacman, packages: [dnsmasq] }
+    arch:
+      provider: pacman
+      packages: [dnsmasq]
 
   docker:
-    arch:   { provider: pacman, packages: [docker, docker-buildx, docker-compose] }
-    darwin: { provider: brew,   packages: [docker, docker-buildx, docker-compose] }
+    arch:
+      provider: pacman
+      packages: [docker, docker-buildx, docker-compose]
+    darwin:
+      provider: brew
+      packages: [docker, docker-buildx, docker-compose]
 
   dolphin:
-    arch: { provider: pacman, packages: [dolphin, dolphin-plugins] }
+    arch:
+      provider: pacman
+      packages: [dolphin, dolphin-plugins]
 
   dot:
-    darwin: { provider: cask, packages: [dot] }
+    darwin:
+      provider: cask
+      packages: [dot]
 
   dropbox:
-    arch:   { provider: aur,  packages: [dropbox] }
-    darwin: { provider: cask, packages: [dropbox] }
+    arch:
+      provider: aur
+      packages: [dropbox]
+    darwin:
+      provider: cask
+      packages: [dropbox]
 
   edk2-ovmf:
-    arch: { provider: pacman, packages: [edk2-ovmf] }
+    arch:
+      provider: pacman
+      packages: [edk2-ovmf]
 
   epson-inkjet-printer-escpr2:
-    arch: { provider: aur, packages: [epson-inkjet-printer-escpr2] }
+    arch:
+      provider: aur
+      packages: [epson-inkjet-printer-escpr2]
 
   eza:
-    all: { provider: mise, packages: ["eza@0.23.5"] }
+    all:
+      provider: mise
+      packages: ["eza@0.23.5"]
 
   fastfetch:
-    all: { provider: mise, packages: ["fastfetch@2.67.1"] }
+    all:
+      provider: mise
+      packages: ["fastfetch@2.67.1"]
 
   fd:
-    all: { provider: mise, packages: ["fd@10.4.2"] }
+    all:
+      provider: mise
+      packages: ["fd@10.4.2"]
 
   firefox:
-    arch:   { provider: pacman, packages: [firefox] }
-    darwin: { provider: cask,   packages: [firefox] }
+    arch:
+      provider: pacman
+      packages: [firefox]
+    darwin:
+      provider: cask
+      packages: [firefox]
 
   fish:
-    arch:   { provider: pacman, packages: [fish] }
-    darwin: { provider: brew,   packages: [fish] }
+    arch:
+      provider: pacman
+      packages: [fish]
+    darwin:
+      provider: brew
+      packages: [fish]
 
   flameshot:
-    arch: { provider: pacman, packages: [flameshot] }
+    arch:
+      provider: pacman
+      packages: [flameshot]
 
   fresh-editor:
-    all: { provider: mise, packages: ["github:sinelaw/fresh@0.4.10"] }
+    all:
+      provider: mise
+      packages: ["github:sinelaw/fresh@0.4.10"]
 
   fzf:
-    all: { provider: mise, packages: ["fzf@0.74.3"] }
+    all:
+      provider: mise
+      packages: ["fzf@0.74.3"]
 
   gcc:
-    arch:   { provider: pacman, packages: [gcc] }
-    darwin: { provider: brew,   packages: [gcc] }
+    arch:
+      provider: pacman
+      packages: [gcc]
+    darwin:
+      provider: brew
+      packages: [gcc]
 
   ghostty:
-    arch:   { provider: pacman, packages: [ghostty] }
-    darwin: { provider: cask,   packages: [ghostty] }
+    arch:
+      provider: pacman
+      packages: [ghostty]
+    darwin:
+      provider: cask
+      packages: [ghostty]
 
   ghq:
-    all: { provider: mise, packages: ["ghq@1.10.1"] }
+    all:
+      provider: mise
+      packages: ["ghq@1.10.1"]
 
   git:
-    arch:   { provider: pacman, packages: [git] }
-    darwin: { provider: brew,   packages: [git] }
+    arch:
+      provider: pacman
+      packages: [git]
+    darwin:
+      provider: brew
+      packages: [git]
 
   git-filter-repo:
-    all: { provider: mise, packages: ["git-filter-repo@2.47.0"] }
+    all:
+      provider: mise
+      packages: ["git-filter-repo@2.47.0"]
 
   gitkraken:
-    arch:   { provider: aur, packages: [gitkraken] }
-    darwin: { provider: cask, packages: [gitkraken] }
+    arch:
+      provider: aur
+      packages: [gitkraken]
+    darwin:
+      provider: cask
+      packages: [gitkraken]
 
   gnupg:
-    arch:   { provider: pacman, packages: [gnupg] }
-    darwin: { provider: brew,   packages: [gnupg] }
+    arch:
+      provider: pacman
+      packages: [gnupg]
+    darwin:
+      provider: brew
+      packages: [gnupg]
 
   go:
-    all: { provider: mise, packages: ["go@1.27.0"] }
+    all:
+      provider: mise
+      packages: ["go@1.27.0"]
 
   google-chrome:
-    arch:   { provider: aur,  packages: [google-chrome] }
-    darwin: { provider: cask, packages: [google-chrome] }
+    arch:
+      provider: aur
+      packages: [google-chrome]
+    darwin:
+      provider: cask
+      packages: [google-chrome]
 
   google-cloud-cli:
-    all: { provider: mise, packages: ["gcloud@581.0.0"] }
+    all:
+      provider: mise
+      packages: ["gcloud@581.0.0"]
 
   gparted:
-    arch: { provider: pacman, packages: [gparted] }
+    arch:
+      provider: pacman
+      packages: [gparted]
 
   grok-build:
-    all: { provider: mise, packages: ["grok@latest"] }
+    all:
+      provider: mise
+      packages: ["grok@latest"]
 
   gwenview:
-    arch: { provider: pacman, packages: [gwenview] }
+    arch:
+      provider: pacman
+      packages: [gwenview]
 
   headsetcontrol:
-    arch: { provider: pacman, packages: [headsetcontrol] }
+    arch:
+      provider: pacman
+      packages: [headsetcontrol]
 
   herdr:
-    all: { provider: mise, packages: ["herdr@0.8.2"] }
+    all:
+      provider: mise
+      packages: ["herdr@0.8.2"]
 
   hugo:
-    all: { provider: mise, packages: ["hugo-extended@0.165.0"] }
+    all:
+      provider: mise
+      packages: ["hugo-extended@0.165.0"]
 
   hyprland:
-    arch: { provider: pacman, packages: [hyprland] }
+    arch:
+      provider: pacman
+      packages: [hyprland]
 
   hyprlock:
-    arch: { provider: pacman, packages: [hyprlock] }
+    arch:
+      provider: pacman
+      packages: [hyprlock]
 
   hyprmoncfg:
-    arch: { provider: aur, packages: ["hyprmoncfg"] }
+    arch:
+      provider: aur
+      packages: [hyprmoncfg]
 
   hyprsunset:
-    arch: { provider: pacman, packages: [hyprsunset] }
+    arch:
+      provider: pacman
+      packages: [hyprsunset]
 
   iptables-nft:
-    arch: { provider: pacman, packages: [iptables-nft] }
+    arch:
+      provider: pacman
+      packages: [iptables-nft]
 
   jq:
-    all: { provider: mise, packages: ["jq@1.8.2"] }
+    all:
+      provider: mise
+      packages: ["jq@1.8.2"]
 
   kanata:
-    arch:   { provider: aur, packages: [kanata-bin] }
-    darwin: { provider: brew, packages: [kanata] }
+    arch:
+      provider: aur
+      packages: [kanata-bin]
+    darwin:
+      provider: brew
+      packages: [kanata]
 
   karabiner-elements:
-    darwin: { provider: cask, packages: [karabiner-elements] }
+    darwin:
+      provider: cask
+      packages: [karabiner-elements]
 
   kcharselect:
-    arch: { provider: pacman, packages: [kcharselect] }
+    arch:
+      provider: pacman
+      packages: [kcharselect]
 
   kitty:
-    arch:   { provider: pacman, packages: [kitty] }
-    darwin: { provider: cask,   packages: [kitty] }
+    arch:
+      provider: pacman
+      packages: [kitty]
+    darwin:
+      provider: cask
+      packages: [kitty]
 
   lazydocker:
-    all: { provider: mise, packages: ["lazydocker@0.25.2"] }
+    all:
+      provider: mise
+      packages: ["lazydocker@0.25.2"]
 
   lazygit:
-    all: { provider: mise, packages: ["lazygit@0.64.1"] }
+    all:
+      provider: mise
+      packages: ["lazygit@0.64.1"]
 
   leader-key:
-    darwin: { provider: cask, packages: [leader-key] }
+    darwin:
+      provider: cask
+      packages: [leader-key]
 
   libadwaita:
-    arch: { provider: pacman, packages: [libadwaita] }
+    arch:
+      provider: pacman
+      packages: [libadwaita]
 
   libfido2:
-    arch:   { provider: pacman, packages: [libfido2] }
-    darwin: { provider: brew, packages: [libfido2] }
+    arch:
+      provider: pacman
+      packages: [libfido2]
+    darwin:
+      provider: brew
+      packages: [libfido2]
 
   libnotify:
-    arch: { provider: pacman, packages: [libnotify] }
+    arch:
+      provider: pacman
+      packages: [libnotify]
 
   libreoffice-fresh:
-    arch: { provider: pacman, packages: [libreoffice-fresh] }
+    arch:
+      provider: pacman
+      packages: [libreoffice-fresh]
 
   libvirt:
-    arch: { provider: pacman, packages: [libvirt] }
+    arch:
+      provider: pacman
+      packages: [libvirt]
 
   linecast:
-    all: { provider: uv, packages: [linecast] }
+    all:
+      provider: uv
+      packages: [linecast]
 
   lutris:
-    arch: { provider: pacman, packages: [lutris] }
+    arch:
+      provider: pacman
+      packages: [lutris]
 
   masterpdfeditor:
-    arch:   { provider: aur, packages: [masterpdfeditor] }
-    darwin: { provider: cask, packages: [master-pdf-editor] }
+    arch:
+      provider: aur
+      packages: [masterpdfeditor]
+    darwin:
+      provider: cask
+      packages: [master-pdf-editor]
 
   matugen:
-    arch: { provider: aur, packages: [matugen-bin] }
+    arch:
+      provider: aur
+      packages: [matugen-bin]
 
   mise:
-    arch:   { provider: pacman, packages: [mise] }
-    darwin: { provider: brew, packages: [mise] }
+    arch:
+      provider: pacman
+      packages: [mise]
+    darwin:
+      provider: brew
+      packages: [mise]
 
   moreutils:
-    arch:   { provider: pacman, packages: [moreutils] }
-    darwin: { provider: brew,   packages: [moreutils] }
+    arch:
+      provider: pacman
+      packages: [moreutils]
+    darwin:
+      provider: brew
+      packages: [moreutils]
 
   mosh:
-    arch:   { provider: aur, packages: [mosh] }
-    darwin: { provider: brew, packages: [mosh] }
+    arch:
+      provider: aur
+      packages: [mosh]
+    darwin:
+      provider: brew
+      packages: [mosh]
 
   mysql:
-    arch: { provider: aur, packages: [mysql] }
+    arch:
+      provider: aur
+      packages: [mysql]
 
   naps2:
-    arch:   { provider: aur, packages: [naps2-bin] }
-    darwin: { provider: cask, packages: [naps2] }
+    arch:
+      provider: aur
+      packages: [naps2-bin]
+    darwin:
+      provider: cask
+      packages: [naps2]
 
   neovim:
-    all: { provider: mise, packages: ["neovim@0.12.5"] }
+    all:
+      provider: mise
+      packages: ["neovim@0.12.5"]
 
   network-manager-applet:
-    arch: { provider: pacman, packages: [network-manager-applet] }
+    arch:
+      provider: pacman
+      packages: [network-manager-applet]
 
   networkmanager:
-    arch: { provider: pacman, packages: [networkmanager] }
+    arch:
+      provider: pacman
+      packages: [networkmanager]
 
   nm-connection-editor:
-    arch: { provider: pacman, packages: [nm-connection-editor] }
+    arch:
+      provider: pacman
+      packages: [nm-connection-editor]
 
   nodejs:
-    all: { provider: mise, packages: ["node@26.7.0"] }
+    all:
+      provider: mise
+      packages: ["node@26.7.0"]
 
   nvtop:
-    arch: { provider: pacman, packages: [nvtop] }
+    arch:
+      provider: pacman
+      packages: [nvtop]
 
   omniwm:
-    darwin: { provider: brew, packages: [omniwm], taps: [BarutSRB/tap] }
+    darwin:
+      provider: brew
+      packages: [omniwm]
+      taps: [BarutSRB/tap]
 
   onlyoffice:
-    arch: { provider: aur, packages: [onlyoffice-bin] }
+    arch:
+      provider: aur
+      packages: [onlyoffice-bin]
 
   opencode:
-    all: { provider: mise, packages: ["opencode@latest"] }
+    all:
+      provider: mise
+      packages: ["opencode@latest"]
 
   pacseek:
-    arch: { provider: aur, packages: [pacseek] }
+    arch:
+      provider: aur
+      packages: [pacseek]
 
   pipewire:
-    arch: { provider: pacman, packages: [pipewire] }
+    arch:
+      provider: pacman
+      packages: [pipewire]
 
   plasma-x11-session:
-    arch: { provider: pacman, packages: [plasma-x11-session] }
+    arch:
+      provider: pacman
+      packages: [plasma-x11-session]
 
   plasma5-integration:
-    arch: { provider: pacman, packages: [plasma5-integration] }
+    arch:
+      provider: pacman
+      packages: [plasma5-integration]
 
   playerctl:
-    arch: { provider: pacman, packages: [playerctl] }
+    arch:
+      provider: pacman
+      packages: [playerctl]
 
   postman:
-    arch:   { provider: aur, packages: [postman-bin] }
-    darwin: { provider: cask, packages: [postman] }
+    arch:
+      provider: aur
+      packages: [postman-bin]
+    darwin:
+      provider: cask
+      packages: [postman]
 
   pre-commit:
-    all: { provider: mise, packages: ["pre-commit@4.6.2"] }
+    all:
+      provider: mise
+      packages: ["pre-commit@4.6.2"]
 
   psmisc:
-    arch: { provider: pacman, packages: [psmisc] }
+    arch:
+      provider: pacman
+      packages: [psmisc]
 
   pycharm:
-    arch:   { provider: aur,  packages: [pycharm] }
-    darwin: { provider: cask, packages: [pycharm] }
+    arch:
+      provider: aur
+      packages: [pycharm]
+    darwin:
+      provider: cask
+      packages: [pycharm]
 
   python:
     all:
-      { provider: mise, packages: ["python@3.14.7", "uv@0.12.3", "black@26.5.1", "poetry@2.4.1", "github:facebook/pyrefly@1.2.0"] }
-    arch:   { provider: pacman, packages: [python, python-gpgme] }
-    darwin: { provider: brew,   packages: [python] }
+      provider: mise
+      packages: ["python@3.14.7", "uv@0.12.3", "black@26.5.1", "poetry@2.4.1", "github:facebook/pyrefly@1.2.0"]
+    arch:
+      provider: pacman
+      packages: [python, python-gpgme]
+    darwin:
+      provider: brew
+      packages: [python]
 
   python-screeninfo:
-    arch: { provider: aur, packages: [python-screeninfo] }
+    arch:
+      provider: aur
+      packages: [python-screeninfo]
 
   qemu-desktop:
-    arch: { provider: pacman, packages: [qemu-desktop] }
+    arch:
+      provider: pacman
+      packages: [qemu-desktop]
 
   qt5-wayland:
-    arch: { provider: pacman, packages: [qt5-wayland] }
+    arch:
+      provider: pacman
+      packages: [qt5-wayland]
 
   qt6-wayland:
-    arch: { provider: pacman, packages: [qt6-wayland] }
+    arch:
+      provider: pacman
+      packages: [qt6-wayland]
 
   quickshell:
     arch:
-      - { provider: pacman, packages: [quickshell] }
-      - { provider: aur,    packages: [ai-usagebar-bin] }
+      - provider: pacman
+        packages: [quickshell]
+      - provider: aur
+        packages: [ai-usagebar-bin]
 
   rambox:
     arch:
@@ -363,161 +628,297 @@ package_catalog:
       post_install:
         - { action: chmod, path: /opt/rambox, mode: "0755" }
         - { action: chmod, path: /opt/rambox/rambox, mode: "+x" }
-    darwin: { provider: cask, packages: [rambox] }
+    darwin:
+      provider: cask
+      packages: [rambox]
 
   rofi-wayland:
-    arch: { provider: aur, packages: [rofi-wayland] }
+    arch:
+      provider: aur
+      packages: [rofi-wayland]
 
   rustdesk:
-    arch:   { provider: aur, packages: [rustdesk] }
-    darwin: { provider: cask, packages: [rustdesk] }
+    arch:
+      provider: aur
+      packages: [rustdesk]
+    darwin:
+      provider: cask
+      packages: [rustdesk]
 
   selectdefaultapplication:
-    arch: { provider: aur, packages: [selectdefaultapplication-git] }
+    arch:
+      provider: aur
+      packages: [selectdefaultapplication-git]
 
   slack:
-    arch:   { provider: aur,  packages: [slack-desktop] }
-    darwin: { provider: cask, packages: [slack] }
+    arch:
+      provider: aur
+      packages: [slack-desktop]
+    darwin:
+      provider: cask
+      packages: [slack]
 
   solaar:
-    arch: { provider: pacman, packages: [solaar] }
+    arch:
+      provider: pacman
+      packages: [solaar]
 
   spotify:
-    arch:   { provider: aur, packages: [spotify] }
-    darwin: { provider: cask, packages: [spotify] }
+    arch:
+      provider: aur
+      packages: [spotify]
+    darwin:
+      provider: cask
+      packages: [spotify]
 
   starship:
-    all: { provider: mise, packages: ["starship@1.26.0"] }
+    all:
+      provider: mise
+      packages: ["starship@1.26.0"]
 
   steam:
-    arch:   { provider: pacman, packages: [steam] }
-    darwin: { provider: cask, packages: [steam] }
+    arch:
+      provider: pacman
+      packages: [steam]
+    darwin:
+      provider: cask
+      packages: [steam]
 
   sublime-text:
-    arch:   { provider: aur, packages: [sublime-text-4] }
-    darwin: { provider: cask, packages: [sublime-text] }
+    arch:
+      provider: aur
+      packages: [sublime-text-4]
+    darwin:
+      provider: cask
+      packages: [sublime-text]
 
   superfile:
-    all:   { provider: mise, packages: [superfile@1.6.0] }
+    all:
+      provider: mise
+      packages: ["superfile@1.6.0"]
 
   swtpm:
-    arch: { provider: pacman, packages: [swtpm] }
+    arch:
+      provider: pacman
+      packages: [swtpm]
 
   tailscale:
-    arch:   { provider: pacman, packages: [tailscale] }
-    darwin: { provider: brew, packages: [tailscale] }
+    arch:
+      provider: pacman
+      packages: [tailscale]
+    darwin:
+      provider: brew
+      packages: [tailscale]
 
   television:
-    all: { provider: mise, packages: ["television@0.15.9"] }
+    all:
+      provider: mise
+      packages: ["television@0.15.9"]
 
   thunderbird:
-    arch:   { provider: pacman, packages: [thunderbird] }
-    darwin: { provider: cask, packages: [thunderbird] }
+    arch:
+      provider: pacman
+      packages: [thunderbird]
+    darwin:
+      provider: cask
+      packages: [thunderbird]
 
   ttf-dejavu:
-    arch:   { provider: pacman, packages: [ttf-dejavu] }
-    darwin: { provider: cask,   packages: [font-dejavu] }
+    arch:
+      provider: pacman
+      packages: [ttf-dejavu]
+    darwin:
+      provider: cask
+      packages: [font-dejavu]
 
   ttf-droid:
-    arch: { provider: pacman, packages: [ttf-droid] }
+    arch:
+      provider: pacman
+      packages: [ttf-droid]
 
   ttf-fira-code:
-    arch:   { provider: pacman, packages: [ttf-fira-code] }
-    darwin: { provider: cask,   packages: [font-fira-code] }
+    arch:
+      provider: pacman
+      packages: [ttf-fira-code]
+    darwin:
+      provider: cask
+      packages: [font-fira-code]
 
   ttf-fira-sans:
-    arch:   { provider: pacman, packages: [ttf-fira-sans] }
-    darwin: { provider: cask,   packages: [font-fira-sans] }
+    arch:
+      provider: pacman
+      packages: [ttf-fira-sans]
+    darwin:
+      provider: cask
+      packages: [font-fira-sans]
 
   ttf-firacode-nerd:
-    arch:   { provider: pacman, packages: [ttf-firacode-nerd] }
-    darwin: { provider: cask,   packages: [font-fira-code-nerd-font] }
+    arch:
+      provider: pacman
+      packages: [ttf-firacode-nerd]
+    darwin:
+      provider: cask
+      packages: [font-fira-code-nerd-font]
 
   ttf-jetbrains-mono-nerd:
-    arch:   { provider: pacman, packages: [ttf-jetbrains-mono-nerd] }
-    darwin: { provider: cask,   packages: [font-jetbrains-mono-nerd-font] }
+    arch:
+      provider: pacman
+      packages: [ttf-jetbrains-mono-nerd]
+    darwin:
+      provider: cask
+      packages: [font-jetbrains-mono-nerd-font]
 
   ttf-material-icons:
-    arch:   { provider: pacman, packages: [ttf-material-icons] }
-    darwin: { provider: cask, packages: [font-material-icons] }
+    arch:
+      provider: pacman
+      packages: [ttf-material-icons]
+    darwin:
+      provider: cask
+      packages: [font-material-icons]
 
   ttf-ms-fonts:
-    arch: { provider: aur, packages: [ttf-ms-fonts] }
+    arch:
+      provider: aur
+      packages: [ttf-ms-fonts]
 
   ttf-nerd-fonts-symbols:
-    arch:   { provider: pacman, packages: [ttf-nerd-fonts-symbols] }
-    darwin: { provider: cask,   packages: [font-symbols-only-nerd-font] }
+    arch:
+      provider: pacman
+      packages: [ttf-nerd-fonts-symbols]
+    darwin:
+      provider: cask
+      packages: [font-symbols-only-nerd-font]
 
   ttf-nerd-fonts-symbols-common:
-    arch: { provider: pacman, packages: [ttf-nerd-fonts-symbols-common] }
+    arch:
+      provider: pacman
+      packages: [ttf-nerd-fonts-symbols-common]
 
   ttf-noto-nerd:
-    arch:   { provider: pacman, packages: [ttf-noto-nerd] }
-    darwin: { provider: cask,   packages: [font-noto-nerd-font] }
+    arch:
+      provider: pacman
+      packages: [ttf-noto-nerd]
+    darwin:
+      provider: cask
+      packages: [font-noto-nerd-font]
 
   ttf-sourcecodepro-nerd:
-    arch: { provider: pacman, packages: [ttf-sourcecodepro-nerd] }
-    darwin: { provider: cask,   packages: [font-source-code-pro] }
+    arch:
+      provider: pacman
+      packages: [ttf-sourcecodepro-nerd]
+    darwin:
+      provider: cask
+      packages: [font-source-code-pro]
 
   ttf-vista-fonts:
-    arch: { provider: aur, packages: [ttf-vista-fonts] }
+    arch:
+      provider: aur
+      packages: [ttf-vista-fonts]
 
   umu-launcher:
-    arch: { provider: aur, packages: [umu-launcher] }
+    arch:
+      provider: aur
+      packages: [umu-launcher]
 
   uwsm:
-    arch: { provider: pacman, packages: [uwsm] }
+    arch:
+      provider: pacman
+      packages: [uwsm]
 
   virt-manager:
-    arch: { provider: pacman, packages: [virt-manager] }
+    arch:
+      provider: pacman
+      packages: [virt-manager]
 
   virt-viewer:
-    arch: { provider: pacman, packages: [virt-viewer] }
+    arch:
+      provider: pacman
+      packages: [virt-viewer]
 
   vivaldi:
-    arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs, libva-nvidia-driver] }
-    darwin: { provider: cask,   packages: [vivaldi] }
+    arch:
+      provider: pacman
+      packages: [vivaldi, vivaldi-ffmpeg-codecs, libva-nvidia-driver]
+    darwin:
+      provider: cask
+      packages: [vivaldi]
 
   vlc:
-    arch:   { provider: pacman, packages: [vlc, vlc-plugins-all] }
-    darwin: { provider: cask,   packages: [vlc] }
+    arch:
+      provider: pacman
+      packages: [vlc, vlc-plugins-all]
+    darwin:
+      provider: cask
+      packages: [vlc]
 
   vuescan:
-    arch:   { provider: aur, packages: [vuescan-bin] }
-    darwin: { provider: cask, packages: [vuescan] }
+    arch:
+      provider: aur
+      packages: [vuescan-bin]
+    darwin:
+      provider: cask
+      packages: [vuescan]
 
   webstorm:
-    arch:   { provider: aur,  packages: [webstorm, webstorm-jre] }
-    darwin: { provider: cask, packages: [webstorm] }
+    arch:
+      provider: aur
+      packages: [webstorm, webstorm-jre]
+    darwin:
+      provider: cask
+      packages: [webstorm]
 
   wl-clip-persist:
-    arch: { provider: pacman, packages: [wl-clip-persist] }
+    arch:
+      provider: pacman
+      packages: [wl-clip-persist]
 
   wl-clipboard:
-    arch: { provider: pacman, packages: [wl-clipboard] }
+    arch:
+      provider: pacman
+      packages: [wl-clipboard]
 
   xdg-desktop-portal-gtk:
-    arch: { provider: pacman, packages: [xdg-desktop-portal-gtk] }
+    arch:
+      provider: pacman
+      packages: [xdg-desktop-portal-gtk]
 
   xdg-desktop-portal-hyprland:
-    arch: { provider: pacman, packages: [xdg-desktop-portal-hyprland] }
+    arch:
+      provider: pacman
+      packages: [xdg-desktop-portal-hyprland]
 
   yubikey:
     arch:
-      - { provider: pacman, packages: [yubikey-manager, pcsclite] }
-      - { provider: aur, packages: [yubico-authenticator] }
-    darwin: { provider: cask, packages: [yubico-authenticator] }
+      - provider: pacman
+        packages: [yubikey-manager, pcsclite]
+      - provider: aur
+        packages: [yubico-authenticator]
+    darwin:
+      provider: cask
+      packages: [yubico-authenticator]
 
   zed:
-    arch:   { provider: aur, packages: [zed] }
-    darwin: { provider: cask, packages: [zed] }
+    arch:
+      provider: aur
+      packages: [zed]
+    darwin:
+      provider: cask
+      packages: [zed]
 
   zellij:
-    all: { provider: mise, packages: ["zellij@0.45.0"] }
+    all:
+      provider: mise
+      packages: ["zellij@0.45.0"]
 
   zoom:
-    arch:   { provider: aur,  packages: [zoom] }
-    darwin: { provider: cask, packages: [zoom] }
+    arch:
+      provider: aur
+      packages: [zoom]
+    darwin:
+      provider: cask
+      packages: [zoom]
 
   zoxide:
-    all: { provider: mise, packages: ["zoxide@0.10.0"] }
+    all:
+      provider: mise
+      packages: ["zoxide@0.10.0"]

@@ -37,32 +37,52 @@ package_catalog:
 
   # Cross-OS CLI via mise. Pin a concrete version; `@latest` is rejected.
   bat:
-    all: { provider: mise, packages: ["bat@0.26.1"] }
+    all:
+      provider: mise
+      packages: ["bat@0.26.1"]
 
   # Cross-OS Python CLI via uv. Specs are passed to `uv tool install`.
   linecast:
-    all: { provider: uv, packages: [linecast] }
+    all:
+      provider: uv
+      packages: [linecast]
 
   # Cross-OS GUI app: per-OS keys, each a {provider, packages}.
   vivaldi:
-    arch:   { provider: pacman, packages: [vivaldi, vivaldi-ffmpeg-codecs] }
-    darwin: { provider: cask,   packages: [vivaldi] }
+    arch:
+      provider: pacman
+      packages: [vivaldi, vivaldi-ffmpeg-codecs]
+    darwin:
+      provider: cask
+      packages: [vivaldi]
 
   # Roll-up: one logical name -> N concrete packages per OS.
   docker:
-    arch:   { provider: pacman, packages: [docker, docker-buildx, docker-compose] }
-    darwin: { provider: brew,   packages: [docker, docker-buildx, docker-compose] }
+    arch:
+      provider: pacman
+      packages: [docker, docker-buildx, docker-compose]
+    darwin:
+      provider: brew
+      packages: [docker, docker-buildx, docker-compose]
 
   # `all:` unioned with a per-OS block (user python via mise, system python
   # on the OS package manager).
   python:
-    all:  { provider: mise, packages: ["python@3.14.7", "uv@0.12.3"] }
-    arch: { provider: pacman, packages: [python, python-gpgme] }
-    darwin: { provider: brew, packages: [python] }
+    all:
+      provider: mise
+      packages: ["python@3.14.7", "uv@0.12.3"]
+    arch:
+      provider: pacman
+      packages: [python, python-gpgme]
+    darwin:
+      provider: brew
+      packages: [python]
 
   # Arch-only routing (AUR). Darwin hosts skip it silently.
   pacseek:
-    arch: { provider: aur, packages: [pacseek] }
+    arch:
+      provider: aur
+      packages: [pacseek]
 
   # Post-install on the OS block that needs it (not on all:).
   rambox:
@@ -72,7 +92,9 @@ package_catalog:
       post_install:
         - { action: chmod, path: /opt/rambox, mode: "0755" }
         - { action: chmod, path: /opt/rambox/rambox, mode: "+x" }
-    darwin: { provider: cask, packages: [rambox] }
+    darwin:
+      provider: cask
+      packages: [rambox]
 ```
 
 Rules:
@@ -135,7 +157,9 @@ rambox:
     post_install:
       - { action: chmod, path: /opt/rambox, mode: "0755" }
       - { action: chmod, path: /opt/rambox/rambox, mode: "+x" }
-  darwin: { provider: cask, packages: [rambox] }
+  darwin:
+    provider: cask
+    packages: [rambox]
 ```
 
 A new type is a provider-shaped change: whitelist + normalizer in
