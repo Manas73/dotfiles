@@ -128,9 +128,9 @@ Item {
   readonly property int barClearance: (barPosition === "top" ? barThickness : 0) + Style.gapsOut
   readonly property int edgeClearance: (barPosition === "right" ? barThickness : 0) + deckInset
 
-  readonly property int lowDuration: 3000
-  readonly property int normalDuration: 3000
-  readonly property int maxDuration: 3000
+  readonly property int lowDuration: 5000
+  readonly property int normalDuration: 5000
+  readonly property int maxDuration: 5000
 
   function durationFor(urgency, requested) {
     if (urgency === NotificationUrgency.Critical) return 0        // never expires
