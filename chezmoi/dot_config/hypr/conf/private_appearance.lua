@@ -4,19 +4,15 @@
 
 -- See https://wiki.hypr.land/Configuring/Basics/Variables/
 
--- Match Quickshell [bar] background + background-alpha in shell.toml.
-local bar_alpha = 0.70
-
 local function with_alpha(color, alpha)
   local hex = tostring(color):match("rgba%((%x%x%x%x%x%x)") or tostring(color):match("#(%x%x%x%x%x%x)")
   if not hex then return color end
   return string.format("rgba(%s%02x)", hex, math.floor(alpha * 255 + 0.5))
 end
 
-local bar_bg = with_alpha(colors.background, bar_alpha)
--- Inactive chips are the same color, more transparent, so the active tab
--- reads as solid without a fill change or a bottom strip.
-local bar_bg_inactive = with_alpha(colors.background, 0.4)
+-- Same chip family; active is denser. Title color marks the selected tab.
+local bar_bg          = with_alpha(colors.background, 0.75)
+local bar_bg_inactive = with_alpha(colors.background, 0.28)
 
 -- https://wiki.hypr.land/Configuring/Basics/Variables/#general
 hl.config({
@@ -98,13 +94,15 @@ hl.config({
       gradient_rounding   = 8,
       gradient_round_only_edges = false,
       indicator_height    = 0,
+      gaps_in       = 4,
 
       ["col.active"]          = bar_bg,
       ["col.inactive"]        = bar_bg_inactive,
       ["col.locked_active"]   = bar_bg,
       ["col.locked_inactive"] = bar_bg_inactive,
-      text_color              = colors.on_surface,
+      text_color              = colors.primary,
       text_color_inactive     = colors.on_surface_variant,
+      text_color_locked_active = colors.tertiary,
     },
   },
 })
