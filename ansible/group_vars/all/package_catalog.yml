@@ -445,6 +445,10 @@ package_catalog:
     arch:   { provider: pacman, packages: [ttf-noto-nerd] }
     darwin: { provider: cask,   packages: [font-noto-nerd-font] }
 
+  ttf-sourcecodepro-nerd:
+    arch: { provider: pacman, packages: [ttf-sourcecodepro-nerd] }
+    darwin: { provider: cask,   packages: [font-source-code-pro] }
+
   ttf-vista-fonts:
     arch: { provider: aur, packages: [ttf-vista-fonts] }
 
