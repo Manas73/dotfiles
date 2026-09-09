@@ -55,7 +55,7 @@ TERM_PROGRAM = "alacritty"
 size = 10
 
 [font.normal]
-family = "Source Code Pro"
+family = "SauceCodePro Nerd Font"
 
 
 [scrolling]
