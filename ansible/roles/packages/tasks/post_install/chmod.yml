@@ -1,0 +1,53 @@
+---
+# Set mode on an existing path (chmod).
+#
+# Input (post_install_action):
+#   app, path, mode (octal "0755" or symbolic "+x"), optional (bool)
+#
+# AUR/vendor packages sometimes ship a tree that is not world-traversable
+# or a binary without +x. This task is re-run on every packages play so
+# an upgrade that restores the vendor mode is corrected. become is used
+# only for paths outside the user's home. optional: true skips a missing
+# path.
+
+- name: "Stat chmod target ({{ post_install_action.app }})"
+  ansible.builtin.stat:
+    path: "{{ post_install_action.path | expanduser }}"
+  register: packages_chmod_stat
+  tags: [packages, post_install]
+
+- name: "Skip missing optional or check-mode chmod target ({{ post_install_action.app }})"
+  ansible.builtin.debug:
+    msg: >-
+      post_install chmod ({{ post_install_action.app }}):
+      {{ post_install_action.path }} is missing;
+      {{ 'optional, skipping'
+         if (post_install_action.optional | default(false) | bool)
+         else 'check mode, skipping' }}.
+  when:
+    - not packages_chmod_stat.stat.exists
+    - (post_install_action.optional | default(false) | bool) or ansible_check_mode
+  tags: [packages, post_install]
+
+- name: "Require chmod target ({{ post_install_action.app }})"
+  ansible.builtin.assert:
+    that:
+      - packages_chmod_stat.stat.exists
+    fail_msg: >-
+      post_install chmod for '{{ post_install_action.app }}':
+      {{ post_install_action.path }} does not exist. The package should
+      have installed it; check the catalog path.
+    quiet: true
+  when:
+    - not packages_chmod_stat.stat.exists
+    - not (post_install_action.optional | default(false) | bool)
+    - not ansible_check_mode
+  tags: [packages, post_install]
+
+- name: "Set mode ({{ post_install_action.app }})"
+  ansible.builtin.file:
+    path: "{{ post_install_action.path | expanduser }}"
+    mode: "{{ post_install_action.mode }}"
+  become: "{{ not (post_install_action.path | expanduser).startswith(ansible_facts['user_dir'] ~ '/') }}"
+  when: packages_chmod_stat.stat.exists
+  tags: [packages, post_install]

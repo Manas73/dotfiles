@@ -5,9 +5,11 @@
 # Catalog    -> group_vars/all/package_catalog.yml
 # Resolve    -> this role (resolve_catalog filter)
 # Providers  -> tasks/{pacman,aur,brew,mise,uv}.yml
+# Post-install -> tasks/post_install.yml (typed actions from the catalog)
 # Homebrew formulae and casks share brew.yml (homebrew + homebrew_cask).
 # mise runs after OS packages so the mise binary is on PATH; uv runs after
-# mise because uv itself is a mise tool.
+# mise because uv itself is a mise tool. Post-install runs after every
+# provider so the files those packages dropped are on disk.
 
 - name: Resolve target OS and default provider from facts
   ansible.builtin.set_fact:
@@ -25,7 +27,7 @@
           .default_provider
         | default('unknown')
       }}
-  tags: [packages]
+  tags: [packages, post_install]
 
 - name: Assert target OS is supported
   ansible.builtin.assert:
@@ -38,7 +40,7 @@
       Add a row to group_vars/all/os_providers.yml and group_vars/<os>/.
       Known: {{ os_family_map | default({}) | to_json }}.
     quiet: true
-  tags: [packages]
+  tags: [packages, post_install]
 
 - name: Aggregate logical app names from os_apps, recipe profiles, and recipe apps
   ansible.builtin.set_fact:
@@ -54,7 +56,7 @@
             | map(attribute='apps', default=[]) | flatten)
         + (apps | default([]))
       }}
-  tags: [packages]
+  tags: [packages, post_install]
 
 - name: Resolve logical names through the package catalog
   ansible.builtin.set_fact:
@@ -67,13 +69,13 @@
             packages_default_provider
           )
       }}
-  tags: [packages]
+  tags: [packages, post_install]
 
 - name: Show resolved per-provider package buckets
   ansible.builtin.debug:
     msg: "{{ packages_resolved }}"
     verbosity: 1
-  tags: [packages]
+  tags: [packages, post_install]
 
 - name: Install pacman packages
   ansible.builtin.include_tasks:
@@ -145,6 +147,18 @@
     - not (packages_validate_only | default(false) | bool)
     - (packages_resolved.packages.uv | default([])) | length > 0
   tags: [packages, uv]
+
+- name: Run package post-install actions
+  ansible.builtin.include_tasks:
+    file: post_install.yml
+    apply:
+      tags: [packages, post_install]
+  vars:
+    post_install_actions: "{{ packages_resolved.post_install | default([]) }}"
+  when:
+    - not (packages_validate_only | default(false) | bool)
+    - (packages_resolved.post_install | default([])) | length > 0
+  tags: [packages, post_install]
 
 - name: Report resolved packages (validate-only)
   ansible.builtin.debug:

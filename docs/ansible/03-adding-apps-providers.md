@@ -63,6 +63,16 @@ package_catalog:
   # Arch-only routing (AUR). Darwin hosts skip it silently.
   pacseek:
     arch: { provider: aur, packages: [pacseek] }
+
+  # Post-install on the OS block that needs it (not on all:).
+  rambox:
+    arch:
+      provider: aur
+      packages: [rambox-pro-bin]
+      post_install:
+        - { action: chmod, path: /opt/rambox, mode: "0755" }
+        - { action: chmod, path: /opt/rambox/rambox, mode: "+x" }
+    darwin: { provider: cask, packages: [rambox] }
 ```
 
 Rules:
@@ -83,6 +93,10 @@ Rules:
 - Optional `taps: [user/repo, …]` on a `brew` or `cask` block is collected
   by the resolver and tapped before install. Formula/cask names stay
   unqualified.
+- Optional `post_install:` on a provider block is a list of typed actions
+  run after every provider install. OS-scoped by the block they sit on.
+  Types: `chmod` (`path`, `mode`), `desktop_exec` (`path`, `exec`). See
+  [Adding a post-install action type](../../ansible/README.md#adding-a-post-install-action-type).
 - An entry without `all:` and without a key for the current target OS is
   silently dropped (arch-only entries don't fail on darwin and vice versa).
 - Output buckets are deduped and sorted per provider for stable diffs.
@@ -107,3 +121,25 @@ To add, e.g., a Flatpak provider:
 2. Add an `include_tasks` block in `roles/packages/tasks/main.yml`.
 3. Add `"flatpak"` to `VALID_PROVIDERS` in `filter_plugins/catalog.py`.
 4. Add `provider: flatpak` entries to the catalog apps that should use it.
+
+## Add a post-install action
+
+For a tweak that already has a type (`chmod`, `desktop_exec`), add
+`post_install:` on the OS provider block:
+
+```yaml
+rambox:
+  arch:
+    provider: aur
+    packages: [rambox-pro-bin]
+    post_install:
+      - { action: chmod, path: /opt/rambox, mode: "0755" }
+      - { action: chmod, path: /opt/rambox/rambox, mode: "+x" }
+  darwin: { provider: cask, packages: [rambox] }
+```
+
+A new type is a provider-shaped change: whitelist + normalizer in
+`filter_plugins/catalog.py`, task file at
+`roles/packages/tasks/post_install/<action>.yml`. The dispatcher includes
+by action name. Full steps:
+[`ansible/README.md`](../../ansible/README.md#adding-a-post-install-action-type).

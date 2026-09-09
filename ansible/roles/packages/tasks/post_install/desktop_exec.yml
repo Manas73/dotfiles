@@ -1,0 +1,57 @@
+---
+# Rewrite Exec= on a .desktop file (INI-style [Desktop Entry] by default).
+#
+# Input (post_install_action):
+#   app, path, exec, optional (bool), section (default "Desktop Entry")
+#
+# Vendor files under /usr/share/applications are overwritten on package
+# upgrade; this task is re-run on every packages play so the Exec line
+# is restored. become is used only for paths outside the user's home.
+# optional: true skips a missing file (user-level overrides that the
+# app may not have written yet).
+
+- name: "Stat desktop file ({{ post_install_action.app }})"
+  ansible.builtin.stat:
+    path: "{{ post_install_action.path | expanduser }}"
+  register: packages_desktop_stat
+  tags: [packages, post_install]
+
+- name: "Skip missing optional or check-mode desktop file ({{ post_install_action.app }})"
+  ansible.builtin.debug:
+    msg: >-
+      post_install desktop_exec ({{ post_install_action.app }}):
+      {{ post_install_action.path }} is missing;
+      {{ 'optional, skipping'
+         if (post_install_action.optional | default(false) | bool)
+         else 'check mode, skipping' }}.
+  when:
+    - not packages_desktop_stat.stat.exists
+    - (post_install_action.optional | default(false) | bool) or ansible_check_mode
+  tags: [packages, post_install]
+
+- name: "Require desktop file ({{ post_install_action.app }})"
+  ansible.builtin.assert:
+    that:
+      - packages_desktop_stat.stat.exists
+    fail_msg: >-
+      post_install desktop_exec for '{{ post_install_action.app }}':
+      {{ post_install_action.path }} does not exist. The package should
+      have installed it; check the catalog path.
+    quiet: true
+  when:
+    - not packages_desktop_stat.stat.exists
+    - not (post_install_action.optional | default(false) | bool)
+    - not ansible_check_mode
+  tags: [packages, post_install]
+
+- name: "Set desktop Exec ({{ post_install_action.app }})"
+  community.general.ini_file:
+    path: "{{ post_install_action.path | expanduser }}"
+    section: "{{ post_install_action.section | default('Desktop Entry') }}"
+    option: Exec
+    value: "{{ post_install_action.exec }}"
+    no_extra_spaces: true
+    create: false
+  become: "{{ not (post_install_action.path | expanduser).startswith(ansible_facts['user_dir'] ~ '/') }}"
+  when: packages_desktop_stat.stat.exists
+  tags: [packages, post_install]

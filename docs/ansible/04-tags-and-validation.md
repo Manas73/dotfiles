@@ -11,6 +11,7 @@
 | `brew` / `cask` | Homebrew formulae + casks. |
 | `mise` | mise CLI tools (`mise use --global --pin`). |
 | `uv` | uv CLI tools (`uv tool install --quiet`). |
+| `post_install` | Catalog post-install actions only (re-apply after a manual upgrade). |
 | `arch` / `darwin` | All package work for the matching OS. |
 | `dotfiles` | `chezmoi` role then `wallpaper` role (render `chezmoi.toml` + `chezmoi apply` + recipe wallpaper). |
 | `chezmoi` | `chezmoi` role only. |

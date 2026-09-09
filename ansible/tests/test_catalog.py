@@ -165,6 +165,227 @@ class ResolveCatalogTests(unittest.TestCase):
             resolve(["bat"], catalog)
         self.assertIn("must not be an empty list", str(ctx.exception))
 
+    def test_missing_post_install_is_empty_list(self):
+        catalog = {
+            "bat": {"all": {"provider": "mise", "packages": ["bat@0.26.1"]}},
+        }
+        self.assertEqual(resolve(["bat"], catalog)["post_install"], [])
+
+
+class ResolveCatalogPostInstallTests(unittest.TestCase):
+    def _rambox(self, post_install):
+        return {
+            "rambox": {
+                "arch": {
+                    "provider": "aur",
+                    "packages": ["rambox-pro-bin"],
+                    "post_install": post_install,
+                },
+                "darwin": {"provider": "cask", "packages": ["rambox"]},
+            }
+        }
+
+    def test_desktop_exec_collected_on_matching_os(self):
+        catalog = self._rambox(
+            [
+                {
+                    "action": "desktop_exec",
+                    "path": "/usr/share/applications/rambox.desktop",
+                    "exec": "/opt/rambox/rambox --no-sandbox %U",
+                }
+            ]
+        )
+        arch = resolve(["rambox"], catalog, "arch", "pacman")
+        self.assertEqual(arch["packages"], {"aur": ["rambox-pro-bin"]})
+        self.assertEqual(
+            arch["post_install"],
+            [
+                {
+                    "app": "rambox",
+                    "action": "desktop_exec",
+                    "path": "/usr/share/applications/rambox.desktop",
+                    "exec": "/opt/rambox/rambox --no-sandbox %U",
+                    "optional": False,
+                    "section": "Desktop Entry",
+                }
+            ],
+        )
+
+    def test_desktop_exec_skipped_on_other_os(self):
+        catalog = self._rambox(
+            [
+                {
+                    "action": "desktop_exec",
+                    "path": "/usr/share/applications/rambox.desktop",
+                    "exec": "/opt/rambox/rambox --no-sandbox %U",
+                }
+            ]
+        )
+        darwin = resolve(["rambox"], catalog, "darwin", "brew")
+        self.assertEqual(darwin["packages"], {"cask": ["rambox"]})
+        self.assertEqual(darwin["post_install"], [])
+
+    def test_optional_and_section_pass_through(self):
+        catalog = self._rambox(
+            [
+                {
+                    "action": "desktop_exec",
+                    "path": "~/.local/share/applications/rambox.desktop",
+                    "exec": "/opt/rambox/rambox --no-sandbox %U",
+                    "optional": True,
+                    "section": "Desktop Action NewWindow",
+                }
+            ]
+        )
+        resolved = resolve(["rambox"], catalog, "arch", "pacman")
+        action = resolved["post_install"][0]
+        self.assertTrue(action["optional"])
+        self.assertEqual(action["section"], "Desktop Action NewWindow")
+
+    def test_preserves_order_and_dedups_exact_copies(self):
+        first = {
+            "action": "desktop_exec",
+            "path": "/usr/share/applications/a.desktop",
+            "exec": "a --flag",
+        }
+        second = {
+            "action": "desktop_exec",
+            "path": "/usr/share/applications/b.desktop",
+            "exec": "b --flag",
+        }
+        catalog = self._rambox([first, second, first])
+        resolved = resolve(["rambox"], catalog, "arch", "pacman")
+        paths = [a["path"] for a in resolved["post_install"]]
+        self.assertEqual(
+            paths,
+            [
+                "/usr/share/applications/a.desktop",
+                "/usr/share/applications/b.desktop",
+            ],
+        )
+
+    def test_chmod_collected_on_matching_os(self):
+        catalog = self._rambox(
+            [
+                {"action": "chmod", "path": "/opt/rambox", "mode": "0755"},
+                {"action": "chmod", "path": "/opt/rambox/rambox", "mode": "+x"},
+            ]
+        )
+        arch = resolve(["rambox"], catalog, "arch", "pacman")
+        self.assertEqual(
+            arch["post_install"],
+            [
+                {
+                    "app": "rambox",
+                    "action": "chmod",
+                    "path": "/opt/rambox",
+                    "mode": "0755",
+                    "optional": False,
+                },
+                {
+                    "app": "rambox",
+                    "action": "chmod",
+                    "path": "/opt/rambox/rambox",
+                    "mode": "+x",
+                    "optional": False,
+                },
+            ],
+        )
+        darwin = resolve(["rambox"], catalog, "darwin", "brew")
+        self.assertEqual(darwin["post_install"], [])
+
+    def test_chmod_integer_mode_fails(self):
+        catalog = self._rambox(
+            [{"action": "chmod", "path": "/opt/rambox", "mode": 755}]
+        )
+        with self.assertRaises(CatalogError) as ctx:
+            resolve(["rambox"], catalog)
+        self.assertIn("must be a string", str(ctx.exception))
+
+    def test_chmod_missing_mode_fails(self):
+        catalog = self._rambox([{"action": "chmod", "path": "/opt/rambox"}])
+        with self.assertRaises(CatalogError) as ctx:
+            resolve(["rambox"], catalog)
+        self.assertIn("mode", str(ctx.exception))
+
+    def test_invalid_action_fails(self):
+        catalog = self._rambox([{"action": "symlink", "path": "/tmp"}])
+        with self.assertRaises(CatalogError) as ctx:
+            resolve(["rambox"], catalog)
+        self.assertIn("invalid action", str(ctx.exception))
+
+    def test_unknown_key_fails(self):
+        catalog = self._rambox(
+            [
+                {
+                    "action": "desktop_exec",
+                    "path": "/usr/share/applications/rambox.desktop",
+                    "exec": "/opt/rambox/rambox --no-sandbox %U",
+                    "owner": "root",
+                }
+            ]
+        )
+        with self.assertRaises(CatalogError) as ctx:
+            resolve(["rambox"], catalog)
+        self.assertIn("unknown keys", str(ctx.exception))
+
+    def test_missing_path_fails(self):
+        catalog = self._rambox(
+            [{"action": "desktop_exec", "exec": "/opt/rambox/rambox"}]
+        )
+        with self.assertRaises(CatalogError) as ctx:
+            resolve(["rambox"], catalog)
+        self.assertIn("path", str(ctx.exception))
+
+    def test_path_must_be_desktop_file(self):
+        catalog = self._rambox(
+            [
+                {
+                    "action": "desktop_exec",
+                    "path": "/usr/share/applications/rambox",
+                    "exec": "/opt/rambox/rambox --no-sandbox %U",
+                }
+            ]
+        )
+        with self.assertRaises(CatalogError) as ctx:
+            resolve(["rambox"], catalog)
+        self.assertIn(".desktop", str(ctx.exception))
+
+    def test_exec_must_omit_key_prefix(self):
+        catalog = self._rambox(
+            [
+                {
+                    "action": "desktop_exec",
+                    "path": "/usr/share/applications/rambox.desktop",
+                    "exec": "Exec=/opt/rambox/rambox --no-sandbox %U",
+                }
+            ]
+        )
+        with self.assertRaises(CatalogError) as ctx:
+            resolve(["rambox"], catalog)
+        self.assertIn("omit the 'Exec=' prefix", str(ctx.exception))
+
+    def test_empty_post_install_list_fails(self):
+        catalog = self._rambox([])
+        with self.assertRaises(CatalogError) as ctx:
+            resolve(["rambox"], catalog)
+        self.assertIn("must be a non-empty list", str(ctx.exception))
+
+    def test_optional_must_be_bool(self):
+        catalog = self._rambox(
+            [
+                {
+                    "action": "desktop_exec",
+                    "path": "/usr/share/applications/rambox.desktop",
+                    "exec": "/opt/rambox/rambox --no-sandbox %U",
+                    "optional": "yes",
+                }
+            ]
+        )
+        with self.assertRaises(CatalogError) as ctx:
+            resolve(["rambox"], catalog)
+        self.assertIn("optional", str(ctx.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

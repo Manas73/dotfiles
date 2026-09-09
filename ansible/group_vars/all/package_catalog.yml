@@ -9,6 +9,11 @@
 #   arch:    Arch/Garuda (pacman / aur)
 #   darwin:  macOS (brew / cask)
 #
+# Optional on a provider block:
+#   taps:         Homebrew taps (brew/cask only)
+#   post_install: typed actions run after the provider installs
+#                 (chmod, desktop_exec, …)
+#
 # `all:` is unioned with the matching OS key, so a CLI tool can be mise
 # everywhere while still installing a system package on one OS (python).
 # An app that is intentionally Linux-only omits `all:` and `darwin:`
@@ -352,7 +357,12 @@ package_catalog:
       - { provider: aur,    packages: [ai-usagebar-bin] }
 
   rambox:
-    arch:   { provider: aur, packages: [rambox-pro-bin] }
+    arch:
+      provider: aur
+      packages: [rambox-pro-bin]
+      post_install:
+        - { action: chmod, path: /opt/rambox, mode: "0755" }
+        - { action: chmod, path: /opt/rambox/rambox, mode: "+x" }
     darwin: { provider: cask, packages: [rambox] }
 
   rofi-wayland:

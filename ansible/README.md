@@ -212,6 +212,30 @@ Rules:
   silently dropped, so arch-only entries (like `pacseek`) don't fail on
   darwin and vice versa.
 - Output buckets are deduped and sorted per provider for stable diffs.
+- Optional `post_install:` on a provider block is a non-empty list of typed
+  actions run after every provider install. Actions are OS-scoped by the
+  block they sit on (Linux-only tweaks go on `arch:`, not `all:`). Each
+  `action` value must match a task file under
+  `roles/packages/tasks/post_install/<action>.yml`.
+
+  ```yaml
+  rambox:
+    arch:
+      provider: aur
+      packages: [rambox-pro-bin]
+      post_install:
+        - { action: chmod, path: /opt/rambox, mode: "0755" }
+        - { action: chmod, path: /opt/rambox/rambox, mode: "+x" }
+    darwin: { provider: cask, packages: [rambox] }
+  ```
+
+  Current types (each re-applied every packages run so vendor upgrades
+  cannot stick):
+
+  | Action | Keys | Purpose |
+  |--------|------|---------|
+  | `chmod` | `path`, `mode` (string: octal `"0755"` or symbolic `"+x"`; quote octal), optional `optional` | Set mode on an existing path. |
+  | `desktop_exec` | `path` (must end in `.desktop`), `exec` (value, no `Exec=` prefix), optional `optional`, optional `section` (default `Desktop Entry`) | Rewrite `Exec=` on a `.desktop` file. |
 
 ### packages role (resolve + install)
 
@@ -225,9 +249,11 @@ Rules:
    list. Unknown profile names are silently ignored.
 3. Resolve the aggregated list through the catalog via the `resolve_catalog`
    filter, producing
-   `packages_resolved = {packages: {provider: [pkg, ...]}, taps: {provider: [tap, ...]}}`.
+   `packages_resolved = {packages: {provider: [pkg, ...]}, taps: {provider: [tap, ...]}, post_install: [action, ...]}`.
 4. Include provider task files in fixed order for each non-empty bucket:
    `pacman.yml` → `aur.yml` → `brew.yml` (formulae + casks) → `mise.yml` → `uv.yml`.
+5. Run `post_install.yml` for each resolved action (no-op when the list
+   is empty). Typed action task files live under `tasks/post_install/`.
 
 ### Provider task files
 
@@ -242,7 +268,10 @@ Each file under `roles/packages/tasks/` installs for one package manager:
 | `uv.yml` | all | Requires `uv` on PATH (mise tool). `uv tool install --quiet` per spec. |
 
 Shared contract: input `provider_packages` (list), no-op when empty, assert
-OS family (except mise and uv), idempotent install, side effects limited to packages.
+OS family (except mise and uv), idempotent install, side effects limited to
+packages. Catalog `post_install` actions are the exception: they run after
+all providers and may patch files those packages dropped (modes, `.desktop`
+Exec lines).
 
 Multilib is a pacman *repo*, not a separate manager, so `steam` and friends
 route to `provider: pacman` (with multilib enabled in `/etc/pacman.conf`).
@@ -258,7 +287,9 @@ route to `provider: pacman` (with multilib enabled in `/etc/pacman.conf`).
 2. Add a catalog entry. Cross-OS CLI tools use `all: { provider: mise,
    packages: ["tool@version"] }` or `all: { provider: uv, packages: [name] }`
    for PyPI CLIs. GUI / OS packages use per-OS `arch:` / `darwin:` blocks.
-   The catalog is exhaustive: a missing entry fails resolution.
+   The catalog is exhaustive: a missing entry fails resolution. If the
+   package drops a file that needs a one-line patch (mode, `.desktop`
+   Exec flags, …), add `post_install:` on that OS block.
 3. Verify the resolution:
 
    ```sh
@@ -278,6 +309,24 @@ To add, for example, a Flatpak provider:
 2. Add an `include_tasks` block for it in `roles/packages/tasks/main.yml`.
 3. Add `"flatpak"` to `VALID_PROVIDERS` in `filter_plugins/catalog.py`.
 4. Add `provider: flatpak` entries to catalog apps that should use it.
+
+## Adding a post-install action type
+
+Post-install is the same shape as a provider: a catalog field, a
+whitelist, a task file. The dispatcher already includes
+`post_install/<action>.yml` by name.
+
+1. Add the type to `VALID_POST_INSTALL_ACTIONS` and a normalizer branch
+   in `filter_plugins/catalog.py` (`_normalize_post_install_action`).
+2. Create `roles/packages/tasks/post_install/<action>.yml`. Read keys
+   from `post_install_action`. Stay idempotent. Use `become` only for
+   paths outside the user's home.
+3. Declare `post_install:` on the catalog provider block for the OS that
+   needs it. Schema errors fail at resolve time (`mise run test-catalog`
+   and `playbooks/validate.yml`).
+
+To attach an *existing* type to an app, only step 3 is required. Put
+Linux-only tweaks on `arch:`, not `all:`.
 
 ## Adding a Host
 
@@ -334,13 +383,14 @@ Copy `recipes/personal_workstation.yml` (or `mac_turing.yml`), edit
 
 | Tag        | Scope                                                |
 |------------|------------------------------------------------------|
-| `packages` | Whole packages role (all providers).                 |
+| `packages` | Whole packages role (providers + post-install).      |
 | `pacman`   | Pacman task file only.                               |
 | `aur`      | AUR task file only.                                  |
 | `brew`     | Homebrew formulae + casks.                           |
 | `cask`     | Same as `brew` (merged job).                         |
 | `mise`     | mise CLI tools (`mise use --global --pin`).          |
 | `uv`       | uv CLI tools (`uv tool install --quiet`).            |
+| `post_install` | Catalog post-install actions only (re-apply after a manual upgrade). |
 | `arch`     | All arch-OS package work.                            |
 | `darwin`   | All darwin-OS package work.                          |
 | `upgrade`  | `pacman -Syu` task.                                  |

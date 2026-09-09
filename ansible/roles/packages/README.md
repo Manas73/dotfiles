@@ -10,6 +10,7 @@ Intent       os_apps + profiles_catalog[].apps (via recipe profiles:)
 Catalog      group_vars/all/package_catalog.yml
 Resolve      THIS ROLE (resolve_catalog filter)
 Providers    tasks/{pacman,aur,brew,mise,uv}.yml  # brew = formulae + casks
+Post-install tasks/post_install.yml + tasks/post_install/<action>.yml
 ```
 
 ## Responsibilities
@@ -24,10 +25,14 @@ Providers    tasks/{pacman,aur,brew,mise,uv}.yml  # brew = formulae + casks
    `yay` (bootstraps `yay-bin` from the AUR if missing). mise installs
    pinned CLI tools into the user mise prefix (`mise use --global --pin`).
    uv installs Python CLIs via `uv tool install --quiet`.
+5. Run catalog `post_install` actions (typed; currently `chmod` and
+   `desktop_exec`) after every provider so package-dropped files can be
+   patched in the same play. No-op when the resolved list is empty.
 
 ## Does not
 
-- Manage configuration, services, or dotfiles (mise.yml writes pins into
+- Manage configuration, services, or dotfiles beyond catalog-declared
+  `post_install` actions (mise.yml writes pins into
   `~/.config/mise/config.toml` additively via `mise use --global`; Chezmoi
   does not own that file).
 - Own package *lists* (`group_vars/<os>/apps.yml` and recipes).

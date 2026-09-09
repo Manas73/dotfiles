@@ -2,9 +2,11 @@
 
 Resolves a list of logical application names against the per-OS package
 catalog. Returns ``{"packages": {provider: [pkg, ...]},
-"taps": {provider: [tap, ...]}}``. Package buckets feed
-``roles/packages/tasks/<name>.yml`` as ``provider_packages``; tap buckets
-feed brew/cask as ``provider_taps``.
+"taps": {provider: [tap, ...]}, "post_install": [action, ...]}``.
+Package buckets feed ``roles/packages/tasks/<name>.yml`` as
+``provider_packages``; tap buckets feed brew/cask as ``provider_taps``;
+``post_install`` feeds ``roles/packages/tasks/post_install.yml`` after
+the provider installs.
 
 Catalog schema (in YAML)::
 
@@ -39,6 +41,20 @@ Catalog schema (in YAML)::
     python-screeninfo:
       arch: { provider: aur, packages: [python-screeninfo] }
 
+    # Post-install actions (optional, OS-scoped via the block they sit on).
+    # Typed actions; each ``action`` value has a task file under
+    # roles/packages/tasks/post_install/<action>.yml.
+    #   chmod        — set mode on a path (octal "0755" or symbolic "+x")
+    #   desktop_exec — rewrite Exec= on a .desktop file
+    rambox:
+      arch:
+        provider: aur
+        packages: [rambox-pro-bin]
+        post_install:
+          - { action: chmod, path: /opt/rambox, mode: "0755" }
+          - { action: chmod, path: /opt/rambox/rambox, mode: "+x" }
+      darwin: { provider: cask, packages: [rambox] }
+
 Rules:
 
 * Each per-OS value (and ``all:``) is either a single ``{provider, packages}``
@@ -48,6 +64,10 @@ Rules:
   are an error — merge the ``packages:`` lists.
 * Optional ``taps:`` (list of ``user/repo`` strings) is valid only on
   ``brew`` / ``cask`` blocks. brew.yml taps them before install.
+* Optional ``post_install:`` is a non-empty list of action mappings on a
+  provider block. Actions are OS-scoped by which block they sit on
+  (put Linux-only tweaks on ``arch:``, not ``all:``). See
+  ``VALID_POST_INSTALL_ACTIONS``.
 * ``provider: mise`` packages must be pinned ``tool@version`` specs
   (``bat@0.26.1``, ``ubi:owner/repo[exe=bd]@1.2.3``). Bare names and
   ``@latest`` are rejected.
@@ -60,7 +80,9 @@ Rules:
 * An app whose catalog entry has neither ``all:`` nor a key for
   ``target_os`` is silently dropped: the user explicitly chose not to
   install it on this OS (Linux-only / macOS-only apps).
-* Output buckets are deduplicated and sorted for stable diffs.
+* Output package/tap buckets are deduplicated and sorted for stable diffs.
+  ``post_install`` preserves catalog order (then app-intent order) and
+  drops exact duplicate action dicts.
 """
 
 from __future__ import annotations
@@ -76,6 +98,11 @@ from ansible.errors import AnsibleFilterError
 # them via the same module.
 VALID_PROVIDERS = {"pacman", "aur", "brew", "cask", "mise", "uv"}
 
+# Post-install action types must match task files under
+# ``roles/packages/tasks/post_install/<action>.yml``. Add a validator
+# branch in ``_normalize_post_install_action`` when adding a type.
+VALID_POST_INSTALL_ACTIONS = {"chmod", "desktop_exec"}
+
 # Cross-OS key unioned with the per-OS block. Not a target_os value.
 ALL_OS_KEY = "all"
 
@@ -89,6 +116,14 @@ class CatalogError(AnsibleFilterError):
 
 # Homebrew taps are only meaningful for brew/cask.
 TAP_PROVIDERS = {"brew", "cask"}
+
+# Keys allowed on each post_install action type (plus the shared ``action``).
+_CHMOD_KEYS = {"action", "path", "mode", "optional"}
+_DESKTOP_EXEC_KEYS = {"action", "path", "exec", "optional", "section"}
+_POST_INSTALL_KEYS = {
+    "chmod": _CHMOD_KEYS,
+    "desktop_exec": _DESKTOP_EXEC_KEYS,
+}
 
 
 def _ingest_taps(
@@ -119,12 +154,159 @@ def _ingest_taps(
     tap_buckets.setdefault(provider, []).extend(taps)
 
 
+def _normalize_post_install_action(
+    name: str,
+    target_os: str,
+    action: Any,
+) -> dict[str, Any]:
+    """Validate one post_install mapping and return a normalized dict."""
+    loc = f"Catalog entry '{name}'.{target_os}.post_install"
+    if not isinstance(action, dict):
+        raise CatalogError(
+            f"{loc} items must be mappings, got {type(action).__name__}."
+        )
+
+    kind = action.get("action")
+    if kind not in VALID_POST_INSTALL_ACTIONS:
+        raise CatalogError(
+            f"{loc} has invalid action {kind!r}. "
+            f"Valid actions: {sorted(VALID_POST_INSTALL_ACTIONS)}."
+        )
+
+    unknown = set(action) - _POST_INSTALL_KEYS[kind]
+    if unknown:
+        raise CatalogError(
+            f"{loc} action {kind!r} has unknown keys {sorted(unknown)}. "
+            f"Allowed: {sorted(_POST_INSTALL_KEYS[kind])}."
+        )
+
+    if kind == "chmod":
+        return _normalize_chmod(loc, name, action)
+    if kind == "desktop_exec":
+        return _normalize_desktop_exec(loc, name, action)
+
+    raise CatalogError(f"{loc} action {kind!r} has no normalizer.")
+
+
+def _optional_bool(loc: str, action: dict[str, Any], kind: str) -> bool:
+    optional = action.get("optional", False)
+    if not isinstance(optional, bool):
+        raise CatalogError(
+            f"{loc} {kind} 'optional' must be a bool, "
+            f"got {type(optional).__name__}."
+        )
+    return optional
+
+
+def _normalize_chmod(
+    loc: str,
+    name: str,
+    action: dict[str, Any],
+) -> dict[str, Any]:
+    path = action.get("path")
+    if not isinstance(path, str) or not path:
+        raise CatalogError(
+            f"{loc} chmod requires a non-empty string 'path'."
+        )
+
+    mode = action.get("mode")
+    if isinstance(mode, int):
+        raise CatalogError(
+            f"{loc} chmod 'mode' must be a string (quote octal values, "
+            f"e.g. \"0755\" or \"+x\"); got integer {mode}."
+        )
+    if not isinstance(mode, str) or not mode:
+        raise CatalogError(
+            f"{loc} chmod requires a non-empty string 'mode' "
+            f"(octal like \"0755\" or symbolic like \"+x\")."
+        )
+    if any(ch.isspace() for ch in mode):
+        raise CatalogError(
+            f"{loc} chmod 'mode' must not contain whitespace; got {mode!r}."
+        )
+
+    return {
+        "app": name,
+        "action": "chmod",
+        "path": path,
+        "mode": mode,
+        "optional": _optional_bool(loc, action, "chmod"),
+    }
+
+
+def _normalize_desktop_exec(
+    loc: str,
+    name: str,
+    action: dict[str, Any],
+) -> dict[str, Any]:
+    path = action.get("path")
+    if not isinstance(path, str) or not path:
+        raise CatalogError(
+            f"{loc} desktop_exec requires a non-empty string 'path'."
+        )
+    if not path.endswith(".desktop"):
+        raise CatalogError(
+            f"{loc} desktop_exec path must end with '.desktop'; got {path!r}."
+        )
+
+    exec_value = action.get("exec")
+    if not isinstance(exec_value, str) or not exec_value:
+        raise CatalogError(
+            f"{loc} desktop_exec requires a non-empty string 'exec'."
+        )
+    if exec_value.startswith("Exec="):
+        raise CatalogError(
+            f"{loc} desktop_exec 'exec' is the Exec value, not the whole "
+            f"key line; omit the 'Exec=' prefix (got {exec_value!r})."
+        )
+    if "\n" in exec_value:
+        raise CatalogError(
+            f"{loc} desktop_exec 'exec' must be a single line."
+        )
+
+    section = action.get("section", "Desktop Entry")
+    if not isinstance(section, str) or not section:
+        raise CatalogError(
+            f"{loc} desktop_exec 'section' must be a non-empty string."
+        )
+
+    return {
+        "app": name,
+        "action": "desktop_exec",
+        "path": path,
+        "exec": exec_value,
+        "optional": _optional_bool(loc, action, "desktop_exec"),
+        "section": section,
+    }
+
+
+def _ingest_post_install(
+    name: str,
+    target_os: str,
+    block: dict[str, Any],
+    post_install: list[dict[str, Any]],
+) -> None:
+    actions = block.get("post_install")
+    if actions is None:
+        return
+    if not isinstance(actions, list) or not actions:
+        raise CatalogError(
+            f"Catalog entry '{name}'.{target_os}.post_install must be a "
+            f"non-empty list."
+        )
+    for action in actions:
+        post_install.append(
+            _normalize_post_install_action(name, target_os, action)
+        )
+
+
 def _ingest_provider_block(
     name: str,
     target_os: str,
     block: Any,
     buckets: dict[str, list[str]],
     tap_buckets: dict[str, list[str]],
+    post_install: list[dict[str, Any]],
 ) -> None:
     if not isinstance(block, dict):
         raise CatalogError(
@@ -159,6 +341,7 @@ def _ingest_provider_block(
 
     buckets.setdefault(provider, []).extend(packages)
     _ingest_taps(name, target_os, provider, block, tap_buckets)
+    _ingest_post_install(name, target_os, block, post_install)
 
 
 def _validate_mise_spec(name: str, target_os: str, spec: str) -> None:
@@ -198,6 +381,7 @@ def _resolve_one(
     default_provider: str,
     buckets: dict[str, list[str]],
     tap_buckets: dict[str, list[str]],
+    post_install: list[dict[str, Any]],
 ) -> None:
     entry = catalog.get(name)
     if entry is None:
@@ -246,7 +430,9 @@ def _resolve_one(
             if isinstance(provider, str):
                 seen_providers.add(provider)
         # Label errors with the OS being resolved, even for all: blocks.
-        _ingest_provider_block(name, target_os, block, buckets, tap_buckets)
+        _ingest_provider_block(
+            name, target_os, block, buckets, tap_buckets, post_install
+        )
 
 
 def resolve_catalog(
@@ -254,7 +440,7 @@ def resolve_catalog(
     catalog: dict[str, Any] | None,
     target_os: str,
     default_provider: str,
-) -> dict[str, dict[str, list[str]]]:
+) -> dict[str, Any]:
     """Resolve logical app names through the catalog.
 
     Args:
@@ -266,8 +452,10 @@ def resolve_catalog(
             catalog is exhaustive and uncatalogued apps raise CatalogError.
 
     Returns:
-        ``{"packages": {provider: [pkg, ...]}, "taps": {provider: [tap, ...]}}``
-        with each list deduped and sorted.
+        ``{"packages": {provider: [pkg, ...]}, "taps": {provider: [tap, ...]},
+        "post_install": [action, ...]}`` with package/tap lists deduped and
+        sorted. ``post_install`` preserves catalog order and drops exact
+        duplicate action dicts.
     """
     if apps is None:
         apps = []
@@ -292,16 +480,31 @@ def resolve_catalog(
 
     buckets: dict[str, list[str]] = {}
     tap_buckets: dict[str, list[str]] = {}
+    post_install: list[dict[str, Any]] = []
     for app in apps:
         if not isinstance(app, str) or not app:
             raise CatalogError(
                 f"resolve_catalog: app names must be non-empty strings; got {app!r}."
             )
-        _resolve_one(app, catalog, target_os, default_provider, buckets, tap_buckets)
+        _resolve_one(
+            app,
+            catalog,
+            target_os,
+            default_provider,
+            buckets,
+            tap_buckets,
+            post_install,
+        )
+
+    deduped_post_install: list[dict[str, Any]] = []
+    for action in post_install:
+        if action not in deduped_post_install:
+            deduped_post_install.append(action)
 
     return {
         "packages": {provider: sorted(set(pkgs)) for provider, pkgs in buckets.items()},
         "taps": {provider: sorted(set(taps)) for provider, taps in tap_buckets.items()},
+        "post_install": deduped_post_install,
     }
 
 

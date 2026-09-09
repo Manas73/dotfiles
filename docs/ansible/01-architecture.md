@@ -69,6 +69,8 @@ Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.
    `{packages: {provider: [pkg, …]}, taps: {provider: [tap, …]}}`.
 4. Includes provider task files in fixed order for each non-empty bucket:
    pacman → aur → brew (formulae + casks) → mise → uv.
+5. Runs catalog `post_install` actions (typed, OS-scoped on the provider
+   block) so package-dropped files can be patched in the same play.
 
 ### Provider task files
 
@@ -79,9 +81,11 @@ Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.
 | `tasks/brew.yml` | Darwin | Official installer; community.general.homebrew / homebrew_tap / homebrew_cask. |
 | `tasks/mise.yml` | all | Requires `mise` on PATH. `mise use --global --pin` for `tool@version` specs. |
 | `tasks/uv.yml` | all | Requires `uv` on PATH (mise tool). `uv tool install --quiet` per spec. |
+| `tasks/post_install.yml` | all | Typed catalog actions after the providers (`chmod`, `desktop_exec`). |
 
-Each accepts `provider_packages`, no-ops on empty input, asserts the OS
-family (except mise and uv), and installs idempotently.
+Each provider file accepts `provider_packages`, no-ops on empty input, asserts
+the OS family (except mise and uv), and installs idempotently. Post-install
+is not a provider: it patches files those packages dropped.
 
 ## How it ties back to Chezmoi
 

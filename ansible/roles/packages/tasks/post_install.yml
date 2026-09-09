@@ -1,0 +1,27 @@
+---
+# Dispatch catalog post_install actions after provider installs.
+#
+# Input: post_install_actions — list of normalized dicts from
+# resolve_catalog. Each item has ``action`` (task file basename under
+# post_install/) plus action-specific keys. Adding a type = whitelist it
+# in filter_plugins/catalog.py and add post_install/<action>.yml.
+
+- name: Assert post_install_actions is a list
+  ansible.builtin.assert:
+    that:
+      - post_install_actions is defined
+      - post_install_actions is sequence
+    fail_msg: "packages/post_install: post_install_actions must be a list."
+    quiet: true
+  tags: [packages, post_install]
+
+- name: Run post-install action
+  ansible.builtin.include_tasks:
+    file: "post_install/{{ post_install_action.action }}.yml"
+    apply:
+      tags: [packages, post_install]
+  loop: "{{ post_install_actions }}"
+  loop_control:
+    loop_var: post_install_action
+    label: "{{ post_install_action.app }}:{{ post_install_action.action }}"
+  tags: [packages, post_install]
