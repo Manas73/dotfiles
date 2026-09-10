@@ -68,9 +68,11 @@ Rules:
   provider block. Actions are OS-scoped by which block they sit on
   (put Linux-only tweaks on ``arch:``, not ``all:``). See
   ``VALID_POST_INSTALL_ACTIONS``.
-* ``provider: mise`` packages must be pinned ``tool@version`` specs
-  (``bat@0.26.1``, ``ubi:owner/repo[exe=bd]@1.2.3``). Bare names and
-  ``@latest`` are rejected.
+* ``provider: mise`` packages must be ``tool@version`` specs
+  (``bat@0.26.1``, ``ubi:owner/repo[exe=bd]@1.2.3``). Bare names are
+  rejected. ``@latest`` is allowed: the first install pins the current
+  latest into the global mise config; later runs install that pin and
+  do not re-resolve latest.
 * ``provider: uv`` packages are PEP 508 specs passed to
   ``uv tool install`` (``linecast``, ``linecast==1.2.3``). Bare names
   are allowed.
@@ -87,6 +89,7 @@ Rules:
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from ansible.errors import AnsibleFilterError
@@ -106,8 +109,12 @@ VALID_POST_INSTALL_ACTIONS = {"chmod", "desktop_exec"}
 # Cross-OS key unioned with the per-OS block. Not a target_os value.
 ALL_OS_KEY = "all"
 
-# mise CLI treats these as unpinned; the catalog requires a concrete version.
+# Empty ``@`` is rejected. ``@latest`` is allowed (install-once, then keep
+# the pin written to the global mise config).
 UNPINNED_MISE_VERSIONS = {""}
+
+# Catalog alias that means "current latest on first install only".
+MISE_LATEST_VERSION = "latest"
 
 
 class CatalogError(AnsibleFilterError):
@@ -345,7 +352,7 @@ def _ingest_provider_block(
 
 
 def _validate_mise_spec(name: str, target_os: str, spec: str) -> None:
-    """Require a pinned ``tool@version`` spec for the mise provider."""
+    """Require a ``tool@version`` spec for the mise provider."""
     if "@" not in spec:
         raise CatalogError(
             f"Catalog entry '{name}'.{target_os} mise package {spec!r} must "
@@ -362,6 +369,94 @@ def _validate_mise_spec(name: str, target_os: str, spec: str) -> None:
             f"Catalog entry '{name}'.{target_os} mise package {spec!r} must "
             f"pin a concrete version, not {version!r}."
         )
+
+
+def _mise_tool_name(spec: str) -> str:
+    """Return the mise tool id from a catalog spec, without version or options."""
+    tool = spec.rsplit("@", 1)[0] if "@" in spec else spec
+    bracket = tool.find("[")
+    if bracket != -1:
+        tool = tool[:bracket]
+    return tool
+
+
+def _mise_version(spec: str) -> str:
+    if "@" not in spec:
+        return ""
+    return spec.rsplit("@", 1)[1]
+
+
+def _configured_mise_tools(global_tools: Any) -> set[str]:
+    """Tool names currently listed in the global mise config.
+
+    Accepts ``mise ls --global --json`` output (dict or JSON string) or a
+    bare list/set of names.
+    """
+    if isinstance(global_tools, str):
+        raw = global_tools.strip()
+        if not raw:
+            return set()
+        try:
+            global_tools = json.loads(raw)
+        except json.JSONDecodeError:
+            return set()
+    if isinstance(global_tools, dict):
+        return {str(name) for name in global_tools}
+    if isinstance(global_tools, (list, tuple, set)):
+        names: set[str] = set()
+        for item in global_tools:
+            if isinstance(item, str) and item:
+                names.add(item)
+            elif isinstance(item, dict):
+                name = item.get("name")
+                if isinstance(name, str) and name:
+                    names.add(name)
+        return names
+    return set()
+
+
+def _is_latest_spec(spec: str) -> bool:
+    return _mise_version(spec).lower() == MISE_LATEST_VERSION
+
+
+def mise_use_specs(specs: list[str] | None, global_tools: Any = None) -> list[str]:
+    """Specs to pass to ``mise use --global --pin``.
+
+    ``@latest`` tools already present in the global mise config are omitted.
+    ``mise use tool`` (no version) and ``mise use tool@latest`` both resolve
+    latest and would overwrite the existing pin. Concrete ``tool@version``
+    specs always pass through so catalog bumps still apply.
+    """
+    if not specs:
+        return []
+    configured = _configured_mise_tools(global_tools)
+    return [
+        spec
+        for spec in specs
+        if not (
+            isinstance(spec, str)
+            and _is_latest_spec(spec)
+            and _mise_tool_name(spec) in configured
+        )
+    ]
+
+
+def mise_install_tools(specs: list[str] | None, global_tools: Any = None) -> list[str]:
+    """Unversioned tool names for ``mise install``.
+
+    Only ``@latest`` specs already in the global config. ``mise install tool``
+    (no ``@version``) installs the pin from ``~/.config/mise/config.toml``.
+    """
+    if not specs:
+        return []
+    configured = _configured_mise_tools(global_tools)
+    return [
+        _mise_tool_name(spec)
+        for spec in specs
+        if isinstance(spec, str)
+        and _is_latest_spec(spec)
+        and _mise_tool_name(spec) in configured
+    ]
 
 
 def _blocks_from_entry(name: str, key: str, value: Any) -> list[Any]:
@@ -509,7 +604,11 @@ def resolve_catalog(
 
 
 class FilterModule:
-    """Expose ``resolve_catalog`` as an ansible jinja filter."""
+    """Expose catalog helpers as ansible jinja filters."""
 
     def filters(self) -> dict[str, Any]:
-        return {"resolve_catalog": resolve_catalog}
+        return {
+            "resolve_catalog": resolve_catalog,
+            "mise_use_specs": mise_use_specs,
+            "mise_install_tools": mise_install_tools,
+        }

@@ -23,7 +23,9 @@ Post-install tasks/post_install.yml + tasks/post_install/<action>.yml
    (fixed order: pacman → aur → brew → mise → uv). Homebrew formulae and
    casks use community.general.homebrew / homebrew_cask. AUR installs via
    `yay` (bootstraps `yay-bin` from the AUR if missing). mise installs
-   pinned CLI tools into the user mise prefix (`mise use --global --pin`).
+   pinned CLI tools into the user mise prefix (`mise use --global --pin`;
+   `@latest` tools already in the global config use `mise install` with no
+   version so the toml pin is kept).
    uv installs Python CLIs via `uv tool install --quiet`.
 5. Run catalog `post_install` actions (typed; currently `chmod` and
    `desktop_exec`) after every provider so package-dropped files can be

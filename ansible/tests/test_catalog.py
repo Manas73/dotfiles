@@ -11,7 +11,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "filter_plugins"))
 
-from catalog import CatalogError, resolve_catalog  # noqa: E402
+from catalog import (  # noqa: E402
+    CatalogError,
+    mise_install_tools,
+    mise_use_specs,
+    resolve_catalog,
+)
 
 
 def resolve(apps, catalog, target_os="arch", default_provider="pacman"):
@@ -71,11 +76,14 @@ class ResolveCatalogTests(unittest.TestCase):
             resolve(["bat"], catalog)
         self.assertIn("tool@version", str(ctx.exception))
 
-    def test_mise_rejects_latest(self):
-        catalog = {"bat": {"all": {"provider": "mise", "packages": ["bat@latest"]}}}
-        with self.assertRaises(CatalogError) as ctx:
-            resolve(["bat"], catalog)
-        self.assertIn("concrete version", str(ctx.exception))
+    def test_mise_accepts_latest(self):
+        catalog = {
+            "claude-code": {
+                "all": {"provider": "mise", "packages": ["claude-code@latest"]}
+            }
+        }
+        resolved = resolve(["claude-code"], catalog)
+        self.assertEqual(resolved["packages"], {"mise": ["claude-code@latest"]})
 
     def test_mise_accepts_backend_prefix_and_exe(self):
         catalog = {
@@ -385,6 +393,54 @@ class ResolveCatalogPostInstallTests(unittest.TestCase):
         with self.assertRaises(CatalogError) as ctx:
             resolve(["rambox"], catalog)
         self.assertIn("optional", str(ctx.exception))
+
+
+class MiseUseAndInstallSplitTests(unittest.TestCase):
+    GLOBAL_JSON = """
+    {
+      "bat": [{"version": "0.26.1", "installed": true}],
+      "claude-code": [{"version": "2.1.266", "installed": true}],
+      "github:steveyegge/beads": [{"version": "1.2.2", "installed": true}]
+    }
+    """
+
+    def test_latest_not_in_config_stays_on_use(self):
+        specs = ["claude-code@latest", "bat@0.26.1"]
+        self.assertEqual(
+            mise_use_specs(specs, {}),
+            ["claude-code@latest", "bat@0.26.1"],
+        )
+        self.assertEqual(mise_install_tools(specs, {}), [])
+
+    def test_latest_in_config_goes_to_unversioned_install(self):
+        specs = ["claude-code@latest", "bat@0.26.1", "opencode@latest"]
+        self.assertEqual(
+            mise_use_specs(specs, self.GLOBAL_JSON),
+            ["bat@0.26.1", "opencode@latest"],
+        )
+        self.assertEqual(
+            mise_install_tools(specs, self.GLOBAL_JSON),
+            ["claude-code"],
+        )
+
+    def test_concrete_pin_always_uses_catalog_version(self):
+        specs = ["bat@0.26.1"]
+        self.assertEqual(mise_use_specs(specs, self.GLOBAL_JSON), ["bat@0.26.1"])
+        self.assertEqual(mise_install_tools(specs, self.GLOBAL_JSON), [])
+
+    def test_latest_with_backend_options_matches_config_name(self):
+        specs = ["github:steveyegge/beads[exe=bd]@latest"]
+        self.assertEqual(mise_use_specs(specs, self.GLOBAL_JSON), [])
+        self.assertEqual(
+            mise_install_tools(specs, self.GLOBAL_JSON),
+            ["github:steveyegge/beads"],
+        )
+
+    def test_empty_and_invalid_global_json_are_unconfigured(self):
+        specs = ["claude-code@latest"]
+        self.assertEqual(mise_use_specs(specs, ""), specs)
+        self.assertEqual(mise_use_specs(specs, "not-json"), specs)
+        self.assertEqual(mise_install_tools(specs, ""), [])
 
 
 if __name__ == "__main__":

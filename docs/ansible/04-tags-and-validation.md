@@ -9,7 +9,7 @@
 | `packages` | `roles/packages` (resolve + all provider task files). |
 | `pacman` / `aur` | A single provider task file under `roles/packages/tasks/`. |
 | `brew` / `cask` | Homebrew formulae + casks. |
-| `mise` | mise CLI tools (`mise use --global --pin`). |
+| `mise` | mise CLI tools (`mise use --global --pin`; `@latest` from the global pin). |
 | `uv` | uv CLI tools (`uv tool install --quiet`). |
 | `post_install` | Catalog post-install actions only (re-apply after a manual upgrade). |
 | `arch` / `darwin` | All package work for the matching OS. |

@@ -35,7 +35,8 @@ reference is [`../../ansible/README.md`](../../ansible/README.md).
 ```yaml
 package_catalog:
 
-  # Cross-OS CLI via mise. Pin a concrete version; `@latest` is rejected.
+  # Cross-OS CLI via mise. Pin a concrete version, or `@latest` to
+  # install current latest once and keep the global mise config pin.
   bat:
     all:
       provider: mise
@@ -105,8 +106,9 @@ Rules:
 - `all:` is applied on every OS, then unioned with the matching per-OS block.
   The same provider must not appear twice after that union — merge the
   `packages:` lists. The resolver fails fast on duplicates.
-- `provider: mise` packages must be pinned `tool@version`. Use a backend
-  prefix when the short name is not in the mise registry
+- `provider: mise` packages must be `tool@version`. `@latest` installs the
+  current latest once and then keeps the pin in the global mise config.
+  Use a backend prefix when the short name is not in the mise registry
   (`github:sinelaw/fresh@0.4.10`).
 - `provider: uv` packages are PEP 508 specs passed to `uv tool install`
   (`linecast`, `linecast==1.2.3`). Bare names are allowed.

@@ -79,7 +79,7 @@ Full schema and rules: [`03-adding-apps-providers.md`](03-adding-apps-providers.
 | `tasks/pacman.yml` | Archlinux | Verifies pacman; folds in multilib. |
 | `tasks/aur.yml` | Archlinux | Builds `yay-bin` when yay is missing. |
 | `tasks/brew.yml` | Darwin | Official installer; community.general.homebrew / homebrew_tap / homebrew_cask. |
-| `tasks/mise.yml` | all | Requires `mise` on PATH. `mise use --global --pin` for `tool@version` specs. |
+| `tasks/mise.yml` | all | Requires `mise` on PATH. `mise use --global --pin` for `tool@version` specs; `@latest` already in the global config uses `mise install` (no version). |
 | `tasks/uv.yml` | all | Requires `uv` on PATH (mise tool). `uv tool install --quiet` per spec. |
 | `tasks/post_install.yml` | all | Typed catalog actions after the providers (`chmod`, `desktop_exec`). |
 

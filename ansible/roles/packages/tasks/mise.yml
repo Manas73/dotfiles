@@ -2,7 +2,7 @@
 # Install pinned CLI tools via mise (user-level, cross-OS).
 #
 # Input: provider_packages (list[str]) — mise specs, each `tool@version`
-# (e.g. bat@0.26.1, github:sinelaw/fresh@0.4.10).
+# (e.g. bat@0.26.1, github:sinelaw/fresh@0.4.10, claude-code@latest).
 #
 # mise itself is an OS package (pacman/brew) and is installed by the
 # earlier provider tasks. This file only pins and installs tools into
@@ -10,7 +10,13 @@
 # `mise use --global`. Additive: tools the user added with `mise use -g`
 # are not removed.
 #
-# No become. Check mode is `mise use --dry-run`.
+# `@latest` is install-once. The first `mise use --pin tool@latest` writes
+# a concrete pin into the global config. Later runs must not pass
+# `tool@latest` (or a bare `tool`) to `mise use` — both re-resolve latest
+# and overwrite the pin. Those tools go to `mise install tool` with no
+# version, which reads the existing pin from the global toml.
+#
+# No become. Check mode is `mise use --dry-run` / `mise install --dry-run`.
 
 - name: Assert provider_packages is defined and a list
   ansible.builtin.assert:
@@ -46,6 +52,29 @@
   when: packages_mise_binary.rc != 0
   tags: [packages, mise]
 
+- name: List globally configured mise tools
+  ansible.builtin.command:
+    argv:
+      - "{{ packages_mise_binary.stdout }}"
+      - ls
+      - --global
+      - --json
+  register: packages_mise_global
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  args:
+    chdir: "{{ ansible_facts['user_dir'] }}"
+  tags: [packages, mise]
+
+- name: Split mise specs into use (pin) and install (toml version)
+  ansible.builtin.set_fact:
+    packages_mise_use_specs: >-
+      {{ provider_packages | mise_use_specs(packages_mise_global.stdout | default('')) }}
+    packages_mise_install_tools: >-
+      {{ provider_packages | mise_install_tools(packages_mise_global.stdout | default('')) }}
+  tags: [packages, mise]
+
 - name: Pin and install mise tools globally
   ansible.builtin.include_tasks:
     file: stream_cmd.yml
@@ -54,26 +83,87 @@
   vars:
     stream_title: >-
       Pin and install mise tools globally
-      ({{ provider_packages | length }})
+      ({{ packages_mise_use_specs | length }})
     stream_shell: >-
-      {{ ([packages_mise_binary.stdout, 'use', '--global', '--pin', '--yes'] + provider_packages) | map('quote') | join(' ') }}
+      {{ ([packages_mise_binary.stdout, 'use', '--global', '--pin', '--yes']
+          + packages_mise_use_specs) | map('quote') | join(' ') }}
     stream_environment:
       MISE_YES: "1"
     stream_chdir: "{{ ansible_facts['user_dir'] }}"
     stream_changed_regex: "install"
-  when: not ansible_check_mode
+  when:
+    - not ansible_check_mode
+    - packages_mise_use_specs | length > 0
+  tags: [packages, mise]
+
+- name: Install @latest mise tools from the global config pin
+  ansible.builtin.include_tasks:
+    file: stream_cmd.yml
+    apply:
+      tags: [packages, mise]
+  vars:
+    stream_title: >-
+      Install @latest mise tools from the global config pin
+      ({{ packages_mise_install_tools | length }})
+    stream_shell: >-
+      {{ ([packages_mise_binary.stdout, 'install', '--yes']
+          + packages_mise_install_tools) | map('quote') | join(' ') }}
+    stream_environment:
+      MISE_YES: "1"
+    stream_chdir: "{{ ansible_facts['user_dir'] }}"
+    stream_changed_regex: "installing|downloaded"
+  when:
+    - not ansible_check_mode
+    - packages_mise_install_tools | length > 0
   tags: [packages, mise]
 
 - name: Preview mise pins (check mode)
   ansible.builtin.command:
-    argv: "{{ [packages_mise_binary.stdout, 'use', '--global', '--pin', '--yes', '--dry-run'] + provider_packages }}"
+    argv: "{{ [packages_mise_binary.stdout, 'use', '--global', '--pin', '--yes', '--dry-run'] + packages_mise_use_specs }}"
   environment:
     MISE_YES: "1"
   args:
     chdir: "{{ ansible_facts['user_dir'] }}"
   changed_when: false
   check_mode: false
-  when: ansible_check_mode
+  when:
+    - ansible_check_mode
+    - packages_mise_use_specs | length > 0
+  tags: [packages, mise]
+
+- name: Preview @latest mise installs from the global config pin (check mode)
+  ansible.builtin.command:
+    argv: "{{ [packages_mise_binary.stdout, 'install', '--yes', '--dry-run'] + packages_mise_install_tools }}"
+  environment:
+    MISE_YES: "1"
+  args:
+    chdir: "{{ ansible_facts['user_dir'] }}"
+  changed_when: false
+  check_mode: false
+  when:
+    - ansible_check_mode
+    - packages_mise_install_tools | length > 0
+  tags: [packages, mise]
+
+# `mise use --pin` already writes lockfile entries for the tools it
+# touches. `mise lock --global` re-fetches checksums/URLs for every
+# tool × platform (GitHub API, ~1 min even on a no-op) so only run it
+# when the lockfile is missing or older than config.toml.
+
+- name: Stat the global mise config
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['user_dir'] }}/.config/mise/config.toml"
+  register: packages_mise_config_stat
+  changed_when: false
+  check_mode: false
+  tags: [packages, mise]
+
+- name: Stat the global mise lockfile
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['user_dir'] }}/.config/mise/mise.lock"
+  register: packages_mise_lockfile_stat
+  changed_when: false
+  check_mode: false
   tags: [packages, mise]
 
 - name: Refresh the global mise lockfile
@@ -86,7 +176,15 @@
     MISE_YES: "1"
   args:
     chdir: "{{ ansible_facts['user_dir'] }}"
-  when: not ansible_check_mode
+  when:
+    - not ansible_check_mode
+    - >-
+        not (packages_mise_lockfile_stat.stat.exists | default(false))
+        or (
+          (packages_mise_config_stat.stat.exists | default(false))
+          and (packages_mise_config_stat.stat.mtime | default(0))
+              > (packages_mise_lockfile_stat.stat.mtime | default(0))
+        )
   changed_when: false
   failed_when: false
   tags: [packages, mise]

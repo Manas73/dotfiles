@@ -160,7 +160,8 @@ Schema:
 package_catalog:
 
   # Cross-OS CLI tool via mise. `all:` applies on every OS. Packages are
-  # pinned `tool@version` specs; `@latest` is rejected.
+  # `tool@version` specs. `@latest` installs current latest once, then
+  # keeps the pin in ~/.config/mise/config.toml.
   bat:
     all:
       provider: mise
@@ -221,8 +222,10 @@ Rules:
 - `all:` is applied on every OS, then unioned with the matching per-OS
   block. The same provider must not appear twice after that union — merge
   the `packages:` lists instead. The resolver fails fast on duplicates.
-- `provider: mise` packages must be pinned `tool@version` (bare names and
-  `@latest` fail). Use a backend prefix when the short name is missing
+- `provider: mise` packages must be `tool@version` (bare names fail).
+  `@latest` is allowed: first install pins the current latest into the
+  global mise config; later runs install that pin and do not upgrade.
+  Use a backend prefix when the short name is missing
   (`github:sinelaw/fresh@0.4.10`).
 - `provider: uv` packages are PEP 508 specs passed to `uv tool install`
   (`linecast`, `linecast==1.2.3`). Bare names are allowed.
@@ -286,7 +289,7 @@ Each file under `roles/packages/tasks/` installs for one package manager:
 | `pacman.yml` | Archlinux | Verifies pacman; optional `-Sy` / `-Syu`. |
 | `aur.yml` | Archlinux | Clones `yay-bin` and builds it when yay is missing. |
 | `brew.yml` | Darwin | Official installer; `community.general.homebrew` / `homebrew_tap` / `homebrew_cask`. |
-| `mise.yml` | all | Requires `mise` on PATH (OS package or curl bootstrap). `mise use --global --pin`. |
+| `mise.yml` | all | Requires `mise` on PATH (OS package or curl bootstrap). `mise use --global --pin`; `@latest` tools already in the global config use `mise install` with no version. |
 | `uv.yml` | all | Requires `uv` on PATH (mise tool). `uv tool install --quiet` per spec. |
 
 Shared contract: input `provider_packages` (list), no-op when empty, assert
