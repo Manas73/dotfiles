@@ -17,15 +17,37 @@
 
 service_catalog:
   docker:
-    arch: { manager: systemd, name: docker.socket, scope: system, enabled: true }
+    arch:
+      manager: systemd
+      name: docker.socket
+      scope: system
+      enabled: true
 
   libvirt:
     arch:
-      - { manager: systemd, name: libvirtd.socket, scope: system, enabled: true }
-      - { manager: systemd, name: virtlogd.socket, scope: system, enabled: true }
+      - manager: systemd
+        name: libvirtd.socket
+        scope: system
+        enabled: true
+      - manager: systemd
+        name: virtlogd.socket
+        scope: system
+        enabled: true
+
+  ly:
+    arch:
+      manager: systemd
+      name: ly@tty2.service
+      scope: system
+      enabled: true
+
 
   hyprmoncfgd:
-    arch: { manager: systemd, name: hyprmoncfgd.service, scope: user, enabled: true }
+    arch:
+      manager: systemd
+      name: hyprmoncfgd.service
+      scope: user
+      enabled: true
 
   # postgresql:
   #   arch:   { manager: systemd, name: postgresql.service, scope: system, enabled: true, state: started }

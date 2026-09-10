@@ -114,6 +114,7 @@ profiles_catalog:
       - hyprlock
       - hyprmoncfg
       - hyprsunset
+      - ly
       - matugen
       - pipewire
       - qt5-wayland
@@ -126,6 +127,7 @@ profiles_catalog:
       - xdg-desktop-portal-hyprland
     services:
       - hyprmoncfgd
+      - ly
 
   kde:
     apps:

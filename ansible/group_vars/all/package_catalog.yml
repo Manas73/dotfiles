@@ -436,6 +436,11 @@ package_catalog:
       provider: pacman
       packages: [lutris]
 
+  ly:
+    arch:
+      provider: pacman
+      packages: [ly]
+
   masterpdfeditor:
     arch:
       provider: aur
