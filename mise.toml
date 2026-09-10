@@ -76,7 +76,7 @@ description = "Show pending dotfile changes"
 run = "chezmoi diff"
 
 [tasks.apply]
-description = "Provision this host fully (packages + dotfiles + system; sudo)"
+description = "Provision this host fully (packages + dotfiles + system + services; sudo)"
 dir = "{{config_root}}/ansible"
 run = 'ansible-playbook playbooks/site.yml --limit "$(hostname)" --ask-become-pass'
 
@@ -89,6 +89,11 @@ run = 'ansible-playbook playbooks/dotfiles.yml --limit "$(hostname)"'
 description = "Install packages only (sudo)"
 dir = "{{config_root}}/ansible"
 run = 'ansible-playbook playbooks/site.yml --limit "$(hostname)" --tags packages --ask-become-pass'
+
+[tasks.services]
+description = "Enable services only (sudo)"
+dir = "{{config_root}}/ansible"
+run = 'ansible-playbook playbooks/site.yml --limit "$(hostname)" --tags services --ask-become-pass'
 
 [tasks.aur-conflicts]
 description = "Report AUR catalog packages that conflict with installed packages"

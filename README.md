@@ -55,10 +55,11 @@ From the repo root (`~/.local/share/chezmoi`):
 | `mise run diff` | pending dotfile changes |
 | `mise run apply` | full provision (sudo) |
 | `mise run packages` | packages only (sudo) |
+| `mise run services` | enable services only (sudo) |
 | `mise run dotfiles` | re-apply dotfiles + wallpaper |
 | `mise run deps` | refresh Ansible collections |
 
-Host-acting tasks (`apply`, `dotfiles`, `packages`) use
+Host-acting tasks (`apply`, `dotfiles`, `packages`, `services`) use
 `--limit "$(hostname)"`. Tags and raw playbook commands:
 [tags & validation](docs/ansible/04-tags-and-validation.md).
 

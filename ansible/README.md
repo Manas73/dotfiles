@@ -422,6 +422,7 @@ Copy `recipes/personal_workstation.yml` (or `mac_turing.yml`), edit
 | `dotfiles` | Chezmoi render + apply, then recipe wallpaper.       |
 | `chezmoi`  | Chezmoi role play only.                              |
 | `wallpaper`| Wallpaper role only (after the image is deployed).   |
+| `services` | Service catalog enablement (systemd / brew / command). |
 | `system`   | sudoers, system role, kanata, plasma (umbrella).     |
 | `sudoers`  | sudoers drop-in only.                                |
 | `fish`     | Fish login shell only.                               |

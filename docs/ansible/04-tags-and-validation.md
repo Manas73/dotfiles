@@ -16,6 +16,7 @@
 | `dotfiles` | `chezmoi` role then `wallpaper` role (render `chezmoi.toml` + `chezmoi apply` + recipe wallpaper). |
 | `chezmoi` | `chezmoi` role only. |
 | `wallpaper` | `wallpaper` role only (matugen on Linux, osascript on Darwin). |
+| `services` | `roles/services` (enable systemd / brew / command units from the service catalog). |
 | `system` | sudoers, `roles/system` (fish/docker/libvirt), macos_defaults (darwin), kanata, plasma_custom_wm (gated by flags). Sub-tags: `sudoers`, `fish`, `docker`, `libvirt`, `macos` / `defaults`, `kanata`, `plasma`. |
 | `macos` / `defaults` | `roles/macos_defaults` only (Darwin user prefs via `osx_defaults`). |
 | `upgrade` | `pacman -Syu` (only when you explicitly want a full upgrade). |
