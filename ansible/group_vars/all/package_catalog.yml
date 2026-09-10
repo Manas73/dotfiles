@@ -158,7 +158,7 @@ package_catalog:
   dolphin:
     arch:
       provider: pacman
-      packages: [dolphin, dolphin-plugins]
+      packages: [dolphin, dolphin-plugins, konsole]
 
   dot:
     darwin:
