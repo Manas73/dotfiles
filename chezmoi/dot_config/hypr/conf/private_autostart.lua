@@ -15,6 +15,7 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("copyq --start-server")
 	hl.exec_cmd("hyprsunset")
 	hl.exec_cmd("solaar --window=hide")
+    hl.exec_cmd("dropbox start -i")
 
 	-- Launch apps (workspace rules will handle placement)
 -- 	hl.exec_cmd("slack")
