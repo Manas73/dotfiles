@@ -1,1 +1,1 @@
-open -a Vivaldi
+open -n -a Vivaldi
