@@ -14,7 +14,7 @@
 
 {{- /* Ask Profile Choices */ -}}
 {{- /* personal = home keys/config; employer ids skip personal SSH keys via .chezmoiignore */ -}}
-{{- $profile_choices := list "personal" "turing" -}}
+{{- $profile_choices := list "personal" "turing" "oiai" -}}
 {{- $profile := promptChoiceOnce . "profile" "Select the Profile: " $profile_choices "personal" -}}
 
 {{/* Detect OS Type */}}

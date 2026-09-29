@@ -76,3 +76,12 @@ Host turing-tswe-bench-vm-gcp
 	IdentityFile ~/.ssh/google_compute_engine
 
 {{ end -}}
+{{- if or (eq .profile "oiai") (eq .profile "personal") -}}
+# OpenInnovation AI Gitlab account
+Host gitlab.com-oiai
+	HostName gitlab.com
+	User git
+	IdentitiesOnly yes
+	IdentityFile ~/.ssh/gitlab-oiai
+
+{{ end -}}

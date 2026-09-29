@@ -1,0 +1,30 @@
+---
+# Recipe: Turing work Mac.
+#
+# Applied when a host sets recipe: mac_turing (hosts.yml).
+# OS packages come from group_vars/darwin/apps.yml; this file is the shared
+# "what kind of machine" recipe. Feature flags inherit false defaults from
+# group_vars/all. Linux-only profiles are omitted.
+#
+# profile (singular) is chezmoi data: non-personal values skip personal SSH
+# keys in .chezmoiignore. Use employer ids (turing, …) not a generic "work".
+
+# Chezmoi data (unprefixed; chezmoi.toml.j2 reads these directly).
+profile: "oiai"
+email: "manas.sambare@openinnovation.ai"
+
+# Profile membership. Each name resolves against profiles_catalog
+# (group_vars/all/profiles.yml).
+profiles:
+  - cli
+  - cloud
+  - development
+  - omniwm
+
+# Desktop wallpaper. Image is Chezmoi-managed under ~/.config/.settings/;
+# the wallpaper role applies it after chezmoi (osascript on Darwin).
+wallpaper:
+  image: purple_gradient.jpeg
+
+# Optional per-recipe defaults (appended to group_vars/darwin/macos_defaults.yml).
+# macos_defaults_extra: []

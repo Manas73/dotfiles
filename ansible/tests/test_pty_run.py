@@ -46,3 +46,31 @@ class PtyRunTests(unittest.TestCase):
             self.assertIn("STREAM_FAILED", failed.stdout)
             self.assertIn("boom-line", failed.stdout)
             self.assertNotIn("installing foo", failed.stdout)
+
+    def test_exits_when_stdin_stays_open(self):
+        # Ansible keeps the module's stdin pipe open; pty.spawn on
+        # Python < 3.10 (macOS) then hung after the child exited.
+        with tempfile.TemporaryDirectory() as tmp:
+            log = Path(tmp) / "ansible-packages.log"
+            with subprocess.Popen(
+                [sys.executable, str(PTY_RUN), str(log), "t1", "echo done", "installing", "20"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                text=True,
+            ) as proc:
+                self.assertEqual(proc.wait(timeout=10), 0)
+                out = proc.stdout.read()
+            self.assertEqual(out.strip(), "STREAM_OK")
+
+    def test_exits_when_grandchild_holds_pty(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            log = Path(tmp) / "ansible-packages.log"
+            result = subprocess.run(
+                [sys.executable, str(PTY_RUN), str(log), "t1", "sleep 30 & echo installing foo", "installing", "20"],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            self.assertEqual(result.returncode, 0)
+            self.assertEqual(result.stdout.strip(), "STREAM_CHANGED")

@@ -97,9 +97,12 @@ package_catalog:
       packages: ["github:steveyegge/beads[exe=bd]@1.2.2"]
 
   btop:
-    all:
-      provider: mise
-      packages: ["btop@1.4.7"]
+    arch:
+      provider: pacman
+      packages: ["btop"]
+    darwin:
+      provider: brew
+      packages: ["btop"]
 
   bun:
     all:
@@ -591,7 +594,7 @@ package_catalog:
   python:
     all:
       provider: mise
-      packages: ["python@3.14.7", "uv@0.12.3", "black@26.5.1", "poetry@2.4.1", "github:facebook/pyrefly@1.2.0"]
+      packages: ["python@3.14.7", "uv@0.12.3", "black@26.5.1", "github:facebook/pyrefly@1.2.0"]
     arch:
       provider: pacman
       packages: [python, python-gpgme]

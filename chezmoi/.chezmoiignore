@@ -55,3 +55,10 @@ Library/Application\ Support/Leader\ Key/
 .ssh/turing-vm
 .ssh/turing-vm.pub
 {{- end }}
+
+{{/* OpenInnovation AI SSH keys only on profile=oiai or personal. */}}
+{{- if and (ne .profile "turing") (ne .profile "personal") }}
+.ssh/gitlab-oiai
+.ssh/gitlab-oiai.pub
+{{- end }}
+

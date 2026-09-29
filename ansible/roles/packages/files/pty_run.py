@@ -9,14 +9,20 @@ Writes a STREAM_CHANGED / STREAM_OK / STREAM_FAILED marker to real
 stdout for Ansible's changed_when / failure output. Child output goes
 only to the log.
 
+Not pty.spawn: on Python < 3.10 its copy loop keeps select()ing on
+stdin after the child exits when the master reads EOF (macOS does this
+instead of raising EIO). Ansible's stdin pipe never closes, so the task
+hangs forever after mise finishes. Our loop ends when the child does.
+
 Usage: pty_run.py LOG TITLE SNIPPET [REGEX] [LINES]
 """
 
 from __future__ import annotations
 
 import os
-import pty
 import re
+import select
+import subprocess
 import sys
 import time
 
@@ -31,6 +37,39 @@ def _read_from(path: str, offset: int) -> str:
             return fh.read()
     except OSError:
         return ""
+
+
+def _run_on_pty(argv: list[str], log_fd: int) -> int:
+    master, slave = os.openpty()
+    try:
+        proc = subprocess.Popen(
+            argv,
+            stdin=slave,
+            stdout=slave,
+            stderr=slave,
+            start_new_session=True,
+        )
+    finally:
+        os.close(slave)
+    try:
+        while True:
+            ready, _, _ = select.select([master], [], [], 0.2)
+            if not ready:
+                # Child gone and nothing left to read: stop even if a
+                # grandchild still holds the slave open.
+                if proc.poll() is not None:
+                    break
+                continue
+            try:
+                data = os.read(master, 65536)
+            except OSError:  # EIO on Linux once the slave closes.
+                break
+            if not data:  # EOF on macOS.
+                break
+            os.write(log_fd, data)
+    finally:
+        os.close(master)
+    return proc.wait()
 
 
 def _last_n_lines(text: str, n: int) -> str:
@@ -54,25 +93,14 @@ def main(argv: list[str]) -> int:
         os.makedirs(parent, exist_ok=True)
 
     start = os.path.getsize(log_path) if os.path.isfile(log_path) else 0
-    orig_out = os.dup(1)
-    orig_err = os.dup(2)
+    with open(log_path, "a", encoding="utf-8") as fh:
+        fh.write(f"===== {title} {time.strftime('%Y-%m-%dT%H:%M:%S%z')} =====\n")
+        fh.flush()
+    log_fd = os.open(log_path, os.O_WRONLY | os.O_APPEND)
     try:
-        with open(log_path, "a", encoding="utf-8") as fh:
-            fh.write(f"===== {title} {time.strftime('%Y-%m-%dT%H:%M:%S%z')} =====\n")
-            fh.flush()
-        log_fd = os.open(log_path, os.O_WRONLY | os.O_APPEND)
-        try:
-            os.dup2(log_fd, 1)
-            os.dup2(log_fd, 2)
-        finally:
-            os.close(log_fd)
-        status = pty.spawn(["bash", "-c", f"set -euo pipefail; {snippet}"])
-        rc = os.waitstatus_to_exitcode(status)
+        rc = _run_on_pty(["bash", "-c", f"set -euo pipefail; {snippet}"], log_fd)
     finally:
-        os.dup2(orig_out, 1)
-        os.dup2(orig_err, 2)
-        os.close(orig_out)
-        os.close(orig_err)
+        os.close(log_fd)
 
     section = _read_from(log_path, start)
     last = _last_n_lines(section, lines)

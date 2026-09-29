@@ -207,39 +207,6 @@ checksum = "sha256:d3d971d1e86ddde7f9c114e4b8170cf1d5df841c021014c288a08caf699e1
 url = "https://github.com/psf/black/releases/download/26.5.1/black_windows.exe"
 url_api = "https://api.github.com/repos/psf/black/releases/assets/423459759"
 
-[[tools.btop]]
-version = "1.4.7"
-backend = "aqua:aristocratos/btop"
-
-[tools.btop."platforms.linux-arm64"]
-checksum = "sha256:6270de0ef4c84cf0eea61cb148b3ad9ae91a11e9c3309867ffc6b3751024c252"
-url = "https://github.com/aristocratos/btop/releases/download/v1.4.7/btop-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/aristocratos/btop/releases/assets/409963650"
-
-[tools.btop."platforms.linux-arm64-musl"]
-checksum = "sha256:6270de0ef4c84cf0eea61cb148b3ad9ae91a11e9c3309867ffc6b3751024c252"
-url = "https://github.com/aristocratos/btop/releases/download/v1.4.7/btop-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/aristocratos/btop/releases/assets/409963650"
-
-[tools.btop."platforms.linux-x64"]
-checksum = "sha256:5099054dd6a101bd12eb6ff3702a9a6a3f57aaa27923a0da478ae5b517faf335"
-url = "https://github.com/aristocratos/btop/releases/download/v1.4.7/btop-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/aristocratos/btop/releases/assets/409963672"
-
-[tools.btop."platforms.linux-x64-baseline"]
-checksum = "sha256:5099054dd6a101bd12eb6ff3702a9a6a3f57aaa27923a0da478ae5b517faf335"
-url = "https://github.com/aristocratos/btop/releases/download/v1.4.7/btop-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/aristocratos/btop/releases/assets/409963672"
-
-[tools.btop."platforms.linux-x64-musl"]
-checksum = "sha256:5099054dd6a101bd12eb6ff3702a9a6a3f57aaa27923a0da478ae5b517faf335"
-url = "https://github.com/aristocratos/btop/releases/download/v1.4.7/btop-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/aristocratos/btop/releases/assets/409963672"
-
-[tools.btop."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:5099054dd6a101bd12eb6ff3702a9a6a3f57aaa27923a0da478ae5b517faf335"
-url = "https://github.com/aristocratos/btop/releases/download/v1.4.7/btop-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/aristocratos/btop/releases/assets/409963672"
 
 [[tools.bun]]
 version = "1.4.0"
@@ -1495,10 +1462,6 @@ url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/55187
 checksum = "sha256:c8c0e0d05ac3dac544a0edfad8de9eb244bf46c6c7a131c38619d40fcf31bd1f"
 url = "https://github.com/anomalyco/opencode/releases/download/v1.18.30/opencode-windows-x64.zip"
 url_api = "https://api.github.com/repos/anomalyco/opencode/releases/assets/551879073"
-
-[[tools.poetry]]
-version = "2.4.1"
-backend = "vfox:mise-plugins/vfox-poetry"
 
 [[tools.pre-commit]]
 version = "4.6.2"

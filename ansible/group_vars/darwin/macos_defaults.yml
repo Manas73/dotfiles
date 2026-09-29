@@ -216,8 +216,8 @@ macos_defaults:
   # --- Trackpad -------------------------------------------------------
   - domain: com.apple.AppleMultitouchTrackpad
     key: Clicking
-    type: bool
-    value: true
+    type: int
+    value: 1
 
   - domain: com.apple.AppleMultitouchTrackpad
     key: TrackpadRightClick
@@ -226,8 +226,8 @@ macos_defaults:
 
   - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
     key: Clicking
-    type: bool
-    value: true
+    type: int
+    value: 1
 
   - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
     key: TrackpadRightClick
