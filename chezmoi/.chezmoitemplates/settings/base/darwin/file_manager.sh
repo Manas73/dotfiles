@@ -1,1 +1,1 @@
-open -n ~
+open ~
