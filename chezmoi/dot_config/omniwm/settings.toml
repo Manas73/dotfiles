@@ -67,8 +67,8 @@ fingerCount = 3
 invertDirection = true
 mouseMoveModifierKey = "option"
 mouseResizeModifierKey = "option"
-overviewGestureEnabled = false
-overviewGestureFingerCount = 4
+overviewGestureEnabled = true
+overviewGestureFingerCount = 3
 scrollEnabled = true
 scrollModifierKey = "optionShift"
 scrollSensitivity = 5.0
@@ -80,7 +80,7 @@ windowResizeEnabled = false
 windowResizeFingerCount = 3
 workspaceSwipeAxis = "horizontal"
 workspaceSwipeEnabled = false
-workspaceSwipeFingerCount = 3
+workspaceSwipeFingerCount = 4
 
 [hiddenBar]
 enabled = true
