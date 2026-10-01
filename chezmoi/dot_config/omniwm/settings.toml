@@ -95,10 +95,11 @@ margin = 1
 [niri]
 alwaysCenterSingleColumn = true
 centerFocusedColumn = "never"
-containerPrimarySpanPresets = [0.3333333333333333, 0.5]
+containerPrimarySpanPresets = [0.33, 0.5]
+defaultContainerPrimarySpan = 0.99
 infiniteLoop = false
 singleWindowFit = "fill"
-visibleContainerCount = 1
+visibleContainerCount = 2
 
 [overview]
 invertScrollDirection = false
@@ -369,75 +370,75 @@ binding = "Unassigned"
 id = "assignFocusedWindowToScratchpad.10"
 
 [[hotkeys]]
-binding = "Hyper+1"
+binding = "Control+1"
 id = "switchWorkspace.0"
 
 [[hotkeys]]
-binding = "Hyper+Shift+1"
+binding = "Control+Shift+1"
 id = "moveToWorkspace.0"
 
 [[hotkeys]]
-binding = "Hyper+2"
+binding = "Control+2"
 id = "switchWorkspace.1"
 
 [[hotkeys]]
-binding = "Hyper+Shift+2"
+binding = "Control+Shift+2"
 id = "moveToWorkspace.1"
 
 [[hotkeys]]
-binding = "Hyper+3"
+binding = "Control+3"
 id = "switchWorkspace.2"
 
 [[hotkeys]]
-binding = "Hyper+Shift+3"
+binding = "Control+Shift+3"
 id = "moveToWorkspace.2"
 
 [[hotkeys]]
-binding = "Hyper+4"
+binding = "Control+4"
 id = "switchWorkspace.3"
 
 [[hotkeys]]
-binding = "Hyper+Shift+4"
+binding = "Control+Shift+4"
 id = "moveToWorkspace.3"
 
 [[hotkeys]]
-binding = "Hyper+5"
+binding = "Control+5"
 id = "switchWorkspace.4"
 
 [[hotkeys]]
-binding = "Hyper+Shift+5"
+binding = "Control+Shift+5"
 id = "moveToWorkspace.4"
 
 [[hotkeys]]
-binding = "Hyper+6"
+binding = "Option+1"
 id = "switchWorkspace.5"
 
 [[hotkeys]]
-binding = "Hyper+Shift+6"
+binding = "Option+Shift+1"
 id = "moveToWorkspace.5"
 
 [[hotkeys]]
-binding = "Hyper+7"
+binding = "Option+2"
 id = "switchWorkspace.6"
 
 [[hotkeys]]
-binding = "Hyper+Shift+7"
+binding = "Option+Shift+2"
 id = "moveToWorkspace.6"
 
 [[hotkeys]]
-binding = "Hyper+8"
+binding = "Option+3"
 id = "switchWorkspace.7"
 
 [[hotkeys]]
-binding = "Hyper+Shift+8"
+binding = "Option+Shift+3"
 id = "moveToWorkspace.7"
 
 [[hotkeys]]
-binding = "Hyper+9"
+binding = "Option+4"
 id = "switchWorkspace.8"
 
 [[hotkeys]]
-binding = "Hyper+Shift+9"
+binding = "Option+Shift+4"
 id = "moveToWorkspace.8"
 
 [[hotkeys]]
@@ -513,7 +514,7 @@ binding = "Unassigned"
 id = "moveToWorkspaceSlot.9"
 
 [[hotkeys]]
-binding = "Hyper+Tab"
+binding = "Control+Tab"
 id = "workspaceBackAndForth"
 
 [[hotkeys]]
@@ -525,19 +526,19 @@ binding = "Unassigned"
 id = "switchWorkspace.previous"
 
 [[hotkeys]]
-binding = "Hyper+J"
+binding = "Control+J"
 id = "focus.left"
 
 [[hotkeys]]
-binding = "Hyper+K"
+binding = "Control+K"
 id = "focus.down"
 
 [[hotkeys]]
-binding = "Hyper+L"
+binding = "Control+L"
 id = "focus.up"
 
 [[hotkeys]]
-binding = "Hyper+Semicolon"
+binding = "Control+Semicolon"
 id = "focus.right"
 
 [[hotkeys]]
@@ -637,19 +638,19 @@ binding = "Unassigned"
 id = "moveColumnToWorkspace.8"
 
 [[hotkeys]]
-binding = "Hyper+Shift+J"
+binding = "Control+Shift+J"
 id = "move.left"
 
 [[hotkeys]]
-binding = "Hyper+Shift+K"
+binding = "Control+Shift+K"
 id = "move.down"
 
 [[hotkeys]]
-binding = "Hyper+Shift+L"
+binding = "Control+Shift+L"
 id = "move.up"
 
 [[hotkeys]]
-binding = "Hyper+Shift+Semicolon"
+binding = "Control+Shift+Semicolon"
 id = "move.right"
 
 [[hotkeys]]
@@ -721,7 +722,7 @@ binding = "Unassigned"
 id = "moveWindowToMonitor.down"
 
 [[hotkeys]]
-binding = "Hyper+F"
+binding = "Control+F"
 id = "toggleFullscreen"
 
 [[hotkeys]]
@@ -729,11 +730,11 @@ binding = "Unassigned"
 id = "toggleNativeFullscreen"
 
 [[hotkeys]]
-binding = "Control+Option+Shift+Left Arrow"
+binding = "Unassigned"
 id = "moveColumn.left"
 
 [[hotkeys]]
-binding = "Control+Option+Shift+Right Arrow"
+binding = "Unassigned"
 id = "moveColumn.right"
 
 [[hotkeys]]
@@ -765,39 +766,39 @@ binding = "Unassigned"
 id = "focusColumnLast"
 
 [[hotkeys]]
-binding = "Control+Option+1"
+binding = "Unassigned"
 id = "focusColumn.0"
 
 [[hotkeys]]
-binding = "Control+Option+2"
+binding = "Unassigned"
 id = "focusColumn.1"
 
 [[hotkeys]]
-binding = "Control+Option+3"
+binding = "Unassigned"
 id = "focusColumn.2"
 
 [[hotkeys]]
-binding = "Control+Option+4"
+binding = "Unassigned"
 id = "focusColumn.3"
 
 [[hotkeys]]
-binding = "Control+Option+5"
+binding = "Unassigned"
 id = "focusColumn.4"
 
 [[hotkeys]]
-binding = "Control+Option+6"
+binding = "Unassigned"
 id = "focusColumn.5"
 
 [[hotkeys]]
-binding = "Control+Option+7"
+binding = "Unassigned"
 id = "focusColumn.6"
 
 [[hotkeys]]
-binding = "Control+Option+8"
+binding = "Unassigned"
 id = "focusColumn.7"
 
 [[hotkeys]]
-binding = "Control+Option+9"
+binding = "Unassigned"
 id = "focusColumn.8"
 
 [[hotkeys]]
@@ -873,11 +874,11 @@ binding = "Unassigned"
 id = "moveColumnToIndex.9"
 
 [[hotkeys]]
-binding = "Option+Period"
+binding = "Unassigned"
 id = "cycleSizeForward"
 
 [[hotkeys]]
-binding = "Option+Comma"
+binding = "Unassigned"
 id = "cycleSizeBackward"
 
 [[hotkeys]]
@@ -901,19 +902,19 @@ binding = "Unassigned"
 id = "toggleContainerFullPrimarySpan"
 
 [[hotkeys]]
-binding = "Control+Option+F"
+binding = "Unassigned"
 id = "expandContainerToAvailablePrimarySpan"
 
 [[hotkeys]]
-binding = "Control+Option+R"
+binding = "Unassigned"
 id = "resetWindowSecondarySpan"
 
 [[hotkeys]]
-binding = "Option+Minus"
+binding = "Unassigned"
 id = "setContainerPrimarySpan.decrease10Percent"
 
 [[hotkeys]]
-binding = "Option+Equal"
+binding = "Unassigned"
 id = "setContainerPrimarySpan.increase10Percent"
 
 [[hotkeys]]
@@ -925,11 +926,11 @@ binding = "Unassigned"
 id = "setWindowPrimarySpan.increase10Percent"
 
 [[hotkeys]]
-binding = "Option+Shift+Minus"
+binding = "Unassigned"
 id = "setWindowSecondarySpan.decrease10Percent"
 
 [[hotkeys]]
-binding = "Option+Shift+Equal"
+binding = "Unassigned"
 id = "setWindowSecondarySpan.increase10Percent"
 
 [[hotkeys]]
@@ -1005,7 +1006,7 @@ binding = "Unassigned"
 id = "rescueOffscreenWindows"
 
 [[hotkeys]]
-binding = "Hyper+Shift+Space"
+binding = "Control+Shift+Space"
 id = "toggleFocusedWindowFloating"
 
 [[hotkeys]]
@@ -1029,11 +1030,11 @@ binding = "Unassigned"
 id = "toggleQuakeTerminal"
 
 [[hotkeys]]
-binding = "Option+Shift+L"
+binding = "Unassigned"
 id = "toggleWorkspaceLayout"
 
 [[hotkeys]]
-binding = "Option+Shift+O"
+binding = "Unassigned"
 id = "toggleOverview"
 
 [[hotkeys]]
@@ -1051,7 +1052,7 @@ layoutType = "default"
 name = "1"
 
 [workspaces.monitorAssignment]
-type = "main"
+type = "secondary"
 
 [[workspaces]]
 id = "454CECD4-5E9D-4ED1-95D7-979D48817F5F"
@@ -1059,7 +1060,7 @@ layoutType = "default"
 name = "2"
 
 [workspaces.monitorAssignment]
-type = "main"
+type = "secondary"
 
 [[workspaces]]
 id = "BEB842B5-E894-4791-9FD1-397C3CDD3538"
@@ -1067,7 +1068,7 @@ layoutType = "default"
 name = "3"
 
 [workspaces.monitorAssignment]
-type = "main"
+type = "secondary"
 
 [[workspaces]]
 id = "248AA883-2261-4D45-943C-79C0E46A232B"
@@ -1083,7 +1084,7 @@ layoutType = "default"
 name = "5"
 
 [workspaces.monitorAssignment]
-type = "main"
+type = "secondary"
 
 [[workspaces]]
 id = "F6AA9FC0-D4FB-4DB1-9D13-461C45152F5A"
@@ -1091,7 +1092,7 @@ layoutType = "default"
 name = "6"
 
 [workspaces.monitorAssignment]
-type = "secondary"
+type = "main"
 
 [[workspaces]]
 id = "E9B9744C-87F8-4235-8A22-365ED6C9262B"
@@ -1099,7 +1100,7 @@ layoutType = "default"
 name = "7"
 
 [workspaces.monitorAssignment]
-type = "secondary"
+type = "main"
 
 [[workspaces]]
 id = "68D12E33-F866-4545-BD61-A61E2DC856F6"
@@ -1107,7 +1108,7 @@ layoutType = "default"
 name = "8"
 
 [workspaces.monitorAssignment]
-type = "secondary"
+type = "main"
 
 [[workspaces]]
 id = "F4F2A93A-1DAA-4C5A-B1E7-1710BBFAA214"
@@ -1115,7 +1116,7 @@ layoutType = "default"
 name = "9"
 
 [workspaces.monitorAssignment]
-type = "secondary"
+type = "main"
 
 [[workspaces]]
 id = "0D911498-B5AB-44C7-B353-541A00F599DD"
@@ -1123,7 +1124,7 @@ layoutType = "default"
 name = "10"
 
 [workspaces.monitorAssignment]
-type = "secondary"
+type = "main"
 
 [[workspaces]]
 id = "2EAF7E7B-BA61-4BCE-9346-5199BA237257"
