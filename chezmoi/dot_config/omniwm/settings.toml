@@ -34,11 +34,11 @@ splitWidthMultiplier = 1.0
 useGlobalGaps = true
 
 [focus]
-crossesMonitorAtEdge = false
-followsMouse = true
+crossesMonitorAtEdge = true
+followsMouse = false
 followsWindowToMonitor = true
 lockModifier = "off"
-moveCrossesMonitorAtEdge = false
+moveCrossesMonitorAtEdge = true
 moveMouseToFocusedWindow = true
 raiseOnMouseFocus = true
 
@@ -57,7 +57,7 @@ animationsEnabled = true
 defaultLayoutType = "dwindle"
 hotkeysEnabled = true
 hyperKeyModifiers = "Control+Option+Command"
-ipcEnabled = false
+ipcEnabled = true
 preventSleepEnabled = false
 systemHyperTrigger = "None"
 updateChecksEnabled = false
@@ -83,7 +83,7 @@ workspaceSwipeEnabled = false
 workspaceSwipeFingerCount = 4
 
 [hiddenBar]
-enabled = true
+enabled = false
 hiddenBundleIDs = []
 rehideIntervalSeconds = 5.0
 
@@ -193,7 +193,7 @@ reserveLayoutSpace = true
 revealHoldMilliseconds = 200.0
 revealModifier = "off"
 showAccentHighlights = true
-showFloatingWindows = false
+showFloatingWindows = true
 showItemBackgrounds = true
 showLabels = true
 solidBlackBackground = false
@@ -370,59 +370,59 @@ binding = "Unassigned"
 id = "assignFocusedWindowToScratchpad.10"
 
 [[hotkeys]]
-binding = "Control+1"
+binding = "Hyper+1"
 id = "switchWorkspace.0"
 
 [[hotkeys]]
-binding = "Control+Shift+1"
+binding = "Hyper+Shift+1"
 id = "moveToWorkspace.0"
 
 [[hotkeys]]
-binding = "Control+2"
+binding = "Hyper+2"
 id = "switchWorkspace.1"
 
 [[hotkeys]]
-binding = "Control+Shift+2"
+binding = "Hyper+Shift+2"
 id = "moveToWorkspace.1"
 
 [[hotkeys]]
-binding = "Control+3"
+binding = "Hyper+3"
 id = "switchWorkspace.2"
 
 [[hotkeys]]
-binding = "Control+Shift+3"
+binding = "Hyper+Shift+3"
 id = "moveToWorkspace.2"
 
 [[hotkeys]]
-binding = "Control+4"
+binding = "Hyper+4"
 id = "switchWorkspace.3"
 
 [[hotkeys]]
-binding = "Control+Shift+4"
+binding = "Hyper+Shift+4"
 id = "moveToWorkspace.3"
 
 [[hotkeys]]
-binding = "Control+5"
+binding = "Hyper+5"
 id = "switchWorkspace.4"
 
 [[hotkeys]]
-binding = "Control+Shift+5"
+binding = "Hyper+Shift+5"
 id = "moveToWorkspace.4"
 
 [[hotkeys]]
-binding = "Option+1"
+binding = "Option+6"
 id = "switchWorkspace.5"
 
 [[hotkeys]]
-binding = "Option+Shift+1"
+binding = "Option+Shift+6"
 id = "moveToWorkspace.5"
 
 [[hotkeys]]
-binding = "Option+2"
+binding = "Option+7"
 id = "switchWorkspace.6"
 
 [[hotkeys]]
-binding = "Option+Shift+2"
+binding = "Option+Shift+7"
 id = "moveToWorkspace.6"
 
 [[hotkeys]]
@@ -514,7 +514,7 @@ binding = "Unassigned"
 id = "moveToWorkspaceSlot.9"
 
 [[hotkeys]]
-binding = "Control+Tab"
+binding = "Hyper+Tab"
 id = "workspaceBackAndForth"
 
 [[hotkeys]]
@@ -526,19 +526,19 @@ binding = "Unassigned"
 id = "switchWorkspace.previous"
 
 [[hotkeys]]
-binding = "Control+J"
+binding = "Hyper+J"
 id = "focus.left"
 
 [[hotkeys]]
-binding = "Control+K"
+binding = "Hyper+K"
 id = "focus.down"
 
 [[hotkeys]]
-binding = "Control+L"
+binding = "Hyper+L"
 id = "focus.up"
 
 [[hotkeys]]
-binding = "Control+Semicolon"
+binding = "Hyper+Semicolon"
 id = "focus.right"
 
 [[hotkeys]]
@@ -638,19 +638,19 @@ binding = "Unassigned"
 id = "moveColumnToWorkspace.8"
 
 [[hotkeys]]
-binding = "Control+Shift+J"
+binding = "Hyper+Shift+J"
 id = "move.left"
 
 [[hotkeys]]
-binding = "Control+Shift+K"
+binding = "Hyper+Shift+K"
 id = "move.down"
 
 [[hotkeys]]
-binding = "Control+Shift+L"
+binding = "Hyper+Shift+L"
 id = "move.up"
 
 [[hotkeys]]
-binding = "Control+Shift+Semicolon"
+binding = "Hyper+Shift+Semicolon"
 id = "move.right"
 
 [[hotkeys]]
@@ -722,7 +722,7 @@ binding = "Unassigned"
 id = "moveWindowToMonitor.down"
 
 [[hotkeys]]
-binding = "Control+F"
+binding = "Hyper+F"
 id = "toggleFullscreen"
 
 [[hotkeys]]
@@ -1006,7 +1006,7 @@ binding = "Unassigned"
 id = "rescueOffscreenWindows"
 
 [[hotkeys]]
-binding = "Control+Shift+Space"
+binding = "Hyper+Shift+Space"
 id = "toggleFocusedWindowFloating"
 
 [[hotkeys]]
@@ -1030,7 +1030,7 @@ binding = "Unassigned"
 id = "toggleQuakeTerminal"
 
 [[hotkeys]]
-binding = "Unassigned"
+binding = "Hyper+E"
 id = "toggleWorkspaceLayout"
 
 [[hotkeys]]
@@ -1072,7 +1072,7 @@ type = "secondary"
 
 [[workspaces]]
 id = "248AA883-2261-4D45-943C-79C0E46A232B"
-layoutType = "niri"
+layoutType = "dwindle"
 name = "4"
 
 [workspaces.monitorAssignment]
@@ -1128,7 +1128,7 @@ type = "main"
 
 [[workspaces]]
 id = "2EAF7E7B-BA61-4BCE-9346-5199BA237257"
-layoutType = "default"
+layoutType = "dwindle"
 name = "11"
 
 [workspaces.monitorAssignment]
