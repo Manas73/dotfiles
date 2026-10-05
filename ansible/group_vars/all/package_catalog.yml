@@ -388,11 +388,15 @@ package_catalog:
 
   kubernetes:
     arch:
-      provider: pacman
-      packages: [stern, kubectl, kubie, k9s]
+      - provider: pacman
+        packages: [stern, kubectl, kubie, k9s]
+      - provider: aur
+        packages: [lens-bin]
     darwin:
-      provider: brew
-      packages: [stern, kubernetes-cli, kubie, k9s]
+      - provider: brew
+        packages: [stern, kubernetes-cli, kubie, k9s]
+      - provider: cask
+        packages: [lens]
 
   lazydocker:
     all:
