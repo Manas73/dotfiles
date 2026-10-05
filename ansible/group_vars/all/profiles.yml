@@ -67,6 +67,7 @@ profiles_catalog:
       - datagrip
       - gitkraken
       - grok-build
+      - kubernetes
       - mosh
       - mysql
       - opencode

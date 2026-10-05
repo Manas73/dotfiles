@@ -386,6 +386,14 @@ package_catalog:
       provider: cask
       packages: [kitty]
 
+  kubernetes:
+    arch:
+      provider: pacman
+      packages: [kubectl, kubie, k9s]
+    darwin:
+      provider: brew
+      packages: [kubernetes-cli, kubie, k9s]
+
   lazydocker:
     all:
       provider: mise

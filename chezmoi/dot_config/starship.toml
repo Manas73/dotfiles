@@ -77,3 +77,16 @@ format = " [${ram}]($style) "
 threshold = 1
 style = "bold dimmed white"
 disabled = false
+
+[kubernetes]
+disabled = false
+symbol = "󱃾 "
+# symbol = "☸ "
+style = "bold cyan"
+detect_env_vars = ["KUBIE_ACTIVE"]
+format = 'on [$symbol$context( \($namespace\))]($style) '
+
+[[kubernetes.contexts]]
+context_pattern = ".*prod.*"
+style = "bold red"
+symbol = "󱃾 ⚠ "
