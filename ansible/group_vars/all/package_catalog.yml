@@ -389,10 +389,10 @@ package_catalog:
   kubernetes:
     arch:
       provider: pacman
-      packages: [kubectl, kubie, k9s]
+      packages: [stern, kubectl, kubie, k9s]
     darwin:
       provider: brew
-      packages: [kubernetes-cli, kubie, k9s]
+      packages: [stern, kubernetes-cli, kubie, k9s]
 
   lazydocker:
     all:
