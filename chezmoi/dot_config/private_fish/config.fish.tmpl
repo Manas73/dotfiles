@@ -51,7 +51,6 @@ set ZELLIJ_AUTO_ATTACH true
 # set ZELLIJ_AUTO_EXIT false
 
 if status is-interactive
-    abbr -a cza 'chezmoi add'
     abbr -a k kubectl
     abbr -a kc 'kubie ctx'
     abbr -a kn 'kubie ns'
@@ -75,6 +74,7 @@ end
 
 
 # Aliases
+alias cza='chezmoi add'
 alias grep='grep --color=auto'
 
 # Directory navigation

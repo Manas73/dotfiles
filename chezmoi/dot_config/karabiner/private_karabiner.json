@@ -5,17 +5,17 @@
             "complex_modifications": {
                 "rules": [
                     {
-                        "description": "Map Hyper+End to Lock Screen (Ctrl+Cmd+Q)",
                         "manipulators": [
                             {
+                                "description": "Change left_command to command+control+option.",
                                 "from": {
-                                    "key_code": "end",
-                                    "modifiers": { "mandatory": ["left_command", "control", "option"] }
+                                    "key_code": "left_command",
+                                    "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [
                                     {
-                                        "key_code": "q",
-                                        "modifiers": ["control", "command"]
+                                        "key_code": "left_command",
+                                        "modifiers": ["left_control", "left_option"]
                                     }
                                 ],
                                 "type": "basic"
@@ -62,9 +62,9 @@
                     {
                         "manipulators": [
                             {
-                                "description": "Change left_command to command+control+option.",
+                                "description": "Change caps_lock to command+control+option.",
                                 "from": {
-                                    "key_code": "left_command",
+                                    "key_code": "caps_lock",
                                     "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [
@@ -73,6 +73,7 @@
                                         "modifiers": ["left_control", "left_option"]
                                     }
                                 ],
+                                "to_if_alone": [{ "key_code": "escape" }],
                                 "type": "basic"
                             }
                         ]
@@ -9903,26 +9904,37 @@
                         ]
                     },
                     {
+                        "description": "Map Hyper+End to Lock Screen (Ctrl+Cmd+Q)",
                         "manipulators": [
                             {
-                                "description": "Change caps_lock to command+control+option.",
                                 "from": {
-                                    "key_code": "caps_lock",
-                                    "modifiers": { "optional": ["any"] }
+                                    "key_code": "end",
+                                    "modifiers": { "mandatory": ["left_command", "control", "option"] }
                                 },
                                 "to": [
                                     {
-                                        "key_code": "left_command",
-                                        "modifiers": ["left_control", "left_option"]
+                                        "key_code": "q",
+                                        "modifiers": ["control", "command"]
                                     }
                                 ],
-                                "to_if_alone": [{ "key_code": "escape" }],
                                 "type": "basic"
                             }
                         ]
                     }
                 ]
             },
+            "devices": [
+                {
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "is_pointing_device": true,
+                        "product_id": 18,
+                        "vendor_id": 13807
+                    },
+                    "ignore": false,
+                    "manipulate_caps_lock_led": false
+                }
+            ],
             "name": "Default profile",
             "selected": true,
             "virtual_hid_keyboard": { "keyboard_type_v2": "ansi" }

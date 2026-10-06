@@ -410,19 +410,19 @@ binding = "Hyper+Shift+5"
 id = "moveToWorkspace.4"
 
 [[hotkeys]]
-binding = "Option+6"
+binding = "Option+1"
 id = "switchWorkspace.5"
 
 [[hotkeys]]
-binding = "Option+Shift+6"
+binding = "Option+Shift+1"
 id = "moveToWorkspace.5"
 
 [[hotkeys]]
-binding = "Option+7"
+binding = "Option+2"
 id = "switchWorkspace.6"
 
 [[hotkeys]]
-binding = "Option+Shift+7"
+binding = "Option+Shift+2"
 id = "moveToWorkspace.6"
 
 [[hotkeys]]
@@ -1056,7 +1056,7 @@ type = "secondary"
 
 [[workspaces]]
 id = "454CECD4-5E9D-4ED1-95D7-979D48817F5F"
-layoutType = "default"
+layoutType = "niri"
 name = "2"
 
 [workspaces.monitorAssignment]
@@ -1128,8 +1128,8 @@ type = "main"
 
 [[workspaces]]
 id = "2EAF7E7B-BA61-4BCE-9346-5199BA237257"
-layoutType = "dwindle"
+layoutType = "niri"
 name = "11"
 
 [workspaces.monitorAssignment]
-type = "tertiary"
+type = "main"
