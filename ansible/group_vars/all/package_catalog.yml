@@ -446,6 +446,14 @@ package_catalog:
       provider: uv
       packages: [linecast]
 
+  lmstudio:
+    arch:
+      provider: pacman
+      packages: [lmstudio-bin]
+    darwin:
+      provider: cask
+      packages: [lm-studio]
+
   lutris:
     arch:
       provider: pacman

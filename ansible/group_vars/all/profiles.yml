@@ -68,6 +68,7 @@ profiles_catalog:
       - gitkraken
       - grok-build
       - kubernetes
+      - lmstudio
       - mosh
       - mysql
       - opencode
