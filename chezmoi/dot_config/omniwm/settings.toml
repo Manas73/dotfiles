@@ -35,7 +35,7 @@ useGlobalGaps = true
 
 [focus]
 crossesMonitorAtEdge = true
-followsMouse = false
+followsMouse = true
 followsWindowToMonitor = true
 lockModifier = "off"
 moveCrossesMonitorAtEdge = true
@@ -1076,7 +1076,7 @@ layoutType = "niri"
 name = "4"
 
 [workspaces.monitorAssignment]
-type = "tertiary"
+type = "secondary"
 
 [[workspaces]]
 id = "8B8C45D6-CE9E-41D9-BD50-BE4989D5E3DE"
