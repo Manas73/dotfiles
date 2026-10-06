@@ -155,8 +155,10 @@ package_catalog:
       provider: pacman
       packages: [docker, docker-buildx, docker-compose]
     darwin:
-      provider: brew
-      packages: [docker, docker-buildx, docker-compose]
+       - provider: brew
+         packages: [docker, docker-buildx, docker-compose]
+       - provider: cask
+         packages: [docker-desktop]
 
   dolphin:
     arch:

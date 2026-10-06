@@ -65,6 +65,7 @@ profiles_catalog:
       - beads
       - claude-code
       - datagrip
+      - docker
       - gitkraken
       - grok-build
       - kubernetes
