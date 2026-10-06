@@ -40,7 +40,7 @@ followsWindowToMonitor = true
 lockModifier = "off"
 moveCrossesMonitorAtEdge = true
 moveMouseToFocusedWindow = true
-raiseOnMouseFocus = true
+raiseOnMouseFocus = false
 
 [gaps]
 fullscreenUsesOuterGaps = false
@@ -87,6 +87,20 @@ enabled = false
 hiddenBundleIDs = []
 rehideIntervalSeconds = 5.0
 
+[monitors]
+
+[[monitors.ranking]]
+displayUUID = "1E488D2A-72DB-46D9-AD4D-41549AD9846F"
+name = "LG ULTRAFINE (1)"
+
+[[monitors.ranking]]
+displayUUID = "D1C073C4-8B2E-406D-879D-B7E6AC9EA927"
+name = "LG ULTRAFINE (2)"
+
+[[monitors.ranking]]
+displayUUID = "37D8832A-2D66-02CA-B9F7-8F30A301B230"
+name = "Built-in Retina Display"
+
 [mouseWarp]
 constrainToArrangement = false
 enabled = true
@@ -96,10 +110,9 @@ margin = 1
 alwaysCenterSingleColumn = true
 centerFocusedColumn = "never"
 containerPrimarySpanPresets = [0.33, 0.5]
-defaultContainerPrimarySpan = 0.99
 infiniteLoop = false
 singleWindowFit = "fill"
-visibleContainerCount = 2
+visibleContainerCount = 1
 
 [overview]
 invertScrollDirection = false
@@ -1088,7 +1101,7 @@ type = "secondary"
 
 [[workspaces]]
 id = "F6AA9FC0-D4FB-4DB1-9D13-461C45152F5A"
-layoutType = "default"
+layoutType = "niri"
 name = "6"
 
 [workspaces.monitorAssignment]
