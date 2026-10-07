@@ -44,6 +44,7 @@ os_apps:
   - libadwaita
   - libnotify
   - libreoffice-fresh
+  - logi-options
   - network-manager-applet
   - networkmanager
   - nm-connection-editor
@@ -54,5 +55,4 @@ os_apps:
   - psmisc
   - python-screeninfo
   - selectdefaultapplication
-  - solaar
   - xdg-desktop-portal-gtk

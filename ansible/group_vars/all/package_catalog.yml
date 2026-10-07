@@ -688,10 +688,13 @@ package_catalog:
       provider: cask
       packages: [slack]
 
-  solaar:
+  logi-options:
     arch:
-      provider: pacman
-      packages: [solaar]
+      provider: aur
+      packages: [openlogi-bin]
+    darwin:
+      provider: cask
+      packages: [openlogi]
 
   spotify:
     arch:
