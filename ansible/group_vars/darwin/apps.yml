@@ -16,6 +16,7 @@ os_apps:
   # ----------------------------------------------------------------
   - bartender
   - bazecor
+  - clipbook
   - docker
   - dot
   - ghostty

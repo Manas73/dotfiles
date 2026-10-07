@@ -119,6 +119,11 @@ package_catalog:
       provider: mise
       packages: ["claude-code@latest"]
 
+  clipbook:
+    darwin:
+      provider: cask
+      packages: [clipbook]
+
   cloud-sql-proxy:
     all:
       provider: mise
