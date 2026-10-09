@@ -18,6 +18,27 @@ blue = 1.0
 green = 0.5829897522926331
 red = 0.8842741847038269
 
+[borders.glow]
+enabled = true
+opacity = 0.6
+radius = 2.0
+
+[borders.gradient]
+direction = "topLeftToBottomRight"
+enabled = true
+
+[borders.gradient.end]
+alpha = 1.0
+blue = 1.0
+green = 0.594689130783081
+red = 0.7062538862228394
+
+[borders.gradient.start]
+alpha = 1.0
+blue = 1.0
+green = 0.21776580810546875
+red = 0.662713348865509
+
 [clipboard]
 historyEnabled = true
 ignoredTypes = []
@@ -35,7 +56,7 @@ useGlobalGaps = true
 
 [focus]
 crossesMonitorAtEdge = true
-followsMouse = true
+followsMouse = false
 followsWindowToMonitor = true
 lockModifier = "off"
 moveCrossesMonitorAtEdge = true
@@ -301,6 +322,41 @@ bundleId = "com.apple.MobileSMS"
 id = "552FB77D-BF0E-4737-90A6-B5BC6986C579"
 minHeight = 320.0
 minWidth = 660.0
+
+[[appRules]]
+assignToWorkspace = "2"
+bundleId = "com.jetbrains.pycharm"
+id = "E3806299-1BD1-490F-B87C-3438EEB2493A"
+
+[[appRules]]
+assignToWorkspace = "3"
+bundleId = "com.axosoft.gitkraken"
+id = "E39D004A-BC98-43AD-BD7C-0CE1847B9C3F"
+
+[[appRules]]
+assignToWorkspace = "4"
+bundleId = "com.microsoft.teams2"
+id = "65DCD7EC-9FF5-422D-A03C-C946BCE34152"
+
+[[appRules]]
+assignToWorkspace = "4"
+bundleId = "com.microsoft.Outlook"
+id = "79E38042-8817-4EC3-95C6-636595E8A7A1"
+
+[[appRules]]
+assignToWorkspace = "7"
+axRole = "AXWindow"
+axSubrole = "AXStandardWindow"
+bundleId = "com.microsoft.teams2"
+id = "DFAE6807-D311-41CE-8007-DBD7B1606FC1"
+titleRegex = "(?i)Meeting"
+
+[[appRules]]
+assignToWorkspace = "8"
+axRole = "AXWindow"
+axSubrole = "AXStandardWindow"
+bundleId = "com.spotify.client"
+id = "64ACFFE4-C44B-480E-A1F0-C2276A42564C"
 
 [[hotkeys]]
 binding = "Unassigned"
@@ -1061,7 +1117,7 @@ orientation = "horizontal"
 
 [[workspaces]]
 id = "AD36F001-C57E-41A5-AC1D-DF5249D007F0"
-layoutType = "default"
+layoutType = "niri"
 name = "1"
 
 [workspaces.monitorAssignment]
