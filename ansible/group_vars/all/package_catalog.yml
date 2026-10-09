@@ -261,6 +261,9 @@ package_catalog:
       packages: ["ghq@1.10.1"]
 
   git:
+    all:
+      provider: mise
+      packages: ["git-lfs@3.8.0"]
     arch:
       provider: pacman
       packages: [git]
