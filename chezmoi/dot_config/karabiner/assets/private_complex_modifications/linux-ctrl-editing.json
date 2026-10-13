@@ -452,6 +452,158 @@
         },
         {
           "type": "basic",
+          "description": "Ctrl+B -> Cmd+B (bold)",
+          "from": {
+            "key_code": "b",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "b",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+I -> Cmd+I (italic)",
+          "from": {
+            "key_code": "i",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "i",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+U -> Cmd+U (underline)",
+          "from": {
+            "key_code": "u",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "u",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+K -> Cmd+K (insert link)",
+          "from": {
+            "key_code": "k",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "k",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
           "description": "Ctrl+Y -> Cmd+Shift+Z (redo)",
           "from": {
             "key_code": "y",
