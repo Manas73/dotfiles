@@ -1,0 +1,784 @@
+{
+  "title": "Linux-style Ctrl editing shortcuts",
+  "rules": [
+    {
+      "description": "Ctrl for copy/paste/undo and text movement (terminals & PyCharm untouched)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "description": "Terminal: Ctrl+Shift+C -> Cmd+C (copy)",
+          "from": {
+            "key_code": "c",
+            "modifiers": {
+              "mandatory": [
+                "control",
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "c",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Terminal: Ctrl+Shift+V -> Cmd+V (paste)",
+          "from": {
+            "key_code": "v",
+            "modifiers": {
+              "mandatory": [
+                "control",
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "v",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Terminal: Ctrl+Shift+T -> Cmd+T (new tab)",
+          "from": {
+            "key_code": "t",
+            "modifiers": {
+              "mandatory": [
+                "control",
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "t",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Terminal: Ctrl+Shift+W -> Cmd+W (close tab)",
+          "from": {
+            "key_code": "w",
+            "modifiers": {
+              "mandatory": [
+                "control",
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "w",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Terminal: Ctrl+Shift+N -> Cmd+N (new window)",
+          "from": {
+            "key_code": "n",
+            "modifiers": {
+              "mandatory": [
+                "control",
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "n",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+A -> Cmd+A (select all)",
+          "from": {
+            "key_code": "a",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "a",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+C -> Cmd+C (copy)",
+          "from": {
+            "key_code": "c",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "c",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+X -> Cmd+X (cut)",
+          "from": {
+            "key_code": "x",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "x",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+V -> Cmd+V (paste)",
+          "from": {
+            "key_code": "v",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "v",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+Z -> Cmd+Z (undo / Shift: redo)",
+          "from": {
+            "key_code": "z",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "z",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+S -> Cmd+S (save)",
+          "from": {
+            "key_code": "s",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "s",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+F -> Cmd+F (find)",
+          "from": {
+            "key_code": "f",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "f",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+Y -> Cmd+Shift+Z (redo)",
+          "from": {
+            "key_code": "y",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "z",
+              "modifiers": [
+                "left_command",
+                "left_shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+Left -> Opt+Left (previous word)",
+          "from": {
+            "key_code": "left_arrow",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "left_arrow",
+              "modifiers": [
+                "left_option"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+Right -> Opt+Right (next word)",
+          "from": {
+            "key_code": "right_arrow",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "right_arrow",
+              "modifiers": [
+                "left_option"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+Backspace -> Opt+Backspace (delete word)",
+          "from": {
+            "key_code": "delete_or_backspace",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "delete_or_backspace",
+              "modifiers": [
+                "left_option"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+Delete -> Opt+Delete (delete next word)",
+          "from": {
+            "key_code": "delete_forward",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "delete_forward",
+              "modifiers": [
+                "left_option"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+Home -> Cmd+Up (start of document)",
+          "from": {
+            "key_code": "home",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "up_arrow",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Ctrl+End -> Cmd+Down (end of document)",
+          "from": {
+            "key_code": "end",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ],
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "down_arrow",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "Home -> Cmd+Left (start of line)",
+          "from": {
+            "key_code": "home",
+            "modifiers": {
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "left_arrow",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "description": "End -> Cmd+Right (end of line)",
+          "from": {
+            "key_code": "end",
+            "modifiers": {
+              "optional": [
+                "shift"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "right_arrow",
+              "modifiers": [
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^com\\.mitchellh\\.ghostty$",
+                "^net\\.kovidgoyal\\.kitty$",
+                "^com\\.github\\.wez\\.wezterm$",
+                "^(io|org)\\.alacritty$",
+                "^dev\\.warp\\.Warp",
+                "^com\\.jetbrains\\.pycharm"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
