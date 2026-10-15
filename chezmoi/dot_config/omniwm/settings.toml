@@ -6,7 +6,7 @@ schemaVersion = 3
 
 [appearance]
 mode = "dark"
-tabRailAppIcons = false
+tabRailAppIcons = true
 
 [borders]
 enabled = true
@@ -345,11 +345,9 @@ id = "79E38042-8817-4EC3-95C6-636595E8A7A1"
 
 [[appRules]]
 assignToWorkspace = "7"
-axRole = "AXWindow"
-axSubrole = "AXStandardWindow"
 bundleId = "com.microsoft.teams2"
 id = "DFAE6807-D311-41CE-8007-DBD7B1606FC1"
-titleRegex = "(?i)Meeting"
+titleRegex = "(?i)(Meeting|Internal|Sync)"
 
 [[appRules]]
 assignToWorkspace = "8"
@@ -823,7 +821,7 @@ binding = "Unassigned"
 id = "moveColumnToLast"
 
 [[hotkeys]]
-binding = "Unassigned"
+binding = "Hyper+Shift+W"
 id = "toggleColumnTabbed"
 
 [[hotkeys]]
@@ -1133,7 +1131,7 @@ type = "secondary"
 
 [[workspaces]]
 id = "BEB842B5-E894-4791-9FD1-397C3CDD3538"
-layoutType = "default"
+layoutType = "dwindle"
 name = "3"
 
 [workspaces.monitorAssignment]
