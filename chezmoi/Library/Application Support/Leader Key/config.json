@@ -48,6 +48,12 @@
       "label" : "Git Client",
       "type" : "command",
       "value" : "~/.config/.settings/git_client.sh"
+    },
+    {
+      "key" : "",
+      "label" : "Screenshot",
+      "type" : "application",
+      "value" : "/System/Applications/Utilities/Screenshot.app"
     }
   ],
   "type" : "group"

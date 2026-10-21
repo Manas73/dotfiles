@@ -221,7 +221,7 @@ height = 30.0
 hideEmptyWorkspaces = false
 hideInNativeFullscreen = false
 notchActiveZoneWidth = 100.0
-notchMode = "splitActiveRight"
+notchMode = "off"
 position = "overlappingMenuBar"
 reserveLayoutSpace = true
 revealHoldMilliseconds = 200.0
@@ -1131,7 +1131,7 @@ type = "secondary"
 
 [[workspaces]]
 id = "BEB842B5-E894-4791-9FD1-397C3CDD3538"
-layoutType = "dwindle"
+layoutType = "niri"
 name = "3"
 
 [workspaces.monitorAssignment]
