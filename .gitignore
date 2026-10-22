@@ -21,3 +21,4 @@ chezmoi/dot_config/hypr/colors/
 __pycache__/
 
 node_modules/
+chezmoi/dot_config/opencode/private_service.json
