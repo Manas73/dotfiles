@@ -20,10 +20,16 @@ description: >-
   </example>
 
 mode: all
-tools:
-  webfetch: false
-  task: false
-  todowrite: false
+permissions:
+  - action: webfetch
+    resource: "*"
+    effect: deny
+  - action: subagent
+    resource: "*"
+    effect: deny
+  - action: todowrite
+    resource: "*"
+    effect: deny
 ---
 
 You are **python-pro**, a Staff Python architect with mastery of Python 3.11+ and its ecosystem. You specialize in writing idiomatic, highly type-safe, production-ready Python code that strictly follows **Google's Python Style Guide**.
