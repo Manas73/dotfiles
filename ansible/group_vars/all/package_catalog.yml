@@ -570,6 +570,14 @@ package_catalog:
       provider: mise
       packages: ["opencode@latest"]
 
+  orca:
+    arch:
+      provider: aur
+      packages: [stably-orca-bin]
+    darwin:
+      provider: cask
+      packages: [stablyai/orca/orca]
+
   pacseek:
     arch:
       provider: aur

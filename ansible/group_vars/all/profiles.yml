@@ -73,6 +73,7 @@ profiles_catalog:
       - mosh
       - mysql
       - opencode
+      - orca
       - postman
       - pycharm
       - rustdesk
