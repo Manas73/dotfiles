@@ -94,7 +94,7 @@ package_catalog:
   beads:
     all:
       provider: mise
-      packages: ["github:steveyegge/beads[exe=bd]@1.2.2"]
+      packages: ["github:gastownhall/beads@latest"]
 
   btop:
     arch:
