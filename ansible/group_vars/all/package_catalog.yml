@@ -53,7 +53,7 @@ package_catalog:
   atuin:
     all:
       provider: mise
-      packages: ["atuin@18.19.0"]
+      packages: ["atuin@latest"]
 
   awww:
     arch:
@@ -63,7 +63,7 @@ package_catalog:
   aws-cli:
     all:
       provider: mise
-      packages: ["aws-cli@2.34.32"]
+      packages: ["aws-cli@latest"]
 
   aws-session-manager-plugin:
     arch:
@@ -81,7 +81,7 @@ package_catalog:
   bat:
     all:
       provider: mise
-      packages: ["bat@0.26.1"]
+      packages: ["bat@latest"]
 
   bazecor:
     arch:
@@ -115,7 +115,7 @@ package_catalog:
   bun:
     all:
       provider: mise
-      packages: ["bun@1.4.0"]
+      packages: ["bun@latest"]
 
   chezmoi:
     all:
@@ -135,7 +135,7 @@ package_catalog:
   cloud-sql-proxy:
     all:
       provider: mise
-      packages: ["cloud-sql-proxy@2.25.3"]
+      packages: ["cloud-sql-proxy@latest"]
 
   cmatrix:
     arch:
@@ -204,17 +204,17 @@ package_catalog:
   eza:
     all:
       provider: mise
-      packages: ["eza@0.23.5"]
+      packages: ["eza@latest"]
 
   fastfetch:
     all:
       provider: mise
-      packages: ["fastfetch@2.67.1"]
+      packages: ["fastfetch@latest"]
 
   fd:
     all:
       provider: mise
-      packages: ["fd@10.4.2"]
+      packages: ["fd@latest"]
 
   firefox:
     arch:
@@ -266,12 +266,12 @@ package_catalog:
   ghq:
     all:
       provider: mise
-      packages: ["ghq@1.10.1"]
+      packages: ["ghq@latest"]
 
   git:
     all:
       provider: mise
-      packages: ["git-lfs@3.8.0"]
+      packages: ["git-lfs@latest"]
     arch:
       provider: pacman
       packages: [git]
@@ -282,7 +282,7 @@ package_catalog:
   git-filter-repo:
     all:
       provider: mise
-      packages: ["git-filter-repo@2.47.0"]
+      packages: ["git-filter-repo@latest"]
 
   gitkraken:
     arch:
@@ -316,7 +316,7 @@ package_catalog:
   google-cloud-cli:
     all:
       provider: mise
-      packages: ["gcloud@581.0.0"]
+      packages: ["gcloud@latest"]
 
   gparted:
     arch:
@@ -337,16 +337,6 @@ package_catalog:
     arch:
       provider: pacman
       packages: [headsetcontrol]
-
-  herdr:
-    all:
-      provider: mise
-      packages: ["herdr@0.8.2"]
-
-  hugo:
-    all:
-      provider: mise
-      packages: ["hugo-extended@0.165.0"]
 
   hyprland:
     arch:
@@ -376,7 +366,7 @@ package_catalog:
   jq:
     all:
       provider: mise
-      packages: ["jq@1.8.2"]
+      packages: ["jq@latest"]
 
   kanata:
     arch:
@@ -419,12 +409,12 @@ package_catalog:
   lazydocker:
     all:
       provider: mise
-      packages: ["lazydocker@0.25.2"]
+      packages: ["lazydocker@latest"]
 
   lazygit:
     all:
       provider: mise
-      packages: ["lazygit@0.64.1"]
+      packages: ["lazygit@latest"]
 
   leader-key:
     darwin:
@@ -622,7 +612,7 @@ package_catalog:
   pre-commit:
     all:
       provider: mise
-      packages: ["pre-commit@4.6.2"]
+      packages: ["pre-commit@latest"]
 
   psmisc:
     arch:
@@ -640,7 +630,7 @@ package_catalog:
   python:
     all:
       provider: mise
-      packages: ["python@3.14.7", "uv@0.12.3", "black@26.5.1", "github:facebook/pyrefly@1.2.0"]
+      packages: ["python@3.14.7", "uv@0.12.3", "pypi:black[extras=jupyter]@latest", "github:facebook/pyrefly@latest"]
     arch:
       provider: pacman
       packages: [python, python-gpgme]
@@ -731,7 +721,7 @@ package_catalog:
   starship:
     all:
       provider: mise
-      packages: ["starship@1.26.0"]
+      packages: ["starship@latest"]
 
   steam:
     arch:
@@ -752,7 +742,7 @@ package_catalog:
   superfile:
     all:
       provider: mise
-      packages: ["superfile@1.6.0"]
+      packages: ["superfile@latest"]
 
   swtpm:
     arch:
@@ -770,7 +760,7 @@ package_catalog:
   television:
     all:
       provider: mise
-      packages: ["television@0.15.9"]
+      packages: ["television@latest"]
 
   thunderbird:
     arch:
@@ -965,7 +955,7 @@ package_catalog:
   zellij:
     all:
       provider: mise
-      packages: ["zellij@0.45.0"]
+      packages: ["zellij@latest"]
 
   zoom:
     arch:
@@ -978,4 +968,4 @@ package_catalog:
   zoxide:
     all:
       provider: mise
-      packages: ["zoxide@0.10.0"]
+      packages: ["zoxide@latest"]
