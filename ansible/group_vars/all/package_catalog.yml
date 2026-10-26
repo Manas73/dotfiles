@@ -96,6 +96,14 @@ package_catalog:
       provider: mise
       packages: ["github:gastownhall/beads@latest"]
 
+  bruno:
+    arch:
+      provider: aur
+      packages: [bruno]
+    darwin:
+      provider: brew
+      packages: [bruno]
+
   btop:
     arch:
       provider: pacman

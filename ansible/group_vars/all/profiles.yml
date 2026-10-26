@@ -63,6 +63,7 @@ profiles_catalog:
   development:
     apps:
       - beads
+      - bruno
       - claude-code
       - datagrip
       - docker
