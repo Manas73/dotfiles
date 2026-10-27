@@ -73,7 +73,6 @@ profiles_catalog:
       - mysql
       - opencode
       - orca
-      - postman
       - pycharm
       - rustdesk
       - sublime-text
