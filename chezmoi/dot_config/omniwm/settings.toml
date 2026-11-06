@@ -219,10 +219,10 @@ enabled = true
 excludedBundleIDs = []
 height = 30.0
 hideEmptyWorkspaces = true
-hideInNativeFullscreen = false
-notchActiveZoneWidth = 100.0
-notchMode = "off"
-position = "overlappingMenuBar"
+hideInNativeFullscreen = true
+notchActiveZoneWidth = 180.0
+notchMode = "moveBelowMenuBar"
+position = "belowMenuBar"
 reserveLayoutSpace = true
 revealHoldMilliseconds = 200.0
 revealModifier = "off"
@@ -1115,7 +1115,7 @@ orientation = "horizontal"
 
 [[workspaces]]
 id = "AD36F001-C57E-41A5-AC1D-DF5249D007F0"
-layoutType = "niri"
+layoutType = "dwindle"
 name = "1"
 
 [workspaces.monitorAssignment]
