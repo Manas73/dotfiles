@@ -1,4 +1,4 @@
-# topgrade config for the update-system / update-mise tasks in mise.toml.
+# topgrade config for the update-system task in mise.toml.
 # Repo-only (outside .chezmoiroot); passed explicitly via --config.
 # Reference: `topgrade --config-reference`.
 
@@ -13,7 +13,3 @@ greedy_cask = true
 [linux]
 # Prefers garuda-update when present, else paru, else yay, then others.
 arch_package_manager = "autodetect"
-
-[mise]
-# Move pinned versions in ~/.config/mise/config.toml to latest.
-bump = true

@@ -20,7 +20,7 @@ chezmoi = "latest"
 # pipx backend; uv (above) makes the install a `uv tool install`.
 # ansible-core only — community.general is vendored in ansible/collections/.
 "pipx:ansible-core" = { version = "2.21", depends = ["uv"] }
-# Backs the update-system / update-mise tasks (config: topgrade.toml).
+# Backs the update-system task (config: topgrade.toml).
 topgrade = "latest"
 
 [tasks.default]
@@ -109,11 +109,21 @@ exec topgrade --config "{{config_root}}/topgrade.toml" --only "${steps[@]}"
 '''
 
 [tasks.update-mise]
-description = "Upgrade global mise tools to latest via topgrade (bumps pins)"
-# Run from $HOME so `mise upgrade --bump` rewrites the global config, not
-# this repo's mise.toml.
+description = "Bump global mise tools that the package catalog marks @latest"
+# Calls mise directly: topgrade's mise step can't limit `mise upgrade` to
+# specific tools. Runs from $HOME so --bump rewrites the global config, not
+# this repo's mise.toml. Catalog tools this host lacks are skipped by mise.
 dir = "{{env.HOME}}"
-run = 'topgrade --config "{{config_root}}/topgrade.toml" --only mise'
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+py=$(sed -n '1s/^#!//p' "$(command -v ansible)")
+# No mapfile: macOS /bin/bash is 3.2. Tool specs never contain spaces.
+tools=$("$py" "{{config_root}}/ansible/scripts/mise_latest.py")
+mise plugins update
+# shellcheck disable=SC2086
+mise upgrade --bump $tools "$@"
+'''
 
 [tasks.aur-conflicts]
 description = "Report AUR catalog packages that conflict with installed packages"
