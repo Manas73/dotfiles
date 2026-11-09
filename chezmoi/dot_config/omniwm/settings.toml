@@ -655,7 +655,7 @@ binding = "Unassigned"
 id = "moveToWorkspaceSlot.9"
 
 [[hotkeys]]
-binding = "Hyper+Tab"
+binding = "Unassigned"
 id = "workspaceBackAndForth"
 
 [[hotkeys]]
@@ -683,7 +683,7 @@ binding = "Hyper+Semicolon"
 id = "focus.right"
 
 [[hotkeys]]
-binding = "Unassigned"
+binding = "Hyper+Tab"
 id = "focusPrevious"
 
 [[hotkeys]]
