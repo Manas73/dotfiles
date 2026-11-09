@@ -702,6 +702,12 @@ package_catalog:
       provider: cask
       packages: [slack]
 
+  sony-bridge:
+    darwin:
+      provider: cask
+      packages: [sonybridge]
+      taps: [amitrajput-dev/tap]
+
   logi-options:
     arch:
       provider: aur
