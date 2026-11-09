@@ -63,13 +63,13 @@ raiseOnMouseFocus = false
 
 [gaps]
 fullscreenUsesOuterGaps = true
-size = 6.0
+size = 7.0
 
 [gaps.outer]
 bottom = 7.0
 left = 7.0
 right = 7.0
-top = 7.0
+top = 37.0
 
 [general]
 animationSpeed = 1.0
@@ -249,7 +249,7 @@ useWorkspaceId = false
 
 [statusMenu]
 hiddenControls = []
-hiddenMenuItems = []
+hiddenMenuItems = ["helpLinks", "reportBug", "sponsors"]
 showControlHelp = true
 showControls = true
 showMenuItems = true
@@ -1276,39 +1276,11 @@ id = "toggleSystemStats"
 
 [[hotkeys]]
 binding = "Unassigned"
-id = "toggleShellWidget.battery-details"
-
-[[hotkeys]]
-binding = "Unassigned"
-id = "toggleShellWidget.clock"
-
-[[hotkeys]]
-binding = "Unassigned"
-id = "toggleShellWidget.control-center"
-
-[[hotkeys]]
-binding = "Unassigned"
 id = "toggleShellWidget.hidden-bar"
 
 [[hotkeys]]
 binding = "Unassigned"
-id = "toggleShellWidget.media"
-
-[[hotkeys]]
-binding = "Unassigned"
-id = "toggleShellWidget.notifications"
-
-[[hotkeys]]
-binding = "Unassigned"
 id = "toggleShellWidget.system-stats"
-
-[[hotkeys]]
-binding = "Unassigned"
-id = "toggleShellWidget.volume"
-
-[[hotkeys]]
-binding = "Unassigned"
-id = "toggleShellWidget.wifi"
 
 [[hotkeys]]
 binding = "Unassigned"
