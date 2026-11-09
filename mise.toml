@@ -20,6 +20,8 @@ chezmoi = "latest"
 # pipx backend; uv (above) makes the install a `uv tool install`.
 # ansible-core only — community.general is vendored in ansible/collections/.
 "pipx:ansible-core" = { version = "2.21", depends = ["uv"] }
+# Backs the update-system / update-mise tasks (config: topgrade.toml).
+topgrade = "latest"
 
 [tasks.default]
 description = "List available tasks"
@@ -94,6 +96,24 @@ run = 'ansible-playbook playbooks/site.yml --limit "$(hostname)" --tags packages
 description = "Enable services only (sudo)"
 dir = "{{config_root}}/ansible"
 run = 'ansible-playbook playbooks/site.yml --limit "$(hostname)" --tags services --ask-become-pass'
+
+[tasks.update-system]
+description = "Upgrade OS packages via topgrade (garuda-update / yay / brew)"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+# On macOS the `system` step is softwareupdate; keep it to Homebrew only.
+steps=(brew_formula brew_cask)
+[[ "$(uname -s)" == "Linux" ]] && steps=(system)
+exec topgrade --config "{{config_root}}/topgrade.toml" --only "${steps[@]}"
+'''
+
+[tasks.update-mise]
+description = "Upgrade global mise tools to latest via topgrade (bumps pins)"
+# Run from $HOME so `mise upgrade --bump` rewrites the global config, not
+# this repo's mise.toml.
+dir = "{{env.HOME}}"
+run = 'topgrade --config "{{config_root}}/topgrade.toml" --only mise'
 
 [tasks.aur-conflicts]
 description = "Report AUR catalog packages that conflict with installed packages"
