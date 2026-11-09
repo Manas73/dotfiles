@@ -120,7 +120,7 @@ package_catalog:
   chezmoi:
     all:
       provider: mise
-      packages: ["chezmoi@2.72.0"]
+      packages: ["chezmoi@2.74.0"]
 
   claude-code:
     all:
@@ -240,12 +240,12 @@ package_catalog:
   fresh-editor:
     all:
       provider: mise
-      packages: ["github:sinelaw/fresh@0.4.10"]
+      packages: ["github:sinelaw/fresh@0.5.8"]
 
   fzf:
     all:
       provider: mise
-      packages: ["fzf@0.74.3"]
+      packages: ["fzf@0.75.0"]
 
   gcc:
     arch:
@@ -303,7 +303,7 @@ package_catalog:
   go:
     all:
       provider: mise
-      packages: ["go@1.27.0"]
+      packages: ["go@1.27.3"]
 
   google-chrome:
     arch:
@@ -545,7 +545,7 @@ package_catalog:
   nodejs:
     all:
       provider: mise
-      packages: ["node@26.7.0"]
+      packages: ["node@26.13.0"]
 
   nvtop:
     arch:
@@ -630,7 +630,7 @@ package_catalog:
   python:
     all:
       provider: mise
-      packages: ["python@3.14.7", "uv@0.12.3", "pypi:black[extras=jupyter]@latest", "github:facebook/pyrefly@latest"]
+      packages: ["python@3.15.2", "uv@0.13.7", "pypi:black[extras=jupyter]@latest", "github:facebook/pyrefly@latest"]
     arch:
       provider: pacman
       packages: [python, python-gpgme]
