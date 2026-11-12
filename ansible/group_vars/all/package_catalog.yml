@@ -716,6 +716,11 @@ package_catalog:
       provider: cask
       packages: [openlogi]
 
+  snagit:
+    darwin:
+      provider: cask
+      packages: [snagit]
+
   spotify:
     arch:
       provider: aur
