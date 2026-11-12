@@ -52,8 +52,8 @@
     {
       "key" : "",
       "label" : "Screenshot",
-      "type" : "application",
-      "value" : "/System/Applications/Utilities/Screenshot.app"
+      "type" : "command",
+      "value" : "~/.config/.settings/screenshot.sh"
     }
   ],
   "type" : "group"
